@@ -10,25 +10,25 @@
    <div class="tab-content">
      <div class="tab-pane active" id="editor-tab">
         <div class="row">    
-          	<div class="span4">
+          	<div class="col-md-4">
                <div class="control-group">
              		<label class="control-label" for="ProblemStatement-input">Problem Statement: </label>
-             		<textarea id="ProblemStatement-input" class="span4" rows="10" cols="50"></textarea>
+             		<textarea id="ProblemStatement-input" rows="10" cols="50"></textarea>
                </div>
                <div class="control-group">
                   <label class="control-label" for="ProblemDescription-input">Problem Description</label>
                   <div class="controls">
-                     <textarea id="ProblemDescription-input" class="span4" rows="5"></textarea>
+                     <textarea id="ProblemDescription-input" rows="5"></textarea>
                   </div>
                </div>  
                <div class="control-group">
                   <label class="control-label" for="ProblemSolution-input">Problem Solution</label>
                   <div class="controls">
-                     <textarea id="ProblemSolution-input" class="span4" rows="5"></textarea>
+                     <textarea id="ProblemSolution-input" rows="5"></textarea>
                   </div>
                </div>  
             </div>
-            <div class="span4">
+            <div class="col-md-4">
                <div class="control-group">
                   <div class="controls"  id="library-subjects"></div>
                </div>
@@ -51,16 +51,16 @@
                </div>  
 
             </div>
-            <div class="span4">
+            <div class="col-md-4">
                <div id="author-info-container"></div>
                <div id="textbook-info-container"></div>
             	  
                <div class="control-group">
                   <div class="controls">          
-                     <button id="build-script" class="btn">Build Script</button>
+                     <button id="build-script" class="btn btn-default">Build Script</button>
                   </div>
                   <div class="controls">
-                     <button id="testSave" class="btn">Save the File</button>
+                     <button id="testSave" class="btn btn-default">Save the File</button>
                   </div>
                </div>
 
@@ -466,19 +466,19 @@ ENDDOCUMENT();
 
 
 <script type="text/template" id="problem-template">
-<div class="span4 loading btn-small">Problem Loading<img src="/webwork2_files/images/ajax-loader-small.gif"></div>
+<div class="col-md-4 loading btn-small">Problem Loading<img src="/webwork2_files/images/ajax-loader-small.gif"></div>
 <div class="handle row-fluid">
 <%if(reorderable){%><div class="span1"><a class="reorder-handle btn btn-small" href="#"><i class="icon-resize-vertical icon-large"></i></a></div><%}%>
 <%if(draggable){%>
-  <div class="span1"> <a class="drag-handle btn btn-small" href="#"><i class="icon-move"></i></a></div>
+  <div class="col-md-1"> <a class="drag-handle btn btn-small" href="#"><i class="icon-move"></i></a></div>
 <%}%>
 <%if(showPoints){%>
-<div class="span3 form-">
+<div class="col-md-3 form-">
     <label class="control-label">Value: 
       <input type="text" class="prob-value input-small"></label>
   </div>
 <%}%>
-<div class="span4 btn-group">
+<div class="col-md-4 btn-group">
 <%if(showAddTool){%><a class="btn btn-small add-problem" href="#"><i class="icon-plus-sign"></i></a><%}%>
 <%if(showEditTool){%><a class="btn btn-small" target="WW_editor" href="<%=editUrl%>"><i class="icon-pencil"></i></a><%}%>
 <%if(showRefreshTool){%><a href="#"  class="btn btn-small refresh-problem"><i class="icon-refresh"></i></a><%}%>    
