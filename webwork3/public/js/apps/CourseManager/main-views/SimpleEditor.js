@@ -11,7 +11,7 @@ function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemLi
 var SimpleEditorView = MainView.extend({
     initialize: function(options) {
         var self = this;
-        _.bindAll(this,"changeAnswerType","checkLogin");
+        _.bindAll(this,"changeAnswerType");
         this.problem = new Problem();
         this.model = new PGProblem();
         this.model.on({"change": this.problemChanged});
@@ -46,14 +46,6 @@ var SimpleEditorView = MainView.extend({
         }},
         ".answer-type": {observe: "answer_type", selectOptions: {collection: "this.answerTypeCollection",
             defaultOption: {label: "Select an Answer Type...", value: null}}}
-    },
-    checkLogin: function(data){
-        if(data.logged_in==1){
-            this.closeLogin();
-            _.extend(config.courseSettings,data);
-        } else {
-            this.loginPane.$(".message").html(config.msgTemplate({type: "bad_password"}));
-        }
     },
     problemChanged: function(model) {
         console.log(model);
