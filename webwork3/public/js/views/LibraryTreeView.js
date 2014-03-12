@@ -14,6 +14,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit'],
     	initialize: function (options){
     		_.bindAll(this,"render","loadProblems","changeLibrary");
             var self = this;
+            this.orientation = options.orientation;
             this.libraryTree = new LibraryTree({type: options.type});
             this.libraryTree.set("header","Library/");
             this.fields = new LibraryLevels();
@@ -41,8 +42,11 @@ define(['backbone', 'underscore','models/LibraryTree','stickit'],
                         return {label: subj.name, value: subj.name};
                     });                    
                 }
-
-                this.$(".library-tree-left").html($("#library-select-template").html());
+                if(this.orientation==="vertical"){
+                    this.$(".library-tree-left").html($("#vertical-library-select-template").html());                    
+                } else {
+                    this.$(".library-tree-left").html($("#library-select-template").html());
+                }
 
                 for(i=1;i<4;i++){
                     if(this.libraryLevel[i].length>0){

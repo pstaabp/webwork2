@@ -52,7 +52,7 @@ Powered by <a href="#" href="http://perldancer.org/">Dancer</a> [% dancer_versio
             <li><a href="#" class="link" data-link="setDetails" data-name="Set Details">View Problem Set</a></li>
             <li><a href="#" class="link" data-link='libraryBrowser' data-name="Library Browser">Library Browser</a></li>
             <li><a href="#" class="link" data-link="allSets" data-name="All Sets">Manage Problem Sets</a></li>
-            <li><a href="#" class="link" data-link="editor" data-name="PG Editor">PG Editor</a></li>
+            <li><a href="#" class="link" data-link="editor" data-name="Problem Editor">Problem Editor</a></li>
             <li><a href="#" class="link" data-link="studentProgress" data-name="Student Progress">Student Progress</a></li>
             <li><a href="#" class="link" data-link="classlist" data-name="Classlist Manager">Classlist Manager</a></li>
             <li><a href="#" class="link" data-link="importExport" data-name="Import/Export">Import and Export HW sets</a></li>

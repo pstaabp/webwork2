@@ -11,28 +11,27 @@
      <div class="tab-pane active" id="editor-tab">
         <div class="row">    
           	<div class="col-md-4">
-               <div class="control-group">
-             		<label class="control-label" for="ProblemStatement-input">Problem Statement: </label>
-             		<textarea id="ProblemStatement-input" rows="10" cols="50"></textarea>
+               <div class="form-group">
+             		<label>Problem Statement: 
+                		<textarea class="form-control .problem-statement" rows="5"></textarea>
+                  </label>
                </div>
-               <div class="control-group">
-                  <label class="control-label" for="ProblemDescription-input">Problem Description</label>
-                  <div class="controls">
-                     <textarea id="ProblemDescription-input" rows="5"></textarea>
-                  </div>
+               <div class="form-group">
+                  <label>Problem Description:
+                     <textarea class="form-control .problem-description" rows="5"></textarea>
+                  </label>
                </div>  
-               <div class="control-group">
-                  <label class="control-label" for="ProblemSolution-input">Problem Solution</label>
-                  <div class="controls">
-                     <textarea id="ProblemSolution-input" rows="5"></textarea>
-                  </div>
+               <div class="form-group">
+                  <label>Problem Solution:
+                     <textarea class="form-control .problem-solution" rows="5"></textarea>
+                  </label>
                </div>  
             </div>
             <div class="col-md-4">
-               <div class="control-group">
+               <div class="form-group">
                   <div class="controls"  id="library-subjects"></div>
                </div>
-               <div class="control-group">
+               <div class="form-group">
                   <div class="controls">
                      <select id="answerType-select">
                        <option data-type="#empty">Choose Type of Answer</option>,
@@ -45,7 +44,7 @@
                      </select> 
                   </div>
               </div>
-              <div class="control-group">
+              <div class="form-group">
                   <div class="controls" id="answerArea">
                   </div>
                </div>  
@@ -55,7 +54,7 @@
                <div id="author-info-container"></div>
                <div id="textbook-info-container"></div>
             	  
-               <div class="control-group">
+               <div class="form-group">
                   <div class="controls">          
                      <button id="build-script" class="btn btn-default">Build Script</button>
                   </div>
@@ -172,12 +171,12 @@ ENDDOCUMENT();
 <!--- The Number Option -->
 
 <script id="number-option-template" type="text/template">
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Numerical Answer">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
       <label class="checkbox">
          <input id="requireUnitsCheckBox" class="answer-option" type="checkbox"> Require Units</label>
@@ -208,7 +207,7 @@ ENDDOCUMENT();
 
 
 <script id="string-option-template" type="text/template">
-         <div class="control-group">
+         <div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Answer as a String">
       </div>
@@ -243,17 +242,17 @@ ENDDOCUMENT();
 
 
 <script id="formula-option-template" type="text/template">
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Formula">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="VariableList-input" class="answer-option" type="text" placeholder="Variables">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
       <label class="checkbox">
          <input id="requireUnitsCheckBox" class="answer-option" type="checkbox"> Require Units</label>
@@ -290,18 +289,18 @@ ENDDOCUMENT();
 <!-- The interval/inequality option -->
 
 <script id="interval-or-inequality-option-template" type="text/template">
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Answer">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
       <label class="checkbox">
          <input id="allowIntervalCheckBox" class="answer-option"  type="checkbox"> Allow interval notation</label>
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
       <label class="checkbox">
          <input id="allowInequalityCheckBox" class="answer-option"  type="checkbox"> Allow inequality notation</label>
@@ -335,7 +334,7 @@ ENDDOCUMENT();
 <!-- The comma-separated list of values option -->
 
 <script id="comma-separated-list-option-template" type="text/template">
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Answer">
       </div>
@@ -366,22 +365,22 @@ ENDDOCUMENT();
 <!-- The multiple choice option -->
 
 <script id="multiple-choice-option-template" type="text/template">
-<div class="control-group">
+<div class="form-group">
       <div class="controls">          
          <input id="Answer-input" type="text" placeholder="Answer">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="ExtraMultipleChoice-input" class="answer-option" type="text" placeholder="Extra Multiple Choice">
       </div>
    </div>
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">          
          <input id="LastChoice-input" class="answer-option" type="text" placeholder="Last Choice">
       </div>
    </div>   
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
       <label class="checkbox">
          <input id="LastChoiceCheckBox" class="answer-option" type="checkbox"> Use last choice option</label>
@@ -415,14 +414,14 @@ ENDDOCUMENT();
 <!-- Other information -->
 
 <script type="text/template" id="author-info-template">
-   <div class="control-group">Author Information</div>
-   <div class="control-group">
+   <div class="form-group">Author Information</div>
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="ProblemAuthor-input" placeholder="Problem Author">
       </div>
    </div>  
 
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="Institution-input" placeholder="Author Institution">
       </div>
@@ -430,28 +429,28 @@ ENDDOCUMENT();
 </script>
 
 <script type="text/template" id="textbook-info-template">
-<div class="control-group">Textbook Information:</div>
-   <div class="control-group">
+<div class="form-group">Textbook Information:</div>
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextTitle1-input" placeholder="Text Title">
       </div>
    </div>  
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextEdition1-input" placeholder="Text Edition">
       </div>
    </div>  
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextAuthor1-input" placeholder="Text Author">
       </div>
    </div>  
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextSection1-input" placeholder="Text Section">
       </div>
    </div>  
-   <div class="control-group">
+   <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextProblem1-input" placeholder="Text Problem Number">
       </div>
@@ -459,43 +458,25 @@ ENDDOCUMENT();
 </script>
 
 
-<script type="text/template" id="library-tree-template">
-<span class='library-tree-left'><span class='throbber'>Loading the Library...<img src='/webwork2_files/images/ajax-loader-small.gif'></span></span>
-<span class="library-tree-right"></span> 
-</script>
-
-
-<script type="text/template" id="problem-template">
-<div class="col-md-4 loading btn-small">Problem Loading<img src="/webwork2_files/images/ajax-loader-small.gif"></div>
-<div class="handle row-fluid">
-<%if(reorderable){%><div class="span1"><a class="reorder-handle btn btn-small" href="#"><i class="icon-resize-vertical icon-large"></i></a></div><%}%>
-<%if(draggable){%>
-  <div class="col-md-1"> <a class="drag-handle btn btn-small" href="#"><i class="icon-move"></i></a></div>
-<%}%>
-<%if(showPoints){%>
-<div class="col-md-3 form-">
-    <label class="control-label">Value: 
-      <input type="text" class="prob-value input-small"></label>
+<script type="text/template" id="vertical-library-select-template">
+<div class="form-horizontal">
+  <div class="form-group">
+    <label for="ll0" class="col-md-3">Subject:</label>
+    <div class="col-md-8 library-level-0">
+      <select class="form-control input-sm" id="ll0"></select>
+    </div>
   </div>
-<%}%>
-<div class="col-md-4 btn-group">
-<%if(showAddTool){%><a class="btn btn-small add-problem" href="#"><i class="icon-plus-sign"></i></a><%}%>
-<%if(showEditTool){%><a class="btn btn-small" target="WW_editor" href="<%=editUrl%>"><i class="icon-pencil"></i></a><%}%>
-<%if(showRefreshTool){%><a href="#"  class="btn btn-small refresh-problem"><i class="icon-refresh"></i></a><%}%>    
-<%if(showViewTool){%><a class="btn btn-small" target="WW_view" href='<%=viewUrl%>'><i class="icon-eye-open"></i></a><%}%>    
-<%if(showHideTool){%><a href="#" class="btn btn-small hide-problem link"><i class="icon-remove"></i></a><%}%>
-</div>
-<%if(deletable){ %><span class="span1 remove pull-right btn"><i class="icon-trash"></i></span><%}%></div>    
+  <div class="form-group">
+    <label for="ll1" class="col-md-3">Chapter:</label>
+    <div class="col-md-8 library-level-1">
+      <select class="form-control input-sm" id="ll1"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="ll2" class="col-md-3">Section:</label>
+    <div class="col-md-8 library-level-2">
+      <select class="form-control input-sm" id="ll2"></select>
+    </div>
+  </div>
 
-<%= data %>
-</script>
-
-<script type="text/template" id="setting-row-template">
-<td> <%= doc %> <button class='btn btn-small help-button' style='margin-left: 25px'>
-  <i class='icon-question-sign'></i></button>
-  <div class="help-hidden">
-  <button class="close">&times;</button>
-  <%=doc2%></div>
-
-  </td>
 </script>
