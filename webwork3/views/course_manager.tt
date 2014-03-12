@@ -283,4 +283,6 @@ at the bottom of the screen and click "Save Changes". </p>
 
 [% INCLUDE main/student_progress.tt %]
 
+[% INCLUDE main/simple_pg_editor.tt %]
+
 [% INCLUDE sidepanes/course_manager.tt %]

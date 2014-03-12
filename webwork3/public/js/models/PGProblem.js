@@ -3,10 +3,9 @@
   * 
   */
 
-define(['backbone', 'underscore','models/DBFields'], function(Backbone, _,DBFields){
+define(['backbone'], function(Backbone){
     var PGProblem = Backbone.Model.extend({
     	defaults:  { 
-
     		macros: [],
     		preamble: "",
     		statement: void 0,
@@ -23,7 +22,9 @@ define(['backbone', 'underscore','models/DBFields'], function(Backbone, _,DBFiel
             textbook_edition: "",
             textbook_section: "",
             textbook_problem_number: "",
-            db_fields: "",
+            db_subject: "",
+            db_chapter: "",
+            db_section: "",
             keywords: [],
             answer_type: "",
 		},
@@ -31,9 +32,6 @@ define(['backbone', 'underscore','models/DBFields'], function(Backbone, _,DBFiel
             statement: { required: true},
             answer_type: {required: true}
         },
-        initialize: function (){
-            db_field = new DBFields();
-        }
 
     		
     });

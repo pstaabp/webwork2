@@ -58,6 +58,7 @@ define(['backbone','underscore','moment','backbone-validation','stickit','jquery
             "settings": {default_side: "hide-sidebar",optional_sides: []},
             "classlist": {default_side: "hide-sidebar",optional_sides: []},
             "studentProgress": {default_side: "hide-sidebar",optional_sides: []},
+            "editor": {default_side: "hide-sidebar", optional_sides: []}
         }
     } 
 
