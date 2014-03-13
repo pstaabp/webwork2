@@ -20,6 +20,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             // options.viewAttrs will determine which tools are shown on the problem
             this.allAttrs = {};
             _.extend(this.allAttrs,options.viewAttrs);
+            if(typeof(this.allAttrs.problem_seed)==="undefined"){
+                this.allAttrs.problem_seed="";
+            }
                         
             this.model.on('change:value', function () {
                 if(self.model.get("value").match(/^\d+$/)) {

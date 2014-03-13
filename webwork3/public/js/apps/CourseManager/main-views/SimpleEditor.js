@@ -5,9 +5,9 @@
 
 
 define(['module','backbone','underscore','views/MainView','views/LibraryTreeView','models/PGProblem',
-    'models/Problem','models/ProblemList','views/ProblemView','config','moment', 'bootstrap'], 
+    'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'], 
 function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemList,ProblemView,
-            config,moment){
+            config,moment,util){
 var SimpleEditorView = MainView.extend({
     initialize: function(options) {
         var self = this;
@@ -15,11 +15,22 @@ var SimpleEditorView = MainView.extend({
         this.problem = new Problem();
         this.model = new PGProblem();
         this.model.on({"change": this.problemChanged});
-        //this.model.bind('validated:invalid', this.handleErrors);
 
         var answerTypes = ['Number','String','Formula','Interval or Inequality',
                 'Comma Separated List of Values','Multiple Choice'];
         this.answerTypeCollection = _(answerTypes).map(function(type){return {label: type, value: type};});
+        this.inverseBindings = util.invertBindings(this.bindings);
+        Backbone.Validation.bind(this, {
+              valid: function(view, attr) {
+                console.log(attr + " is valid");
+              },
+              invalid: function(view, attr, error) {
+                console.log(error);
+                var formGroup = self.$(self.inverseBindings[attr]).closest(".form-group");
+                formGroup.addClass("has-error").children("label")
+                    .popover({content: error,placement: "top"}).popover("show");
+            }
+        });
                
     },
     render: function (){
@@ -30,9 +41,9 @@ var SimpleEditorView = MainView.extend({
         this.libraryTreeView.render();
         this.stickit();
     },
-    events: {"click #build-script": "buildScript",
+    events: {"click .build-script-button": "buildScript",
         "change .answer-type": "changeAnswerType",
-        "click #testSave": "saveFile"},
+        "click .save-file-button": "saveFile"},
     bindings: { ".problem-statement": {observe: "statement", events: ['blur']},
         ".problem-description": {observe: "description", events: ['blur']},
         ".problem-solution": {observe: "solution", events: ['blur']},
@@ -58,11 +69,11 @@ var SimpleEditorView = MainView.extend({
 
     },
     updateFields: function () {
-        this.model.set({problem_author: config.settings.findWhere({"var": "editor{author}"}).get("value"),
-            institution: config.settings.findWhere({"var": "editor{authorInstitute}"}).get("value"),
-            textbook_title: config.settings.findWhere({"var": "editor{textTitle}"}).get("value"),
-            textbook_edition: config.settings.findWhere({"var": "editor{textEdition}"}).get("value"),
-            textbook_author: config.settings.findWhere({"var": "editor{textAuthor}"}).get("value"),
+        this.model.set({problem_author: config.settings.getSettingValue("editor{author}"),
+            institution: config.settings.getSettingValue("editor{authorInstitute}"),
+            textbook_title: config.settings.getSettingValue("editor{textTitle}"),
+            textbook_edition: config.settings.getSettingValue("editor{textEdition}"),
+            textbook_author: config.settings.getSettingValue("editor{textAuthor}"),
             date: moment().format("MM/DD/YYYY")});
     },
     changeAnswerType: function(evt){
@@ -86,7 +97,6 @@ var SimpleEditorView = MainView.extend({
                 this.answerView = (new MultipleChoiceAnswerView({el: $("#answerArea")})).render();
                 break;
             
-            
         }
     },        
     saveFile: function(){
@@ -109,30 +119,7 @@ var SimpleEditorView = MainView.extend({
     },
     buildScript: function (){       
         // check that everything should be filled in
-        var self = this;
-        var errors = this.model.validate();
-        var answerErrors;
-        if(this.answerView && this.answerView.model){
-            answerErrors = this.answerView.model.validate();
-        } 
-        if(errors || answerErrors){
-            var bindings = _.chain(this.bindings).keys()
-                .map(function(key) { return [self.bindings[key].observe,key];}).object().value();
-
-            _(_(errors||{}).keys()).each(function(key){
-                self.$(bindings[key]).closest("div").addClass("has-error");
-            });
-
-            var answerBindings = typeof(this.answerView)==="undefined" ? {} :  _.chain(this.answerView.bindings).keys()
-                .map(function(key) { return [self.answerView.bindings[key],key];}).object().value();
-
-            _(_(answerErrors || {}).keys()).each(function(key){
-                self.answerView.$(answerBindings[key]).closest("div").addClass("has-error");
-            })
-
-
-            this.messagePane.addMessage({type: "danger", short: "The following are required."});
-            
+        if(!this.model.isValid(true)){
             return false;
         }
 
@@ -147,9 +134,6 @@ var SimpleEditorView = MainView.extend({
         $("#problem-code").text(this.model.get("pgSource"));
       
         return true;
-    },
-    handleErrors: function(model,errors){
-        console.log(errors);
     }
 });
 
@@ -191,9 +175,9 @@ var AnswerChoiceView = Backbone.View.extend({
 
 var NumberAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#number-option-template").html());    
+        this.viewTemplate = $("#number-option-template").html();    
         this.pgSetupTemplate = _.template($("#number-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#number-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#number-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#number-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({
             defaults: {
@@ -207,9 +191,9 @@ var NumberAnswerView = AnswerChoiceView.extend({
 
 var StringAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#string-option-template").html());    
+        this.viewTemplate = $("#string-option-template").html();    
         this.pgSetupTemplate = _.template($("#string-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#string-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#string-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#string-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({defaults: {answer: ""}});
         this.model = new ThisModel();
@@ -219,9 +203,9 @@ var StringAnswerView = AnswerChoiceView.extend({
 
 var FormulaAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#formula-option-template").html());    
+        this.viewTemplate = $("#formula-option-template").html();    
         this.pgSetupTemplate = _.template($("#formula-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#formula-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#formula-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#formula-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({defaults: {answer: "", require_units: false, variables: ""}});
         this.model = new ThisModel();
@@ -232,9 +216,9 @@ var FormulaAnswerView = AnswerChoiceView.extend({
 
 var IntervalAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#interval-option-template").html());    
+        this.viewTemplate = $("#interval-option-template").html();    
         this.pgSetupTemplate = _.template($("#interval-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#interval-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#interval-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#interval-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({defaults: {answer: "", allow_interval: false, allow_inequality: false}});
         this.model = new ThisModel();
@@ -245,9 +229,9 @@ var IntervalAnswerView = AnswerChoiceView.extend({
 
 var ListAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#list-option-template").html());    
+        this.viewTemplate = $("#list-option-template").html();    
         this.pgSetupTemplate = _.template($("#list-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#list-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#list-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#list-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({defaults: {answer: ""}});
         this.model = new ThisModel();
@@ -257,9 +241,9 @@ var ListAnswerView = AnswerChoiceView.extend({
 
 var MultipleChoiceAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = _.template($("#multiple-choice-option-template").html());    
+        this.viewTemplate = $("#multiple-choice-option-template").html();    
         this.pgSetupTemplate = _.template($("#multiple-choice-option-pg-setup").html());
-        this.pgTextTemplate =_.template($("#multiple-choice-option-pg-text").html());
+        this.pgTextTemplate = _.template($("#multiple-choice-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#multiple-choice-option-pg-answer").html());
         var ThisModel = Backbone.Model.extend({defaults: {answer: "", extra_choice: "", last_choice: "", use_last_choice: false}});
         this.model = new ThisModel();

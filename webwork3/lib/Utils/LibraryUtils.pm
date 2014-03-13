@@ -35,8 +35,6 @@ sub render {
 		$renderParams->{formFields}->{$key} = params->{$key};
 	}
 
-	debug $renderParams->{formFields};
-
 	# remove any pretty garbage around the problem
 	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
 	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
@@ -49,6 +47,12 @@ sub render {
 		refreshMath2img => defined(param("refreshMath2img")) ? param("refreshMath2img") : 0 ,
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
 	};
+
+	debug $renderParams->{problem}->{pgSource};
+	if($renderParams->{problem}->{pgSource}){
+		my $source = $renderParams->{problem}->{pgSource};
+		$translationOptions->{r_source} = \$source;
+	}
 
 
 	my $pg = new WeBWorK::PG(

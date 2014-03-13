@@ -26,6 +26,17 @@ body {  /* needed for the navigation bars top and bottom*/
 
 .hidden, .form-horizontal .hidden {display: none;}	
 
+/* groups of form elements: */
+
+.group {border: 1px solid gray;
+border-radius: 5px;
+padding: 5px;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+
+.group-header {font-size: 110%; font-variant: small-caps; margin-bottom: 5px}
+
 /* the following is needed to get pop-up boxes to display correctly.*/
 
 /*.view-pane, .view-pane .tab-content {height: 100%;}*/

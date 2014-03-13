@@ -395,7 +395,10 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		my $path_id = $problem_info->{path_id};
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
 		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
-	} 
+	} else {
+		debug "here!";
+		$renderParams->{problem}->{pgSource} = params->{pgSource};
+	}
 
 	return render($renderParams);
 

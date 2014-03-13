@@ -42,7 +42,6 @@ use Dancer;
 use File::Path qw(rmtree);
 use WeBWorK::PG::Translator;
 use WeBWorK::GeneralUtils qw(readFile writeTimingLogEntry);
-use WeBWorK::Debug;
 
 
 # Problem processing will time out after this number of seconds.
@@ -253,6 +252,8 @@ sub new_helper {
 	my $source ='';
 	my $sourceFilePath = '';
 	my $readErrors = undef;
+
+	debug $translationOptions;
 	if (ref($translationOptions->{r_source}) ) {
 		# the source for the problem is already given to us as a reference to a string
 		$source = ${$translationOptions->{r_source}};

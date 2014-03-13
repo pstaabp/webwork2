@@ -100,6 +100,11 @@ var util = {
         return problemSet;
 
         // now process the problemList
+    },
+    invertBindings: function(bindings){
+        return  _(_.object(_(bindings).keys().map(function(key) {
+                    return [key, _.isObject(bindings[key])? bindings[key].observe : bindings[key]];}))).invert();
+
     }
 }
 
