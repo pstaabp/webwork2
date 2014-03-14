@@ -23,7 +23,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var self = this;
             _.bindAll(this,"render","deleteProblem","undoDelete","reorder","addProblemView");
             
-
+            this.eventDispatcher = options.eventDispatcher;
             this.problems = options.problems ? options.problems : new ProblemList();
             this.problemSet = options.problemSet; 
             this.undoStack = []; // this is where problems are placed upon delete, so the delete can be undone.  
@@ -34,9 +34,14 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             _.extend(this,Backbone.Events);
         },
         set: function(opts){
+            var self = this;
             this.problems = opts.problems; 
-            this.problems.off("remove");
+            this.problems.off("remove").off("edit");
             this.problems.on("remove",this.deleteProblem);
+            this.problems.on({edit: function (problem){
+                self.eventDispatcher.trigger("edit-problem",problem);
+            }})
+
             if(opts.problemSet){
                 this.problemSet = opts.problemSet;
                 this.problems.problemSet = opts.problemSet;

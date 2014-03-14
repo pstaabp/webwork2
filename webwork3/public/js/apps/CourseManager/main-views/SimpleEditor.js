@@ -8,7 +8,7 @@ define(['module','backbone','underscore','views/MainView','views/LibraryTreeView
     'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'], 
 function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemList,ProblemView,
             config,moment,util){
-var SimpleEditorView = MainView.extend({
+var SimpleEditorView = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
         _.bindAll(this,"changeAnswerType");
@@ -40,6 +40,7 @@ var SimpleEditorView = MainView.extend({
                 type: "subjects", orientation: "vertical"}); 
         this.libraryTreeView.render();
         this.stickit();
+        return this;
     },
     events: {"click .build-script-button": "buildScript",
         "change .answer-type": "changeAnswerType",
@@ -101,7 +102,7 @@ var SimpleEditorView = MainView.extend({
     },        
     saveFile: function(){
         var self = this;
-        if(!this.buildScript()){
+        if(!this.buildScript()){ // build the script and check for errors. 
             return;
         }
 

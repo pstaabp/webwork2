@@ -22,7 +22,7 @@ define(['backbone','underscore','views/MainView','views/ProblemSetView','models/
             this.problemSet = this.model;
             
             this.views = {
-                problemSetView : new ProblemSetView({problemSet: this.problemSet}),
+                problemSetView : new ProblemSetView({problemSet: this.problemSet, eventDispatcher: options.eventDispatcher}),
                 usersAssignedView : new AssignUsersView({problemSet: this.problemSet, users: this.users}),
                 propertiesView : new DetailsView({users: this.users, problemSet: this.problemSet}),
                 customizeUserAssignView : new CustomizeUserAssignView({users: this.users, problemSet: this.problemSet}),

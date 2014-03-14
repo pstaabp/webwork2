@@ -1,4 +1,31 @@
 
+<script type="text/template" id="standard-editor-template">
+
+   <ul class="nav nav-tabs" id="standard-editor-tabs">
+      <li class="active"><a href="#std-editor-tab" data-toggle="tab">Problem Editor</a></li>
+      <li><a href="#std-viewer-tab" data-toggle="tab">Problem Viewer</a></li>
+   </ul>
+
+   <div class="tab-content">
+     <div class="tab-pane active" id="std-editor-tab">
+     <div class="row">
+        <div class="col-md-4 info-bar">
+          Loading Problem... <i class="fa fa-spinner fa-spin"></i> 
+        </div>
+     </div>
+     <div class="row">
+     <div class="col-md-12">
+     <textarea class="form-control problem-source" rows="40"></textarea>
+     </div>
+     </div>
+     </div>
+
+     <div class="tab-pane" id="std-viewer-tab"></div>
+   </div>
+
+ </script>
+
+
 <script type="text/template" id="simple-editor-template">
 
    <ul class="nav nav-tabs" id="simple-editor-tabs">

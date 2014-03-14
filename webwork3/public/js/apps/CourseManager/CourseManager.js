@@ -6,13 +6,13 @@ define(['module','backbone', 'underscore','models/UserList','models/ProblemSetLi
     'models/AssignmentDate','models/AssignmentDateList','views/WebPage','config',
     'main-views/AssignmentCalendar','main-views/ProblemSetsManager','main-views/LibraryBrowser',
     'main-views/ProblemSetDetailView','main-views/ImportExportView','main-views/ClasslistView','main-views/SettingsView',
-    'main-views/StudentProgressView', 'main-views/SimpleEditor',
+    'main-views/StudentProgressView', 'main-views/EditorView',
     'option-panes/ProblemSetListView','option-panes/UserListView','option-panes/LibraryOptionsView',
     'option-panes/HelpSidePane','option-panes/ProblemListOptionsSidePane',  'jquery-ui','bootstrap'
     ], 
 function(module, Backbone, _, UserList, ProblemSetList, SettingList,AssignmentDate,AssignmentDateList,WebPage,config,
     AssignmentCalendar, ProblemSetsManager, LibraryBrowser,ProblemSetDetailView,ImportExportView,ClasslistView,
-    SettingsView,StudentProgressView,SimpleEditor,ProblemSetListView,UserListView,LibraryOptionsView,HelpSidePane,
+    SettingsView,StudentProgressView,EditorView,ProblemSetListView,UserListView,LibraryOptionsView,HelpSidePane,
     ProblemListOptionsSidePane){
 var CourseManager = WebPage.extend({
     tagName: "div",
@@ -23,7 +23,7 @@ var CourseManager = WebPage.extend({
 	    var self = this;
 
         this.render();
-        
+        this.eventDispatcher = _.clone(Backbone.Events);
         this.session = (module.config().session)? module.config().session : {};
         config.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
         this.users = (module.config().users) ? new UserList(module.config().users) : null;
@@ -40,7 +40,7 @@ var CourseManager = WebPage.extend({
         var self = this;
         if(data.logged_in===1){ // logged in successful,  load the data
             this.loginPane.$(".message-bottom").html(config.msgTemplate({type: "loading_data"}))
-                .append("<i class='fa fa-spinner fa-spin'></i>");
+                .append("<i class='fa fa-spinner fa-spin'></i>");  // load this as a template
             this.data_loaded = {settings: false, users: false, problemSets: false};
             // request the session information
             $.get(config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session",function(data){
@@ -65,8 +65,7 @@ var CourseManager = WebPage.extend({
         } else if (data instanceof SettingList){
             this.data_loaded.settings = true;
         }
-        console.log(_(this.data_loaded).chain().values().every(_.identity).value());
-        if(_(this.data_loaded).chain().values().every(_.identity).value()){
+        if(_(this.data_loaded).chain().values().every(_.identity).value()){  // make sure everything is loaded first.
             this.closeLogin();
             this.startManager();
         }
@@ -90,14 +89,15 @@ var CourseManager = WebPage.extend({
             calendar : new AssignmentCalendar({assignmentDates: this.assignmentDateList,
                     viewType: "instructor", calendarType: "month", users: this.users,
                     reducedScoringMinutes: config.settings.getSettingValue("pg{ansEvalDefaults}{reducedScoringPeriod}")}),
-            setDetails:  new ProblemSetDetailView({ users: this.users, problemSets: this.problemSets}),
+            setDetails:  new ProblemSetDetailView({ users: this.users, problemSets: this.problemSets,
+                                eventDispatcher: this.eventDispatcher}),
             allSets:  new ProblemSetsManager({problemSets: this.problemSets, users: this.users}),
             importExport:  new ImportExportView({problemSets: this.problemSets}),
             libraryBrowser : new LibraryBrowser({errorPane: this.errorPane, problemSets: this.problemSets}),
             settings      :  new SettingsView(),
             classlist: new ClasslistView({users: this.users, problemSets: this.problemSets}),
             studentProgress: new StudentProgressView({users: this.users, problemSets: this.problemSets}),
-            editor: new SimpleEditor()
+            editor: new EditorView({eventDispatcher: this.eventDispatcher})
         };
 
         _(this.views).chain().keys().each(function(key){ self.views[key].setParentView(self)});
@@ -148,6 +148,13 @@ var CourseManager = WebPage.extend({
 
     setMessages: function (){
         var self = this; 
+
+        this.eventDispatcher.on("edit-problem",function(problem){
+            console.log(problem);
+            self.views.editor.editor.setProblem(problem);
+            self.changeView({link: "editor", name: "Problem Editor"});
+        });
+
 
         /* Set up all of the events on the problemSets */
 

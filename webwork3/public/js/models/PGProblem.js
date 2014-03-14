@@ -3,7 +3,7 @@
   * 
   */
 
-define(['backbone'], function(Backbone){
+define(['backbone','config'], function(Backbone,config){
     var PGProblem = Backbone.Model.extend({
     	defaults:  { 
     		macros: [],
@@ -27,14 +27,18 @@ define(['backbone'], function(Backbone){
             db_section: "",
             keywords: [],
             answer_type: "",
+            problem_source: ""
 		},
         validation: {
             statement: { required: true},
             answer_type: {required: true}
         },
-
+        url: function(){
+            return config.urlPrefix + "library/fullproblem?" + $.param({path: this.get("path"), course_id: config.courseSettings.course_id});
+        }
     		
     });
 
     return PGProblem;
+        
 });

@@ -12,7 +12,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         template: _.template($('#problem-template').html()),
         initialize:function (options) {
             var self = this;
-            _.bindAll(this,"render","removeProblem");
+            _.bindAll(this,"render","removeProblem","editProblem");
             this.libraryView = options.libraryView;
             if(typeof(this.model)==="undefined"){
                 this.model = new Problem();
@@ -91,7 +91,8 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             "click .add-problem": "addProblem",
             "click .seed-button": "toggleSeed",
             "click .path-button": "togglePath",
-            "click .tags-button": "toggleTags"
+            "click .tags-button": "toggleTags",
+            "click .edit-problem": "editProblem"
         },
         bindings: {".prob-value": "value",
             ".mlt-tag": "morelt",
@@ -124,6 +125,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         addProblem: function (evt){
             console.log("adding a problem.");
             this.libraryView.addProblem(this.model);  // pstaab: will there be an issue if this is not part of a library?
+        },
+        editProblem: function(evt){
+            this.model.trigger("edit",this.model);
         },
         hideProblem: function(evt){
             console.log("hiding a problem ");

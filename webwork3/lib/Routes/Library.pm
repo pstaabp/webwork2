@@ -10,6 +10,7 @@ use strict;
 use warnings;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
+use Dancer::FileUtils qw/read_file_content /;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
@@ -461,6 +462,16 @@ any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:prob
 	return $results;
 
 
+};
+
+get '/library/fullproblem' => sub {
+	setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+
+	my $fullpath = vars->{ce}->{courseDirs}{templates} . "/" . params->{path};
+	my $problemSource = read_file_content($fullpath);
+	send_error("The problem with path " + params->{path} + " does not exist.",403) unless defined($problemSource);
+
+	return {problem_source=>$problemSource};
 };
 
 
