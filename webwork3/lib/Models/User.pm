@@ -1,14 +1,14 @@
 package Models::User;
 
-use Moo;
-use MooX::Types::MooseLike::Base qw(Str HashRef ArrayRef);
-use namespace::clean;
-use base qw(Exporter);
-our @EXPORT_OK = qw(User);
-
-
+use Types::Standard qw/Str Int HashRef ArrayRef Bool InstanceOf/;
 
 use Models::Course;
+use Moo;
+use namespace::clean;
+
+
+
+
 
 has 'username' => (
 	is => 'rw',
@@ -37,12 +37,12 @@ has 'achievement_info' => (  # should this be in here or how can we add this in 
 
 has 'courses' => (
 	is => 'rw',
-	isa => ArrayRef['Course']
+	isa => ArrayRef[InstanceOf['Course']]
 );
 
-sub addCourse {
-	my ($self,$course) = @_;
-	push(@{$self->{courses}},$course);  # need to check that the course hasn't already been added. 
-}
+# sub addCourse {
+# 	my ($self,$course) = @_;
+# 	push(@{$self->{courses}},$course);  # need to check that the course hasn't already been added. 
+# }
 
 1;

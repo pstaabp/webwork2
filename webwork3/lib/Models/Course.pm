@@ -1,14 +1,14 @@
 package Models::Course;
 
-use Moo;
-use MooX::Types::MooseLike::Base qw(Str Int Bool HashRef ArrayRef);
-use namespace::clean;
-use base qw(Exporter);
-our @EXPORT_OK = qw(Course);
-
-
 use DateTime;
 use Models::User;
+
+use Types::Standard qw/Str Int HashRef ArrayRef Bool InstanceOf/;
+
+use Moo;
+use namespace::clean;
+
+
 
 ## fields
 
@@ -56,7 +56,7 @@ has 'tags' => (  # tags are stored as a has of key/value pairs
 
 has 'users' => (
 	is => 'rw',
-	isa => ArrayRef['User']
+	isa => ArrayRef[InstanceOf['Models::User']]
 );
 
 # has 'teams' => {
