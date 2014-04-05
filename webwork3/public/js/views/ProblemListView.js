@@ -47,7 +47,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 this.problems.problemSet = opts.problemSet;
             }
             this.viewAttrs.type = opts.type || "set";
-            this.viewAttrs.displayMode = config.settings.getSettingValue("pg{options}{displayMode}");
+            this.viewAttrs.displayMode = this.settings.getSettingValue("pg{options}{displayMode}");
             // start with showing 10 (pageSize) problems
             this.maxProblemIndex = (this.problems.length > this.pageSize)?
                     this.pageSize : this.problems.length;

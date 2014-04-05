@@ -7,11 +7,12 @@ define(['backbone', 'views/ProblemListView','config'],
                     show_undo: false};
                 this.allProblemSets = options.allProblemSets;
                 this.libraryView = options.libraryView;
+                this.settings = options.settings;
                 this.type = options.type;
-                ProblemListView.prototype.initialize.apply(this,[options]);
+                ProblemListView.prototype.initialize.apply(this,[options]); 
     		},
             render: function(){
-                  ProblemListView.prototype.render.appy(this);
+                  ProblemListView.prototype.render.apply(this);
                   this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250))  
             }
     	});
