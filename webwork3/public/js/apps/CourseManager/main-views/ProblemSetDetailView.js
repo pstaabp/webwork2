@@ -15,7 +15,6 @@ define(['backbone','underscore','views/MainView','views/ProblemSetView','models/
         className: "set-detail-view",
         tagName: "div",
         initialize: function (options) {
-            _.bindAll(this,'render','changeHWSet','updateNumberOfProblems','loadProblems');
             MainView.prototype.initialize.call(this,options);
             _.bindAll(this,'render','changeProblemSet','updateNumberOfProblems','loadProblems');
             var self = this;
@@ -33,6 +32,7 @@ define(['backbone','underscore','views/MainView','views/ProblemSetView','models/
             };
 
             this.views.problemSetView.on("update-num-problems",this.updateNumberOfProblems);
+            this.setMessages();
         },
         render: function () {
             var self = this;
@@ -109,6 +109,7 @@ define(['backbone','underscore','views/MainView','views/ProblemSetView','models/
             this.$(".problem-set-name-menu .set-name").text(setName).truncate({width: 150});
             this.changeView("propertiesView");
             this.loadProblems();
+            return this;
         },
         loadProblems: function () {
             var self = this;
@@ -122,6 +123,33 @@ define(['backbone','underscore','views/MainView','views/ProblemSetView','models/
         },       
         updateNumberOfProblems: function (text) {
             this.headerView.$(".number-of-problems").html(text);
+        },
+        setMessages: function () {
+            /* Set up all of the events on the user problemSets */
+
+            this.problemSets.on("user_sets_added",function(_userSetList){
+                _userSetList.on(
+                {
+                    change: function(_userSet){
+                        _userSet.changingAttributes=_.pick(_userSet._previousAttributes,_.keys(_userSet.changed));
+                        _userSet.save();
+                    },
+                    sync: function(_userSet){  // note: this was just copied from HomeworkManager.js  perhaps a common place for this
+                        _(_userSet.changingAttributes||{}).chain().keys().each(function(key){
+                            var _old = key.match(/date$/)
+                                        ? moment.unix(_userSet.changingAttributes[key]).format("MM/DD/YYYY [at] hh:mmA")
+                                        : _userSet.changingAttributes[key];
+                            var _new = key.match(/date$/) 
+                                        ? moment.unix(_userSet.get(key)).format("MM/DD/YYYY [at] hh:mmA") 
+                                        : _userSet.get(key);
+                            self.eventDispatcher.trigger("add-message",{type: "success", 
+                                short: config.msgTemplate({type:"set_saved",opts:{setname:_userSet.get("set_id")}}),
+                                text: config.msgTemplate({type:"set_saved_details",opts:{setname:_userSet.get("set_id"),key: key,
+                                    oldValue: _old, newValue: _new}})});
+                        });
+                    }
+                }); //  _userSetList.on 
+            })
         }
     });
 

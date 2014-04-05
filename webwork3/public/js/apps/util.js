@@ -105,6 +105,16 @@ var util = {
         return  _(_.object(_(bindings).keys().map(function(key) {
                     return [key, _.isObject(bindings[key])? bindings[key].observe : bindings[key]];}))).invert();
 
+    },
+    pluckDateSettings: function(settings){
+        var dateVars = ["pg{timeAssignDue}","pg{assignOpenPriorToDue}","pg{answersOpenAfterDueDate}"];
+        var values = settings.chain().filter(function(_set){
+            return _(dateVars).contains(_set.get("var"))
+        })
+            .map(function(_set){ 
+                return _set.get("value")
+            }).value();
+        return _.object(dateVars,values);
     }
 }
 
