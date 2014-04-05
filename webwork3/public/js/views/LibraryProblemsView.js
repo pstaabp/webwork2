@@ -8,10 +8,10 @@ define(['backbone', 'views/ProblemListView','config'],
                 this.allProblemSets = options.allProblemSets;
                 this.libraryView = options.libraryView;
                 this.type = options.type;
-                this.constructor.__super__.initialize.apply(this,[options]); 
+                ProblemListView.prototype.initialize.apply(this,[options]);
     		},
             render: function(){
-                  this.constructor.__super__.render.apply(this);
+                  ProblemListView.prototype.render.appy(this);
                   this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250))  
             }
     	});
