@@ -41,6 +41,7 @@ define(['backbone', 'underscore','views/MainView', 'views/CollectionTableView','
             this.$el.append(this.problemSetTable.el);
             this.problemSets.trigger("hide-show-all-sets","hide");
             this.$(".set-id a").truncate({width: 120});
+            MainView.prototype.render.apply(this);
             return this;
         },
         getState: function () {
@@ -164,6 +165,12 @@ define(['backbone', 'underscore','views/MainView', 'views/CollectionTableView','
                 },
                 "change:problems": function(_set){
                     _set.save();
+                },
+                "set_date_error": function(opt){
+                    self.eventDispatcher.trigger("add-message",{type: "danger",
+                        short: self.messageTemplate({type: "date_set_error", opts: {set_id: opt.set_id}}),
+                        text: self.messageTemplate({type: opt.type, opts: {set_id: opt.set_id}})
+                    });
                 },
                 change: function(_set){
                     _set.changingAttributes=_.pick(_set._previousAttributes,_.keys(_set.changed));
