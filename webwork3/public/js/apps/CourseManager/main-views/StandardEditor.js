@@ -31,6 +31,13 @@ var StandardEditor = Backbone.View.extend({
     loadProblem: function () {
     	this.stickit();
     },
+    setState: function () {
+
+        return this;
+    },
+    getState: function () {
+        return {};
+    },
     bindings: {".problem-source": "problem_source"}
 });
 

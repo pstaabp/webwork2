@@ -25,6 +25,12 @@
 		"other_sidepanes": []
 	},
 	{
+		"name": "Problem Editor",
+		"path": "main-views/StandardEditor",
+		"default_sidepane": "",
+		"other_sidepanes" : []
+		},
+	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",
 		"default_sidepane": "",

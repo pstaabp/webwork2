@@ -176,7 +176,7 @@ var CourseManager = WebPage.extend({
                 console.log(problem);
                 self.views.editor.editor.setProblem(problem);
                 self.changeView({link: "editor", name: "Problem Editor"});
-            }
+            },
             "open-close-sidepane": this.openCloseSidePane
         });
     },
