@@ -16,7 +16,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit'],
             var self = this;
             this.orientation = options.orientation;
             this.libraryTree = new LibraryTree({type: options.type});
-            this.libraryTree.set("header","Library/");
+            this.libraryTree.set("header",options.type==="textbooks"?"textbooks/":"Library/");
             this.fields = new LibraryLevels();
             this.fields.on("change",this.changeLibrary);
 
@@ -81,8 +81,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit'],
             this.stickit(this.fields,this.bindings);
         },
         selectLibrary: function(evt){
-            this.libraryTree.trigger("library-selected",this.libraryTree.get("header")
-                        +_(this.fields.values()).without("").join("/"));
+            this.libraryTree.trigger("library-selected",_(this.fields.values()).without(""));
         },
         loadProblems: function (evt) {
             var path = _(this.$(".lib-select")).map(function(item){ return $(item).val()});
