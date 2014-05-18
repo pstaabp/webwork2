@@ -9,6 +9,7 @@ define(['backbone', 'views/ProblemListView','config'],
                 this.libraryView = options.libraryView;
                 this.settings = options.settings;
                 this.type = options.type;
+                this.eventDispatcher = options.eventDispatcher;
                 ProblemListView.prototype.initialize.apply(this,[options]); 
     		},
             render: function(){

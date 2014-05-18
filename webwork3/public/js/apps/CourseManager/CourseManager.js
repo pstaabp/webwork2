@@ -176,8 +176,8 @@ var CourseManager = WebPage.extend({
             "show-help": function() { self.changeSidebar({link: "helpSidepane"})},
             "edit-problem": function(problem){
                 console.log(problem);
-                self.views.editor.editor.setProblem(problem);
-                self.changeView({link: "editor", name: "Problem Editor"});
+                self.mainViewList.getViewByName("Problem Editor").setProblem(problem);
+                self.changeView("Problem Editor",{path: problem.get("source_file")});
             },
             "open-close-sidepane": this.openCloseSidePane
         });

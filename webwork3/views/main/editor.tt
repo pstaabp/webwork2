@@ -15,15 +15,71 @@
      </div>
      <div class="row">
      <div class="col-md-12">
-     <textarea class="form-control problem-source" rows="40"></textarea>
+     <textarea class="form-control problem-source" rows="20"></textarea>
      </div>
      </div>
      </div>
 
-     <div class="tab-pane" id="std-viewer-tab"></div>
+     <div class="tab-pane" id="std-viewer-tab">
+       <ul class='problemList no-bullets'>
+         </ul>
+     </div>
    </div>
 
  </script>
+
+<script type="text/template" id="editor-sidepane-template">
+<form role="form">
+  <div class="row">
+    <div class="form-group">
+      <label for="problem-display-option">Display Options</label>
+      <div class="col-md-8">
+        <select id="problem-display-option" class="problem-display-option form-control"></select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <label for="problem-save-option">Save Options</label>
+      <div class="col-md-8">
+        <select id="problem-save-option" class="problem-save-option form-control"></select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <label for="problem-filename">Filename:</label>
+      <div class="col-md-12">
+        <input class="form-control problem-filename" id="problem-filename" size="35" disabled="disabled">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <button class="btn btn-default save-as-button" disabled>Save As</button>
+    </div>
+  </div>
+    <div class="row">
+    <div class="form-group">
+      <label for="editor-option-add-to-set">Add to Problem Set</label>
+      <div class="col-md-8">
+        <select id="editor-option-add-to-set" class="select-add-to-set form-control"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <button class="btn btn-default add-to-set-button" disabled>Add to Set</button>
+      </div>
+    </div>
+
+  </div>
+
+  </form>
+</script>
+
+
+
+<!-- Templates for the Simple Editor -->
 
 
 <script type="text/template" id="simple-editor-template">

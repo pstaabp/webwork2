@@ -27,8 +27,8 @@
 	{
 		"name": "Problem Editor",
 		"path": "main-views/StandardEditor",
-		"default_sidepane": "",
-		"other_sidepanes" : []
+		"default_sidepane": "Editor Options",
+		"other_sidepanes" : ["Editor Options"]
 		},
 	{
 		"name": "Student Progress",
@@ -70,6 +70,10 @@
 	{
 		"name": "Problem List Options",
 		"path": "option-panes/ProblemListOptionsSidePane"
+	},
+	{
+		"name": "Editor Options",
+		"path": "option-panes/EditorSidePane"
 	},
 	{
 		"name": "Help",

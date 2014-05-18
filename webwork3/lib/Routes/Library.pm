@@ -13,6 +13,7 @@ use Dancer::Plugin::Database;
 use Dancer::FileUtils qw/read_file_content /;
 use Path::Class;
 use File::Find::Rule;
+use File::Slurp;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
 use Utils::ProblemSets qw/record_results/;
@@ -417,7 +418,9 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 
 	# check to see if the problem_path is defined
 
-	if (defined(params->{problem_path})){
+	if (defined(params->{pgSource})){
+		$renderParams->{problem}->{pgSource} = params->{pgSource};
+	} elsif (defined(params->{problem_path})){
 		$renderParams->{problem}->{source_file} = "Library/" . params->{problem_path};
 	} elsif (defined(params->{source_file})){
 		$renderParams->{problem}->{source_file} = params->{source_file};
@@ -429,8 +432,7 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
 		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
 	} else {
-		debug "here!";
-		$renderParams->{problem}->{pgSource} = params->{pgSource};
+		return {error=>"Bad parameters sent to renderer."};
 	}
 
 	return render($renderParams);
@@ -496,6 +498,12 @@ any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:prob
 
 };
 
+####
+#
+#  get put the PG source of a problem
+#
+####
+
 get '/library/fullproblem' => sub {
 	setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
 
@@ -506,6 +514,20 @@ get '/library/fullproblem' => sub {
 	return {problem_source=>$problemSource};
 };
 
+put '/library/fullproblem' => sub {
+	setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+
+	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
+
+	# test to make sure that it is not writing to the OPL
+
+	# test permissions 
+
+	my $test = write_file($fullpath,params->{problem_source});
+
+	debug $test;
+
+};
 
 1;
 

@@ -9,6 +9,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
 	
     var AssignmentCalendar = CalendarView.extend({
     	template: _.template($("#calendar-date-bar").html()),
+        // is this still needed?  
         headerInfo: {template: "#calendar-header", events: 
                 { "click .previous-week": "viewPreviousWeek",
                     "click .next-week": "viewNextWeek",

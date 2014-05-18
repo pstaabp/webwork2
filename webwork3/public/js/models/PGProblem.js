@@ -30,11 +30,22 @@ define(['backbone','config'], function(Backbone,config){
             problem_source: ""
 		},
         validation: {
-            statement: { required: true},
-            answer_type: {required: true}
+            //statement: { required: true},
+            //answer_type: {required: true}
         },
+        idAttribute: "path",
         url: function(){
             return config.urlPrefix + "library/fullproblem?" + $.param({path: this.get("path"), course_id: config.courseSettings.course_id});
+        },
+        isLibraryProblem: function(){
+            return /Library\//.test(this.get("path"));  // just tests if the path starts with Library.  Maybe make this a field instead. 
+        },
+        renderOnServer: function(opts){
+            $.ajax({url: config.urlPrefix+"renderer/courses/" + opts.course_id+"/problems/0",
+                data: opts.data,
+                type: "POST",
+                success: opts.success
+            });
         }
     		
     });

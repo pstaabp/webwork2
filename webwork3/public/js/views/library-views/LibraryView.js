@@ -15,9 +15,10 @@ function(Backbone, _,config, LibraryProblemsView, ProblemList){
             this.allProblemSets = options.problemSets;
             this.libBrowserType = options.libBrowserType;
             this.settings = options.settings;
+            this.eventDispatcher = options.eventDispatcher;
             this.messageTemplate = options.messageTemplate;
             this.libraryProblemsView = new LibraryProblemsView({libraryView: this, messageTemplate: this.messageTemplate,
-                 allProblemSets: this.allProblemSets, settings: this.settings});  
+                 allProblemSets: this.allProblemSets, eventDispatcher: this.eventDispatcher, settings: this.settings});  
     	},
     	events: {   
             "change .target-set": "resetDisplayModes"

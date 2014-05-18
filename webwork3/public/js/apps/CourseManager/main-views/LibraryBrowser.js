@@ -34,17 +34,23 @@ function(Backbone, _,MainView,LibrarySubjectView,LibraryDirectoryView, LibrarySe
 
             this.views = {
                 subjects  :  new LibrarySubjectView({libBrowserType: "subjects", problemSets: options.problemSets,
-                                    settings: this.settings, messageTemplate: this.messageTemplate}),
+                                    settings: this.settings, messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher}),
                 directories    :  new LibraryDirectoryView({libBrowserType: "directories", problemSets: options.problemSets,
-                                    settings: this.settings,messageTemplate: this.messageTemplate}),
+                                    settings: this.settings,messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher}),
                 textbooks    :  new LibraryTextbookView({libBrowserType: "textbooks", problemSets: options.problemSets,
-                                    settings: this.settings,messageTemplate: this.messageTemplate}),
+                                    settings: this.settings,messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher}),
                 localLibrary: new LocalLibraryView({libBrowserType: "localLibrary", problemSets: options.problemSets,
-                                    settings: this.settings,messageTemplate: this.messageTemplate}),
+                                    settings: this.settings,messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher}),
                 setDefinition: new LocalLibraryView({libBrowserType: "setDefinition", problemSets: options.problemSets,
-                                    settings: this.settings,messageTemplate: this.messageTemplate}),
+                                    settings: this.settings,messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher}),
                 search :  new LibrarySearchView({libBrowserType: "search", problemSets: options.problemSets,
-                                    settings: this.settings,messageTemplate: this.messageTemplate})
+                                    settings: this.settings,messageTemplate: this.messageTemplate,
+                                    eventDispatcher: this.eventDispatcher})
             };
     	},
         events: {"show.bs.tab a[data-toggle='tab']": "changeView"},
