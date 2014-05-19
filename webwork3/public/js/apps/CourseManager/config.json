@@ -26,7 +26,7 @@
 	},
 	{
 		"name": "Problem Editor",
-		"path": "main-views/StandardEditor",
+		"path": "main-views/EditorView",
 		"default_sidepane": "Editor Options",
 		"other_sidepanes" : ["Editor Options"]
 		},

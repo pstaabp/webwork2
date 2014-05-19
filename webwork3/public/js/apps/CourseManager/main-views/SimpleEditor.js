@@ -4,7 +4,7 @@
 */
 
 
-define(['module','backbone','underscore','views/MainView','views/LibraryTreeView','models/PGProblem',
+define(['module','backbone','underscore','views/MainView','views/library-views/LibraryTreeView','models/PGProblem',
     'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'], 
 function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemList,ProblemView,
             config,moment,util){
@@ -14,6 +14,7 @@ var SimpleEditorView = Backbone.View.extend({
         _.bindAll(this,"changeAnswerType");
         this.problem = new Problem();
         this.model = new PGProblem();
+        this.settings = options.settings;
         this.model.on({"change": this.problemChanged});
 
         var answerTypes = ['Number','String','Formula','Interval or Inequality',
@@ -70,11 +71,11 @@ var SimpleEditorView = Backbone.View.extend({
 
     },
     updateFields: function () {
-        this.model.set({problem_author: config.settings.getSettingValue("editor{author}"),
-            institution: config.settings.getSettingValue("editor{authorInstitute}"),
-            textbook_title: config.settings.getSettingValue("editor{textTitle}"),
-            textbook_edition: config.settings.getSettingValue("editor{textEdition}"),
-            textbook_author: config.settings.getSettingValue("editor{textAuthor}"),
+        this.model.set({problem_author: this.settings.getSettingValue("editor{author}"),
+            institution: this.settings.getSettingValue("editor{authorInstitute}"),
+            textbook_title: this.settings.getSettingValue("editor{textTitle}"),
+            textbook_edition: this.settings.getSettingValue("editor{textEdition}"),
+            textbook_author: this.settings.getSettingValue("editor{textAuthor}"),
             date: moment().format("MM/DD/YYYY")});
     },
     changeAnswerType: function(evt){

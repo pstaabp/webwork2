@@ -4,11 +4,13 @@
 */
 
 
-define(['module','backbone','views/MainView','config','main-views/SimpleEditor','main-views/StandardEditor'],
-	function(module,Backbone,MainView,config,SimpleEditor,StandardEditor){
+define(['module','backbone','views/MainView','main-views/SimpleEditor','main-views/StandardEditor'],
+	function(module,Backbone,MainView,SimpleEditor,StandardEditor){
 var EditorView = MainView.extend({
     initialize: function(options) {
-    	this.editor = (config.settings.getSettingValue("ww3{editor}")==="Simple")?  new SimpleEditor(options) 
+    	MainView.prototype.initialize.apply(this,[options]);
+    	_.extend(options,{settings: this.settings,problemSets: this.problemSets, users: this.users});
+    	this.editor = (options.settings.getSettingValue("ww3{editor}")==="Simple")?  new SimpleEditor(options) 
     		: new StandardEditor(options);
     },
     render: function(){
