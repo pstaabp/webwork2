@@ -26,7 +26,9 @@ var EditorView = MainView.extend({
     },
     setState: function(state){
         delete this.model;
-        this.setProblem(new Problem({"source_file":state.path}));
+        if(state && state.path){
+            this.setProblem(new Problem({"source_file":state.path}));
+        }
         return this;
     }
 });
