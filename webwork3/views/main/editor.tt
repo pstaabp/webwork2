@@ -235,8 +235,9 @@ DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
    "PGstandard.pl",     # Standard macros for PG language
-   "contextInequalities.pl", #automatically loads MathObjects.pl
- #  "MathObjects.pl",
+   "PGcourse.pl",
+   "contextInequalities.pl", 
+   "MathObjects.pl",
    "PGchoicemacros.pl",
    "parserNumberWithUnits.pl",
    "parserFormulaWithUnits.pl",
@@ -274,7 +275,7 @@ $showPartialCorrectAnswers = 1;
 <%=answer_section%>
 
 Context()->texStrings;
-SOLUTION(EV3(<<'END_SOLUTION'));
+BEGIN_SOLUTION;
 $PAR SOLUTION $PAR
 <%=solution%>
 
@@ -297,12 +298,12 @@ ENDDOCUMENT();
    <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Numerical Answer">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Numerical Answer">
          </div>
    </div>
    <div class="checkbox col-sm-offset-4">
   <label>
-    <input type="checkbox" class="answer-option">
+    <input type="checkbox" class="require-units answer-option">
     Require Units
   </label>
 </div>
@@ -313,11 +314,12 @@ ENDDOCUMENT();
 
       $answer = <% require_units ? print('NumberWithUnits("' + answer + '");') : print ('Compute("' + answer +'");') %>
 </script>
+
 <script id="number-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
-   <%=statement%>
-   Answer:\{ans_rule(55)\} \{AnswerFormatHelp("numbers")\}
+   <%=statement%> $BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("numbers")\}
 
    END_TEXT
    Context()->normalStrings;
@@ -336,7 +338,7 @@ ENDDOCUMENT();
    <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Answer as a string">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer as a string">
          </div>
    </div>
 </script>
@@ -353,8 +355,8 @@ ENDDOCUMENT();
 <script id="string-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
-   <%=problemStatement%>
-   Answer:\{ans_rule(55)\} \{AnswerFormatHelp("numbers")\}\
+      <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\}
 
    END_TEXT
    Context()->normalStrings;
@@ -373,19 +375,19 @@ ENDDOCUMENT();
    <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
       <div class="col-md-8">      
-        <input id="Answer-input" class="form-control" type="text" placeholder="Formula">
+        <input id="Answer-input" class="answer form-control" type="text" placeholder="Formula">
       </div>
     </div>
     <div class="form-group">
       <label class="col-md-3 control-label">Variables:</label>   
       <div class="col-md-8">      
-        <input id="variables-input" class="variables form-control" type="text" placeholder="Formula">
+        <input id="variables-input" class="variables form-control" type="text" placeholder="variables">
       </div>
     </div>
    
     <div class="checkbox col-sm-offset-4">
       <label>
-        <input type="checkbox" class="answer-option">
+        <input type="checkbox" class="require-units answer-option">
         Require Units
       </label>
     </div>
@@ -396,17 +398,17 @@ ENDDOCUMENT();
 
 <script id="formula-option-pg-setup" type="text/template">
       Context("Numeric");
-      Context()->variables->are(<%=variables%>);
+      Context()->variables->are(<% print(variables.split(",").join("=>'Real',") + "=>'Real'"); %>);
 
-      $answer = <% withUnits ? print('FormulaWithUnits("' + answer + '");') : print ('Compute("' + answer +'");') %>
+      $answer = <% require_units ? print('FormulaWithUnits("' + answer + '");') : print ('Compute("' + answer +'");') %>
 </script>
 
 
 <script id="formula-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
-   <%=problemStatement%>
-   Answer:\{ans_rule(55)\} \{AnswerFormatHelp("formulas")\}\
+   <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("formulas")\}\
 
    END_TEXT
    Context()->normalStrings;
@@ -423,18 +425,18 @@ ENDDOCUMENT();
     <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Interval or Inequality">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Interval or Inequality">
          </div>
     </div>
     <div class="checkbox col-sm-offset-4">
       <label>
-        <input type="checkbox" class="answer-option">
+        <input type="checkbox" class="allow-interval-notation answer-option">
         Allow interval notation
       </label>
     </div>
     <div class="checkbox col-sm-offset-4">
       <label>
-        <input type="checkbox" class="answer-option">
+        <input type="checkbox" class="allow-inequality-notation answer-option">
         Allow inequality notation
       </label>
     </div>
@@ -443,8 +445,8 @@ ENDDOCUMENT();
 
 
 <script id="interval-option-pg-setup" type="text/template">
-      <% if (allowInterval && !allowInequality) { print('Context("Interval");')
-      } else if (!allowInterval && allowInequality) { print('Context("Inequalities-Only");')
+      <% if (allow_interval && !allow_inequality) { print('Context("Interval");')
+      } else if (!allow_interval && allow_inequality) { print('Context("Inequalities-Only");')
       } else {print('Context("Inequalities");')} %>
 
       $answer = Compute("<%=answer%>");
@@ -454,8 +456,8 @@ ENDDOCUMENT();
 <script id="interval-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
-   <%=problemStatement%>
-   Answer:\{ans_rule(55)\} \{AnswerFormatHelp(<% (allowInterval && !allowInequality) ? print('"interval"') : print('"inequalities"')%>)\}\
+   <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp(<% (allow_interval && !allow_inequality) ? print('"interval"') : print('"inequalities"')%>)\}\
 
    END_TEXT
    Context()->normalStrings;
@@ -472,7 +474,7 @@ ENDDOCUMENT();
    <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="comma separated list">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="comma separated list">
          </div>
    </div>
 </script>
@@ -487,8 +489,8 @@ ENDDOCUMENT();
 <script id="list-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
-   <%=problemStatement%>
-   Answer:\{ans_rule(55)\} \{AnswerFormatHelp("numbers")\}\
+   <%=statement%> $BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("numbers")\}\
 
    END_TEXT
    Context()->normalStrings;
@@ -505,24 +507,24 @@ ENDDOCUMENT();
     <div class="form-group">
       <label class="col-md-3 control-label">Answer:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Answer">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer">
          </div>
     </div>
     <div class="form-group">
       <label class="col-md-3 control-label">Extra:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Extra Choice">
+           <input id="Answer-input" class="extra-choice form-control" type="text" placeholder="Extra Choice">
          </div>
     </div>
     <div class="form-group">
       <label class="col-md-3 control-label">Last:</label>   
           <div class="col-md-8">      
-           <input id="Answer-input" class="form-control" type="text" placeholder="Last Choice">
+           <input id="Answer-input" class="last-choice form-control" type="text" placeholder="Last Choice">
          </div>
     </div>
     <div class="checkbox col-sm-offset-4">
       <label>
-        <input type="checkbox" class="answer-option">
+        <input type="checkbox" class="use-last-choice answer-option">
         Use Last Choice Option
       </label>
     </div>
@@ -554,12 +556,12 @@ ENDDOCUMENT();
 
 </script>
 
-
 <script id="multiple-choice-option-pg-setup" type="text/template">
       $mc = new_multiple_choice();
-      $mc->qa("<%=problemStatement%>","<%=answer%>");
-      $mc->extra("<%=extraChoiceString%>");
-      <% if(lastChoiceOption) {print('$mc->makeLast("'+ lastChoice +'"); ')} %>
+      $mc->qa("   <%=statement%>","<%=answer%>");
+      $mc->extra("<% print(extra_choice.split(",").join("\",\"")); %>");
+
+      <% if(use_last_choice) {print('$mc->makeLast("'+ last_choice +'"); ')} %>
 </script>
          
 <script id="multiple-choice-option-pg-text" type="text/template">
