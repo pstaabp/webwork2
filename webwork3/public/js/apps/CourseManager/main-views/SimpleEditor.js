@@ -61,7 +61,7 @@ var SimpleEditorView = Backbone.View.extend({
             defaultOption: {label: "Select an Answer Type...", value: null}}}
     },
     problemChanged: function(model) {
-        console.log(model);
+  //      console.log(model);
     },
     renderProblem: function(){
       console.log("rendering the problem");
@@ -107,16 +107,13 @@ var SimpleEditorView = Backbone.View.extend({
             return;
         }
 
-        var params = _.pick(this.model.attributes,"pgSource");
-
-        $.ajax({url: config.urlPrefix+"renderer/courses/" + config.courseSettings.course_id+"/problems/0",
-            data: params,
-            type: "POST",
-            success: function(response){
-               self.problem.set({data: response.text});
-               self.renderProblem();
-            }
-        })
+        var params = _.extend({displayMode: "MathJax", pgSource: this.model.get("pgSource")});
+            this.model.renderOnServer({data: params, course_id: config.courseSettings.course_id,
+                success: function(response){
+                   self.problem.set({data: response.text});
+                   self.renderProblem();
+                }
+            });
 
     },
     buildScript: function (){       
@@ -124,12 +121,12 @@ var SimpleEditorView = Backbone.View.extend({
         if(!this.model.isValid(true)){
             return false;
         }
-
         var pgTemplate = _.template($("#pg-template").text());
         var fields = this.libraryTreeView.fields.attributes;
         _.extend(fields,{setup_section: this.answerView.getSetupText(this.model.attributes),
             statement_section: this.answerView.getStatementText(this.model.attributes),
             answer_section: this.answerView.getAnswerText()});
+console.log("in buildscript");
 
         _.extend(fields,this.model.attributes);
         this.model.set("pgSource",pgTemplate(fields));
@@ -185,7 +182,8 @@ var NumberAnswerView = AnswerChoiceView.extend({
             defaults: {
                 answer: "", require_units: false
             },
-            validation: {answer: {required: true}}});
+            //validation: {answer: {required: true}}
+            });
         this.model = new ThisModel();
     },
     bindings: { ".answer": "answer", ".require-units": "require_units"},
