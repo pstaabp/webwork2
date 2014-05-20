@@ -11,6 +11,8 @@ function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemLi
 var StandardEditor = MainView.extend({
     initialize: function(options) {
         MainView.prototype.initialize.call(this,options);
+        this.parent = options.parent;
+        _(this).bindAll("loadProblem");
     },
     render: function (){
     	this.$el.html($("#standard-editor-template").html());
@@ -44,18 +46,9 @@ var StandardEditor = MainView.extend({
         } else {
             this.$(".problem-source").removeAttr("disabled");
         }
-        if(this.optionPane){
-            this.optionPane.setProblem(this.model);
+        if(this.parent.optionPane){
+            this.parent.optionPane.setProblem(this.model);
         }
-    },
-    getState: function () {
-        return {path: this.problem.get("source_file")};
-    },
-    setState: function(state){
-        delete this.model;
-        var problem = new Problem({"source_file":state.path});
-        this.setProblem(problem);
-        return this;
     },
     bindings: {
         ".problem-source": "problem_source",
@@ -73,7 +66,7 @@ var StandardEditor = MainView.extend({
                    self.renderProblem();
                 }
             });
-            if(this.optionPane.getOptions().save_option==="Auto Save"){
+            if(this.parent.optionPane.getOptions().save_option==="Auto Save"){
                 this.model.save();
             }
     },

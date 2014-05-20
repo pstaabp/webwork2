@@ -29,7 +29,7 @@
 		"path": "main-views/EditorView",
 		"default_sidepane": "Editor Options",
 		"other_sidepanes" : ["Editor Options"]
-		},
+	},
 	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",

@@ -254,9 +254,9 @@ var CourseManager = WebPage.extend({
         }
         $("#main-view").html("<div class='main'></div>");
         this.navigationBar.setPaneName(_name);
-        (this.currentView = this.mainViewList.getViewByName(_name)).setElement(this.$(".main"))
-            .setState(state).render();
+        (this.currentView = this.mainViewList.getViewByName(_name)).setElement(this.$(".main")).setState(state);
         this.changeSidePane(_(this.mainViewList.viewInfo.main_views).findWhere({name: _name}).default_sidepane);
+        this.currentView.render();
         this.saveState();
     },
     saveState: function() {
