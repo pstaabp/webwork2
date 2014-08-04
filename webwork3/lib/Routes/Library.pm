@@ -493,6 +493,32 @@ any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:prob
 };
 
 
+post '/renderer' => sub {
+
+	setCourseEnvironment("");
+
+	my $problem = fake_problem(vars->{db});
+	$problem->{problem_seed} = 1;
+	$problem->{problem_id} = 1; 
+	$problem->{source_file} = params->{file};
+
+	my $renderParams = {
+		displayMode=>"MathJax",
+		showHints=>0,
+		showSolutions=>0,
+		showAnswers=>0,
+		problemSeed=>1,
+		user => fake_user(vars->{db}),
+		set => fake_set(vars->{db}),
+		problem => $problem,
+	};
+
+	return render($renderParams);
+
+};
+
+
+
 1;
 
 

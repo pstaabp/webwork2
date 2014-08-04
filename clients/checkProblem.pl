@@ -41,7 +41,7 @@ use warnings;
 ##################################################
 
 # Use address to WeBWorK code library where WebworkClient.pm is located.
-use lib '/opt/webwork/webwork2/lib';
+use lib '/Volumes/WW_test/opt/webwork/webwork2/lib';
 #use Crypt::SSLeay;  # needed for https
 use WebworkClient;
 
@@ -54,7 +54,7 @@ use WebworkClient;
 # configure the local output file and display command !!!!!!!!
  ############################################################
  
-use constant LOG_FILE => '/opt/webwork/libraries/t/bad_problems.txt';
+use constant LOG_FILE => '/Volumes/WW_test/opt/webwork/libraries/t/bad_problems.txt';
 
 use constant DISPLAYMODE   => 'images'; #  jsMath  is another possibilities.
 
@@ -149,7 +149,7 @@ if ($use_site eq 'local') {
 
 
 my $credential_path;
-my @path_list = ('.ww_credentials', '/Users/gage/.ww_credentials', '/Users/gage/ww_session_credentials');
+my @path_list = ('.ww_credentials', '/Users/pstaab/.ww_credentials', '/Users/gage/ww_session_credentials');
 foreach my $path (@path_list) {
 	if (-r "$path" ) {
 		$credential_path = $path;
@@ -171,7 +171,7 @@ EOF
 }
 
 eval{require $credential_path};
-if ($@  or not defined %credentials) {
+if ($@  or not %credentials) {
 
 print STDERR <<EOF;
 
