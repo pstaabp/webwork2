@@ -1,14 +1,23 @@
 #!/usr/bin/perl -w
 
 use JSON;
-
+use File::Slurp;
 use Data::Dumper;
 
 if (@ARGV) {
-	print "running script \n";
-	my $file = $ARGV[0];
-	print "$file \n";
-	my $output = `curl -s -X POST -d 'file=$file' localhost/webwork3/renderer`;
+	my $file_source = read_file $ARGV[0] || die "Could not open file $file";
+	my $data = to_json({source=>$file_source});
+
+	print Dumper($data);
+
+	my $parsedData = from_json($data);
+
+	print Dumper($parsedData->{source});
+
+	my $output = qx!curl -s -X POST -H 'Content-Type: application/json' -d '$data' localhost/webwork3/renderer!;
+	print $output;
+
+	die "stop";
 	my $parse = from_json($output);
 	my @errors = ();
 	for my $key ("warnings","errors"){
@@ -19,10 +28,8 @@ if (@ARGV) {
 	}
 	@errors = grep { $_ ne '' } @errors; 
 
-	print Dumper(@errors);
-
 	if(scalar(@errors) == 0){
-		print "yeah!!\n";
+		print "1\t $file is ok.\n";
 	} else {
 		my $result = {};
 		for my $key ("warnings","errors"){
@@ -31,11 +38,10 @@ if (@ARGV) {
 		for my $key ("debug_messages","warning_messages"){
 			$result->{$key} = join($parse->{$key},'');
 		}
-		print "output=" . Dumper($result) . "\n";	
+		print "1\t $file has errors.\n";
 	}
 		
 } else {
 
 }
 1;
-

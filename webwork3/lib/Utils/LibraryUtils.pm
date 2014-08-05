@@ -48,6 +48,11 @@ sub render {
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
 	};
 
+	if($renderParams->{source}){
+		debug "ici";
+		$translationOptions->{r_source} = $renderParams->{source};
+	}
+
 
 	my $pg = new WeBWorK::PG(
 		vars->{ce},

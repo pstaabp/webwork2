@@ -497,10 +497,11 @@ post '/renderer' => sub {
 
 	setCourseEnvironment("");
 
+	debug params->{source};
+
 	my $problem = fake_problem(vars->{db});
 	$problem->{problem_seed} = 1;
 	$problem->{problem_id} = 1; 
-	$problem->{source_file} = params->{file};
 
 	my $renderParams = {
 		displayMode=>"MathJax",
@@ -511,6 +512,7 @@ post '/renderer' => sub {
 		user => fake_user(vars->{db}),
 		set => fake_set(vars->{db}),
 		problem => $problem,
+		source => params->{source}
 	};
 
 	return render($renderParams);
