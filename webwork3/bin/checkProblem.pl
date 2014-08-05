@@ -138,7 +138,9 @@ sub showHelp {
    print "\t --show-errors: \t print the errors (default: hides the errors)\n";
    print "\t --show-warnings: \t print the errors (default: hides the warnings)\n";
    print "\t --test-randomize: \t tests if the problem has randomization. (default: don't check)\n";
+   print "\t --show-in-browser: \t opens the result in a browser.";
    print "\t --output output_file: \t send the output to output_file.  (default: $outputFile)\n";
+
 }
 
 1;
