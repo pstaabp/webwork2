@@ -497,7 +497,7 @@ any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:prob
 
 post '/renderer' => sub {
 
-	setCourseEnvironment("");
+	setCourseEnvironment(params->{course}||"");
 
 	my $source = decode_entities params->{source};
 	my $problem = fake_problem(vars->{db});

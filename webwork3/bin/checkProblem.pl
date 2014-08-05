@@ -21,10 +21,13 @@ my $outputFile = $WW_ROOT . "/../libraries/t/check_library_output.txt";
 my $showErrors = '';
 my $showWarnings = '';
 my $testRandomize = '';
+my $showInBrowser = '';
+my $courseName = 'maa101';
 my @warnings = ();
 
 GetOptions ('verbose' => \$verbose, 'output:s' => \$outputFile, 'show-errors' => \$showErrors,
-		'show-warnings' => \$showWarnings, 'test-randomize' => \$testRandomize);
+		'show-warnings' => \$showWarnings, 'test-randomize' => \$testRandomize,
+		'show-in-browser' => \$showInBrowser);
 
 my $results = "";
 
@@ -32,6 +35,36 @@ open(my $fh, '>>', $outputFile) or die "Could not open file '$outputFile' $!";
 
 
 if (@ARGV) {
+	if($showInBrowser){
+		my $file_source = read_file $ARGV[0] || die "Could not open file $ARGV[0]";
+		my $data = encode_entities $file_source;
+		my $output = qx!curl -s -X POST --data-urlencode 'source=$data' -d course=$courseName localhost/webwork3/renderer!;
+		my $parse = from_json($output);
+
+		if($parse->{text}){
+			open(my $htmlFile, '>' , '/tmp/test.html') or die "Could not open /tmp/test.html"; 
+			print $htmlFile	<<EOF;
+<html>
+<head>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<p>
+EOF
+			print $htmlFile $parse->{text};
+ 			print $htmlFile	<<XXX;
+</p>
+</body>
+</html>
+XXX
+# 
+
+			`open /tmp/test.html`; 
+			exit 1;
+		}
+	}
 	for my $filename (@ARGV){
 		checkFile($filename);			
 	}
@@ -66,20 +99,20 @@ sub checkFile {
 	if($testRandomize){
 		my $seed1 = int(rand(10000));
 		my $seed2 = int(rand(10000));
-		$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  localhost/webwork3/renderer!;
+		$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  -d course=$courseName localhost/webwork3/renderer!;
 		$parse = from_json($output);
-		my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  localhost/webwork3/renderer!;
+		my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  -d course=$courseName localhost/webwork3/renderer!;
 		my $parse2 = from_json($output2);
 		$isRandom = $parse->{text} ne $parse2->{text};
 	} else {
-		$output = qx!curl -s -X POST --data-urlencode 'source=$data' localhost/webwork3/renderer!;
+		$output = qx!curl -s -X POST --data-urlencode 'source=$data'  -d course=$courseName  localhost/webwork3/renderer!;
 		$parse = from_json($output);
 	}
 
-	if($parse->{errors}){
+	if($parse->{errors} or $parse->{error}){
 		$results .= "0\t $file has errors.\n";
 		if($showErrors){
-			$results .= $parse->{errors};
+			$results .= ($parse->{errors} || "" ) . ($parse->{error} || "");
 		}
 	} else {
 		$results .= "1\t $file is ok.";
