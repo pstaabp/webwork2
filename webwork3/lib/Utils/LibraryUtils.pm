@@ -49,7 +49,6 @@ sub render {
 	};
 
 	if($renderParams->{source}){
-		debug "ici";
 		$translationOptions->{r_source} = $renderParams->{source};
 	}
 

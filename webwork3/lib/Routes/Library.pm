@@ -10,6 +10,8 @@ use strict;
 use warnings;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
+use Data::Dumper;
+use HTML::Entities;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
@@ -497,11 +499,11 @@ post '/renderer' => sub {
 
 	setCourseEnvironment("");
 
-	debug params->{source};
-
+	my $source = decode_entities params->{source};
 	my $problem = fake_problem(vars->{db});
-	$problem->{problem_seed} = 1;
+	$problem->{problem_seed} = params->{seed} || 1;
 	$problem->{problem_id} = 1; 
+	$problem->{source_file} = "this_is_a_fake_path";
 
 	my $renderParams = {
 		displayMode=>"MathJax",
@@ -512,7 +514,7 @@ post '/renderer' => sub {
 		user => fake_user(vars->{db}),
 		set => fake_set(vars->{db}),
 		problem => $problem,
-		source => params->{source}
+		source => \$source
 	};
 
 	return render($renderParams);
