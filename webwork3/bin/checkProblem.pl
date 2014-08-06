@@ -22,12 +22,14 @@ my $showErrors = '';
 my $showWarnings = '';
 my $testRandomize = '';
 my $showInBrowser = '';
-my $courseName = 'maa101';
+my $courseName = 'staab_course';
+my $checkImageAltTag = '';
+my $hostname = "https://webwork.fitchburgstate.edu";
 my @warnings = ();
 
 GetOptions ('verbose' => \$verbose, 'output:s' => \$outputFile, 'show-errors' => \$showErrors,
 		'show-warnings' => \$showWarnings, 'test-randomize' => \$testRandomize,
-		'show-in-browser' => \$showInBrowser);
+		'show-in-browser' => \$showInBrowser, 'check-image-alt-tag' => \$checkImageAltTag);
 
 my $results = "";
 
@@ -38,7 +40,7 @@ if (@ARGV) {
 	if($showInBrowser){
 		my $file_source = read_file $ARGV[0] || die "Could not open file $ARGV[0]";
 		my $data = encode_entities $file_source;
-		my $output = qx!curl -s -X POST --data-urlencode 'source=$data' -d course=$courseName localhost/webwork3/renderer!;
+		my $output = qx!curl -s -X POST --data-urlencode 'source=$data' -d course=$courseName $hostname/webwork3/renderer!;
 		my $parse = from_json($output);
 
 		if($parse->{text}){
@@ -129,6 +131,9 @@ sub checkFile {
 			push(@warnings, @tmp);
 		}
 	}	
+	if($checkImageAltTag){
+
+	}
 }
 
 sub showHelp {
@@ -138,7 +143,7 @@ sub showHelp {
    print "\t --show-errors: \t print the errors (default: hides the errors)\n";
    print "\t --show-warnings: \t print the errors (default: hides the warnings)\n";
    print "\t --test-randomize: \t tests if the problem has randomization. (default: don't check)\n";
-   print "\t --show-in-browser: \t opens the result in a browser.";
+   print "\t --show-in-browser: \t opens the result in a browser.\n";
    print "\t --output output_file: \t send the output to output_file.  (default: $outputFile)\n";
 
 }
