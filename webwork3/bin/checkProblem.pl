@@ -101,13 +101,13 @@ sub checkFile {
 	if($testRandomize){
 		my $seed1 = int(rand(10000));
 		my $seed2 = int(rand(10000));
-		$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  -d course=$courseName localhost/webwork3/renderer!;
+		$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  -d course=$courseName $hostname/webwork3/renderer!;
 		$parse = from_json($output);
-		my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  -d course=$courseName localhost/webwork3/renderer!;
+		my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  -d course=$courseName $hostname/webwork3/renderer!;
 		my $parse2 = from_json($output2);
 		$isRandom = $parse->{text} ne $parse2->{text};
 	} else {
-		$output = qx!curl -s -X POST --data-urlencode 'source=$data'  -d course=$courseName  localhost/webwork3/renderer!;
+		$output = qx!curl -s -X POST --data-urlencode 'source=$data'  -d course=$courseName  $hostname/webwork3/renderer!;
 		$parse = from_json($output);
 	}
 
