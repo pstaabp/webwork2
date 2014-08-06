@@ -22,18 +22,26 @@ my $showErrors = '';
 my $showWarnings = '';
 my $testRandomize = '';
 my $showInBrowser = '';
+#my $courseName = 'maa101';
 my $courseName = 'staab_course';
 my $checkImageAltTag = '';
 my $hostname = "https://webwork.fitchburgstate.edu";
+my $hostname = "localhost";
 my @warnings = ();
 
 GetOptions ('verbose' => \$verbose, 'output:s' => \$outputFile, 'show-errors' => \$showErrors,
-		'show-warnings' => \$showWarnings, 'test-randomize' => \$testRandomize,
+		'show-warnings' => \$showWarnings, 'check-for-randomize' => \$testRandomize,
 		'show-in-browser' => \$showInBrowser, 'check-image-alt-tag' => \$checkImageAltTag);
 
 my $results = "";
 
 open(my $fh, '>>', $outputFile) or die "Could not open file '$outputFile' $!";	
+
+
+# auto flush printing
+my $so = select(STDOUT);
+$| = 1;
+select($so);
 
 
 if (@ARGV) {
@@ -42,6 +50,8 @@ if (@ARGV) {
 		my $data = encode_entities $file_source;
 		my $output = qx!curl -s -X POST --data-urlencode 'source=$data' -d course=$courseName $hostname/webwork3/renderer!;
 		my $parse = from_json($output);
+
+		print "$output\n";
 
 		if($parse->{text}){
 			open(my $htmlFile, '>' , '/tmp/test.html') or die "Could not open /tmp/test.html"; 
@@ -70,10 +80,6 @@ XXX
 	for my $filename (@ARGV){
 		checkFile($filename);			
 	}
-	if($verbose){
-		print "$results";
-		print join("\n",@warnings) . "\n" if ($showWarnings);
-	}
 	
 	print $fh $results;
 	if($showWarnings and scalar(@warnings)>0){
@@ -99,13 +105,18 @@ sub checkFile {
 	my $isRandom; 
 
 	if($testRandomize){
-		my $seed1 = int(rand(10000));
-		my $seed2 = int(rand(10000));
-		$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  -d course=$courseName $hostname/webwork3/renderer!;
-		$parse = from_json($output);
-		my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  -d course=$courseName $hostname/webwork3/renderer!;
-		my $parse2 = from_json($output2);
-		$isRandom = $parse->{text} ne $parse2->{text};
+		my $n=0;
+		do {
+			my $seed1 = int(rand(10000));
+			my $seed2 = int(rand(10000));
+			$output = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed1  -d course=$courseName $hostname/webwork3/renderer!;
+			$parse = from_json($output);
+			my $output2 = qx!curl -s -X POST --data-urlencode 'source=$data' -d seed=$seed2  -d course=$courseName $hostname/webwork3/renderer!;
+			my $parse2 = from_json($output2);
+			#print $parse->{text} . "\n";
+			$isRandom = ($parse->{text} and $parse2->{text}) ? $parse->{text} ne $parse2->{text}: "";
+			$n++;
+		} until ($isRandom || $n>10);
 	} else {
 		$output = qx!curl -s -X POST --data-urlencode 'source=$data'  -d course=$courseName  $hostname/webwork3/renderer!;
 		$parse = from_json($output);
@@ -113,15 +124,20 @@ sub checkFile {
 
 	if($parse->{errors} or $parse->{error}){
 		$results .= "0\t $file has errors.\n";
+		print "0\t $file has errors.\n" if $verbose;
 		if($showErrors){
 			$results .= ($parse->{errors} || "" ) . ($parse->{error} || "");
+			print (($parse->{errors} || "" ) . ($parse->{error} || "")) if $verbose;
 		}
 	} else {
 		$results .= "1\t $file is ok.";
+		print "1\t $file is ok." if $verbose;
 		if($testRandomize){
-			$results .= "\trandom: ". ($isRandom || 0 ) . "\n"
+			$results .= "\trandom: ". ($isRandom || 0 ) . "\n";
+			print ("\trandom: ". ($isRandom || 0 ) . "\n") if $verbose;
 		} else {
 			$results .= "\n";
+			print "\n" if $verbose;
 		}
 	}
 	if($showWarnings){
