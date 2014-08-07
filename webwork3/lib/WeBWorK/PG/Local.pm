@@ -89,9 +89,6 @@ sub new_helper {
 		                     # hints and the display mode to use
 	) = @_;
 
-	
-	debug("in local.pm");
-	
 	# write timing log entry
 # 	writeTimingLogEntry($ce, "WeBWorK::PG::new",
 # 		"user=".$user->user_id.",problem=".$ce->{courseName}."/".$set->set_id."/".$problem->problem_id.",mode=".$translationOptions->{displayMode},

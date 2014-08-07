@@ -15,7 +15,7 @@ use Data::Dumper;
 
 use base qw(Exporter);
 our @EXPORT    = ();
-our @EXPORT_OK = qw(checkPermissions setCourseEnvironment buildSession setCookie);
+our @EXPORT_OK = qw(checkPermissions setCourseEnvironment buildSession setCookie createSession isSessionCurrent);
 our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 
 ## the following routes is matched for any URL starting with /courses. It is used to load the 
@@ -75,11 +75,9 @@ sub buildSession {
 	my $key = vars->{db}->getKey(session 'user');
 	my $timeLastLoggedIn = 0; 
 
-	if(defined($key)){
-		$timeLastLoggedIn = $key->{timestamp};
-	} else {
+	if(! defined($key)){
 		debug "making a new key";
-		my $newKey = create_session(session 'user');
+		my $newKey = createSession(session 'user');
 		$key = vars->{db}->newKey(user_id=>(session 'user'), key=>$newKey);
 	}
 
@@ -90,19 +88,10 @@ sub buildSession {
 		session 'timestamp' => 0;
 		return;
 	}
-
-	# check to see if the user has timed out
-	if(time() - $timeLastLoggedIn > vars->{ce}->{sessionKeyTimeout}){
-		session 'logged_in' => 0;
-		session 'timestamp' => 0;
+	unless (isSessionCurrent()) {
 		return;
 	}
-
-	# update the timestamp in the database so the user isn't logged out prematurely.
-	$key->{timestamp} = time();
-	session 'timestamp' => $key->{timestamp};
-
-	vars->{db}->putKey($key);
+	
 
 	if (! defined(session 'permission')){
 		my $permission = vars->{db}->getPermissionLevel(session 'user');
@@ -114,6 +103,25 @@ sub buildSession {
 	setCookie();
 }
 
+# this checks if the session is current by seeing if course_id, user_id, key is set and the timestamp is within a standard time. 
+
+sub isSessionCurrent {
+	return "" unless (session 'course');
+	return "" unless (session 'user');
+	return "" unless (session 'key');
+	my $key = vars->{db}->getKey(session 'user');
+	if(time() - $key->{timestamp} > vars->{ce}->{sessionKeyTimeout}){
+		session 'logged_in' => 0;
+		session 'timestamp' => 0;
+		return "";
+	} else {
+		# update the timestamp in the database so the user isn't logged out prematurely.
+		$key->{timestamp} = time();
+		session 'timestamp' => $key->{timestamp};
+		vars->{db}->putKey($key);
+	}
+	return 1;
+}
 
 sub checkPermissions {
 	my $permissionLevel = shift;
@@ -121,9 +129,7 @@ sub checkPermissions {
 	my $key = session 'key';
 
 	buildSession($userID,$key);
-	if (! session 'logged_in'){
-		send_error('You are no longer logged in.  You may need to reauthenticate.',419);
-	}
+	send_error('You are no longer logged in.  You may need to reauthenticate.',419) unless session 'logged_in';
 
 	if(session('permission') < $permissionLevel){send_error($PERMISSION_ERROR,403)}
 
@@ -134,8 +140,12 @@ sub checkPermissions {
 # clobbers any existing session for this $userID
 # if $newKey is not specified, a random key is generated
 # the key is returned
-sub create_session {
+sub createSession {
 	my ($userID, $newKey) = @_;
+
+	debug "ici";
+	debug $userID;
+
 	my $timestamp = time;
 	unless ($newKey) {
 		my @chars = @{ vars->{ce}->{sessionKeyChars} };

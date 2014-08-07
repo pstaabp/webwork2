@@ -17,7 +17,7 @@ use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
 use Utils::ProblemSets qw/record_results/;
-use Routes::Authentication qw/checkPermissions setCourseEnvironment/;
+use Routes::Authentication qw/checkPermissions setCourseEnvironment createSession isSessionCurrent/;
 use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
@@ -497,7 +497,14 @@ any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:prob
 
 post '/renderer' => sub {
 
-	setCourseEnvironment(params->{course}||"");
+	setCourseEnvironment(params->{course_id});
+	my $renderParams;
+	send_error("Your session is out of date. You may need to authenticate again",401) unless (isSessionCurrent());
+
+
+
+
+	checkPermissions(10);
 
 	my $source = decode_entities params->{source};
 	my $problem = fake_problem(vars->{db});
@@ -505,7 +512,7 @@ post '/renderer' => sub {
 	$problem->{problem_id} = 1; 
 	$problem->{source_file} = "this_is_a_fake_path";
 
-	my $renderParams = {
+	$renderParams = {
 		displayMode=>"MathJax",
 		showHints=>0,
 		showSolutions=>0,
@@ -518,7 +525,6 @@ post '/renderer' => sub {
 	};
 
 	return render($renderParams);
-
 };
 
 
