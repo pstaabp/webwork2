@@ -172,6 +172,7 @@ usage: checkProblem [flags] filename(s)
    		--show-warnings: 		print the errors (default: hides the warnings)
    		--test-randomize: 		tests if the problem has randomization. (default: don't check)
    		--show-in-browser: 		opens the result in a browser.
+   		--check-missing-alt-tag: checks in the pg code if there are any images that are missing alt tags.  
    		--output-raw:			shows the output (as JSON) from the renderer.
    		--output output_file: 	send the output to output_file.  (default: $outputFile)
 
