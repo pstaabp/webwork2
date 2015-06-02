@@ -3,26 +3,34 @@
 	{
 		"name": "Calendar",
 		"path": "main-views/AssignmentCalendar",
-		"default_sidepane": "Problem Sets",
-		"other_sidepanes": ["Problem Sets", "Users"]
+		"icon": "fa fa-calendar fa-lg",
+		"default_sidebar": "problemSets",
+		"other_sidebars": ["problemSets", "userlist"],
+		"id": "calendar"
 	},
 	{
 		"name": "Problem Set Details",
 		"path": "main-views/ProblemSetDetailView",
-		"default_sidepane": "Problem Sets",
-		"other_sidepanes": ["Problem Sets","Users", "Problem List Options"]
+		"icon": "fa fa-info-circle fa-lg",
+		"default_sidebar": "problemSets",
+		"other_sidebars": ["problemSets","userlist", "problemListOptions"],
+		"id": "problemSetDetails"
 	},
 	{
 		"name": "Library Browser",
 		"path": "main-views/LibraryBrowser",
-		"default_sidepane": "Library Options",
-		"other_sidepanes": ["Library Options","Problem Sets","Users"]	
+		"icon": "fa fa-university fa-lg",
+		"default_sidebar": "libraryOptions",
+		"other_sidebars": ["libraryOptions","problemSets","userlist"],
+		"id": "libraryBrowser"
 	},
 	{
 		"name": "Problem Sets Manager",
 		"path": "main-views/ProblemSetsManager",
-		"default_sidepane": "",
-		"other_sidepanes": []
+		"icon": "fa fa-list-alt fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "problemSetsManager"
 	},
 	{
 		"name": "Problem Editor",
@@ -33,43 +41,55 @@
 	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",
-		"default_sidepane": "",
-		"other_sidepanes": []
+		"icon": "fa fa-bar-chart-o fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "statistics"
 	},
 	{
 		"name": "Classlist Manager",
 		"path": "main-views/ClasslistView",
-		"default_sidepane": "",
-		"other_sidepanes": []
+		"icon": "fa fa-users fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "classlist"
 	},
 	{
 		"name": "Import/Export Sets",
 		"path": "main-views/ImportExportView",
-		"default_sidepane": "",
-		"other_sidepanes": ["Problem Sets"]
+		"icon": "fa fa-expand fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": ["problemSets"],
+		"id": "importExport"
 	},
 	{
 		"name": "Settings",
 		"path": "main-views/SettingsView",
-		"default_sidepane": "",
-		"other_sidepanes": []
+		"icon": "fa fa-gear fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "settings"
 	}],
-	"sidepanes": [
+	"sidebars": [
 	{
 		"name": "Problem Sets",
-		"path": "option-panes/ProblemSetListView"
+		"path": "sidebars/ProblemSetListView",
+		"id": "problemSets"
 	},
 	{
 		"name": "Users",
-		"path": "option-panes/UserListView"
+		"path": "sidebars/UserListView",
+		"id": "userlist"
 	},
 	{
 		"name": "Library Options",
-		"path": "option-panes/LibraryOptionsView"
+		"path": "sidebars/LibraryOptionsView",
+		"id": "libraryOptions"
 	},
 	{
 		"name": "Problem List Options",
-		"path": "option-panes/ProblemListOptionsSidePane"
+		"path": "sidebars/ProblemListOptionsSidebar",
+		"id": "problemListOptions"
 	},
 	{
 		"name": "Editor Options",
@@ -77,7 +97,14 @@
 	},
 	{
 		"name": "Help",
-		"path": "option-panes/HelpSidePane"
+		"path": "sidebars/HelpSidebar",
+		"id": "help"
+	},
+	{	
+		"name": "All Messages",
+		"path": "sidebars/AllMessagesSidebar",
+		"id": "allMessages"
 	}
-	]
+	],
+	"common_sidebars": ["help","allMessages"]
 }

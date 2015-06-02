@@ -59,6 +59,13 @@ $server_userID     = 'www-data';
 $server_groupID    = 'wwdata';
 
 
+#  Uncomment out the following line to set your apache version number manually.
+#  WeBWorK will automatically get the apache version directly from the server
+#  banner.  If you remove the version from the server banner you will have to
+#  set it directly here
+
+#$server_apache_version = ''; # e.g. '2.22.1'
+
 ################################################################################
 # Paths to external programs 
 ################################################################################
@@ -76,6 +83,7 @@ $externalPrograms{rm}    = "/bin/rm";
 $externalPrograms{mkdir} = "/bin/mkdir";
 $externalPrograms{tar}   = "/bin/tar";
 $externalPrograms{gzip}  = "/bin/gzip";
+$externalPrograms{git} = "/usr/bin/git";
 
 ####################################################
 # equation rendering/hardcopy utiltiies
@@ -83,7 +91,6 @@ $externalPrograms{gzip}  = "/bin/gzip";
 $externalPrograms{latex}    ="/usr/bin/latex";
 $externalPrograms{pdflatex} ="/usr/bin/pdflatex --shell-escape";
 $externalPrograms{dvipng}   ="/usr/bin//dvipng";
-$externalPrograms{tth}      ="/usr/bin/tth";
 
 ####################################################
 # NetPBM - basic image manipulation utilities
@@ -100,7 +107,8 @@ $externalPrograms{pngtopnm} = "$netpbm_prefix/pngtopnm";
 # url checker
 ####################################################
 
-$externalPrograms{checkurl} = "/usr/bin/lwp-request -d -mHEAD "; # or "/usr/local/bin/w3c -head "
+$externalPrograms{checkurl}     = "/usr/bin/lwp-request -d -mHEAD "; # or "/usr/local/bin/w3c -head "
+$externalPrograms{curlCommand}  = "/usr/bin/curl";
 
 ####################################################
 # image conversions utiltiies
@@ -191,6 +199,25 @@ $mail{smtpSender} = '';  # e.g.  'webwork@yourserver.yourschool.edu'
 # Seconds to wait before timing out when connecting to the SMTP server.
 $mail{smtpTimeout}           = 30;
 
+
+################################################################################
+# Problem library options
+################################################################################
+# 
+# The problemLibrary configuration data should now be set in localOverrides.conf
+
+# For configuration instructions, see:
+# http://webwork.maa.org/wiki/National_Problem_Library
+# The directory containing the natinal problem library files. 
+# Set the root to "" if no problem
+# library is installed. Use version 2.0 for the NPL and use the version 2.5  for the OPL. 
+# When changing from the NPL to the OPL it is important to change the version number
+# because the names of the tables in the database have changed.
+
+#CONFIGURE problemLibrary values in this file. These settings override defaults in default.config
+#################################################
+$problemLibrary{root}        ="/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary";
+###########################################################
 
 ################################################################################
 #Time Zone

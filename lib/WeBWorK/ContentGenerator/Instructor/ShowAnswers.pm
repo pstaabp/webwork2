@@ -29,7 +29,7 @@ use warnings;
 #use CGI;
 use WeBWorK::CGI;
 use WeBWorK::Utils qw(sortByName ); 
-use HTML::Entities;
+use PGcore;
 
 sub initialize {
 	my $self       = shift;
@@ -68,12 +68,16 @@ sub body {
 	my $authz         = $r->authz;
 	my $root          = $ce->{webworkURLs}->{root};
 	my $courseName    = $urlpath->arg('courseID');  
-	my $setNameRegExp       = $r->param('setID');     # these are passed in the search args in this case
-	my $problemNumberRegExp = $r->param('problemID');
+	my $setNameRegExp       = $r->param('setID') || '*';     # these are passed in the search args in this case
+	my $problemNumberRegExp = $r->param('problemID') || '*'; # blank entries count as *'s 
 	my $user          = $r->param('user');
 	my $key           = $r->param('key');
-	my $studentUserRegExp   = $r->param('studentUser') if ( defined($r->param('studentUser')) );
-	
+	my $studentUserRegExp;
+	if ( defined($r->param('studentUser'))) {
+	    $studentUserRegExp   = $r->param('studentUser') || '*';
+	} else {
+	    $studentUserRegExp = '*';
+	}
 	my $instructor = $authz->hasPermissions($user, "access_instructor_tools");
 
 	return CGI::em("You are not authorized to view past answers") unless $authz->hasPermissions($user, "view_answers");
@@ -83,7 +87,7 @@ sub body {
 	my $showAnswersURL    = $self->systemLink($showAnswersPage,authen => 0 );
 	my $renderAnswers = 0;
 	# Figure out if MathJax is available
-	if (('MathJax' ~~ @{$ce->{pg}->{displayModes}})) {
+	if ((grep(/MathJax/,@{$ce->{pg}->{displayModes}}))) {
 	    print CGI::start_script({type=>"text/javascript", src=>"$ce->{webworkURLs}->{MathJax}"}), CGI::end_script();
 	    $renderAnswers = 1;
 	}
@@ -103,15 +107,15 @@ sub body {
 	    
 	    print CGI::p(),CGI::hr();
 	    
-	    print CGI::start_form("POST", $showAnswersURL,-target=>'information'),
+	    print CGI::start_form({-target=>'information',-id=>'past-answer-form'},"POST", $showAnswersURL),
 	    $self->hidden_authen_fields;
-	    print CGI::submit(-name => 'action', -value=>'Past Answers for')," &nbsp; ",
-	    " &nbsp;".$r->maketext('User:')." &nbsp;",
-	    CGI::textfield(-name => 'studentUser', -value => $studentUserRegExp, -size =>10 ),
-	    " &nbsp;".$r->maketext('Set:')." &nbsp;",
-	    CGI::textfield( -name => 'setID', -value => $setNameRegExp, -size =>10  ), 
-	    " &nbsp;".$r->maketext('Problem:')."&nbsp;",
-	    CGI::textfield(-name => 'problemID', -value => $problemNumberRegExp,-size =>10  ),  
+	    print CGI::submit(-name => 'action', -value=>$r->maketext('Past Answers for'))," &nbsp; ",
+	    " &nbsp;".CGI::label($r->maketext('User:')." &nbsp;",
+	    CGI::textfield(-name => 'studentUser', -value => $studentUserRegExp, -size =>10 )),
+	    " &nbsp;".CGI::label($r->maketext('Set:')." &nbsp;",
+	    CGI::textfield( -name => 'setID', -value => $setNameRegExp, -size =>10  )), 
+	    " &nbsp;".CGI::label($r->maketext('Problem:')."&nbsp;",
+	    CGI::textfield(-name => 'problemID', -value => $problemNumberRegExp,-size =>10  )),  
 	    " &nbsp; ";
 	    print CGI::end_form();
 	}
@@ -177,16 +181,15 @@ sub body {
 		
 	    }
 
-	    return CGI::span({class=>'ResultsWithError'}, $r->maketext('No users have sets matching the given set id.'))
-	    unless @setNames;
-
+	    next unless @setNames;
+	  
 	    foreach my $setName (@setNames) {
 	
 		my @problemNumbers;
 
 		# search for matching problems
 		my @allProblems = $db->listUserProblems($studentUser, $setName);
-
+		next unless @allProblems;
 		foreach my $problem (@allProblems) {
 
 		    foreach my $numberRange (@numberRanges) {
@@ -196,7 +199,7 @@ sub body {
 				push (@problemNumbers, $problem);
 			    }
 			    # in this case the number is a singlton
-			} elsif ($numberRange == $problem) {
+			} elsif ($numberRange eq '*' || $numberRange == $problem) {
 			    push (@problemNumbers, $problem);
 			}
 		    }
@@ -206,12 +209,12 @@ sub body {
 		    unless @problemNumbers;
 		
 		foreach my $problemNumber (@problemNumbers) {
-    
+		    
 		    my @pastAnswerIDs = $db->listProblemPastAnswers($studentUser, $setName, $problemNumber);
 		    
 		    print CGI::start_table({class=>"past-answer-table", border=>0,cellpadding=>0,cellspacing=>3,align=>"center"});
-		    print CGI::h3("Past Answers for $studentUser, set $setName, problem $problemNumber" );
-		    print "No entries for $studentUser set $setName, problem $problemNumber" unless @pastAnswerIDs;
+		    print CGI::h3($r->maketext("Past Answers for [_1], set [_2], problem [_3]" ,$studentUser, $setName, $problemNumber));
+		    print $r->maketext("No entries for [_1], set [_2], problem [_3]", $studentUser, $setName, $problemNumber) unless @pastAnswerIDs;
 		    
 		    # changed this to use the db for the past answers.  
 		    
@@ -295,22 +298,31 @@ sub body {
 			    if ($answer eq '') {		    
 				$answerstring  = CGI::small(CGI::i("empty")) if ($answer eq "");
 			    } elsif (!$renderAnswers) {
-				$answerstring = HTML::Entities::encode_entities($answer);
+				$answerstring = PGcore::encode_pg_and_html($answer);
 			    } elsif ($answerType eq 'Value (Formula)') {
-				$answerstring = '`'.HTML::Entities::encode_entities($answer).'`';
+				# We need to escape some gateway strings which 
+				# might appear here
+				$answerstring = PGcore::encode_pg_and_html($answer);
+				if ($answerstring =~ /\[(submit|preview|newPage)\]/) {
+				    if ($answerstring !~ /No answer entered/) {
+					$answerstring =~ s/\[(submit|preview|newPage)\](.*)/\[$1\] `$2`/; 
+				    } 
+				} else {
+				    $answerstring = "`$answer`";
+				}
 				$td->{class} = 'formula';
 			    } elsif ($answerType eq 'essay') {
-				$answerstring = HTML::Entities::encode_entities($answer);
+				$answerstring = PGcore::encode_pg_and_html($answer);
 				$td->{class} = 'essay';
 			    } else {
-				$answerstring = HTML::Entities::encode_entities($answer);
+				$answerstring = PGcore::encode_pg_and_html($answer);
 			    }
 			    
 			    push(@row,CGI::td({width=>20}),CGI::td($td,$answerstring));
 			}
 			
 			if ($pastAnswer->comment_string) {
-			    push(@row,CGI::td({width=>20}),CGI::td({class=>'comment'},"Comment: ".HTML::Entities::encode_entities($pastAnswer->comment_string)));
+			    push(@row,CGI::td({width=>20}),CGI::td({class=>'comment'},"Comment: ".PGcore::encode_pg_and_html($pastAnswer->comment_string)));
 			}
 			
 			print CGI::Tr($rowOptions,@row);
@@ -370,8 +382,8 @@ sub output_JS {
 
     my $site_url = $ce->{webworkURLs}->{htdocs};
     
-    print CGI::start_script({type=>"text/javascript", src=>"$site_url/js/legacy/addOnLoadEvent.js"}), CGI::end_script();
-    print CGI::start_script({type=>"text/javascript", src=>"$site_url/js/legacy/show_hide.js"}), CGI::end_script();
+    print CGI::start_script({type=>"text/javascript", src=>"$site_url/js/apps/AddOnLoad/addOnLoadEvent.js"}), CGI::end_script();
+    print CGI::start_script({type=>"text/javascript", src=>"$site_url/js/apps/ShowHide/show_hide.js"}), CGI::end_script();
 
     return "";
 }

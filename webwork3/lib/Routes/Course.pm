@@ -9,16 +9,16 @@ package Routes::Course;
 use strict;
 use warnings;
 use Dancer ':syntax';
-use Dancer::Plugin::Ajax;
+use Dancer::Plugin::Ajax; 
 use Dancer::FileUtils qw /read_file_content path/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use WeBWorK::Utils::CourseManagement qw(listCourses listArchivedCourses addCourse deleteCourse renameCourse);
 use WeBWorK::Utils::CourseIntegrityCheck qw(checkCourseTables);
 use Utils::CourseUtils qw/getAllUsers getCourseSettings getAllSets/;
 # use Utils::CourseUtils qw/getCourseSettings/;
-#use Routes::Authentication qw/checkPermissions setCourseEnvironment/;
-use Routes::Authentication qw/buildSession/;
+use Routes::Authentication qw/buildSession checkPermissions setCookie/;
 use Data::Dumper;
+
 
 our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 
@@ -111,8 +111,7 @@ get '/courses/:course_id' => sub {
 
 post '/courses/:new_course_id' => sub {
 
-	if(session->{permission} < 15){send_error($PERMISSION_ERROR,403)}
-
+    checkPermissions(15,session->{user});
 
     my $coursesDir = vars->{ce}->{webworkDirs}->{courses};
 	my $courseDir = "$coursesDir/" . params->{new_course_id};
@@ -207,7 +206,7 @@ post '/courses/:new_course_id' => sub {
 
 put '/courses/:course_id' => sub {
 
-	if(session->{permission} < 15){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(15,session->{user});
 
 	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work. 
 
@@ -240,7 +239,7 @@ put '/courses/:course_id' => sub {
 
 del '/courses/:course_id' => sub {
 
-	if(session->{permission} < 15){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(15,session->{user});
 
  #    my $coursesDir = vars->{ce}->{webworkDirs}->{courses};
 	# my $courseDir = "$coursesDir/" . params->{course_id};
@@ -287,45 +286,119 @@ post '/courses/:course_id/session' => sub {
 
 get '/courses/:course_id/manager' =>  sub {
 
-	# read the course manager configuration file
+	# read the course manager configuration file to set up the main and side panes
 
 	my $configFilePath = path(config->{webwork_dir},"webwork3","public","js","apps","CourseManager","config.json");
 	my $fileContents = read_file_content($configFilePath);
 	my $config = from_json($fileContents);
 
 	my @main_view_paths = map {$_->{path}} @{$config->{main_views}};
-	my @sidepane_paths = map {$_->{path}} @{$config->{sidepanes}};
+	my @sidepane_paths = map {$_->{path}} @{$config->{sidebars}};
 
 	my @view_paths = (@main_view_paths,@sidepane_paths);
 
+	# a few situations here.  Either
+	# 1) the user is logged in and info stored as a cookie
+	# 2) the user is logged in and info stored on the URL
+	# 3) the user passed via the URL is not a member of the course
+	# 4) the user passed via the URL is not authorized for the manager. 
+    # 5) the user hasn't already logged in and needs to pop open a login window.  
+	# 6) the user has already logged in and its safe to send all of the requisite data
+	# 
 
 
-	# two situations here.  Either
-	# 1) the user has already logged in and its safe to send all of the requisite data
-	# 2) the user hasn't already logged in and needs to pop open a login window.  
 
-	buildSession();
+	my $userID = "";
+	my $sessKey = "";
+	my $ts = "";
+	my $cookieValue = cookie "WeBWorKCourseAuthen." . params->{course_id};
+
+	# case 1) 
+	($userID,$sessKey,$ts) = split(/\t/,$cookieValue) if defined($cookieValue);
+
+	#debug "case 1";
+    # case 2)
+	if(! defined($cookieValue)){
+		$userID = params->{user} if defined(params->{user});
+		$sessKey = params->{key} if defined(params->{key});
+	}
+
+	#debug "case 2";
+
+	# check if the cookie user/key pair matches the params user/key pair
+	#
+	#    if not, set params to make sure that the login screen is popped open
+
+	if(defined($cookieValue) && defined(params->{user}) && defined(params->{key})){
+		if($userID ne params->{user} || $sessKey ne params->{key}){
+			session->destroy;
+			$userID = '';
+			$sessKey = '';
+		}
+	}
+
+	#debug "case 3";
+
+	## check if the user passed in via the URL is the same as the session user.
+
+	if(session 'user'){
+		if (session->{user} && $userID ne session->{user}) {
+			my $key = vars->{db}->getKey(session 'user');
+			vars->{db}->deleteKey(session 'user') if $key;
+			session->destroy; 
+		}
+	} elsif ($userID ne '') {
+		session 'user' => $userID;
+	} else {
+		session->destroy;
+	}
+
+	#debug "case 4";
 
 	
+	# case 1)
 
+	if($userID ne "" && ! vars->{db}->existsUser($userID)){
+		session->destroy;
+		$userID = '';
+		$sessKey = '';
+	}
 
-	my ($settings,$sets,$users);
+	# case 2)
+	
+    if ($userID ne "" && vars->{db}->getPermissionLevel($userID)->{permission} < 10){
+    	redirect  vars->{ce}->{server_root_url} .'/webwork2/' . params->{course_id};
+		return "You don't have access to this page.";	
+    }
 
+	# case 5) 
+	my $settings = [];
+	my $sets = [];
+	my $users = [];
 
-	if(defined session->{user}){
-		$settings = getCourseSettings();
-		$sets = getAllSets();
-		$users = getAllUsers();
-	} else {
-		$settings = [];
-		$sets = [];
-		$users = [];
-		
+	# case 6) 
+	if(session 'user') {
+
+		buildSession($userID,$sessKey);
+		if(session 'logged_in'){
+			$settings = getCourseSettings();
+			$sets = getAllSets();
+			$users = getAllUsers();
+		} else {
+			session->destroy();
+		}
 	}
 
 	my $theSession = convertObjectToHash(session);
 	$theSession->{effectiveUser} = session->{user};
 
+	# set the ww2 style cookie to save session info for work in both ww2 and ww3.  
+
+	if(session && session 'user'){
+		setCookie();	
+	}
+	
+	
 	template 'course_manager.tt', {course_id=> params->{course_id},theSession=>to_json(convertObjectToHash(session)),
 		theSettings=>to_json($settings), sets=>to_json($sets), users=>to_json($users), main_view_paths => to_json(\@view_paths),
 		main_views=>to_json($config),pagename=>"Course Manager"},

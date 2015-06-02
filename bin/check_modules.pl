@@ -8,6 +8,7 @@ my @applicationsList = qw(
 	mv
 	mysql
 	tar
+        git
 	gzip
 	latex
 	pdflatex
@@ -72,6 +73,7 @@ my @modulesList = qw(
 	JSON
 	Locale::Maketext::Lexicon
 	Locale::Maketext::Simple
+        LWP::Protocol::https
 	Mail::Sender
 	MIME::Base64
 	Net::IP
@@ -90,7 +92,7 @@ my @modulesList = qw(
 	Socket
 	SQL::Abstract
 	String::ShellQuote
-	Template::Toolkit
+	Template
 	Text::CSV
 	Text::Wrap
 	Tie::IxHash
@@ -102,11 +104,14 @@ my @modulesList = qw(
 	XML::Parser::EasyTree
 	XML::Writer
 	XMLRPC::Lite
+	YAML
 );
 
 # modules used by disabled code
 #	RQP::Render (RQP)
 #	SOAP::Lite (PG::Remote)
+
+#main
 
 my $apache_version = shift @ARGV;
 unless (defined $apache_version and $apache_version =~ /^apache[12]$/) {

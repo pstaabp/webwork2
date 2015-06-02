@@ -54,7 +54,7 @@ use WeBWorK::URLPath;
 use WeBWorK::CGI;
 use WeBWorK::Utils qw(runtime_use writeTimingLogEntry);
 
-use mod_perl;
+
 use constant MP2 => ( exists $ENV{MOD_PERL_API_VERSION} and $ENV{MOD_PERL_API_VERSION} >= 2 );
 
 # Apache2 needs upload class
@@ -64,6 +64,8 @@ BEGIN {
 		Apache2::Upload->import();
 		require Apache2::RequestUtil;
 		Apache2::RequestUtil->import();
+	} else {
+		require "mod_perl.pm"; # should we still support apache mod_perl1?
 	}
 }
 
@@ -179,9 +181,19 @@ sub dispatch($) {
 	
 	debug("The raw params:\n");
 	foreach my $key ($r->param) {
+	    #make it so we dont debug plain text passwords
+	    my $vals;	    
+	    if ($key eq 'passwd'||
+		$key eq 'confirmPassword' ||
+		$key eq 'currPassword' ||
+		$key eq 'newPassword' || 
+		$key =~ /\.new_password/) {
+		$vals = '**********';
+	    } else {
 		my @vals = $r->param($key);
-		my $vals = join(", ", map { "'$_'" } @vals);
-		debug("\t$key => $vals\n");
+		$vals = join(", ", map { "'$_'" } @vals);
+	    }
+	    debug("\t$key => $vals\n");
 	}
 	
 	#mungeParams($r);
@@ -477,13 +489,17 @@ sub CGI_labeled_input
 		return CGI::label($param{-label_attr},$param{-label_text}).CGI::input($param{-input_attr});
 	}
 	elsif($param{-type} eq "checkbox" or $param{-type} eq "radio"){
-		return CGI::input($param{-input_attr}).CGI::label($param{-label_attr},$param{-label_text});
+		return CGI::label($param{-label_attr},CGI::input($param{-input_attr}),$param{-label_text});
 	}
 	elsif($param{-type} eq "submit" or $param{-type} eq "button" or $param{-type} eq "reset"){
 		return CGI::input($param{-input_attr});
 	}
 	elsif($param{-type} eq "select"){
+	    if (defined $param{-input_attr}{-multiple}) {
+		return CGI::label($param{-label_attr},$param{-label_text}).CGI::scrolling_list($param{-input_attr});
+	    } else {
 		return CGI::label($param{-label_attr},$param{-label_text}).CGI::popup_menu($param{-input_attr});
+	    }
 	}
 	elsif($param{-type} eq "textarea"){
 		return CGI::label($param{-label_attr},$param{-label_text}).CGI::br().CGI::br().CGI::textarea($param{-input_attr});

@@ -31,34 +31,42 @@ function(Backbone, _,config){
                         opts = [];
                         break;
                     case "boolean":
-                        opts = [{label: "true", value: "1"}, {label: "false", value: "0"}];
-                        propHtml = "<select class='select-list'></select>";
+                        //opts = [{label: "true", value: true}, {label: "false", value: false}];
+                        //opts = ["true","false"];
+                        //"<select class='select-list TF-boolean-select'></select>";
+                        propHTML = "<input type='checkbox' class='true-false'>";
                         break;
                     case "checkboxlist":
-                        propHtml = "<select multiple='multiple' class='select-list'></select>";
-                        opts = _(setting.get('values')).map(function(opt){ return {label: opt, value: opt}; } );
+                        propHTML = "<select multiple='multiple' class='select-list'></select>";
+                        var labels = setting.get("labels");
+                        opts = _(setting.get('values')).map(function(opt){ 
+                            return {label: labels? labels[opt] : opt, value: opt}; } );                        
                         break;
                     case "popuplist": 
-                        propHtml = "<select class='select-list'></select>";
-                        opts = _(setting.get('values')).map(function(opt){ return {label: opt, value: opt}; } );
+                        propHTML = "<select class='select-list'></select>";
+                        var labels = setting.get("labels");
+                        opts = _(setting.get('values')).map(function(opt){ 
+                            return {label: labels? labels[opt] : opt, value: opt}; } );                        
                         break;
                     case "permission":
-                        propHtml = "<select class='select-list'></select>";
+                        propHTML = "<select class='select-list'></select>";
                         opts = _(config.permissions).map(function(perm){ return {label: perm.label, value: perm.label}});
                         break;
                 }
+                var options = {model: setting, theOptions: opts,rowTemplate: self.rowTemplate,
+                                                                    prop_html: propHTML};
                 switch(setting.get("type")){
                     case "text":
                     case "number": 
-                        table.append((new TextSettingView({model: setting, prop_html: propHTML, 
-                            rowTemplate: self.rowTemplate})).render().el);
+                        table.append(new TextSettingView(options).render().el);
                         break;
                     case "boolean":
+                        table.append(new CheckboxSettingView(options).render().el);
+                        break;
                     case "checkboxlist":
                     case "popuplist":
                     case "permission":
-                        table.append((new SelectSettingView({model: setting, theOptions: opts,rowTemplate: self.rowTemplate,
-                                                                    prop_html: propHtml})).render().el);
+                        table.append(new SelectSettingView(options).render().el);
                         break;
 
                 }
@@ -112,7 +120,6 @@ function(Backbone, _,config){
 
     var SelectSettingView = SettingView.extend({
         initialize: function (options) {
-            //_.bindAll(this,'render');
             this.theOptions = options.theOptions;
             var theBindings = { ".select-list" : {observe: "value", selectOptions: { collection: "this.theOptions"}}};
             options.bindings = options.bindings? _.extend(options.bindings,theBindings) : theBindings;
@@ -120,9 +127,16 @@ function(Backbone, _,config){
         }
     });
 
+    var CheckboxSettingView = SettingView.extend({
+        initialize: function(options){
+            var theBindings = { ".true-false": "value"};
+            options.bindings = options.bindings? _.extend(options.bindings,theBindings) : theBindings;
+            SettingView.prototype.initialize.apply(this,[options]);
+        }
+    });
+
     var TextSettingView = SettingView.extend({
         initialize: function (options) {
-            //_.bindAll(this,'render');
             var theBindings = { ".property": {observe: "value", events: ['blur']}};
             options.bindings = options.bindings? _.extend(options.bindings,theBindings) : theBindings;
             SettingView.prototype.initialize.apply(this,[options]);

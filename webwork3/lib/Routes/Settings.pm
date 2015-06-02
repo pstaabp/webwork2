@@ -11,6 +11,7 @@ our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 use strict;
 use warnings;
 use Utils::CourseUtils qw/getCourseSettings/;
+use Routes::Authentication qw/checkPermissions/;
 use Dancer ':syntax';
 
 ####
@@ -23,7 +24,7 @@ use Dancer ':syntax';
 
 get '/courses/:course_id/settings' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
 	return getCourseSettings;
 
@@ -39,7 +40,7 @@ get '/courses/:course_id/settings' => sub {
 
 get '/courses/:course_id/settings/:setting_id' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
 	my $ConfigValues = getConfigValues(vars->{ce});
 
@@ -47,6 +48,9 @@ get '/courses/:course_id/settings/:setting_id' => sub {
 		foreach my $hash (@$oneConfig) {
 			if (ref($hash)=~/HASH/){
 				if ($hash->{var} eq params->{setting_id}){
+					if($hash->{type} eq 'boolean'){
+						$hash->{value} = $hash->{value} ? JSON::true : JSON::false;
+					}
 					return $hash;
 				}
 			}
@@ -60,18 +64,20 @@ get '/courses/:course_id/settings/:setting_id' => sub {
 
 put '/courses/:course_id/settings/:setting_id' => sub {
 
-	debug session;
+	checkPermissions(10,session->{user});
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
-
-	debug "in PUT /course/:course_id/settings/:setting_id";
-
+	#debug "in PUT /course/:course_id/settings/:setting_id";
+	
 	my $ConfigValues = getCourseSettingsWW2();
 	foreach my $oneConfig (@$ConfigValues) {
 		foreach my $hash (@$oneConfig) {
 			if (ref($hash)=~/HASH/){
 				if ($hash->{var} eq params->{setting_id}){
-					$hash->{value} = params->{value};
+					if($hash->{type} eq 'boolean'){
+						$hash->{value} = params->{value} ? 1 : 0;
+					} else {
+						$hash->{value} = params->{value};
+					}
 					return writeConfigToFile(vars->{ce},$hash);
 				}
 			}
@@ -158,7 +164,6 @@ sub writeConfigToFile {
 		chomp $line;
 	 	if ($line =~ /^\$/) {
 	 		my ($var,$value) = ($line =~ /^\$(.*)\s+=\s+(.*);$/);
-	 		debug $var;
 	 		if ($var eq $config->{var}){ 
 	 			$fileoutput .= writeLine($config->{var},$config->{value});
 	 			$varFound = 1; 
@@ -189,6 +194,9 @@ sub writeConfigToFile {
 	if ($writeFileErrors){
 		return {error=>$writeFileErrors};
 	} else {
+		if($config->{type} eq 'boolean'){
+			$config->{value} = $config->{value} ? JSON::true : JSON::false;
+		}
 		return $config;
 	}
 }

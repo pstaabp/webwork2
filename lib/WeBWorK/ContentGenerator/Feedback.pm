@@ -203,15 +203,26 @@ sub body {
 		
 		# get info about remote user (stolen from &WeBWorK::Authen::write_log_entry)
 		my ($remote_host, $remote_port);
-
-		# If its apache 2.4 then it has to also mod perl 2.0 or better
-		my $APACHE24 = 0;
-		if (MP2) {
-		    Apache2::ServerUtil::get_server_banner() =~ 
-		      m:^Apache/(\d\.\d+\.\d+):;
-		    $APACHE24 = version->parse($1) >= version->parse('2.4.00');
-		}
 		
+		my $APACHE24 = 0;
+		# If its apache 2.4 then it has to also mod perl 2.0 or better
+		if (MP2) {
+		    my $version;
+		    
+		    # check to see if the version is manually defined
+		    if (defined($ce->{server_apache_version}) &&
+			$ce->{server_apache_version}) {
+			$version = $ce->{server_apache_version};
+			# otherwise try and get it from the banner
+		    } elsif (Apache2::ServerUtil::get_server_banner() =~ 
+			   m:^Apache/(\d\.\d+):) {
+			$version = $1;
+		    }
+		    
+		    if ($version) {
+			$APACHE24 = version->parse($version) >= version->parse('2.4');
+		    }
+		}
 		# If its apache 2.4 then the API has changed
 		if ($APACHE24) {
 		    $remote_host = $r->connection->client_addr->ip_get || "UNKNOWN";
@@ -341,7 +352,9 @@ sub noRecipientsAvailable {
 	print CGI::p(CGI::a({-href=>$returnURL}, "Cancel E-Mail")) if $returnURL;
 }
 sub title {
-	return "E-mail Instructor";
+	my ($self, $user, $returnURL, $message) = @_;
+	my $r = $self->r;
+	return $r->maketext("E-mail Instructor");
 }
 sub feedbackForm {
 	my ($self, $user, $returnURL, $message) = @_;
@@ -353,24 +366,20 @@ sub feedbackForm {
 		module set problem displayMode showOldAnswers showCorrectAnswers
 		showHints showSolutions
 	));
-	print CGI::p(CGI::b("From:"), " ",
+	print CGI::p(CGI::b($r->maketext("From:")), " ",
 		($user && $user->email_address
 			? CGI::tt($user->email_address)
 			: CGI::textfield("from", "", 40))
 	);
-	print CGI::p("Use this form to report to your professor a
-		problem with the WeBWorK system or an error in a problem
-		you are attempting. Along with your message, additional
-		information about the state of the system will be
-		included.");
+	print CGI::p("Use this form to report to your professor a problem with the WeBWorK system or an error in a problem you are attempting. Along with your message, additional information about the state of the system will be included.");
 	print CGI::p(CGI::i($message)) if $message;
 	print CGI::p(
-		CGI::b("E-mail:"), CGI::br(),
-		CGI::textarea("feedback", "", 20, 80),
+		CGI::label({'for'=>"feedback"},CGI::b("E-mail:").CGI::span({class=>"required-field"},'*')),
+		CGI::textarea({name=>"feedback", id=>"feedback", cols=>"80", rows=>"20"}),
 	);
-	print CGI::submit("sendFeedback", "Send E-mail");
+	print CGI::submit("sendFeedback", $r->maketext("Send E-mail"));
 	print CGI::end_form();
-	print CGI::p(CGI::a({-href=>$returnURL}, "Cancel E-mail")) if $returnURL;
+	print CGI::p(CGI::a({-href=>$returnURL}, $r->maketext("Cancel E-mail"))) if $returnURL;
 }
 
 sub getFeedbackRecipients {

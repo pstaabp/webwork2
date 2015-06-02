@@ -3,13 +3,14 @@
 
 package Utils::CourseUtils;
 use base qw(Exporter);
-use Dancer;
+use Dancer ':syntax';
 #use Dancer::Plugin::Database;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::ProblemSets qw/getGlobalSet/;
 use Data::Dumper;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(getCourseSettings getAllSets getAllUsers);
+
 
 # get the course settings
 
@@ -36,14 +37,14 @@ sub getAllUsers {
     foreach my $u (@userInfo)
     {
         my $PermissionLevel = vars->{db}->getPermissionLevel($u->{'user_id'});
-        $u->{'permission'} = $PermissionLevel->{'permission'};
+        $u->{permission} = $PermissionLevel->{permission};
 
-		my $studid= $u->{'student_id'};
-		$u->{'student_id'} = "$studid";  # make sure that the student_id is returned as a string. 
-        $u->{'num_user_sets'} = vars->{db}->listUserSets($studid) . "/" . $numGlobalSets;
-	
-		my $Key = vars->{db}->getKey($u->{'user_id'});
-		$u->{'login_status'} =  ($Key and time <= $Key->timestamp()+vars->{ce}->{sessionKeyTimeout}); # cribbed from check_session
+		my $studid= $u->{student_id};
+		my $key = vars->{db}->getKey($u->{'user_id'});
+
+		$u->{student_id} = "$studid";  # make sure that the student_id is returned as a string. 
+        $u->{num_user_sets} = vars->{db}->listUserSets($studid) . "/" . $numGlobalSets;
+		$u->{logged_in} = ($key and time <= $key->timestamp()+vars->{ce}->{sessionKeyTimeout}) ? JSON::true : JSON::false;
 		
 
 		# convert the user $u to a hash
@@ -51,6 +52,8 @@ sub getAllUsers {
 		for my $key (keys %{$u}) {
 			$s->{$key} = $u->{$key}
 		}
+
+		$s->{_id} = $s->{user_id};
 
 		push(@allUsers,$s);
     }
@@ -89,6 +92,12 @@ sub getCourseSettings {
 					$setting->{value} = $themes;	
 				}
 				$setting->{category} = $category;
+
+				## turn a 0/1 boolean into a false/true one.
+				if($setting->{type} eq 'boolean'){
+					$setting->{value} = $setting->{value} ? JSON::true : JSON::false;
+				}
+
 				push(@settings,$setting);
 			}
 		}

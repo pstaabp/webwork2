@@ -33,7 +33,7 @@ our @EXPORT_OK = qw();
 #	list_set_versions
 #);
 
-use constant BASIC => qw( DBsubject DBchapter DBsection Date Institution Author MLT MLTleader Level Language );
+use constant BASIC => qw( DBsubject DBchapter DBsection Date Institution Author MLT MLTleader Level Language Static MO Status );
 use constant NUMBERED => qw( TitleText AuthorText EditionText Section Problem );
 
 my $basics = join('|', BASIC);
@@ -44,7 +44,7 @@ sub istagline {
   my $line = shift;
   return 1 if($line =~ /$re/);
   return 1 if($line =~ /#\s*\bKEYWORDS?\s*\(\s*'?(.*?)'?\s*\)/);
-  return 1 if($line =~ /#\s*\b$numbered\d+\s*\(\s*'?(.*?)'?\s*\)/);
+  return 1 if($line =~ /#\s*\b($numbered)\d+\s*\(\s*'?(.*?)'?\s*\)/);
   return 0;
 }
 
@@ -189,7 +189,7 @@ sub new {
   my $textinfo=[];
 
   open(IN,"$name") or die "can not open $name: $!";
-  if ($name !~ /pg$/) {
+  if ($name !~ /pg$/ && $name !~ /\.pg\.[-a-zA-Z0-9_.@]*\.tmp$/) {
     warn "Not a pg file";  #print caused trouble with XMLRPC 
     $self->{file}= undef;
     bless($self, $class);
@@ -333,7 +333,7 @@ sub copyin {
 #    }
 #  }
   # Just copy in all basic tags
-  for my $j (qw( DBsubject DBchapter DBsection Date Institution Author MLT MLTleader Level )) {
+  for my $j (qw( DBsubject DBchapter DBsection MLT MLTleader Level )) {
     $self->settag($j, $ob->{$j}) if(defined($ob->{$j}));
   }
   # Now copy in keywords
