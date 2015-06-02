@@ -285,4 +285,4 @@ at the bottom of the screen and click "Save Changes". </p>
 
 [% INCLUDE main/editor.tt %]
 
-[% INCLUDE sidepanes/course_manager.tt %]
+[% INCLUDE sidebars/course_manager.tt %]
