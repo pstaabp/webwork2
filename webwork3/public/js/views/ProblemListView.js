@@ -49,7 +49,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 _(this).extend(_(opts).pick("show_path","show_tags"))
             }
             this.viewAttrs.type = opts.type || "set";
-            this.viewAttrs.displayMode = this.settings.getSettingValue("pg{options}{displayMode}");
+            this.viewAttrs.displayMode = (opts.display_mode || this.viewAttrs.displayMode ) ||              
+                                            this.settings.getSettingValue("pg{options}{displayMode}");
             // start with showing 10 (pageSize) problems
             this.maxProblemIndex = (this.problems.length > this.pageSize)?
                     this.pageSize : this.problems.length;
@@ -128,21 +129,27 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             "click .go-forward-one": "nextPage",
             "click .goto-end": "lastPage"
         },
-        changeDisplayMode: function (evt) {
+        changeDisplayMode: function (_display) {
             this.problems.each(function(problem){
-                problem.set({data: null},{silent:true});
+                 problem.set({data: null},{silent:true});
             });
-            this.viewAttrs.displayMode = $(evt.target).val();
+            this.viewAttrs.displayMode = _display; // $(evt.target).val();  Note: this might screw up the ProblemSetDetail View
             this.renderProblems();
         },
         showPath: function(_show){
+            var self = this;
             this.show_path = _show;
-            _(this.problemViews).each(function(pv){ pv.set({show_path: _show})});
+            _(this.pageRange).each(function(i){ 
+                self.problemViews[i].set({show_path: _show})
+            });
             return this;
         },
         showTags: function (_show) {
+            var self = this;
             this.show_tags = _show;
-            _(this.problemViews).each(function(pv){ pv.set({show_tags: _show})});
+            _(this.pageRange).each(function(i){ 
+                self.problemViews[i].set({show_tags: _show})
+            });
             return this;
         },
         firstPage: function() { this.gotoPage(0);},

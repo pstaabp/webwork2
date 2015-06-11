@@ -1,3 +1,10 @@
+/**
+ * This is the view of displaying any problems in the library.  It is a ProblemListView with some additional 
+ * functionality including highlighting problems from the library that are in the target set.  
+ *
+ **/
+
+
 define(['backbone', 'views/ProblemListView','config'], 
     function(Backbone, ProblemListView,config) {
     	var LibraryProblemsView = ProblemListView.extend({
@@ -9,10 +16,13 @@ define(['backbone', 'views/ProblemListView','config'],
                 ProblemListView.prototype.initialize.apply(this,[options]); 
     		},
             render: function(){
-                this.libraryView.libraryProblemsView.set({current_page: this.libraryView.tabState.get("page_num")});
+                //this.libraryView.libraryProblemsView.set({current_page: this.libraryView.tabState.get("page_num"),
+                this.set({current_page: this.libraryView.tabState.get("page_num"),
+                            display_mode: this.libraryView.parent.state.get("display_mode")});
                 ProblemListView.prototype.render.apply(this);
                 this.libraryView.libraryProblemsView.on("page-changed",this.highlightCommonProblems);
                 this.highlightCommonProblems();
+                this.libraryView.libraryProblemsView.viewAttrs.displayMode = this.libraryView.parent.state.get("display_mode");
                 this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
                 return this;
             },

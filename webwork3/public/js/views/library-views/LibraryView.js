@@ -1,7 +1,11 @@
 /*
 *  This is the a view of a library (subject, directories, or local) typically within a LibraryBrowser view. 
 *
-*  
+*  This contains the basic functionality of each of the types of library views.  
+*
+*  There are two other views contained in this one: 
+*        1) LibraryTreeView which displays a series of select options to each library type
+*        2) LibraryProblemsView which displays the problems after they have been selected.  
 */ 
 
 define(['backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
@@ -10,31 +14,26 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
         className: "library-view",
     	initialize: function (options){
     		var self = this;
-            _.bindAll(this,'addProblem','loadProblems','showProblems','changeDisplayMode');
-            _(this).extend(_(options).pick("problemSets","libBrowserType","settings","eventDispatcher","messageTemplate"));
+            _.bindAll(this,'addProblem','loadProblems','showProblems','changeDisplayMode','setTargetSet');
+            _(this).extend(_(options).pick("parent","problemSets","libBrowserType","settings"
+                                            ,"eventDispatcher","messageTemplate"));
             this.libraryProblemsView = new LibraryProblemsView({libraryView: this, messageTemplate: this.messageTemplate,
                      problemSets: this.problemSets, settings: this.settings})
                 .on("page-changed",function(num){
                     self.tabState.set("page_num",num);
                 });
-            TabView.prototype.initialize.apply(this,[options]);
-            this.tabState.on("change:show_path",function(){
-                self.libraryProblemsView.showPath(self.tabState.get("show_path"));
-            }).on("change:show_tags",function(){
-                self.libraryProblemsView.showTags(self.tabState.get("show_tags"));
-            })
-
+            TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
+            
     	},
-    	events: {   
+    	/*events: {   
             "change .target-set": "resetDisplayModes"
-        }, 
+        }, */ 
     	render: function (){
             var self = this, i;
             var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
             modes.push("None");
 
-    		this.$el.html(_.template($("#library-view-template").html(), 
-                    {displayModes: modes, sets: this.problemSets.pluck("set_id")}));
+    		this.$el.html($("#library-view-template").html());
             if(this.libraryTreeView){
                 var _fields = {};
                 for(i=0;i<4;i++){
@@ -55,21 +54,21 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             return this;
     	},
         getDefaultState: function () {
-            return {library_path: "", page_num: 0, rendered: false, page_size: 10, show_path: false, show_tags: false};
+            return {library_path: "", page_num: 0, rendered: false, page_size: 10};
         },
         changeDisplayMode:function(evt){
-            this.libraryProblemsView.changeDisplayMode(evt);
+            this.libraryProblemsView.changeDisplayMode(this.parent.state.get("display_mode"));
         },
         resetDisplayModes: function(){  // needed if there no target set was selected. 
             this.$('.target-set').css('background-color','white');
             this.$('.target-set').popover("hide");
         },
-        setTargetSet: function(set){
-            this.targetSet = set;
+        setTargetSet: function(set_id){
+            this.tabState.set("target_set_id", set_id);
             this.libraryProblemsView.highlightCommonProblems();
         },
         addProblem: function(model){
-            var problemSet = this.problemSets.findWhere({set_id: this.targetSet});
+            var problemSet = this.problemSets.findWhere({set_id: this.tabState.get("target_set_id")});
             if(!problemSet){
                 this.$(".target-set").css("background-color","rgba(255,0,0,0.4)")
                     .popover({placement: "bottom",content: this.messageTemplate({type:"select_target_set"})}).popover("show");
@@ -78,12 +77,20 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             problemSet.addProblem(model);
         },
         showProblems: function () {
+            var self = this;
             this.tabState.set("rendered",true);
             // I18N
             this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
                     .updatePaginator().gotoPage(this.tabState.get("page_num")).highlightCommonProblems()
-                    .showPath(this.tabState.get("show_path")).showTags(this.tabState.get("show_tags"));
+                    .showPath(this.parent.state.get("show_path"))
+                    .showTags(this.parent.state.get("show_tags"));
+            this.parent.state.on("change:show_path",function(){
+                self.libraryProblemsView.showPath(self.parent.state.get("show_path"));
+            }).on("change:show_tags",function(){
+                self.libraryProblemsView.showTags(self.parent.state.get("show_tags"));
+            })
+
         },
     	loadProblems: function (){   
             this.$(".load-library-button").button("loading"); 	
