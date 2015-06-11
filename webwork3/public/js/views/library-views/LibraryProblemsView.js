@@ -3,8 +3,8 @@ define(['backbone', 'views/ProblemListView','config'],
     	var LibraryProblemsView = ProblemListView.extend({
     		initialize: function (options) {
                 _(this).bindAll("highlightCommonProblems");
-	            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, showEditTool: true, problem_seed: 1,
-                    showRefreshTool: true, showViewTool: true, showHideTool: true, deletable: false, draggable: true};
+	            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, showEditTool: false, problem_seed: 1,
+                    showRefreshTool: true, showViewTool: false, showHideTool: true, deletable: false, draggable: true};
                 _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
                 ProblemListView.prototype.initialize.apply(this,[options]); 
     		},
