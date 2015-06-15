@@ -405,14 +405,22 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 	$renderParams->{set} =  fake_set(vars->{db});
 	$renderParams->{problem} = fake_problem(vars->{db});
 	$renderParams->{problem}->{problem_seed} = params->{problem_seed} || 0;
+    
 	$renderParams->{problem}->{problem_id} = params->{problem_id} || 1;
 
 	# check to see if the problem_path is defined
 
 	if (defined(params->{problem_path})){
 		$renderParams->{problem}->{source_file} = "Library/" . params->{problem_path};
-	} elsif (defined(params->{source_file})){
+	} elsif (defined(params->{source_file})){  # this is generally a library problem 
 		$renderParams->{problem}->{source_file} = params->{source_file};
+        # get the pgfile_id # 
+        my $file = file(params->{source_file}); 
+        my $path = $file->dir->stringify;
+        $path =~ s/Library\///; 
+        my $path_id = database->quick_select('OPL_path',{path=>$path})->{path_id};
+        my $pgfile_id = database->quick_select('OPL_pgfile',{path_id => $path_id, filename=> $file->basename})->{pgfile_id};
+        $renderParams->{problem}->{problem_id} = $pgfile_id; 
 	} elsif ((params->{problem_id} =~ /^\d+$/) && (params->{problem_id} > 0)){  
 			# try to look up the problem_id in the global database;
 

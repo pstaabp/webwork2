@@ -98,6 +98,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
                 }
                 this.showPath(this.state.get("show_path"));
+                this.showTags(this.state.get("show_tags"));
                 this.stickit();
                 this.model.trigger("rendered",this);
                 this.state.set("rendered",true);                
@@ -154,28 +155,10 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.render();
         },
         showPath: function (_show){
-            if(_show){
-                this.$(".path-row").removeClass("hidden");
-            } else {
-                this.$(".path-row").addClass("hidden");
-            }
+            config.changeClass({state: _show, els: this.$(".path-row"), remove_class: "hidden"});
         },
         showTags: function (_show){
-            var self = this;
-            if(_show){
-                if(this.state.get("tags_loaded")){
-                    this.$(".tag-row").removeClass("hidden");
-                } else {
-                    this.$(".loading-row").removeClass("hidden");
-                    this.model.loadTags({success: function (){ 
-                        self.$(".loading-row").addClass("hidden");
-                        self.$(".tag-row").removeClass("hidden");
-                        self.state.set('tags_loaded',true);
-                    }});
-                }
-            } else {
-                this.$(".tag-row").addClass("hidden");
-            }
+            config.changeClass({state: _show, els: this.$(".tag-row"), remove_class: "hidden"});
         },
         showMLT: function(_show){
             this.$(".mlt-button").html(_show?"L":"M");
