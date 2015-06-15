@@ -33,6 +33,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             if(typeof(this.model)==="undefined"){
                 this.model = new Problem();
             }
+                    
 
             // the this.state will store information about the state of the problem
             // including whether or not tags or path is shown as well as view attributes
@@ -47,8 +48,15 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                     self.showPath(self.state.get("show_path"));
                 }).on("change:show_mlt",function(){
                     self.showMLT(self.state.get("show_mlt"));
-                });
-
+                }).on("change:hidden",function() {
+                    config.changeClass({state: self.state.get("hidden"), els: self.$el, add_class: "hidden"});
+                    if(!self.state.get("hidden")){
+                        self.render();
+                    }
+                }); 
+            
+            this.state.set("hidden",options.hidden || false);
+                    
             this.model.on('change:value', function () {
                 if(self.model.get("value").match(/^\d+$/)) {
                     self.model.save();
@@ -89,14 +97,11 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 if (this.state.get("displayMode")==="MathJax"){
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
                 }
-                if(! this.model.get("mlt_leader") && this.model.get("morelt_id")!=0){
-                    this.$el.addClass("hidden");   
-                }
                 this.showPath(this.state.get("show_path"));
                 this.stickit();
                 this.model.trigger("rendered",this);
                 this.state.set("rendered",true);                
-            } else {
+            } else if (! this.state.get("hidden")) {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
                 this.model.loadHTML({displayMode: this.state.get("displayMode"), success: function (data) {

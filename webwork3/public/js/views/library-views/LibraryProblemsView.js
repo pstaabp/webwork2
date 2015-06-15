@@ -23,7 +23,8 @@ function(Backbone, ProblemListView,config) {
             ProblemListView.prototype.render.apply(this);
             this.libraryView.libraryProblemsView.on("page-changed",this.highlightCommonProblems);
             this.highlightCommonProblems();
-            this.libraryView.libraryProblemsView.viewAttrs.displayMode = this.libraryView.parent.state.get("display_mode");
+            this.libraryView.libraryProblemsView.viewAttrs.displayMode =
+                    this.libraryView.parent.state.get("display_mode");
             this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
             return this;
         },
@@ -33,7 +34,8 @@ function(Backbone, ProblemListView,config) {
                         return pv.model.get("morelt_id")==_model.get("morelt_id");})
             _(pvs).each(function(pv,i) { 
                 if(i>0) {
-                    config.changeClass({state: _show, els: pv.$el, remove_class: "hidden"}); 
+                    pv.state.set("hidden", !_show);
+                    //config.changeClass({state: _show, els: pv.$el, remove_class: "hidden"}); 
                 }
                 if(i>0 && i<pvs.length-1){
                     config.changeClass({state: _show, els: pv.$el, 

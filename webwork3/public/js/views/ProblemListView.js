@@ -78,21 +78,20 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var self = this; 
             this.probsToShow = this.problems.filter(function(prob){ return prob.get("mlt_leader") ||            
                                             prob.get("morelt_id")==0;}); 
-            this.maxProblemIndex = (this.probsToShow.length > this.pageSize)?
-                    this.pageSize : this.probsToShow.length; 
             this.pages = [];
             var currentPage = []; 
             //var probNumOnPage = 0; 
             this.problems.each(function(prob,i){
+                if(currentPage.length>=self.pageSize && 
+                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id")){
+                    self.pages.push(currentPage); 
+                    currentPage = [];
+                }
+
                 if(prob.get("mlt_leader") || prob.get("morelt_id")==0){
                     currentPage.push({leader:true,num:i})   
                 } else {
                     currentPage.push({leader:false,num:i});
-                }
-                if(currentPage.length>self.pageSize && 
-                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id")){
-                    self.pages.push(currentPage); 
-                    currentPage = [];
                 }
             });
             self.pages.push(currentPage);
@@ -118,7 +117,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 this.sortProblems();   
             }
             _(this.pages[this.currentPage]).each(function(obj){
-                var pv = new ProblemView({model: self.problems.at(obj.num), 
+                var pv = new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
                                           libraryView: self.libraryView, viewAttrs: self.viewAttrs});
                 self.problemViews.push(pv);
                 ul.append(pv.render().el); 
@@ -133,6 +132,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.showTags(this.show_tags);
             this.updatePaginator();
             this.updateNumProblems();
+            console.log(this.pages);
             return this;
         },
         /* Clear the problems and rerender */ 
@@ -149,18 +149,17 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         },
         updatePaginator: function() {
             // render the paginator
-
-            this.maxPages = Math.ceil(this.problems.length / this.pageSize);
+            if(! this.pages) { return this;}
             var start =0,
-                stop = this.maxPages;
-            if(this.maxPages>8){
+                stop = this.pages.length;
+            if(this.pages.length>8){
                 start = (this.currentPage-4 <0)?0:this.currentPage-4;
-                stop = start+8<this.maxPages?start+8 : this.maxPages;
+                stop = start+8<this.pages.length?start+8 : this.pages.length;
             }
-            if(this.maxPages>1){
+            if(this.pages.length>1){
                 var tmpl = _.template($("#paginator-template").html()); 
-                this.$(".problem-paginator").html(tmpl({current_page: this.currentPage, page_start:start,               
-                                                        page_stop:stop,num_pages:this.maxPages}));
+                this.$(".problem-paginator").html(tmpl({current_page: this.currentPage, page_start:start,            
+                                                        page_stop:stop,num_pages:this.pages.length}));
             }
             return this;
         },
@@ -199,8 +198,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         },
         firstPage: function() { this.gotoPage(0);},
         prevPage: function() {if(this.currentPage>0) {this.gotoPage(this.currentPage-1);}},
-        nextPage: function() {if(this.currentPage<this.maxPages){this.gotoPage(this.currentPage+1);}},
-        lastPage: function() {this.gotoPage(this.maxPages-1);},
+        nextPage: function() {if(this.currentPage<this.pages.length){this.gotoPage(this.currentPage+1);}},
+        lastPage: function() {this.gotoPage(this.pages.length-1);},
         gotoPage: function(arg){
             this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
             this.updatePaginator();       
