@@ -6,7 +6,12 @@ define(['backbone'], function(Backbone){
 			return this;
 		},
 		events: {
-			"click .manager-menu a.link": function(evt){this.trigger("change-view",$(evt.target).data("id"))},
+			"click .manager-menu a.link": function(evt){
+                    // if the user clicks on the icon.  (Note: why isn't this taken care of automatically
+                    // through the passing of click events?) 
+                    var targ = $(evt.target).hasClass("fa") ? $(evt.target).parent() : $(evt.target); 
+                    this.trigger("change-view",targ.data("id"))
+            },
 			"click .main-help-button": function(evt){
 				this.trigger("show-help")},
 			"click .logout-link": function(evt){ this.trigger("logout")},
