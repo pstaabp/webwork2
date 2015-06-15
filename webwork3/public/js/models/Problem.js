@@ -14,7 +14,9 @@ define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
             max_attempts: -1,
             set_id: "",
             flags: "",
-            problem_seed: 1
+            problem_seed: 1,
+            morelt_id: "",
+            mlt_leader: false,
         },
         idAttribute: "source_file",
         url: function () {

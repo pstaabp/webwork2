@@ -7,7 +7,9 @@ use Path::Class qw/file dir/;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
 use Data::Dumper;
-use WeBWorK::GeneralUtils qw(readDirectory);
+use List::MoreUtils qw/distinct first_index indexes/;
+use WeBWorK::GeneralUtils qw/readDirectory/;
+use Utils::Convert qw/convertArrayOfObjectsToHash/;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render);
 
@@ -225,9 +227,7 @@ sub searchLibrary {
 		$param->{$key} = $val;
 	}
 
-	debug $param;
-
-	my $selectClause = "SELECT CONCAT(path.path,'/',pg.filename),pg.pgfile_id "
+	my $selectClause = "SELECT CONCAT(path.path,'/',pg.filename),pg.pgfile_id,pg.morelt_id "
 					. "FROM OPL_path AS path "
 					. "JOIN OPL_pgfile AS pg ON path.path_id=pg.path_id ";
 
@@ -337,14 +337,60 @@ sub searchLibrary {
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
 
-
 	debug $selectClause,$whereClause.$groupClause;
 
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
+    
+    my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
+    my @lib_bools = qw/mlt_leader/;    
+    return convertArrayOfObjectsToHash(sortByMLT(\@problems), \@lib_bools);
+    
 
-	my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1] } } @{$results};
+    my $sorted_probs = sortByMLT(\@problems);
+    for my $prob (@$sorted_probs){
+        convertBooleans($prob, \@lib_bools);
+    }
 	
-	return \@problems;
+    return $sorted_probs;
+}
+
+sub sortByMLT {
+    my $problems = shift; 
+    
+    my @mlts = grep {$_ > 0} distinct map {$_->{morelt_id} } @$problems; 
+    my $leaders = {}; 
+    for my $mlt_id (@mlts){
+        my @results = database->selectrow_array("select * from OPL_morelt where morelt_id='" 
+                                                . $mlt_id . "';");
+        $leaders->{$mlt_id} = $results[3]; 
+    }
+    
+    my @sorted_problems = (); 
+    while(scalar(@$problems)>0){
+        if (! defined($leaders->{$problems->[0]->{morelt_id}}) 
+                || $problems->[0]->{morelt_id} == 0) {
+            my $prob = shift @$problems;
+            push(@sorted_problems,$prob);
+        } else {
+            # find the more_lt leader for the given morelt_id
+            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
+                                } @$problems;
+            my $prob = splice(@$problems,$i,1);
+            $prob->{mlt_leader} = 1; 
+            
+            push(@sorted_problems,$prob);    
+            
+            # find the remainder of the related morelt problems and push them on the 
+            # $problems array. 
+            my @inds = indexes { $_->{morelt_id} == $prob->{morelt_id} } @$problems;
+            for my $ind (reverse @inds){
+                my $p = splice(@$problems,$ind,1);
+                $p->{mlt_leader} = ""; 
+                push(@sorted_problems,$p);
+            }
+        }
+    }
+    return \@sorted_problems;
 }
 
 
@@ -385,7 +431,7 @@ sub getProblemTags {
 						. "LEFT JOIN OPL_textbook AS textbook ON textbook.textbook_id = ch.textbook_id ";
 	my $whereClause ="WHERE pg.pgfile_id='". $fileID ."'";
 	
-	debug $selectClause. $whereClause;
+	#debug $selectClause. $whereClause;
 
 	my $results = database->selectrow_arrayref($selectClause . $whereClause . ";");
 

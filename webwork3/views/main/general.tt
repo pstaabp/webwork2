@@ -119,6 +119,9 @@
       <a href="#" onclick="return false;" class="remove-problem btn btn-default" title="delete problem">
         <i class="fa fa-trash-o"></i></a>
     <%}%>
+    <%if(mlt_leader){ %>
+      <a href="#" onclick="return false;" class="mlt-button btn btn-default" title="Show/Hide More Like This problems">M</a>
+    <%}%>
   <a href="#" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
   <a href="#" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
   </div>

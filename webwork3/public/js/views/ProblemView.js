@@ -17,7 +17,6 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         draggable (boolean): can the problem be dragged and show the drag arrow (for library problems)
         displayMode (boolean): the PG display mode for the problem (images, MathJax, none)
 
-
         "tags_loaded", "tags_shown", "path_shown",
 
     */
@@ -46,6 +45,8 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                     self.showTags(self.state.get("show_tags"));
                 }).on("change:show_path",function(){
                     self.showPath(self.state.get("show_path"));
+                }).on("change:show_mlt",function(){
+                    self.showMLT(self.state.get("show_mlt"));
                 });
 
             this.model.on('change:value', function () {
@@ -88,7 +89,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 if (this.state.get("displayMode")==="MathJax"){
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
                 }
-
+                if(! this.model.get("mlt_leader") && this.model.get("morelt_id")!=0){
+                    this.$el.addClass("hidden");   
+                }
                 this.showPath(this.state.get("show_path"));
                 this.stickit();
                 this.model.trigger("rendered",this);
@@ -99,6 +102,11 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 this.model.loadHTML({displayMode: this.state.get("displayMode"), success: function (data) {
                     self.model.set("data",data.text);
                     self.model.renderData = data;
+                    self.state.set("mlt_leader",self.model.get("mlt_leader"));
+                    if(self.model.renderData.tags){ // if the tags were retrieved upon rendering. 
+                        self.model.set(self.model.renderData.tags);
+                        self.state.set('tags_loaded',true);
+                    }
                     self.render();
                 }, error:function(data){
                     self.model.set("data",data.responseText);
@@ -109,11 +117,13 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
 
             return this;
         },
-        events: {"click .hide-problem": "hideProblem",
+        events: {
+            "click .hide-problem": "hideProblem",
             "click .remove-problem": "removeProblem",
             "click .refresh-problem": 'reloadWithRandomSeed',
             "click .add-problem": "addProblem",
             "click .seed-button": "toggleSeed",
+            "click .mlt-button": function () {this.state.set("show_mlt",!this.state.get("show_mlt"))},
             "click .path-button": function () {this.state.set("show_path",!this.state.get("show_path"))},
             "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))}
         },
@@ -161,6 +171,10 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             } else {
                 this.$(".tag-row").addClass("hidden");
             }
+        },
+        showMLT: function(_show){
+            this.$(".mlt-button").html(_show?"L":"M");
+            this.libraryView.libraryProblemsView.showMLT(this.model,_show);
         },
         toggleSeed: function () {
             this.$(".problem-seed").toggleClass("hidden");

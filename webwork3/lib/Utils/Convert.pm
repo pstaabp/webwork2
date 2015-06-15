@@ -4,7 +4,6 @@
 package Utils::Convert;
 use base qw(Exporter);
 use JSON;
-use Data::Dumper;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(convertObjectToHash convertArrayOfObjectsToHash convertBooleans);
 
@@ -26,8 +25,7 @@ sub convertObjectToHash {
     my $s = {};
 
     $boolean_props = [] unless defined($boolean_props);
-
-
+    
     for my $key (keys %{$obj}){
         if(grep(/^$key$/,@{$boolean_props})){
             $s->{$key} = $obj->{$key} ? JSON::true : JSON::false;    

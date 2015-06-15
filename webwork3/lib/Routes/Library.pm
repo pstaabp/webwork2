@@ -21,12 +21,6 @@ use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
 use WeBWorK::Constants;
 
-# use constant MY_PROBLEMS => '  My Problems  ';
-# use constant MAIN_PROBLEMS => '  Unclassified Problems  ';
-# use constant fakeSetName => "Undefined_Set";
-# use constant fakeUserName => "Undefined_User";
-
-
 get '/Library/subjects' => sub {
 
 	my $webwork_dir = config->{webwork_dir};
@@ -231,7 +225,6 @@ get '/courses/:course_id/Library/setDefinition' => sub {
 
 	for my $filePath (@setDefnFiles){
 		my ($line, $got_to_pgs, $name, @rest) = ("", 0, "");
-		debug "$path/$filePath";
 		if ( open (SETFILENAME, "$path/$filePath") )    {
 			while($line = <SETFILENAME>) {
 				chomp($line);
@@ -429,7 +422,9 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
 	} 
 
-	return render($renderParams);
+    my $rp = render($renderParams);
+    $rp->{tags} = getProblemTags(-1);  # lookup the tags using the source_file. 
+	return $rp;
 
 };
 

@@ -15,6 +15,11 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
       *  
       *  The set name and list of problems are passed in the setProblems function.  
       *
+      * 
+      *  The problems are displayed on "pages", each containing 10 (or another value) problems.  These are
+      *  stored in the this.pages array....
+      *
+      *  The this.currentPage stores the value of the page that is currently being rendered.  
       */
 
     var ProblemListView = Backbone.View.extend({
@@ -34,12 +39,26 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             _.extend(this.viewAttrs,{type: options.type});
         },
         set: function(opts){
+            var self = this; 
             if(opts.problems){
                 this.problems = opts.problems; 
                 this.problems.off("remove").on("remove",this.deleteProblem);
                 if(opts.problemSet){
                     this.problemSet = opts.problemSet;
                     this.problems.problemSet = opts.problemSet;
+                    var currentPage = []; 
+                    this.pages = [];
+                    this.problems.each(function(prob,i){
+                        currentPage.push({leader:true,num:i})
+                        if(currentPage.length>self.pageSize){
+                            self.pages.push(currentPage); 
+                            currentPage = [];
+                        }
+                    });
+                    self.pages.push(currentPage);
+                }
+                if(this.libraryView){
+                    this.sortProblems();
                 }
             }
             if(opts.current_page){
@@ -51,12 +70,32 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.viewAttrs.type = opts.type || "set";
             this.viewAttrs.displayMode = (opts.display_mode || this.viewAttrs.displayMode ) ||              
                                             this.settings.getSettingValue("pg{options}{displayMode}");
-            // start with showing 10 (pageSize) problems
-            this.maxProblemIndex = (this.problems.length > this.pageSize)?
-                    this.pageSize : this.problems.length;
-            this.pageRange = _.range(this.maxProblemIndex);
             this.problemViews = [];
             return this;
+        },
+        // this function pulls out only the problems to show in the library. 
+        sortProblems: function (){
+            var self = this; 
+            this.probsToShow = this.problems.filter(function(prob){ return prob.get("mlt_leader") ||            
+                                            prob.get("morelt_id")==0;}); 
+            this.maxProblemIndex = (this.probsToShow.length > this.pageSize)?
+                    this.pageSize : this.probsToShow.length; 
+            this.pages = [];
+            var currentPage = []; 
+            //var probNumOnPage = 0; 
+            this.problems.each(function(prob,i){
+                if(prob.get("mlt_leader") || prob.get("morelt_id")==0){
+                    currentPage.push({leader:true,num:i})   
+                } else {
+                    currentPage.push({leader:false,num:i});
+                }
+                if(currentPage.length>self.pageSize && 
+                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id")){
+                    self.pages.push(currentPage); 
+                    currentPage = [];
+                }
+            });
+            self.pages.push(currentPage);
         },
         render: function() {
             var tmpl = _.template($("#problem-list-template").html());
@@ -72,11 +111,17 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         }, 
         renderProblems: function () {
             var self = this;
-            var ul = this.$(".prob-list").empty(); 
-            _(this.pageRange).each(function(i){
-                ul.append((self.problemViews[i] = new ProblemView({model: self.problems.at(i), 
-                    libraryView: self.libraryView, viewAttrs: self.viewAttrs})).render().el); 
-                    
+            var ul = this.$(".prob-list").empty();
+            this.problemViews = []; 
+            // The following is a stopgap to get the pages rendered off of a page refresh. 
+            if(typeof(this.pages)==="undefined"){
+                this.sortProblems();   
+            }
+            _(this.pages[this.currentPage]).each(function(obj){
+                var pv = new ProblemView({model: self.problems.at(obj.num), 
+                                          libraryView: self.libraryView, viewAttrs: self.viewAttrs});
+                self.problemViews.push(pv);
+                ul.append(pv.render().el); 
             });
 
             if(this.viewAttrs.reorderable){
@@ -139,7 +184,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         showPath: function(_show){
             var self = this;
             this.show_path = _show;
-            _(this.pageRange).each(function(i){ 
+            _(this.pages[this.currentPage]).each(function(obj,i){ 
                 self.problemViews[i].set({show_path: _show})
             });
             return this;
@@ -147,7 +192,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         showTags: function (_show) {
             var self = this;
             this.show_tags = _show;
-            _(this.pageRange).each(function(i){ 
+            _(this.pages[this.currentPage]).each(function(obj,i){ 
                 self.problemViews[i].set({show_tags: _show})
             });
             return this;
@@ -158,9 +203,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         lastPage: function() {this.gotoPage(this.maxPages-1);},
         gotoPage: function(arg){
             this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
-            this.pageRange = _.range(this.currentPage*this.pageSize,
-                (this.currentPage+1)*this.pageSize>this.problems.size()? this.problems.size():(this.currentPage+1)*this.pageSize);
-            
             this.updatePaginator();       
             this.renderProblems();
             this.$(".problem-paginator button").removeClass("current-page");
@@ -215,7 +257,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         deleteProblem: function (problem){
             var self = this; 
             this.problemSet.changingAttributes = 
-                {"problem_deleted": {setname: this.problemSet.get("set_id"), problem_id: problem.get("problem_id")}};
+                {"problem_deleted": {setname: this.problemSet.get("set_id"), 
+                                    problem_id: problem.get("problem_id")}};
             this.problemSet.trigger("change:problems",this.problemSet);
             this.problemSet.trigger("problem-deleted",problem);
             this.undoStack.push(problem);

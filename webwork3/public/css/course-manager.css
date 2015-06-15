@@ -40,6 +40,7 @@ th.logged-in-status {width: 40px;}
 
 .assign-filled {height: 30px; background-color: rgb(250,100,100)}
 
+/* styles for problems and the library browser */
 
 .problem-paginator {text-align: center;}
 .problem-paginator .pagination {margin-top: 5px;}
@@ -89,6 +90,36 @@ label.checklist {display: inline; margin-left: 8px;}
 .problem {border: 1px black solid;
 padding: 5px;
 border-radius: 5px;}
+
+.mlt-top {
+    border-top: 2px solid darkblue;
+    border-left: 2px solid darkblue;
+    border-right: 2px solid darkblue;
+    border-bottom: 1px solid lightgray;
+    border-radius: 5px 5px 0px 0px;
+    padding: 5px;
+}
+
+.mlt-middle {
+    border-top: 1px solid lightgray;
+    border-left: 2px solid darkblue;
+    border-right: 2px solid darkblue;
+    border-bottom: 1px solid lightgray;
+    border-radius: 0px 0px 0px 0px;
+    padding: 5px;
+}
+
+.mlt-bottom {
+    border-bottom: 2px solid darkblue;
+    border-left: 2px solid darkblue;
+    border-right: 2px solid darkblue;
+    border-top: 1px solid lightgray;
+    border-radius: 0px 0px 5px 5px;
+    padding: 5px;
+}
+
+.mlt-button { font-weight: bold;}
+
 
 .filename {font-style: italic; font-weight:  bold;}
 .problem-seed {margin-right: 2ex;}
