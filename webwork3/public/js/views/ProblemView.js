@@ -39,8 +39,8 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             // including whether or not tags or path is shown as well as view attributes
             // which include which tools are shown on a problemView
 
-            this.state = new Backbone.Model(
-                _.extend({tags_loaded: false, tags_shown: false, path_shown: false},options.viewAttrs));
+            this.state = new Backbone.Model(_.extend(options.viewAttrs,
+                        {tags_loaded: false, tags_shown: false, path_shown: false, data_fetched: false}));
             
             this.state.on("change:show_tags",function(){
                     self.showTags(self.state.get("show_tags"));
@@ -105,19 +105,22 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             } else if (! this.state.get("hidden")) {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
-                this.model.loadHTML({displayMode: this.state.get("displayMode"), success: function (data) {
-                    self.model.set("data",data.text);
-                    self.model.renderData = data;
-                    self.state.set("mlt_leader",self.model.get("mlt_leader"));
-                    if(self.model.renderData.tags){ // if the tags were retrieved upon rendering. 
-                        self.model.set(self.model.renderData.tags);
-                        self.state.set('tags_loaded',true);
-                    }
-                    self.render();
-                }, error:function(data){
-                    self.model.set("data",data.responseText);
-                    self.render();
-                }});
+                if(!this.state.get("data_fetched")){
+                    this.state.set("data_fetched",true);    
+                    this.model.loadHTML({displayMode: this.state.get("displayMode"), success: function (data) {
+                        self.model.set("data",data.text);
+                        self.model.renderData = data;
+                        self.state.set("mlt_leader",self.model.get("mlt_leader"));
+                        if(self.model.renderData.tags){ // if the tags were retrieved upon rendering. 
+                            self.model.set(self.model.renderData.tags);
+                            self.state.set('tags_loaded',true);
+                        }
+                        self.render();
+                    }, error:function(data){
+                        self.model.set("data",data.responseText);
+                        self.render();
+                    }});
+                }
             }
 
 
