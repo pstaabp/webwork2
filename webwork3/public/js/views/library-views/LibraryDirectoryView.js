@@ -5,7 +5,9 @@ function(Backbone, _,LibraryView,LibraryTreeView){
     	initialize: function(options){
     		LibraryView.prototype.initialize.apply(this,[options]);
             var self = this;
-            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,allProblemSets: options.problemSets,
+            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,
+                                                        libraryView: this,
+                                                        allProblemSets: options.problemSets,
                 topLevelNames: ["Select Library...","Select...","Select...","Select..."]});
             this.libraryTreeView.libraryTree.on("library-selected", this.loadProblems);
             Backbone.Validation.bind(this.libraryTreeView, {model: this.libraryTreeView.fields,

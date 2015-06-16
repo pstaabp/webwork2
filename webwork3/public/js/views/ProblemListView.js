@@ -76,14 +76,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         // this function pulls out only the problems to show in the library. 
         sortProblems: function (){
             var self = this; 
-            this.probsToShow = this.problems.filter(function(prob){ return prob.get("mlt_leader") ||            
-                                            prob.get("morelt_id")==0;}); 
             this.pages = [];
             var currentPage = []; 
             //var probNumOnPage = 0; 
             this.problems.each(function(prob,i){
-                if(currentPage.length>=self.pageSize && 
-                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id")){
+                if(currentPage.length>=self.pageSize && ( prob.get("morelt_id") == 0 || 
+                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id"))){
                     self.pages.push(currentPage); 
                     currentPage = [];
                 }
@@ -132,7 +130,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.showTags(this.show_tags);
             this.updatePaginator();
             this.updateNumProblems();
-            console.log(this.pages);
             return this;
         },
         /* Clear the problems and rerender */ 

@@ -7,7 +7,9 @@ function(Backbone, _,LibraryView,LibraryTreeView){
     		LibraryView.prototype.initialize.apply(this,[options]);
 
             // Put the top level names in a template so it can be translated. 
-            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,allProblemSets: options.problemSets,
+            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,
+                                                        allProblemSets: options.problemSets,
+                                                        libraryView: this, 
                 topLevelNames: ["Select Subject...","Select Chapter...","Select Section...","Select..."]});
             this.libraryTreeView.libraryTree.on("library-selected", this.loadProblems);  
             

@@ -405,9 +405,8 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 	$renderParams->{set} =  fake_set(vars->{db});
 	$renderParams->{problem} = fake_problem(vars->{db});
 	$renderParams->{problem}->{problem_seed} = params->{problem_seed} || 0;
-    
 	$renderParams->{problem}->{problem_id} = params->{problem_id} || 1;
-
+    
 	# check to see if the problem_path is defined
 
 	if (defined(params->{problem_path})){

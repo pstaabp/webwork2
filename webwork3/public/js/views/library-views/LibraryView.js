@@ -17,13 +17,18 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             _.bindAll(this,'addProblem','loadProblems','showProblems','changeDisplayMode','setTargetSet');
             _(this).extend(_(options).pick("parent","problemSets","libBrowserType","settings"
                                             ,"eventDispatcher","messageTemplate"));
-            this.libraryProblemsView = new LibraryProblemsView({libraryView: this, messageTemplate: this.messageTemplate,
-                     problemSets: this.problemSets, settings: this.settings})
+            this.libraryProblemsView = new LibraryProblemsView({libraryView: this, 
+                                                                messageTemplate: this.messageTemplate,
+                                                                problemSets: this.problemSets, 
+                                                                settings: this.settings})
                 .on("page-changed",function(num){
                     self.tabState.set("page_num",num);
                 });
             TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
-            
+            this.on("goto-first-page",function() {
+                self.tabState.set("page_num",0);
+                this.libraryProblemsView.gotoPage(0); 
+            })
     	},
     	/*events: {   
             "change .target-set": "resetDisplayModes"

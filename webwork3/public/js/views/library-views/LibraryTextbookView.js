@@ -8,7 +8,9 @@ function(Backbone, _,LibraryView,LibraryTreeView, ProblemList,config){
         tabName: "Textbooks",
     	initialize: function (options){
             LibraryView.prototype.initialize.apply(this,[options]);
-            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,allProblemSets: options.problemSets,
+            this.libraryTreeView = new LibraryTreeView({type: options.libBrowserType,
+                                                        allProblemSets: options.problemSets,
+                                                        libraryView: this,
                 topLevelNames: ["Select Textbook...","Select Chapter...","Select Section...","Select..."]});
             this.libraryTreeView.libraryTree.on("library-selected", this.loadProblems);            
             _.bindAll(this,"loadProblems");

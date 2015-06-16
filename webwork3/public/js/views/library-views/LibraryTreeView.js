@@ -16,6 +16,8 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             var self = this;
             this.libraryTree = new LibraryTree({type: options.type});
             this.libraryTree.set("header",options.type==="textbooks"?"textbooks/":"Library/");
+            // this is the library view that contains this view. 
+            this.libraryView = options.libraryView || console.error("libraryView must be defined");
             (this.fields = new LibraryLevels()).type = options.type;
             this.fields.on("change",this.changeLibrary);
 
@@ -50,19 +52,23 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
 
             // When the library subject/chapter/section is changed, reset all lower ones
             var i, level;
-            if(model.changed && _(model.changed).keys() && typeof(_(model.changed).keys()[0]) !== "undefined")
-                level = parseInt(_(model.changed).keys()[0].split("level")[1])
-            else
-                level = _(model.attributes).chain().values().compact().value().length;
-            for(i=level+1;i<4;i++){
-                model.set("level"+i,"",{silent: true});
+            if(model.changed && _(model.changed).keys().length>0){
+                var last_value = _(model.changed).chain().values().compact().last().value(); 
+                var level = parseInt(_(model.changed)
+                                     .findKey(function(v){ return v== last_value}).replace("level",""))+1; 
+                //level = _(model.changed).chain().keys().value().length;
+                //level =  _(model.changed).chain().keys()
+                //            .map(function(k) { return k.replace("level","");}).max().value();
+                //level = parseInt(level)+1;
+                
+                if(_(model.changed).keys().length == 1){
+                    // reset the pageNumber to 0
+                    this.libraryView.trigger("goto-first-page");
+                }
+            } else {
+                level = _(model.attributes).chain().values().compact().value().length;  
             }
-
-            var keys = _(model.attributes).chain().values().compact().value();
-            level = keys.length;
-            var i;
-
-
+              
             var numFiles, arr, branch = this.branchOfTree([]);
             this.libraryLevel[0] = branch.branches;
             for(i=0;i<level;i++){
@@ -80,6 +86,9 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             }
             if(this.libraryLevel[level].length==0){
                 this.$(".library-level-"+level).addClass("hidden");
+            }
+            for(i=level;i<4;i++){
+                this.fields.set("level"+i,"",{silent:true});   
             }
 
             this.$(".load-library-button").text(numFiles? "Load " + numFiles + " problems": "Load");  
@@ -105,8 +114,10 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             _(path).each(function(p,i){
                 if(p.length>0){
                     var branch = _(currentBranch).findWhere({name:p});
-                    currentBranch = branch.subfields;
-                    numFiles = branch.num_files;
+                    if(typeof(branch)!=="undefined") {
+                        currentBranch = branch.subfields;
+                        numFiles = branch.num_files;
+                    }
                 }
             });
             return {branches: _(currentBranch).map(function(s) { return {label: s.name, value: s.name};}), 
@@ -133,7 +144,8 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             } else if (this.type==="directories" && this.get("level1")===""){
                 return "level-1-error";
             }
-        }
+        },
+        
     });
 
     return LibraryTreeView;
