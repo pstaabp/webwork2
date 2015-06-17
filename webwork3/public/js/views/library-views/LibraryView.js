@@ -30,6 +30,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                 this.libraryProblemsView.gotoPage(0); 
             })
             
+            
     	},
     	/*events: {   
             "change .target-set": "resetDisplayModes"
@@ -58,6 +59,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                 this.loadProblems();
                 
             }
+            this.parent.state.on("change:sidebar",this.sidebarChanged,this);
             return this;
     	},
         getDefaultState: function () {
@@ -98,8 +100,6 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             }).on("change:show_tags",function(){
                 self.libraryProblemsView.showTags(self.parent.state.get("show_tags"));
             })
-            this.sidebarChanged();
-
         },
     	loadProblems: function (){   
             this.$(".load-library-button").button("loading"); 	
@@ -107,9 +107,10 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             this.problemList.fetch({success: this.showProblems});
     	},
-        sidebarChanged: function(id){
+        sidebarChanged: function(){
             // disable problem dragging unless the sidebar is problem set
-            config.changeClass({state: id=="problemSets", els: this.$(".drag-handle"), remove_class: "disabled"});
+            config.changeClass({state: this.parent.state.get("sidebar")=="problemSets", 
+                                els: this.$(".drag-handle"), remove_class: "disabled"});
         }
     });
 

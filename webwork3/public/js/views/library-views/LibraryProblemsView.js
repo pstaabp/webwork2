@@ -73,8 +73,6 @@ function(Backbone, ProblemListView,config) {
                     });
                 }
             }
-            console.log("calling sidebarChanged");
-            this.libraryView.sidebarChanged();
             return this;
         }
     });

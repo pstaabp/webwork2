@@ -31,9 +31,7 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
             options.views.setDefinition.tabName = "Set Defn. files";
             TabbedMainView.prototype.initialize.call(this,options);
             this.eventDispatcher.on("sidebar-changed",function(sb){
-                _(self.views).each(function(v){
-                    v.sidebarChanged(sb.info.id); 
-                });
+                self.state.set("sidebar",sb.info.id);
             });
     	},
         changeTab: function(options){
@@ -79,7 +77,8 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
         getDefaultState: function(){
             //return TabbedMainView.prototype.getDefaultState.apply([]);
             var state = TabbedMainView.prototype.getDefaultState.apply(this,[]);
-               return _.extend(state,{ target_set_id: "", show_path: false, show_tags: false, display_mode: ""}); 
+               return _.extend(state,{ target_set_id: "", show_path: false, show_tags: false, display_mode: "",
+                                     sidebar: ""}); 
         }
     });
 
