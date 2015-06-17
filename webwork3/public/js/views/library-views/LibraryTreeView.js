@@ -49,25 +49,44 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             if(typeof(this.libraryTree.get("tree"))==="undefined" || _(model).keys().length===0){
                 return;
             }
-
             // When the library subject/chapter/section is changed, reset all lower ones
             var i, level;
-            if(model.changed && _(model.changed).keys().length>0){
+            
+            if(_(model.changed).keys().length==1){
+                var key = _(model.changed).keys()[0]
+                var value = model.changed[key];
+                if(!_.isEmpty(value)){
+                    level = 1+parseInt(key.replace("level",""))
+                }
+            } else {
+
+                var keys= _(model.attributes).keys()
+                var nonEmptyKeys = _(model.attributes).chain().keys().filter(function(k){
+                                return !_.isEmpty(model.get(k))}).value();
+                console.log(nonEmptyKeys);
+                if (nonEmptyKeys.length == 0) {
+                    level = 0;
+                } else {
+                    level = 1+ _(nonEmptyKeys).chain().map(function(k) { 
+                                return parseInt(k.replace("level",""));}).max().value()
+                }
+            }
+            console.log(model.attributes);
+            
+            console.log(level);
+            /*if(model.changed && _(model.changed).keys().length>0){
                 var last_value = _(model.changed).chain().values().compact().last().value(); 
                 var level = parseInt(_(model.changed)
                                      .findKey(function(v){ return v== last_value}).replace("level",""))+1; 
-                //level = _(model.changed).chain().keys().value().length;
-                //level =  _(model.changed).chain().keys()
-                //            .map(function(k) { return k.replace("level","");}).max().value();
-                //level = parseInt(level)+1;
-                
                 if(_(model.changed).keys().length == 1){
                     // reset the pageNumber to 0
                     this.libraryView.trigger("goto-first-page");
                 }
             } else {
                 level = _(model.attributes).chain().values().compact().value().length;  
-            }
+            }*/
+            
+            
               
             var numFiles, arr, branch = this.branchOfTree([]);
             this.libraryLevel[0] = branch.branches;

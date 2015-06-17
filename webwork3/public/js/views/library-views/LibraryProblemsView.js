@@ -60,7 +60,7 @@ function(Backbone, ProblemListView,config) {
                                             return self.problems.at(p.num).get("source_file");}); 
                 var pathsInLibrary = this.problems.pluck("source_file");
                 var pathsInCommon = _.intersection(pathsInLibrary,pathsInTargetSet);
-                console.log(pathsInCommon);
+                
                 _(this.problemViews).chain(). filter(function(pv){
                         return pathsInCommon.indexOf(pv.model.get("source_file"))>-1})
                         .map(function(pv) {
@@ -72,20 +72,7 @@ function(Backbone, ProblemListView,config) {
                                         });
                                     }
                 }); 
-/*                if(this.problemViews){
-                    _(this.pages[this.currentPage]).each(function(obj){
-                        var pv = self.problemViews[obj.num];
-                        if(pv) {
-                            if(pv.state.get("rendered")){
-                                pv.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
-                            } else {
-                                pv.model.once("rendered", function(v) {
-                                    v.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
-                                });
-                            }
-                        }
-                    });
-                } */
+
             } 
             return this;
         }

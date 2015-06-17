@@ -35,6 +35,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.currentPage = 0;
             this.show_tags = false;
             this.show_path = false; 
+            this.pages = [];
             _.extend(this.viewAttrs,{type: options.type});
         },
         set: function(opts){
@@ -210,6 +211,10 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         lastPage: function() {this.gotoPage(this.pages.length-1);},
         gotoPage: function(arg){
             this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
+            // if the current Page select is beyond the number of pages, reset it. 
+            if(this.currentPage >= this.pages.length){
+                this.currentPage = 0;
+            } 
             this.updatePaginator();       
             this.renderProblems();
             this.$(".problem-paginator button").removeClass("current-page");
