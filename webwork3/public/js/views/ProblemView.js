@@ -155,6 +155,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             var seed = Math.floor((Math.random()*10000));
             console.log("reloading with new seed " + seed);
             this.model.set({data:"", problem_seed: seed});
+            this.state.set({rendered: false, data_fetched: false});
             this.render();
         },
         showPath: function (_show){
