@@ -75,7 +75,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
         addProblem: function(model){
             var problemSet = this.problemSets.findWhere({set_id: this.tabState.get("target_set_id")});
             if(!problemSet){
-                this.$(".target-set").css("background-color","rgba(255,0,0,0.4)")
+                $("#select-target-option").css("background-color","rgba(255,0,0,0.4)")
                     .popover({placement: "bottom",content: this.messageTemplate({type:"select_target_set"})}).popover("show");
                 return;
             }

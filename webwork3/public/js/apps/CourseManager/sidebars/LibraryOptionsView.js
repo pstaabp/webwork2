@@ -70,8 +70,9 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
     },
     events: {
         "change .problem-display-option": function (evt) { this.trigger("change-display-mode", evt);},
-        "change .select-target-option": function (evt) {
+        "change #select-target-option": function (evt) {
             this.trigger("change-target-set",evt);
+            $(evt.target).css("background-color","");
             if($(evt.target).val()===""){
                 this.$(".goto-problem-set-button").attr("disabled","disabled")
             } else {
