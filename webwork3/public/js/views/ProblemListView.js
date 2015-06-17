@@ -32,7 +32,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.problemSet = options.problemSet; 
             this.undoStack = []; // this is where problems are placed upon delete, so the delete can be undone.  
             this.pageSize = 10; // this should be a parameter.
-            this.pageRange = _.range(this.pageSize);
             this.currentPage = 0;
             this.show_tags = false;
             this.show_path = false; 
@@ -119,6 +118,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                           libraryView: self.libraryView, viewAttrs: self.viewAttrs});
                 self.problemViews.push(pv);
                 ul.append(pv.render().el); 
+                pv.model.once("rendered",function(_m){
+                    if(self.libraryView){
+                        self.libraryView.sidebarChanged();
+                    }
+                })
+                    
             });
 
             if(this.viewAttrs.reorderable){
@@ -138,10 +143,16 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.set({problems: new ProblemList()}).render();
         },
         updateNumProblems: function () {
-            if (this.problems.size()>0){
+            var numPerPage = _(this.pages).map(function(page){
+               return  _(page).reduce(function(num,obj){ return num + parseInt(obj.leader?1:0);},0); });
+            var totalProbs = _(numPerPage).reduce(function(num,page) { return num+page;},0);
+            if (totalProbs>0){
+                var start = 1,i;
+                for(i=0;i<this.currentPage; i++)
+                    start += numPerPage[i];
+                end = start-1+numPerPage[this.currentPage];
                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown", 
-                    opts: {probFrom: (this.pageRange[0]+1), probTo:(_(this.pageRange).last() + 1),
-                         total: this.problems.size() }}));
+                    opts: {probFrom: start, probTo:end,total: totalProbs }}));
             }
         },
         updatePaginator: function() {

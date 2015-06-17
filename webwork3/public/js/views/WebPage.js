@@ -189,6 +189,7 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar){
         } else {
             this.closeSidebar();
         }
+        this.eventDispatcher.trigger("sidebar-changed",this.currentSidebar);
     },
     changeView: function (_id,state){ 
         if(_id){

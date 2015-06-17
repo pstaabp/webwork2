@@ -417,7 +417,8 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
         my $file = file(params->{source_file}); 
         my $path = $file->dir->stringify;
         $path =~ s/Library\///; 
-        my $path_id = database->quick_select('OPL_path',{path=>$path})->{path_id};
+        my $pathdb = database->quick_select('OPL_path',{path=>$path});
+        my $path_id = $pathdb->{path_id} if $pathdb; 
         my $pgfile = database->quick_select('OPL_pgfile',{path_id => $path_id, filename=> $file->basename});
         my $pgfile_id = 0;  # needed for a fix.  Why doesn't a pgfile have an id? 
         $pgfile_id = $pgfile->{pgfile_id} if $pgfile;

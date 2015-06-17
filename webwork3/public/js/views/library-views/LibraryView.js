@@ -23,12 +23,13 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                                                                 settings: this.settings})
                 .on("page-changed",function(num){
                     self.tabState.set("page_num",num);
-                });
+                })
             TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
             this.on("goto-first-page",function() {
                 self.tabState.set("page_num",0);
                 this.libraryProblemsView.gotoPage(0); 
             })
+            
     	},
     	/*events: {   
             "change .target-set": "resetDisplayModes"
@@ -55,6 +56,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             if(this.tabState.get("rendered")){
                 this.libraryProblemsView.render();
                 this.loadProblems();
+                
             }
             return this;
     	},
@@ -96,6 +98,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             }).on("change:show_tags",function(){
                 self.libraryProblemsView.showTags(self.parent.state.get("show_tags"));
             })
+            this.sidebarChanged();
 
         },
     	loadProblems: function (){   
@@ -103,7 +106,11 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             var _path = this.libraryTreeView.fields.values();
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             this.problemList.fetch({success: this.showProblems});
-    	}
+    	},
+        sidebarChanged: function(id){
+            // disable problem dragging unless the sidebar is problem set
+            config.changeClass({state: id=="problemSets", els: this.$(".drag-handle"), remove_class: "disabled"});
+        }
     });
 
     return LibraryView;

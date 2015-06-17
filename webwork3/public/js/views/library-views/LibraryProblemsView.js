@@ -26,6 +26,7 @@ function(Backbone, ProblemListView,config) {
             this.libraryView.libraryProblemsView.viewAttrs.displayMode =
                     this.libraryView.parent.state.get("display_mode");
             this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
+            
             return this;
         },
         showMLT: function(_model,_show){
@@ -60,16 +61,20 @@ function(Backbone, ProblemListView,config) {
                 if(this.problemViews){
                     _(this.pages[this.currentPage]).each(function(obj){
                         var pv = self.problemViews[obj.num];
-                        if(pv.rendered){
-                            pv.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
-                        } else {
-                            pv.model.once("rendered", function(v) {
-                                v.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
-                            });
+                        if(pv) {
+                            if(pv.rendered){
+                                pv.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
+                            } else {
+                                pv.model.once("rendered", function(v) {
+                                    v.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
+                                });
+                            }
                         }
                     });
                 }
             }
+            console.log("calling sidebarChanged");
+            this.libraryView.sidebarChanged();
             return this;
         }
     });

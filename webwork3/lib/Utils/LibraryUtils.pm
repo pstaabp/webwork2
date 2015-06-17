@@ -26,7 +26,7 @@ my %ignoredir = (
 
 sub render {
 
-	debug "in general render sub";
+	#debug "in general render sub";
 
 	my $renderParams = shift;
 
@@ -406,7 +406,7 @@ sub getProblemTags {
 							." JOIN OPL_pgfile AS pg ON path.path_id = pg.path_id "
 							." WHERE path.path='" . $path->stringify .  "' and pg.filename='" . $filename . "';";
        my $pathID = database->selectrow_arrayref($queryString);							
-       $fileID = $pathID->[0];
+       $fileID = $pathID->[0] || "";
 
 	}
     
