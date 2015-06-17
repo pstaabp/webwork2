@@ -17,7 +17,7 @@ function(Backbone, ProblemListView,config) {
             ProblemListView.prototype.initialize.apply(this,[options]); 
         },
         render: function(){
-            //this.libraryView.libraryProblemsView.set({current_page: this.libraryView.tabState.get("page_num"),
+            var self = this; 
             this.set({current_page: this.libraryView.tabState.get("page_num"),
                         display_mode: this.libraryView.parent.state.get("display_mode")});
             ProblemListView.prototype.render.apply(this);
@@ -47,22 +47,36 @@ function(Backbone, ProblemListView,config) {
                                 add_class: "mlt-top", remove_class: "problem"});
             config.changeClass({state:  _show, els: pvs[pvs.length-1].$el,
                                 add_class: "mlt-bottom", remove_class: "problem"});
-
+            this.highlightCommonProblems();
             
         },
         highlightCommonProblems: function () {
             var self = this;
-            if(this.libraryView.parent.state.get("target_set_id")){ 
+            if(this.libraryView.parent.state.get("target_set_id") && this.pages){ 
                 var pathsInTargetSet = this.libraryView.problemSets
                             .findWhere({set_id: this.libraryView.parent.state.get("target_set_id")})
                             .problems.pluck("source_file");
+                var visiblePaths = _(this.pages[this.currentPage]).map(function(p) { 
+                                            return self.problems.at(p.num).get("source_file");}); 
                 var pathsInLibrary = this.problems.pluck("source_file");
                 var pathsInCommon = _.intersection(pathsInLibrary,pathsInTargetSet);
-                if(this.problemViews){
+                console.log(pathsInCommon);
+                _(this.problemViews).chain(). filter(function(pv){
+                        return pathsInCommon.indexOf(pv.model.get("source_file"))>-1})
+                        .map(function(pv) {
+                                    if(pv.state.get("rendered")){
+                                        pv.highlight(true);
+                                    } else {
+                                        pv.model.once("rendered", function(v) {
+                                            v.highlight(true);
+                                        });
+                                    }
+                }); 
+/*                if(this.problemViews){
                     _(this.pages[this.currentPage]).each(function(obj){
                         var pv = self.problemViews[obj.num];
                         if(pv) {
-                            if(pv.rendered){
+                            if(pv.state.get("rendered")){
                                 pv.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
                             } else {
                                 pv.model.once("rendered", function(v) {
@@ -71,8 +85,8 @@ function(Backbone, ProblemListView,config) {
                             }
                         }
                     });
-                }
-            }
+                } */
+            } 
             return this;
         }
     });

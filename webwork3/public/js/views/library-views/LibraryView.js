@@ -29,7 +29,11 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                 self.tabState.set("page_num",0);
                 this.libraryProblemsView.gotoPage(0); 
             })
-            
+            this.problemSets.each(function(_set){
+                _set.on("change", function(_set){
+                    self.libraryProblemsView.highlightCommonProblems()
+                });
+            }); 
             
     	},
     	/*events: {   
@@ -85,6 +89,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                 return;
             }
             problemSet.addProblem(model);
+            problemSet.trigger("change",problemSet);
         },
         showProblems: function () {
             var self = this;
