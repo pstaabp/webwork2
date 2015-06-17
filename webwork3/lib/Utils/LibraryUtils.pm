@@ -337,8 +337,6 @@ sub searchLibrary {
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
 
-	debug $selectClause,$whereClause.$groupClause;
-
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
     
     my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
@@ -411,8 +409,7 @@ sub getProblemTags {
        $fileID = $pathID->[0];
 
 	}
-
-
+    
 	my	$selectClause = "SELECT CONCAT(author.firstname,' ',author.lastname), group_concat(DISTINCT kw.keyword), "
 						. "pg.level, pg.institution, DBsubj.name, DBch.name, DBsect.name, mlt.name, "
 						. "textbook.title,ch.name,sect.name "

@@ -51,19 +51,20 @@ function(Backbone, ProblemListView,config) {
         },
         highlightCommonProblems: function () {
             var self = this;
-            if(this.libraryView.targetSet){ 
-                var pathsInTargetSet = this.libraryView.problemSets.findWhere({set_id: this.libraryView.targetSet})
-                    .problems.pluck("source_file");
+            if(this.libraryView.parent.state.get("target_set_id")){ 
+                var pathsInTargetSet = this.libraryView.problemSets
+                            .findWhere({set_id: this.libraryView.parent.state.get("target_set_id")})
+                            .problems.pluck("source_file");
                 var pathsInLibrary = this.problems.pluck("source_file");
                 var pathsInCommon = _.intersection(pathsInLibrary,pathsInTargetSet);
                 if(this.problemViews){
-                    _(this.pageRange).each(function(i){
-                        var pv = self.problemViews[i];
+                    _(this.pages[this.currentPage]).each(function(obj){
+                        var pv = self.problemViews[obj.num];
                         if(pv.rendered){
-                            pv.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
+                            pv.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
                         } else {
                             pv.model.once("rendered", function(v) {
-                                v.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
+                                v.highlight(_(pathsInCommon).contains(pathsInLibrary[obj.num]));
                             });
                         }
                     });
