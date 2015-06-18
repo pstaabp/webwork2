@@ -38,6 +38,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.show_hints = false;
             this.show_solution = false;
             this.pages = [];
+            this.problemViews = []; 
             _.extend(this.viewAttrs,{type: options.type});
         },
         set: function(opts){
@@ -70,7 +71,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.viewAttrs.type = opts.type || "set";
             this.viewAttrs.displayMode = (opts.display_mode || this.viewAttrs.displayMode ) ||              
                                             this.settings.getSettingValue("pg{options}{displayMode}");
-            this.problemViews = [];
             return this;
         },
         // this function pulls out only the problems to show in the library. 
@@ -100,21 +100,32 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             _(this.problemViews).each(function(pv){
                 pv.rendered = false;  
             })
-            this.updatePaginator().gotoPage(this.currentPage || 0);
+            if(this.pages.length>0 & this.problems.length>0){
+                this.updatePaginator().gotoPage(this.currentPage || 0);
+            }
             if(this.libraryView && this.libraryView.libProblemListView){
                 this.libraryView.libraryProblemsView.highlightCommonProblems();
             }
             return this;
-        }, 
+        },
+        updateProblems: function(){
+            var self = this;
+            this.problemViews = []; 
+            _(this.pages[this.currentPage]).each(function(obj){
+                self.problemViews.push(new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
+                                          libraryView: self.libraryView, viewAttrs: self.viewAttrs}));
+            });
+        },
         renderProblems: function () {
             var self = this;
             var ul = this.$(".prob-list").empty();
-            this.problemViews = []; 
-            _(this.pages[this.currentPage]).each(function(obj){
-                var pv = new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
-                                          libraryView: self.libraryView, viewAttrs: self.viewAttrs});
-                self.problemViews.push(pv);
+            if(this.problemViews.length == 0){
+                this.updateProblems();   
+            }
+            _(this.problemViews).each(function(pv){
                 ul.append(pv.render().el); 
+                
+                // what is this needed for? 
                 pv.model.once("rendered",function(_m){
                     if(self.libraryView){
                         self.libraryView.sidebarChanged();
@@ -202,7 +213,11 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         nextPage: function() {if(this.currentPage<this.pages.length){this.gotoPage(this.currentPage+1);}},
         lastPage: function() {this.gotoPage(this.pages.length-1);},
         gotoPage: function(arg){
-            this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
+            var new_page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
+            if(new_page != this.currentPage){
+                this.problemViews = [];    
+            }
+            this.currentPage = new_page; 
             // if the current Page select is beyond the number of pages, reset it. 
             if(this.currentPage >= this.pages.length){
                 this.currentPage = 0;
