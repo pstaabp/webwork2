@@ -8,7 +8,8 @@
 define(['backbone', 'underscore','views/TabbedMainView', 
         'views/library-views/LibrarySubjectView','views/library-views/LibraryDirectoryView',
         'views/library-views/LibrarySearchView','views/library-views/LocalLibraryView',
-        'views/library-views/LibraryTextbookView','models/ProblemSet','moment','config','apps/util'], 
+        'views/library-views/LibraryTextbookView','models/ProblemSet','moment','config','apps/util',
+        'legacy/vendor/knowl'], 
 function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, LibrarySearchView,LocalLibraryView,
     LibraryTextbookView,ProblemSet,moment,config,util){
     var LibraryBrowser = TabbedMainView.extend({
@@ -65,6 +66,12 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
             },
             "show-hide-path": function(_show) {
                 this.state.set("show_path",_show);
+            },
+            "show-hide-hints": function(_show) {
+                this.state.set("show_hints",_show);
+            },
+            "show-hide-solution": function(_show) {
+                this.state.set("show_solution",_show);
             },
             "goto-problem-set": function(_setName){
                 this.eventDispatcher.trigger("show-problem-set",_setName);

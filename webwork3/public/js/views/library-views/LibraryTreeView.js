@@ -63,7 +63,6 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
                 var keys= _(model.attributes).keys()
                 var nonEmptyKeys = _(model.attributes).chain().keys().filter(function(k){
                                 return !_.isEmpty(model.get(k))}).value();
-                console.log(nonEmptyKeys);
                 if (nonEmptyKeys.length == 0) {
                     level = 0;
                 } else {

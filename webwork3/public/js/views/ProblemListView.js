@@ -34,7 +34,9 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.pageSize = 10; // this should be a parameter.
             this.currentPage = 0;
             this.show_tags = false;
-            this.show_path = false; 
+            this.show_path = false;
+            this.show_hints = false;
+            this.show_solution = false;
             this.pages = [];
             _.extend(this.viewAttrs,{type: options.type});
         },
@@ -64,9 +66,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             if(opts.current_page){
                 this.currentPage = opts.current_page || 0;
             }
-            if(opts.show_path|| opts.show_tags){
-                _(this).extend(_(opts).pick("show_path","show_tags"))
-            }
+            _(this).extend(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
             this.viewAttrs.type = opts.type || "set";
             this.viewAttrs.displayMode = (opts.display_mode || this.viewAttrs.displayMode ) ||              
                                             this.settings.getSettingValue("pg{options}{displayMode}");
@@ -110,10 +110,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var self = this;
             var ul = this.$(".prob-list").empty();
             this.problemViews = []; 
-            // The following is a stopgap to get the pages rendered off of a page refresh. 
-            if(typeof(this.pages)==="undefined"){
-                this.sortProblems();   
-            }
             _(this.pages[this.currentPage]).each(function(obj){
                 var pv = new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
                                           libraryView: self.libraryView, viewAttrs: self.viewAttrs});
@@ -132,8 +128,10 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                                 placeholder: "sortable-placeholder",axis: "y",
                                                 stop: this.reorder});
             }
-            this.showPath(this.show_path);
-            this.showTags(this.show_tags);
+            this.toggleProperty({show_path: this.show_path});
+            this.toggleProperty({show_tags: this.show_tags});
+            this.toggleProperty({show_hints: this.show_hints});
+            this.toggleProperty({show_solution: this.show_solution});
             this.updatePaginator();
             this.updateNumProblems();
             return this;
@@ -189,19 +187,13 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.viewAttrs.displayMode = _display; // $(evt.target).val();  Note: this might screw up the ProblemSetDetail View
             this.renderProblems();
         },
-        showPath: function(_show){
+        toggleProperty: function(_obj){
+            var key = _(_obj).pairs()[0][0];
+            var value = _(_obj).pairs()[0][1];
             var self = this;
-            this.show_path = _show;
+            this[key] = value; 
             _(this.pages[this.currentPage]).each(function(obj,i){ 
-                self.problemViews[i].set({show_path: _show})
-            });
-            return this;
-        },
-        showTags: function (_show) {
-            var self = this;
-            this.show_tags = _show;
-            _(this.pages[this.currentPage]).each(function(obj,i){ 
-                self.problemViews[i].set({show_tags: _show})
+                self.problemViews[i].set(_obj)
             });
             return this;
         },

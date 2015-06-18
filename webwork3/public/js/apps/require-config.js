@@ -24,7 +24,8 @@ var require = {
         "views":                "/webwork3/js/views",
         "models":               "/webwork3/js/models",
         "apps":                 "/webwork3/js/apps",
-        "config":               "/webwork3/js/apps/config"
+        "config":               "/webwork3/js/apps/config",
+        "legacy":                "/webwork2_files/js/legacy"
     },
     //urlArgs: "bust=" +  (new Date()).getTime(),
     waitSeconds: 10,
@@ -43,6 +44,6 @@ var require = {
         'editablegrid': {deps: ['jquery'], exports: 'EditableGrid'},
         'blob': {exports : 'Blob'},
         'imagesloaded': ['jquery'],
-        'knowl': ['jquery']
+        'knowl': ['jquery','/webwork2_files/js/apps/Base64/Base64.js']
     }
 };

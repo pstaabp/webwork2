@@ -41,7 +41,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
 
             this.state = new Backbone.Model(_.extend(options.viewAttrs,
                         {tags_loaded: false, tags_shown: false, path_shown: false, data_fetched: false}));
-            
+                
             this.state.on("change:show_tags",function(){
                     self.showTags(self.state.get("show_tags"));
                 }).on("change:show_path",function(){
@@ -53,7 +53,8 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                     if(!self.state.get("hidden")){
                         self.render();
                     }
-                }); 
+                })
+                                   
             
             this.state.set("hidden",options.hidden || false);
                     
@@ -61,7 +62,11 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 if(self.model.get("value").match(/^\d+$/)) {
                     self.model.save();
                 }
-            });
+            }).on("change:show_hints",function(){
+                self.showHints(self.model.get("show_hints"));
+            }).on("change:show_solution",function(){
+                self.showSolution(self.model.get("show_solution"));
+            }).on("change",function(){ console.log(self.model.changed)});
         },
 
         render:function () {
@@ -164,6 +169,18 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         showTags: function (_show){
             config.changeClass({state: _show, els: this.$(".tag-row"), remove_class: "hidden"});
         },
+        showHints: function(_show){
+            this.model.set({show_hints: _show, data: ""});
+            this.state.set({rendered: false, data_fetched: false});
+            this.render();
+            console.log("showing hints: " + _show);   
+        },
+        showSolution: function(_show){
+            this.model.set({show_solution: _show, data: ""});
+            this.state.set({rendered: false, data_fetched: false});
+            this.render();
+            console.log("showing solution: " + _show);   
+        },
         showMLT: function(_show){
             this.$(".mlt-button").html(_show?"L":"M");
             this.libraryView.libraryProblemsView.showMLT(this.model,_show);
@@ -193,7 +210,8 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.remove();  // remove the view
         }, 
         set: function(opts){
-            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded"))
+            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded"));
+            this.model.set(_(opts).pick("show_hints","show_solution"));
         }
     });
 

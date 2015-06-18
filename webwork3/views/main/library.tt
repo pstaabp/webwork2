@@ -150,6 +150,9 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
       </div>
     </div>
   </td></tr>
+  <tr><td style="padding-bottom: 10px">
+    <button class="btn btn-default goto-problem-set-button" disabled>View Target Problem Set</button>
+</td></tr>
   <tr><td>
       <div class="form-group">
         <label for="add-problem-set-option">Add Problem Set</label>
@@ -163,17 +166,22 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
   <tr><td>
   <div class="center-block">
   <div class="btn-group">
-    <button class="btn btn-default show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
-    <button class="btn btn-default show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
+    <button class="btn btn-default" id="show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
+    <button class="btn btn-default" id="show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
   </div>
 </div>
 </td></tr>
 
-<tr><td>
-    <button class="btn btn-default goto-problem-set-button" disabled>View Target Problem Set</button
-
+  <tr><td style="padding-top: 10px">
+  <div class="center-block">
+  <div class="btn-group">
+    <button class="btn btn-default" id="show-hide-hints-button" data-hide-text="Hide Hints">Show Hints</button>
+    <button class="btn btn-default" id="show-hide-solutions-button" data-hide-text="Hide Solutions">Show Solutions</button>
+  </div>
 </div>
-</td>
+</td></tr>
+
+
 </table>
 
 </script>

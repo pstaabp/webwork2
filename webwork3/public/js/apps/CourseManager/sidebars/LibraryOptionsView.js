@@ -25,6 +25,10 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
                 self.trigger("show-hide-path",self.state.get("show_path"))
             }).on("change:show_tags",function(){
                 self.trigger("show-hide-tags",self.state.get("show_tags"));
+            }).on("change:show_hints",function(){
+                self.trigger("show-hide-hints",self.state.get("show_hints"));
+            }).on("change:show_solution",function(){
+                self.trigger("show-hide-solution",self.state.get("show_solution"));
             });
         this.state.validation = {
             new_problem_set: function(value, attr, computedState) {
@@ -60,13 +64,18 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
             defaultOption: {label: "Select Target...", value: null}
         }},
         ".add-problem-set-option": "new_problem_set",
-        ".show-hide-tags-button": {observe: "show_tags", update: function($el, val, model, options){
-            $el.text(val?"Hide Tags":"Show Tags");
+        "#show-hide-tags-button": {observe: "show_tags", update: function($el, val, model, options){
+            if(val){$el.button("hide")} else { $el.button("reset");}
         }},
-        ".show-hide-path-button": {observe: "show_path", update: function($el, val, model, options){
-            $el.text(val?"Hide Path":"Show Path");
+        "#show-hide-path-button": {observe: "show_path", update: function($el, val, model, options){
+            if(val){$el.button("hide")} else { $el.button("reset");}
+        }},
+        "#show-hide-hints-button": {observe: "show_hints", update: function($el, val, model, options){
+            if(val){$el.button("hide")} else { $el.button("reset");}
+        }},
+        "#show-hide-solutions-button": {observe: "show_solution", update: function($el, val, model, options){
+            if(val){$el.button("hide")} else { $el.button("reset");}
         }}
-
     },
     events: {
         "change .problem-display-option": function (evt) { this.trigger("change-display-mode", evt);},
@@ -82,18 +91,24 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
         "click .add-problem-set-button": function () { 
             var msg;
             if(msg = this.state.validate()){
-                this.$(".add-problem-set-option").popover({title: "Error", content: msg.new_problem_set, placement: "bottom"})
+                this.$(".add-problem-set-option")
+                    .popover({title: "Error", content: msg.new_problem_set, placement: "bottom"})
                     .popover("show");
             } else {
                 this.$(".add-problem-set-option").popover("destroy");
                 this.trigger("add-problem-set",this.state.get("new_problem_set"));
             }
         },
-        "click .show-hide-tags-button" : function (evt) {
+        "click #show-hide-tags-button" : function (evt) {
             this.state.set("show_tags", ! this.state.get("show_tags"));},
-        "click .show-hide-path-button" : function (evt) {
+        "click #show-hide-path-button" : function (evt) {
             this.state.set("show_path", ! this.state.get("show_path"));},
-        "click .goto-problem-set-button": function (){ this.trigger("goto-problem-set",this.state.get("target_set"))}
+        "click #show-hide-hints-button" : function (evt) {
+            this.state.set("show_hints", ! this.state.get("show_hints"));},
+        "click #show-hide-solutions-button" : function (evt) { console.log("here");
+            this.state.set("show_solution", ! this.state.get("show_solution"));},
+        "click #goto-problem-set-button": function (){ 
+            this.trigger("goto-problem-set",this.state.get("target_set"))}
     },
     addProblemSet: function(_set){
         this.state.set("target_set",_set.get("set_id"));

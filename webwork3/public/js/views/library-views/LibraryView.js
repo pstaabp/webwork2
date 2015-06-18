@@ -103,12 +103,11 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
                     .updatePaginator().gotoPage(this.tabState.get("page_num")).highlightCommonProblems()
-                    .showPath(this.parent.state.get("show_path"))
-                    .showTags(this.parent.state.get("show_tags"));
-            this.parent.state.on("change:show_path",function(){
-                self.libraryProblemsView.showPath(self.parent.state.get("show_path"));
-            }).on("change:show_tags",function(){
-                self.libraryProblemsView.showTags(self.parent.state.get("show_tags"));
+                    .toggleProperty({show_path: this.parent.state.get("show_path")})
+                    .toggleProperty({show_tags: this.parent.state.get("show_tags")})
+            this.parent.state.on("change:show_path change:show_tags change:show_hints " + 
+                                    "change:show_solution",function(_state){
+                self.libraryProblemsView.toggleProperty(_state.changed);
             })
         },
     	loadProblems: function (){   

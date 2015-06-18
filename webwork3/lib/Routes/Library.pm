@@ -395,11 +395,13 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 	my $renderParams = {};
 	
 	
-    $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
+    $renderParams->{displayMode} = params->{'displayMode'} || vars->{ce}->{pg}{options}{displayMode};
 	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1; 
-	$renderParams->{showHints} = 0;
-	$renderParams->{showSolutions} = 0;
+	$renderParams->{showHints} = params->{show_hints} eq 'true' ? 1 :  0;
+	$renderParams->{showSolutions} = params->{show_solution} || 0;
 	$renderParams->{showAnswers} = 0;
+    
+    debug $renderParams; 
 
 	$renderParams->{user} = fake_user(vars->{db});
 	$renderParams->{set} =  fake_set(vars->{db});
