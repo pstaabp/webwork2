@@ -17,6 +17,8 @@
 
 </script>
 
+<!-- this has the same name as another template, which is bad :( -->
+
 <script type="text/template" id="problem-list-template">
 <div class="btn-group problem-button-list">
 <% problems.each(function(problem){

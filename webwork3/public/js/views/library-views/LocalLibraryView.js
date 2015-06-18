@@ -8,10 +8,8 @@
 define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config','models/Problem'], 
 function(Backbone, _, LibraryView,ProblemList,config,Problem){
     var LocalLibraryView = LibraryView.extend({
-        className: "lib-browser",
         tabName: "Local Problems",
     	initialize: function (options){
-            //_.bindAll(this,"showResults","showProblems","buildMenu");
             _(this).bindAll("buildMenu");
             LibraryView.prototype.initialize.apply(this,[options]);
             this.libBrowserType = options.libBrowserType;
@@ -20,14 +18,13 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
 
     	},
         events: function(){
-            return _.extend({},this.constructor.__super__.events,{
+            return _.extend({},LibraryView.prototype.events,{
                 "click .load-problems-button": "showProblems"
             });
         },
         render: function (){
             LibraryView.prototype.render.apply(this);
-
-
+            this.libraryProblemsView.reset();
             if (this.libraryProblemsView.problems && this.libraryProblemsView.problems.size() >0){
                 this.libraryProblemsView.renderProblems();
             } else { 

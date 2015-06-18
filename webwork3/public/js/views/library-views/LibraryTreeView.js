@@ -71,23 +71,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
                                 return parseInt(k.replace("level",""));}).max().value()
                 }
             }
-            console.log(model.attributes);
-            
-            console.log(level);
-            /*if(model.changed && _(model.changed).keys().length>0){
-                var last_value = _(model.changed).chain().values().compact().last().value(); 
-                var level = parseInt(_(model.changed)
-                                     .findKey(function(v){ return v== last_value}).replace("level",""))+1; 
-                if(_(model.changed).keys().length == 1){
-                    // reset the pageNumber to 0
-                    this.libraryView.trigger("goto-first-page");
-                }
-            } else {
-                level = _(model.attributes).chain().values().compact().value().length;  
-            }*/
-            
-            
-              
+          
             var numFiles, arr, branch = this.branchOfTree([]);
             this.libraryLevel[0] = branch.branches;
             for(i=0;i<level;i++){

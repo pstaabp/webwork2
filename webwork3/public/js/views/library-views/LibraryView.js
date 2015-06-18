@@ -6,6 +6,11 @@
 *  There are two other views contained in this one: 
 *        1) LibraryTreeView which displays a series of select options to each library type
 *        2) LibraryProblemsView which displays the problems after they have been selected.  
+*
+*
+*
+*  It is intended for this to be extended (subclasses).  The methods in here handle most of the 
+*  basic library functions.  
 */ 
 
 define(['backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
@@ -107,8 +112,11 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             })
         },
     	loadProblems: function (){   
-            this.$(".load-library-button").button("loading"); 	
-            var _path = this.libraryTreeView.fields.values();
+            this.$(".load-library-button").button("loading"); 
+            var _path;
+            if(this.libraryTreeView){
+                _path = this.libraryTreeView.fields.values();
+            }
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             this.problemList.fetch({success: this.showProblems});
     	},
