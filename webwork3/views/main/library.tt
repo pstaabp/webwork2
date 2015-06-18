@@ -44,13 +44,6 @@
 </div>
 </script>
 
-<script type="text/template" id="library-textbook-sections-template">
-<option>Select <%=type%></option>
-<% _(sections).each(function(sect,i) { print("<option data-id='" 
-    + (type=='Section'?sect.section_id:sect.chapter_id) + "' value='"+ i + "' "+
-    "data-numprobs='"+ sect.num_probs+"'>" + sect.number + ": "+ sect.name + "</option>");});
-%>
-</script>
 
 <script type="text/template" id="library-view-template">
 <div class="row">
@@ -138,9 +131,9 @@
 Loading Library...<i class='fa fa-spinner fa-spin'></i>
 </script>
 
-<script type="text/template" id="target-set-template">
+<!--<script type="text/template" id="target-set-template">
   <option><%=set_id%></option>
-</script>
+</script> -->
 
 <script type="text/template" id="library-options-template">
 <table>
