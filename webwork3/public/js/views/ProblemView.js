@@ -66,7 +66,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 self.showHints(self.model.get("show_hints"));
             }).on("change:show_solution",function(){
                 self.showSolution(self.model.get("show_solution"));
-            }).on("change",function(){ console.log(self.model.changed)});
+            });
         },
 
         render:function () {

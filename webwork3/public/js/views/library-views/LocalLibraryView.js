@@ -14,42 +14,50 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
             LibraryView.prototype.initialize.apply(this,[options]);
             this.libBrowserType = options.libBrowserType;
             this.libraryProblemsView.problems.type = "localLibrary";
-            this.settings = options.settings;
+            //this.settings = options.settings;
 
     	},
         events: function(){
             return _.extend({},LibraryView.prototype.events,{
-                "click .load-problems-button": "showProblems"
+                "click .load-problems-button": "render"
             });
         },
         render: function (){
+            var self = this; 
             LibraryView.prototype.render.apply(this);
-            this.libraryProblemsView.reset();
-            if (this.libraryProblemsView.problems && this.libraryProblemsView.problems.size() >0){
-                this.libraryProblemsView.renderProblems();
-            } else { 
+            this.$(".library-tree-container").html($("#local-library-tree-template").html());
+            //this.libraryProblemsView.reset();
+            // the 
+            if(typeof(this.localProblems)==="undefined" || this.localProblems.size()== 0) {
+                
                 this.$(".library-tree-container").html($("#loading-library-template").html());
                 this.localProblems = new ProblemList();
                 this.localProblems.type = this.libBrowserType;
-                this.localProblems.fetch({success: this.buildMenu});
+                this.localProblems.fetch({success: self.buildMenu});
+            } else if (this.tabState.get("dir")){
+                this.showProblems();
+                this.libraryProblemsView.renderProblems();
             }
-            
+            this.stickit(this.tabState,this.bindings);
             return this;
-    	}, 
-        showResults: function (data) {
-            this.problemList = new ProblemList(data);
-            this.showProblems();
+    	},
+        bindings: {
+            ".local-library-tree-select" : {observe: "selected_dir", selectOptions: {
+                collection: 'this.directories'   
+            }}
         },
         showProblems: function (){
             var self = this;
-            var dir = this.$(".local-library-tree-select").val() == "TOPDIR" ? "" : this.$(".local-library-tree-select").val();
+            if(this.tabState.get("selected_dir") == "TOPDIR"){
+                this.tabState.set("selected_dir","");
+            }
             
             this.problemList = new ProblemList();
             this.localProblems.each(function(prob){
                 var comps = prob.get("source_file").split("/");
                 comps.pop();
                 var topDir = comps.join("/");
-                if( topDir==dir){
+                if( topDir==self.tabState.get("dir")){
                     self.problemList.add(new Problem(prob.attributes),{silent: true});
                 }
             });
@@ -57,20 +65,19 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
 
         }, 
         buildMenu: function () {
-            var _menu = [];
+            var self = this; 
+            this.directories = [];
             this.localProblems.each(function(prob){
                 var comps = prob.get("source_file").split("/");
                 comps.pop();
-                _menu.push(comps.join("/"));
+                self.directories.push(comps.join("/"));
             })
-            _menu = _(_menu).union(); // make the menu items unique.
-            var index = _(_menu).indexOf("");
+            this.directories = _(this.directories).unique(); 
+            var index = _(this.directories).indexOf("");
             if (index >-1){
-                _menu[index]= "TOPDIR";
+                this.directories[index]= "TOPDIR";
             }
-            var tmpl = _.template($("#local-library-tree-template").html());
-            this.$(".library-tree-container").html(tmpl({menu: _menu}));
-            this.delegateEvents();
+            this.render();
         }
     });
 
