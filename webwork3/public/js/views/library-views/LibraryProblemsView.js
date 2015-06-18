@@ -26,7 +26,6 @@ function(Backbone, ProblemListView,config) {
             this.libraryView.libraryProblemsView.viewAttrs.displayMode =
                     this.libraryView.parent.state.get("display_mode");
             this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
-            
             return this;
         },
         showMLT: function(_model,_show){

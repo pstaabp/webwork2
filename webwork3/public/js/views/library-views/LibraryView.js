@@ -30,6 +30,10 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                     self.tabState.set("page_num",num);
                 })
             TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
+            
+            // when the libraryView is created, the problems haven't been  fetched. 
+            // This won't be in the tabState because we don't want those results saved.  
+            this.problemsFetched = false; 
             this.on("goto-first-page",function() {
                 self.tabState.set("page_num",0);
                 this.libraryProblemsView.gotoPage(0); 
@@ -41,9 +45,6 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             }); 
             
     	},
-    	/*events: {   
-            "change .target-set": "resetDisplayModes"
-        }, */ 
     	render: function (){
             var self = this, i;
             var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
@@ -65,8 +66,9 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             this.libraryProblemsView.setElement(this.$(".problems-container"));
             if(this.tabState.get("rendered")){
                 this.libraryProblemsView.render();
+            }
+            if(!this.problemsFetched){
                 this.loadProblems();
-                
             }
             this.parent.state.on("change:sidebar",this.sidebarChanged,this);
             return this;
@@ -110,14 +112,18 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
                 self.libraryProblemsView.toggleProperty(_state.changed);
             })
         },
-    	loadProblems: function (){   
+    	loadProblems: function (){ 
+            var self = this; 
             this.$(".load-library-button").button("loading"); 
             var _path;
             if(this.libraryTreeView){
                 _path = this.libraryTreeView.fields.values();
             }
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
-            this.problemList.fetch({success: this.showProblems});
+            this.problemList.fetch({success: function(){
+                self.problemsFetched = true; 
+                self.showProblems();
+            }});
     	},
         sidebarChanged: function(){
             // disable problem dragging unless the sidebar is problem set

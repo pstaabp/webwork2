@@ -56,8 +56,10 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
                 var key = _(model.changed).keys()[0]
                 var value = model.changed[key];
                 if(!_.isEmpty(value)){
-                    level = 1+parseInt(key.replace("level",""))
+                    level = 1+parseInt(key.replace("level",""));
+                    this.libraryView.tabState.set("page_num",0);
                 }
+                
             } else {
 
                 var keys= _(model.attributes).keys()
