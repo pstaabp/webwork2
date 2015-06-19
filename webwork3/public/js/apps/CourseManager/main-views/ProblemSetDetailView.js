@@ -239,7 +239,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             var self = this;
             _(this).bindAll("setProblemSet");
             this.parent = options.parent;
-            this.problemSetView = new ProblemSetView({settings: options.settings, messageTemplate: options.messageTemplate});
+            this.problemSetView = new ProblemSetView({settings: options.settings, 
+                                                      messageTemplate: options.messageTemplate});
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:show_path",function(){
                 self.problemSetView.showPath(self.tabState.get("show_path"));
@@ -250,6 +251,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         render: function (){
             this.problemSetView.setElement(this.$el);
             this.problemSetView.render();
+            this.problemSetView.renderProblems();
         },
         setProblemSet: function(_set){
             var self = this;
@@ -266,10 +268,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             return this;
         },
         changeDisplayMode: function(evt){
-            this.problemSetView.changeDisplayMode(evt);
+            this.problemSetView.state.set("display_mode",$(evt.target).val());
         },
         getDefaultState: function () {
-            return {set_id: "", library_path: "", page_num: 0, rendered: false, page_size: 10, show_path: false, show_tags: false};
+            return {set_id: "", library_path: "", page_num: 0, rendered: false, page_size: 10, 
+                            show_path: false, show_tags: false};
         },
 
     });

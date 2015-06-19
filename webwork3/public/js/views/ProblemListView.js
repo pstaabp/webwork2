@@ -280,6 +280,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             if(this.model){
                 this.set({problemSet: this.model, problems: this.model.get("problems")});                
             }
+            this.renderProblems();
             return this;
         },
         // when is this called?
