@@ -77,7 +77,8 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             return {library_path: "", page_num: 0, rendered: false, page_size: 10};
         },
         changeDisplayMode:function(evt){
-            this.libraryProblemsView.changeDisplayMode(this.parent.state.get("display_mode"));
+            this.libraryProblemsView.state.set("display_mode",this.parent.state.get("display_mode"));
+            //this.libraryProblemsView.changeDisplayMode(
         },
         resetDisplayModes: function(){  // needed if there no target set was selected. 
             this.$('.target-set').css('background-color','white');
@@ -104,12 +105,12 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             // I18N
             this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
-                    .updatePaginator().gotoPage(this.tabState.get("page_num")).highlightCommonProblems()
-                    .toggleProperty({show_path: this.parent.state.get("show_path")})
-                    .toggleProperty({show_tags: this.parent.state.get("show_tags")})
+                    .renderProblems().highlightCommonProblems()
+                    .showProperty({show_path: this.parent.state.get("show_path")})
+                    .showProperty({show_tags: this.parent.state.get("show_tags")})
             this.parent.state.on("change:show_path change:show_tags change:show_hints " + 
                                     "change:show_solution",function(_state){
-                self.libraryProblemsView.toggleProperty(_state.changed);
+                self.libraryProblemsView.showProperty(_state.changed);
             })
         },
     	loadProblems: function (){ 

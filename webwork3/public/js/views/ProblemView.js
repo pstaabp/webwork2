@@ -15,7 +15,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         showHideTool (boolean): whether the hide button (X) should be shown to hide the problem
         deletable (boolean): is the problem deletable from the list its in.       
         draggable (boolean): can the problem be dragged and show the drag arrow (for library problems)
-        displayMode (boolean): the PG display mode for the problem (images, MathJax, none)
+        display_mode (boolean): the PG display mode for the problem (images, MathJax, none)
 
         "tags_loaded", "tags_shown", "path_shown",
 
@@ -32,8 +32,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.libraryView = options.libraryView;
             if(typeof(this.model)==="undefined"){
                 this.model = new Problem();
-            }
-                    
+            }   
 
             // the this.state will store information about the state of the problem
             // including whether or not tags or path is shown as well as view attributes
@@ -44,19 +43,18 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 
             this.state.on("change:show_tags",function(){
                     self.showTags(self.state.get("show_tags"));
-                }).on("change:show_path",function(){
-                    self.showPath(self.state.get("show_path"));
-                }).on("change:show_mlt",function(){
-                    self.showMLT(self.state.get("show_mlt"));
-                }).on("change:hidden",function() {
-                    config.changeClass({state: self.state.get("hidden"), els: self.$el, add_class: "hidden"});
-                    if(!self.state.get("hidden")){
-                        self.render();
-                    }
-                })
-                                   
+            }).on("change:show_path",function(){
+                self.showPath(self.state.get("show_path"));
+            }).on("change:show_mlt",function(){
+                self.showMLT(self.state.get("show_mlt"));
+            }).on("change:hidden",function() {
+                config.changeClass({state: self.state.get("hidden"), els: self.$el, add_class: "hidden"});
+                if(!self.state.get("hidden")){
+                    self.render();
+                }
+            })
             
-            this.state.set("hidden",options.hidden || false);
+            this.state.set(_(options).pick("display_mode","hidden"));
                     
             this.model.on('change:value', function () {
                 if(self.model.get("value").match(/^\d+$/)) {
@@ -71,9 +69,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
 
         render:function () {
             var self = this;
-            if(this.model.get('data') || this.state.get("displayMode")=="None"){
+            if(this.model.get('data') || this.state.get("display_mode")=="None"){
             
-                if(this.state.get("displayMode")=="None"){
+                if(this.state.get("display_mode")=="None"){
                     this.model.attributes.data="";
                 }
 
@@ -99,7 +97,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 this.el.id = this.model.cid; // why do we need this? 
                 this.$el.attr('data-path', this.model.get('source_file'));
                 this.$el.attr('data-source', this.state.get("type"));
-                if (this.state.get("displayMode")==="MathJax"){
+                if (this.state.get("display_mode")==="MathJax"){
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
                 }
                 this.showPath(this.state.get("show_path"));
@@ -112,7 +110,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 this.$el.html($("#problem-loading-template").html());
                 if(!this.state.get("data_fetched")){
                     this.state.set("data_fetched",true);    
-                    this.model.loadHTML({displayMode: this.state.get("displayMode"), success: function (data) {
+                    this.model.loadHTML({display_mode: this.state.get("display_mode"), success: function (data) {
                         self.model.set("data",data.text);
                         self.model.renderData = data;
                         self.state.set("mlt_leader",self.model.get("mlt_leader"));
@@ -210,8 +208,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.remove();  // remove the view
         }, 
         set: function(opts){
-            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded"));
-            this.model.set(_(opts).pick("show_hints","show_solution"));
+            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded","display_mode","data_fetched"));
+            this.model.set(_(opts).pick("data","show_hints","show_solution"));
+            return this;
         }
     });
 

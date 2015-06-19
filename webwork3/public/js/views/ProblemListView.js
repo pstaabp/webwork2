@@ -19,7 +19,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
       *  The problems are displayed on "pages", each containing 10 (or another value) problems.  These are
       *  stored in the this.pages array....
       *
-      *  The this.currentPage stores the value of the page that is currently being rendered.  
+      *  The this.state.get("current_page") stores the value of the page that is currently being rendered.  
       */
 
     var ProblemListView = Backbone.View.extend({
@@ -31,15 +31,23 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.problems = options.problems ? options.problems : new ProblemList();
             this.problemSet = options.problemSet; 
             this.undoStack = []; // this is where problems are placed upon delete, so the delete can be undone.  
-            this.pageSize = 10; // this should be a parameter.
-            this.currentPage = 0;
-            this.show_tags = false;
-            this.show_path = false;
-            this.show_hints = false;
-            this.show_solution = false;
-            this.pages = [];
-            this.problemViews = []; 
+            this.pages = [];  // this stores the pages as arrays of problems
+            this.problemViews = []; // this is the problemView for the viewable set of problems 
+                        
+            this.state = new Backbone.Model({show_tags: false, page_size: 10, show_path: false, 
+                                             show_hints: false, show_solution: false, current_page: 0});
+            
             _.extend(this.viewAttrs,{type: options.type});
+            this.state.on("change:current_page",function(){
+                self.updateProblems();    
+                if(self.state.get("current_page") >= self.pages.length){
+                    self.state.set("current_page",0);
+                }
+                self.renderProblems();
+            }).on("change:display_mode",function(){
+                self.updateProblems();
+                self.renderProblems();
+            });
         },
         set: function(opts){
             var self = this; 
@@ -52,8 +60,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                     var currentPage = []; 
                     this.pages = [];
                     this.problems.each(function(prob,i){
-                        currentPage.push({leader:true,num:i})
-                        if(currentPage.length>self.pageSize){
+                        currentPage.push({leader:true,num:i});
+                        if(currentPage.length>self.state.get("page_size")){
                             self.pages.push(currentPage); 
                             currentPage = [];
                         }
@@ -65,12 +73,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 }
             }
             if(opts.current_page){
-                this.currentPage = opts.current_page || 0;
+                this.state.set("current_page", opts.current_page || 0);
             }
             _(this).extend(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
-            this.viewAttrs.type = opts.type || "set";
-            this.viewAttrs.displayMode = (opts.display_mode || this.viewAttrs.displayMode ) ||              
-                                            this.settings.getSettingValue("pg{options}{displayMode}");
+            this.viewAttrs.type = opts.type || "set"; // what is this for?
+            //this.state.set({display_mode:  opts.display_mode ||              
+            //                                this.settings.getSettingValue("pg{options}{displayMode}")});
             return this;
         },
         // this function pulls out only the problems to show in the library. 
@@ -80,7 +88,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var currentPage = []; 
             //var probNumOnPage = 0; 
             this.problems.each(function(prob,i){
-                if(currentPage.length>=self.pageSize && ( prob.get("morelt_id") == 0 || 
+                if(currentPage.length>=self.state.get("page_size") && ( prob.get("morelt_id") == 0 || 
                             prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id"))){
                     self.pages.push(currentPage); 
                     currentPage = [];
@@ -101,7 +109,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 pv.rendered = false;  
             })
             if(this.pages.length>0 & this.problems.length>0){
-                this.updatePaginator().gotoPage(this.currentPage || 0);
+                this.updatePaginator().gotoPage(this.state.get("current_page") || 0);
             }
             if(this.libraryView && this.libraryView.libProblemListView){
                 this.libraryView.libraryProblemsView.highlightCommonProblems();
@@ -110,10 +118,16 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         },
         updateProblems: function(){
             var self = this;
+            _(this.problemViews).each(function(pv){
+                pv.model.set('data','');
+                pv.remove();
+            });
             this.problemViews = []; 
-            _(this.pages[this.currentPage]).each(function(obj){
+            _(this.pages[this.state.get("current_page")]).each(function(obj){
                 self.problemViews.push(new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
-                                          libraryView: self.libraryView, viewAttrs: self.viewAttrs}));
+                                                        libraryView: self.libraryView, 
+                                                        viewAttrs: self.viewAttrs,
+                                                        display_mode: self.state.get("display_mode") }));
             });
         },
         renderProblems: function () {
@@ -123,6 +137,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 this.updateProblems();   
             }
             _(this.problemViews).each(function(pv){
+                //ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el); 
                 ul.append(pv.render().el); 
                 
                 // what is this needed for? 
@@ -131,7 +146,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                         self.libraryView.sidebarChanged();
                     }
                 })
-                    
             });
 
             if(this.viewAttrs.reorderable){
@@ -139,10 +153,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                                 placeholder: "sortable-placeholder",axis: "y",
                                                 stop: this.reorder});
             }
-            this.toggleProperty({show_path: this.show_path});
-            this.toggleProperty({show_tags: this.show_tags});
-            this.toggleProperty({show_hints: this.show_hints});
-            this.toggleProperty({show_solution: this.show_solution});
+            this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
             this.updatePaginator();
             this.updateNumProblems();
             return this;
@@ -158,28 +169,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var totalProbs = _(numPerPage).reduce(function(num,page) { return num+page;},0);
             if (totalProbs>0){
                 var start = 1,i;
-                for(i=0;i<this.currentPage; i++)
+                for(i=0;i<this.state.get("current_page"); i++)
                     start += numPerPage[i];
-                end = start-1+numPerPage[this.currentPage];
+                end = start-1+numPerPage[this.state.get("current_page")];
                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown", 
                     opts: {probFrom: start, probTo:end,total: totalProbs }}));
             }
-        },
-        updatePaginator: function() {
-            // render the paginator
-            if(! this.pages) { return this;}
-            var start =0,
-                stop = this.pages.length;
-            if(this.pages.length>8){
-                start = (this.currentPage-4 <0)?0:this.currentPage-4;
-                stop = start+8<this.pages.length?start+8 : this.pages.length;
-            }
-            if(this.pages.length>1){
-                var tmpl = _.template($("#paginator-template").html()); 
-                this.$(".problem-paginator").html(tmpl({current_page: this.currentPage, page_start:start,            
-                                                        page_stop:stop,num_pages:this.pages.length}));
-            }
-            return this;
         },
         events: {"click .undo-delete-button": "undoDelete",
             "change .display-mode-options": "changeDisplayMode",
@@ -191,44 +186,67 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             "click .go-forward-one": "nextPage",
             "click .goto-end": "lastPage"
         },
-        changeDisplayMode: function (_display) {
+        clearProblemData : function () {
             this.problems.each(function(problem){
                  problem.set({data: null},{silent:true});
             });
-            this.viewAttrs.displayMode = _display; // $(evt.target).val();  Note: this might screw up the ProblemSetDetail View
-            this.renderProblems();
+            _(this.problemViews).each(function(pv){ 
+                    pv.set({data_fetched: false,display_mode: this.state.get("display_mode")});});
         },
-        toggleProperty: function(_obj){
-            var key = _(_obj).pairs()[0][0];
-            var value = _(_obj).pairs()[0][1];
+        showProperty: function(_obj){
             var self = this;
-            this[key] = value; 
-            _(this.pages[this.currentPage]).each(function(obj,i){ 
-                self.problemViews[i].set(_obj)
+            var keys = _(_obj).keys();
+            _(keys).each(function(key){
+                _(self.pages[self.state.get("current_page")]).each(function(obj,i){ 
+                    self.problemViews[i].set(_obj)
+                }); 
             });
             return this;
         },
-        firstPage: function() { this.gotoPage(0);},
-        prevPage: function() {if(this.currentPage>0) {this.gotoPage(this.currentPage-1);}},
-        nextPage: function() {if(this.currentPage<this.pages.length){this.gotoPage(this.currentPage+1);}},
-        lastPage: function() {this.gotoPage(this.pages.length-1);},
+        firstPage: function() { this.state.set("current_page",0);},
+        prevPage: function() {
+            if(this.state.get("current_page")>0)
+                this.state.set("current_page",this.state.get("current_page")-1);
+         },
+        nextPage: function() {
+            if(this.state.get("current_page")<this.pages.length-1)
+                this.state.set("current_page",this.state.get("current_page")+1);
+         },
+        lastPage: function() {this.state.set("current_page",this.pages.length-1);},
         gotoPage: function(arg){
-            var new_page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
-            if(new_page != this.currentPage){
-                this.problemViews = [];    
+            var page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
+            this.state.set("current_page",page);
+            return this; 
+        }, 
+        updatePaginator: function() {
+            // render the paginator
+            if(! this.pages) { return this;}
+            var start =0,
+                stop = this.pages.length;
+            if(this.pages.length>8){
+                start = (this.state.get("current_page")-4 <0)?0:this.state.get("current_page")-4;
+                stop = start+8<this.pages.length?start+8 : this.pages.length;
             }
-            this.currentPage = new_page; 
-            // if the current Page select is beyond the number of pages, reset it. 
-            if(this.currentPage >= this.pages.length){
-                this.currentPage = 0;
-            } 
-            this.updatePaginator();       
-            this.renderProblems();
+            if(this.pages.length>1){
+                var tmpl = _.template($("#paginator-template").html()); 
+                this.$(".problem-paginator").html(tmpl({current_page: this.state.get("current_page"),
+                                                        page_start:start,            
+                                                        page_stop:stop,
+                                                        num_pages:this.pages.length}));
+            }
             this.$(".problem-paginator button").removeClass("current-page");
-            this.$(".problem-paginator button[data-page='" + this.currentPage + "']").addClass("current-page");
-            this.trigger("page-changed",this.currentPage);
+            this.$(".problem-paginator button[data-page='" + 
+                    this.state.get("current_page") + "']").addClass("current-page");
+
             return this;
         },
+/*            this.updatePaginator();       
+            this.renderProblems();
+            this.$(".problem-paginator button").removeClass("current-page");
+            this.$(".problem-paginator button[data-page='" + this.state.get("current_page") + "']").addClass("current-page");
+            this.trigger("page-changed",this.state.get("current_page"));
+            return this;
+        }, */
         /* when the "new" button is clicked open up the simple editor. */
         openSimpleEditor: function(){  
             console.log("opening the simple editor."); 
@@ -253,7 +271,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 }
                 this.problems.add(prob);
                 this.updatePaginator();
-                this.gotoPage(this.currentPage);
+                this.gotoPage(this.state.get("current_page"));
                 this.problemSet.trigger("change:problems",this.problemSet);
             }
         },
@@ -264,6 +282,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             }
             return this;
         },
+        // when is this called?
         addProblemView: function (prob){
             var probView = new ProblemView({model: prob, type: this.type, viewAttrs: this.viewAttrs});
             this.$("#prob-list").append(probView.el);
@@ -281,7 +300,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.problemSet.trigger("change:problems",this.problemSet);
             this.problemSet.trigger("problem-deleted",problem);
             this.undoStack.push(problem);
-            this.gotoPage(this.currentPage);
+            this.gotoPage(this.state.get("current_page"));
             this.$(".undo-delete-button").removeAttr("disabled");
         }
     });

@@ -18,13 +18,14 @@ function(Backbone, ProblemListView,config) {
         },
         render: function(){
             var self = this; 
-            this.set({current_page: this.libraryView.tabState.get("page_num"),
+            this.state.set({current_page: this.libraryView.tabState.get("page_num"),
                         display_mode: this.libraryView.parent.state.get("display_mode")});
             ProblemListView.prototype.render.apply(this);
+            // not sure this is needed right now
             this.libraryView.libraryProblemsView.on("page-changed",this.highlightCommonProblems);
             this.highlightCommonProblems();
-            this.libraryView.libraryProblemsView.viewAttrs.displayMode =
-                    this.libraryView.parent.state.get("display_mode");
+//            this.libraryView.libraryProblemsView.viewAttrs.displayMode =
+//                    this.libraryView.parent.state.get("display_mode");
             this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
             return this;
         },

@@ -36,7 +36,7 @@ define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
 
         },
         loadHTML: function (opts) {
-            var attrs = {displayMode: opts.displayMode};
+            var attrs = {displayMode: opts.display_mode};
             _.extend(attrs,this.attributes);
             if (this.collection && this.collection.setName){  // the problem is part of a set
                 $.ajax({url: config.urlPrefix + "renderer/courses/"+ config.courseSettings.course_id + "/sets/" 
