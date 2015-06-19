@@ -171,13 +171,11 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.model.set({show_hints: _show, data: ""});
             this.state.set({rendered: false, data_fetched: false});
             this.render();
-            console.log("showing hints: " + _show);   
         },
         showSolution: function(_show){
             this.model.set({show_solution: _show, data: ""});
             this.state.set({rendered: false, data_fetched: false});
             this.render();
-            console.log("showing solution: " + _show);   
         },
         showMLT: function(_show){
             this.$(".mlt-button").html(_show?"L":"M");

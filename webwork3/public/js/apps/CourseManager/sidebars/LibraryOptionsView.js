@@ -105,7 +105,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
             this.state.set("show_path", ! this.state.get("show_path"));},
         "click #show-hide-hints-button" : function (evt) {
             this.state.set("show_hints", ! this.state.get("show_hints"));},
-        "click #show-hide-solutions-button" : function (evt) { console.log("here");
+        "click #show-hide-solutions-button" : function (evt) {
             this.state.set("show_solution", ! this.state.get("show_solution"));},
         "click #goto-problem-set-button": function (){ 
             this.trigger("goto-problem-set",this.state.get("target_set"))}

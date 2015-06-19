@@ -75,7 +75,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             if(opts.current_page){
                 this.state.set("current_page", opts.current_page || 0);
             }
-            _(this).extend(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
+            this.state.set(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
             this.viewAttrs.type = opts.type || "set"; // what is this for?
             this.state.set(_(opts).pick("display_mode"));
             return this; 
@@ -108,7 +108,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 pv.rendered = false;  
             })
             if(this.pages.length>0 & this.problems.length>0){
-                this.updatePaginator().gotoPage(this.state.get("current_page") || 0);
+                this.renderProblems();
+                //this.updatePaginator().gotoPage(this.state.get("current_page") || 0);
             }
             if(this.libraryView && this.libraryView.libProblemListView){
                 this.libraryView.libraryProblemsView.highlightCommonProblems();

@@ -41,13 +41,15 @@ sub render {
 	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
 	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
 
+    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_solutions} = 0; 
+    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_hints} = 0; 
 
 	my $translationOptions = {
 		displayMode     => $renderParams->{displayMode},
 		showHints       => $renderParams->{showHints},
 		showSolutions   => $renderParams->{showSolutions},
 		refreshMath2img => defined(param("refreshMath2img")) ? param("refreshMath2img") : 0 ,
-		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
+		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1,
 	};
 
 
