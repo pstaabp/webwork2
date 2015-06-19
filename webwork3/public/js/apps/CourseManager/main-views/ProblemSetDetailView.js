@@ -255,7 +255,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         setProblemSet: function(_set){
             var self = this;
-            this.problemSetView.setProblemSet(_set);
+            this.problemSetView.setProblemSet(_set)
+                        .set({display_mode: this.tabState.get("display_mode")}); 
             if(this.problemSetView.problemSet){
                 this.problemSetView.problemSet.on("problem-deleted",function(p){
                     self.parent.sidebar.$(".undo-delete-button").removeAttr("disabled");
@@ -268,6 +269,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             return this;
         },
         changeDisplayMode: function(evt){
+            this.tabState.set("display_mode",$(evt.target).val());
             this.problemSetView.state.set("display_mode",$(evt.target).val());
         },
         getDefaultState: function () {

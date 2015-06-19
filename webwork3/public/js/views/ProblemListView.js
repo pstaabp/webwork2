@@ -77,9 +77,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             }
             _(this).extend(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
             this.viewAttrs.type = opts.type || "set"; // what is this for?
-            //this.state.set({display_mode:  opts.display_mode ||              
-            //                                this.settings.getSettingValue("pg{options}{displayMode}")});
-            return this;
+            this.state.set(_(opts).pick("display_mode"));
+            return this; 
         },
         // this function pulls out only the problems to show in the library. 
         sortProblems: function (){
@@ -137,8 +136,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 this.updateProblems();   
             }
             _(this.problemViews).each(function(pv){
-                //ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el); 
-                ul.append(pv.render().el); 
+                ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el); 
+                //ul.append(pv.render().el); 
                 
                 // what is this needed for? 
                 pv.model.once("rendered",function(_m){
