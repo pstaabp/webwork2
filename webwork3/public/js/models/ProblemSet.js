@@ -30,12 +30,14 @@ var ProblemSet = Backbone.Model.extend({
         hide_score: "N",
         hide_score_by_problem: "N",
         hide_work: "N",
+        hide_hint: false,
         time_limit_cap: "0",
         restrict_ip: "No",
         relax_restrict_ip: "No",
         restricted_login_proctor: "No",
         assigned_users: [],
-        problems: null
+        problems: null,
+        description: "",
     },
     validation: {
        open_date: "checkDates",
@@ -139,6 +141,13 @@ var ProblemSet = Backbone.Model.extend({
                     return "due date is after reduced scoring date";       
             }
         }
+    },
+    // this checks if the problem set is open.  Using current time to determine this.
+    isOpen: function(){
+        var openDate = moment.unix(this.get("open_date"))
+            , dueDate = moment.unix(this.get("due_date"))
+            , now = moment();
+        return now.isBefore(dueDate) && now.isAfter(openDate);
     },
     // this adjusts all of the dates to make sure that they don't trigger an error. 
     adjustDates: function (){

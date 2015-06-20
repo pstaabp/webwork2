@@ -2,26 +2,28 @@
  *  This is the ProblemSetDetailView.  The view contains the interface to all of the
  *  details of a given homework set including the changing of HWSet properties and assigning of users. 
  *
- *  One must pass a ProblemSet as a model to this.  
+ *  The ProblemSetDeatilsView is a TabbedMainView and contains the other TabViews (DetailsView, ShowProblemsView,  AssignUsersView, 
+ *       CustomizeUsersView). 
  * 
  **/
 
 
 define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView','views/ProblemSetView',
     'models/ProblemList','views/CollectionTableView','models/ProblemSet','models/UserSetList','sidebars/ProblemListOptionsSidebar',
-    'config','moment','bootstrap'], 
+    'views/AssignmentCalendar','models/ProblemSetList','models/SetHeader','apps/util','config','bootstrap'], 
     function(Backbone, _,TabbedMainView,MainView,TabView,ProblemSetView,ProblemList,CollectionTableView,ProblemSet,
-        UserSetList,ProblemListOptionsSidebar, config,moment){
+        UserSetList,ProblemListOptionsSidebar, AssignmentCalendar,ProblemSetList,SetHeader,util, config){
 	var ProblemSetDetailsView = TabbedMainView.extend({
         className: "set-detail-view",
         messageTemplate: _.template($("#problem-sets-manager-messages-template").html()),
         initialize: function(options){
             var self = this;
 
-            var opts = _(options).pick("users","settings","eventDispatcher");
+            var opts = _(options).pick("users","settings","eventDispatcher","problemSets");
 
             this.views = options.views = {
                 propertiesView : new DetailsView(opts),
+                setHeaderView: new SetHeadersView(opts),
                 problemsView : new ShowProblemsView(_.extend({messageTemplate: this.messageTemplate, parent: this},opts)),
                 usersAssignedView : new AssignUsersView(opts),
                 customizeUserAssignView : new CustomizeUserAssignView(opts)
@@ -35,8 +37,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             TabbedMainView.prototype.initialize.call(this,options);
             this.state.on("change:set_id", function() {
                 self.changeProblemSet(self.state.get("set_id"));
-            })
-
+            });
+            
         },
         bindings: {
             ".problem-set-name": {observe: "set_id", selectOptions: {
@@ -49,9 +51,6 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         render: function(){
             TabbedMainView.prototype.render.call(this);            
             this.stickit(this.state,this.bindings);
-            if(this.state.get("set_id")){
-                this.changeProblemSet(this.state.get("set_id"));
-            }
         },
         getHelpTemplate: function () {
             switch(this.state.get("tab_name")){
@@ -146,23 +145,27 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         initialize: function (options) {
             var self = this;
             _.bindAll(this,'render','setProblemSet',"showHideReducedScoringDate");
-            this.users = options.users;
-            this.settings = options.settings;
+            _(this).extend(_(options).pick("users","settings","problemSets"));
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:show_time",function (val){
                 self.showTime(self.tabState.get("show_time"));
                 self.stickit();
                 // gets rid of the line break for showing the time in this view. 
                 $('span.time-span').children('br').attr("hidden",true)    
-                
+            }).on("change:show_calendar",function(){
+               self.showCalendar(self.tabState.get("show_calendar"));
             });
+             // this sets up a problem set list containing only the current ProblemSet and builds a calendar.
+            this.calendarProblemSets = new ProblemSetList([],{dateSettings: util.pluckDateSettings(this.settings)});
+            //this.problemSetList.add(this.problemSet);
+            this.calendar = new AssignmentCalendar({users: this.users,settings: this.settings, problemSets: this.calendarProblemSets});
         },
         render: function(){
             if(this.model){
                 this.$el.html($("#set-properties-tab-template").html());
-                this.showHideReducedScoringDate();
                 this.showTime(this.tabState.get("show_time"));
-                this.$(".show-time-toggle").prop("checked",this.tabState.get("show_time"));
+                this.showCalendar(this.tabState.get("show_calendar"));
+                this.showHideReducedScoringDate();
                 this.stickit();
                 // gets rid of the line break for showing the time in this view. 
                 $('span.time-span').children('br').attr("hidden",true)    
@@ -172,8 +175,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         events: {
             "click .assign-all-users": "assignAllUsers",
-            "change .show-time-toggle": function(evt){
-                this.tabState.set("show_time",$(evt.target).prop("checked"));
+            "click .show-time-toggle": function(evt){
+                this.tabState.set("show_time",!this.tabState.get("show_time"));
+            },
+            "click .show-calendar-toggle": function(evt){
+                this.tabState.set("show_calendar",!this.tabState.get("show_calendar"));
             },
         },
         assignAllUsers: function(){
@@ -195,17 +201,24 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             ".prob-set-visible": "visible",
             ".reduced-scoring": "enable_reduced_scoring",
             ".reduced-scoring-date": "reduced_scoring_date",
+            ".hide-hint": "hide_hint",
+            ".num-problems": { observe: "problems", onGet:function(value,options) {
+                return value.length;  
+            }},
             ".users-assigned": {
                 observe: "assigned_users",
                 onGet: function(value, options){ return value.length + "/" +this.users.size();}
             }
         },
         showHideReducedScoringDate: function(){
+            util.changeClass({state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
+                                add_class:"",remove_class: "hidden", els: this.$(".reduced-scoring-date").closest("tr")});
             if(this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}") &&  
                     this.model.get("enable_reduced_scoring")) { // show reduced credit field
                 this.$(".reduced-scoring-date").closest("tr").removeClass("hidden");
 
                 // fill in a reduced_scoring_date if the field is empty or 0. 
+                // I think this should go into the ProblemSet model upon either parsing or creation. 
                 if(this.model.get("reduced_scoring_date")=="" || this.model.get("reduced_scoring_date")==0){
                     var rcDate = moment.unix(this.model.get("due_date"))
                         .subtract(this.settings.getSettingValue("pg{ansEvalDefaults}{reducedScoringPeriod}"),"minutes");
@@ -214,23 +227,115 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             } else {
                 this.$(".reduced-scoring-date").closest("tr").addClass("hidden");
             }
-            if(this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}")){
-                this.$(".reduced-scoring").closest("tr").removeClass("hidden")
-            } else {
-                this.$(".reduced-scoring").closest("tr").addClass("hidden")
-            }
         },
         showTime: function(_show){
-            if(_show){
-                this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")
-                    .addClass("edit-datetime-showtime").removeClass("edit-datetime");
+            this.tabState.set("show_time",_show);
+            // hide or show the date rows in the table
+            util.changeClass({state: _show, remove_class: "edit-datetime", add_class: "edit-datetime-showtime",
+                                els: this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")});
+            // change the button text
+            this.$(".show-time-toggle").button(_show?"hide":"reset");
+            
+        },
+        showCalendar: function(_show){
+            var self = this;
+            this.tabState.set("show_calendar",_show);
+            util.changeClass({state: _show, remove_class: "", add_class: "hidden",els: this.$(".hideable")});
+            util.changeClass({state: _show, remove_class: "hidden", add_class: "",els: this.$(".calendar-row")});
+            // change the button text
+            this.$(".show-calendar-toggle").button(_show?"hide":"reset");
+            if(! _show) return;
+            this.calendarProblemSets.reset(this.problemSets.where({set_id: this.model.get("set_id")}));
+            var assignmentDateList = util.buildAssignmentDates(this.calendarProblemSets);
+            this.calendar.set({assignmentDates: assignmentDateList})
+                .setElement(this.$(".calendar-cell")).render();
+            this.problemSets.on("change",function(m){
+                self.calendarProblemSets.findWhere({set_id: m.get("set_id")}).set(m.changed);
+                self.calendar.render();
+            });
+        },
+        getDefaultState: function () { return {set_id: "", show_time: false, show_calendar: false};}
+
+    });
+    
+    var SetHeadersView = TabView.extend({
+        tabName: "Set Headers",
+        initialize: function(opts){
+            TabView.prototype.initialize.apply(this,[opts]);
+            this.headerFiles = null;
+            this.setHeader = null;
+            
+        },
+        render: function(){
+            var self = this; 
+            var tmpl = _.template($("#set-headers-template").html());
+            this.$el.html(tmpl(this.tabState.attributes));  
+            if(this.headerFiles && this.setHeader){
+                this.showSetHeaders();
+                this.stickit();
             } else {
-                this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")
-                    .removeClass("edit-datetime-showtime").addClass("edit-datetime");
+                $.get(config.urlPrefix +  "courses/" + config.courseSettings.course_id + "/headers", function( data ) {
+                    self.headerFiles = _(data).map(function(f){ return {label: f, value: f};});
+                    self.render();
+                });
+                
+                this.setHeader = new SetHeader({set_id: this.model.get("set_id")});
+                this.setHeader.on("change", function(model){
+                    model.save(model.changed,{success: function () { self.showSetHeaders();}});
+                    self.showSetHeaders();
+                }).fetch({success: function (){
+                    self.render();
+                }});
             }
         },
-        getDefaultState: function () { return {set_id: "", show_time: false};}
+        showSetHeaders: function (){
+            switch($(".view-options input:checked").attr("id")){
+                case "view-header-button": 
+                    this.$(".header-output").addClass("rounded-border").html(this.setHeader.get("set_header_html"));    
+                    break;   
+                case "view-hardcopy-button": 
+                    this.$(".header-output").addClass("rounded-border").html(this.setHeader.get("hardcopy_header_html"));    
+                    break; 
+                case "edit-header-button":
+                    this.$(".header-output").html($("#edit-header-template").html());
+                    break;
+                case "edit-hardcopy-button":
+                    this.$(".header-output").html($("#edit-hardcopy-template").html());
+                    break;
 
+            }
+            this.stickit(this.setHeader,this.headerBindings);
+        },
+        events: {
+            "change .view-options input": function () { 
+                this.showSetHeaders();
+            }  
+        },
+        bindings: {
+            '#set-description': {observe: 'description', events: ['blur']},
+            '#set-header': { observe: "set_header", selectOptions: {collection: 'this.headerFiles'}},
+            '#hardcopy-header': { observe: "hardcopy_header", selectOptions: {collection: 'this.headerFiles'}},
+            
+        },
+        headerBindings: {
+            '#edit-header-textarea': {observe: "set_header_content", events: ['blur']},
+            '#edit-hardcopy-textarea': {observe: "hardcopy_header_content", events: ['blur']},
+        },
+        setProblemSet: function(_set){
+            var self = this; 
+            this.tabState.set({set_id: _set.get("set_id")});
+            this.model = _set;
+            this.model.on("change:set_header change:hardcopy_header",function (model) {
+                if(self.setHeader){
+                    self.setHeader.set(model.changed);
+                }
+            });
+            return this;
+        },
+        getDefaultState: function () {
+            return {set_id: ""};   
+        }
+        
     });
 
     var ShowProblemsView = TabView.extend({
@@ -249,9 +354,16 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             });
         },
         render: function (){
+            var self = this;
             this.problemSetView.setElement(this.$el);
             this.problemSetView.render();
             this.problemSetView.renderProblems();
+            // disable the ability to drag problems when the set is open. 
+            
+            this.problemSetView.on("rendered",function(){
+                util.changeClass({els: $(".reorder-handle"), state: self.problemSetView.problemSet.isOpen(),
+                                add_class:"disabled",remove_class:""})  
+            });
         },
         setProblemSet: function(_set){
             var self = this;
@@ -379,7 +491,7 @@ var AssignUsersView = Backbone.View.extend({
                         "selected-row-changed": function(rowIDs){
                             self.tabState.set({selected_rows: rowIDs});
                             }, 
-                        "table-sorted": function (){
+                        "table-sorted table-changed": function (){
                             self.update();
                             }
                         })
@@ -447,14 +559,25 @@ var AssignUsersView = Backbone.View.extend({
             return this;
         },
         update: function () {
-            config.changeClass({state: this.tabState.get("show_section"), els: this.$(".section"), remove_class: "hidden"})
-            config.changeClass({state: this.tabState.get("show_recitation"), els: this.$(".recitation"), remove_class: "hidden"})
-            config.changeClass({state: this.problemSet.get("enable_reduced_scoring") && this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
+            util.changeClass({state: this.tabState.get("show_section"), els: this.$(".section"), remove_class: "hidden"})
+            util.changeClass({state: this.tabState.get("show_recitation"), els: this.$(".recitation"), remove_class: "hidden"})
+            util.changeClass({state: this.problemSet.get("enable_reduced_scoring") && this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
                 els: this.$(".reduced-scoring-date,.reduced-scoring-header"), remove_class: "hidden"});
-            config.changeClass({state: this.tabState.get("show_time"), remove_class: "edit-datetime", add_class: "edit-datetime-showtime",
+            util.changeClass({state: this.tabState.get("show_time"), remove_class: "edit-datetime", add_class: "edit-datetime-showtime",
                 els: this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")})
             this.userSetTable.refreshTable();
             this.stickit();
+            // color the changed dates blue
+            _([".open-date",".due-date",".reduced-scoring-date",".answer-date"]).each(function(date){
+                var val = $("#customize-problem-set-controls " + date + " .wwdate").val()
+                $(date +" .wwdate").filter(function(i,v) {return $(v).val()!=val;}).css("color","blue");
+            });
+            var h = $(window).height()-($(".navbar-fixed-top").outerHeight(true) + $(".header-set-name").outerHeight(true)+
+                                       $("#customize-problem-set-controls").parent().outerHeight()+
+                                       $("#footer").outerHeight());
+            console.log(h);
+            $("#student-override-container").height(h);
+
         },
         tableSetup: function () {
             var self = this;

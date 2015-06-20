@@ -1,4 +1,5 @@
-define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl'], function(Backbone, _,config,Problem){
+define(['backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'], 
+       function(Backbone, _,config,Problem,util){
     //##The problem View
 
     //A view defined for the browser app for the webwork Problem model.
@@ -8,6 +9,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
     
         reorderable (boolean): whether the reorder arrow should be shown
         showPoints (boolean): whether the # of points should be shown
+        showMaxAttemptes (boolean): whether the maximum number of attempts is shown. 
         showAddTool (boolean): whether the + should be shown to be added to a problemSet
         showEditTool (boolean): whether the edit button should be shown
         showViewTool (boolean): whether the show button should be shown (to be taken to the userSetView )
@@ -48,7 +50,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             }).on("change:show_mlt",function(){
                 self.showMLT(self.state.get("show_mlt"));
             }).on("change:hidden",function() {
-                config.changeClass({state: self.state.get("hidden"), els: self.$el, add_class: "hidden"});
+                util.changeClass({state: self.state.get("hidden"), els: self.$el, add_class: "hidden"});
                 if(!self.state.get("hidden")){
                     self.render();
                 }
@@ -65,6 +67,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             }).on("change:show_solution",function(){
                 self.showSolution(self.model.get("show_solution"));
             });
+            this.invBindings = util.invBindings(this.bindings);
         },
 
         render:function () {
@@ -103,8 +106,26 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                 this.showPath(this.state.get("show_path"));
                 this.showTags(this.state.get("show_tags"));
                 this.stickit();
-                this.model.trigger("rendered",this);
-                this.state.set("rendered",true);                
+                Backbone.Validation.bind(this,{
+                    valid: function(view,attr){
+                        view.$(self.invBindings[attr]).popover("hide").popover("destroy");
+                    },
+                    invalid: function(view,attr,error){
+                        view.$(self.invBindings[attr]).popover({title: "Error", content: error}).popover("show");
+                    }
+                });
+                
+                 
+                // send rendered signal after MathJax 
+                if(MathJax){
+                    MathJax.Hub.Register.MessageHook("End Math", function (message) { 
+                        self.model.trigger("rendered",this);
+                        self.state.set("rendered",true);
+                    })
+                } else {
+                    this.model.trigger("rendered",this);
+                    this.state.set("rendered",true);
+                }
             } else if (! this.state.get("hidden")) {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
@@ -139,7 +160,9 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             "click .path-button": function () {this.state.set("show_path",!this.state.get("show_path"))},
             "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))}
         },
-        bindings: {".prob-value": "value",
+        bindings: {
+            ".prob-value": {observe: "value", events: ['blur']},
+            ".max-attempts": {observe: "max_attempts", events: ['blur']},
             ".mlt-tag": "morelt",
             ".level-tag": "level",
             ".keyword-tag": "keyword",
@@ -162,10 +185,18 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.render();
         },
         showPath: function (_show){
-            config.changeClass({state: _show, els: this.$(".path-row"), remove_class: "hidden"});
+            util.changeClass({els: this.$(".path-row"), state: _show, remove_class: "hidden"});
         },
         showTags: function (_show){
-            config.changeClass({state: _show, els: this.$(".tag-row"), remove_class: "hidden"});
+            var self = this;
+            if(_show && ! this.state.get("tags_loaded")){
+                this.model.loadTags({success: function (){ 
+                        self.$(".loading-row").addClass("hidden");
+                        self.$(".tag-row").removeClass("hidden");
+                        self.state.set('tags_loaded',true);
+                    }});
+            }
+            util.changeClass({els:this.$(".tag-row"),state: _show, remove_class: "hidden"});
         },
         showHints: function(_show){
             this.model.set({show_hints: _show, data: ""});

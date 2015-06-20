@@ -33,6 +33,7 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar){
 
         try {
             this.appState = JSON.parse(window.localStorage.getItem("ww3_cm_state"));
+            console.log(this.appState);
             this.updateViewAndSidebar({save_state: false});
         } catch(err) {
             console.log(err);
@@ -52,7 +53,7 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar){
             ul.append(menuItemTemplate({name: _view.info.name, id: _view.info.id,icon: _view.info.icon}));
         });
 
-        // this ensures that the rerender call on resizing the window only occurs once every 500 ms.  
+        // this ensures that the rerender call on resizing the window only occurs once every 250 ms.  
 
         var renderMainPane = _.debounce(function(evt){ 
             self.currentView.render();
@@ -251,7 +252,7 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar){
             this.appState.index = 0;
             this.appState.states = [state];
         }
-
+        console.log(this.appState);
         window.localStorage.setItem("ww3_cm_state",JSON.stringify(this.appState));
         this.enableBackForwardButtons();
     },

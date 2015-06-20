@@ -13,8 +13,8 @@
 *  basic library functions.  
 */ 
 
-define(['backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
-function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
+define(['backbone', 'underscore','apps/util','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
+function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
     var LibraryView = TabView.extend({
         className: "library-view",
     	initialize: function (options){
@@ -128,7 +128,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
     	},
         sidebarChanged: function(){
             // disable problem dragging unless the sidebar is problem set
-            config.changeClass({state: this.parent.state.get("sidebar")=="problemSets", 
+            util.changeClass({state: this.parent.state.get("sidebar")=="problemSets", 
                                 els: this.$(".drag-handle"), remove_class: "disabled"});
         }
     });

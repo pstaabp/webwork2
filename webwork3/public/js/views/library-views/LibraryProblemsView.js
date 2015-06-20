@@ -12,7 +12,8 @@ function(Backbone, ProblemListView,config) {
             _(this).bindAll("highlightCommonProblems");
             this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, 
                               showEditTool: false, problem_seed: 1, showRefreshTool: true, 
-                              showViewTool: false, showHideTool: true, deletable: false, draggable: true};
+                              showViewTool: false, showHideTool: true, deletable: false, 
+                              showMaxAttempts: false, draggable: true};
             _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
             ProblemListView.prototype.initialize.apply(this,[options]); 
         },
@@ -37,13 +38,13 @@ function(Backbone, ProblemListView,config) {
                     //config.changeClass({state: _show, els: pv.$el, remove_class: "hidden"}); 
                 }
                 if(i>0 && i<pvs.length-1){
-                    config.changeClass({state: _show, els: pv.$el, 
+                    util.changeClass({state: _show, els: pv.$el, 
                                     add_class: "mlt-middle", remove_class: "problem"}); 
                 }
             }); 
-            config.changeClass({state: _show, els: pvs[0].$el,
+            util.changeClass({state: _show, els: pvs[0].$el,
                                 add_class: "mlt-top", remove_class: "problem"});
-            config.changeClass({state:  _show, els: pvs[pvs.length-1].$el,
+            util.changeClass({state:  _show, els: pvs[pvs.length-1].$el,
                                 add_class: "mlt-bottom", remove_class: "problem"});
             this.highlightCommonProblems();
             

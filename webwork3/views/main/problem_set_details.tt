@@ -84,6 +84,27 @@
 
 
 <script type="text/template" id="customize-assignment-template">
+
+<div class="border-around-table">
+<h5>Problem Set Date Properties</h5>
+<table class="table table-striped" id="customize-problem-set-controls">
+<tr>
+  <td class="header">Open Date</td>
+  <td class="header reduced-scoring-header">Reduced Scoring Date</td>
+  <td class="header">Due Date</td>
+  <td class="header">Answer Date</td>
+  <td></td></tr>
+<tr>
+  <td class="edit-datetime open-date"></td>
+  <td class="edit-datetime reduced-scoring-date"></td>
+  <td class="edit-datetime due-date"></td>
+  <td class="edit-datetime answer-date"></td>
+<td> <button class="btn btn-default save-changes">Save Changes</button></td>
+</tr>
+</table>
+</div>
+<div id="student-override-container">
+<div class="scrollable">
 <div class="form-inline" role="form">
   <div class="input-group">
     <label class="sr-only" for="ca-search-box">Filter</label>
@@ -111,21 +132,8 @@
 </div>
 <table class="users-table">
 </table>
-<table class="table table-striped" id="customize-problem-set-controls">
-<tr>
-  <td class="header">Open Date</td>
-  <td class="header reduced-scoring-header">Reduced Scoring Date</td>
-  <td class="header">Due Date</td>
-  <td class="header">Answer Date</td>
-  <td></td></tr>
-<tr>
-  <td class="edit-datetime open-date"></td>
-  <td class="edit-datetime reduced-scoring-date"></td>
-  <td class="edit-datetime due-date"></td>
-  <td class="edit-datetime answer-date"></td>
-<td> <button class="btn btn-default save-changes">Save Changes</button></td>
-</tr>
-</table>
+</div>
+</div>
 </script>
 
 <script type="text/template" id="loading-usersets-template">
@@ -159,18 +167,23 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
 <table class="table" style="table-layout:fixed">
 <tbody>
 <tr><td class="header">Set Name</td><td class="set-name"></td>
-  <td><label type="checkbox">Show Time <input type="checkbox" class="show-time-toggle"></label></td></tr>
-<tr><td class="header">Open Date</td><td class="open-date edit-datetime"></td></tr>
-<tr><td class="header">Reduced Scoring Date</td><td class="reduced-scoring-date edit-datetime"></td></tr>
-<tr><td class="header">Due Date</td><td class="due-date edit-datetime"></td></tr>
-<tr><td class="header">Answer Date</td><td class="answer-date edit-datetime"></td></tr>
-<tr><td class="header">Problem Set Visible to Users</td>
-  <td><input type='checkbox' class='prob-set-visible'></td></tr>
-<tr><td class="header">Reduced Scoring Enabled</td>
-  <td><input type='checkbox' class='reduced-scoring'></select></td></tr>
+  <!--<td><label type="checkbox">Show Time <input type="checkbox" class="show-time-toggle"></label></td>-->
+  <td><div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-default show-time-toggle" data-hide-text="Hide Time">Show Time</button>
+      <button type="button" class="btn btn-default show-calendar-toggle" data-hide-text="Hide Calendar">Show Calendar</button>
+      </div></td>
+    </tr>
+<tr class="hideable"><td class="header">Open Date</td><td class="open-date edit-datetime"></td></tr>
+<tr class="hideable"><td class="header">Reduced Scoring Date</td><td class="reduced-scoring-date edit-datetime"></td></tr>
+<tr class="hideable"><td class="header">Due Date</td><td class="due-date edit-datetime"></td></tr>
+<tr class="hideable"><td class="header">Answer Date</td><td class="answer-date edit-datetime"></td></tr>
+<tr class="calendar-row hidden"><td class="calendar-cell" colspan="3"> Calendar Goes Here</td></tr>
+<tr><td class="header">Problem Set Visible to Users</td><td><input type='checkbox' class='prob-set-visible'></td></tr>
+<tr><td class="header">Reduced Scoring Enabled</td><td><input type='checkbox' class='reduced-scoring'></select></td></tr>
+<tr><td class="header">Hide Hints from Users</td><td><input type='checkbox' class='hide-hint'></td></tr>
+<tr><td class="header">Number of Problems in Set</td><td class="num-problems"></td></tr>
 <tr><td class="header">Users Assigned</td><td class="users-assigned"></td>
 <td><button class="assign-all-users btn btn-default">Assign to All Users</td></tr>
-
 </tbody>
 </table>
 </script>
@@ -219,6 +232,60 @@ The results will be dispayed below.  To search for section 2 type "section:2" or
 </p>
 
 </script>
+
+<script type="text/template" id="set-headers-template"> 
+<h4>Set Headers and Description for <%=set_id%></h4>
+
+<div class="form-horizontal">
+  <div class="form-group">
+    <label class="col-md-3 control-label">Set Description</label>
+    <div class="col-md-9"><textarea rows="5" style="width: 100%" style="form-control" id="set-description"></textarea></div>
+  </div>
+</div>
+
+ <div class="row">
+  <div class="form-horizontal">
+      <div class="form-group">
+          <label class="col-md-3 control-label" for="set-header">Set Header</label>
+          <div class="col-md-6"><select id="set-header" class="form-control col-md-3"></select></div>
+          </div>
+    </div>
+  </div>
+  <div class="row">
+  <div class="form-horizontal">
+      <div class="form-group">
+          <label class="col-md-3 control-label" for="hardcopy-header">Hardcopy Header</label>
+          <div class="col-md-6"><select id="hardcopy-header" class="form-control col-md-3"></select></div>
+          </div>
+    </div>
+  </div>
+</div> 
+  <div class="btn-group view-options" data-toggle="buttons">
+    <label class="btn btn-primary active">
+      <input type="radio" name="options" id="view-header-button" autocomplete="off" checked>View Set Header
+    </label>
+    <label class="btn btn-primary">
+      <input type="radio" name="options" id="edit-header-button" autocomplete="off">Edit Set Header
+    </label>
+    <label class="btn btn-primary">
+      <input type="radio" name="options" id="view-hardcopy-button" autocomplete="off">View Hardcopy Header
+    </label>
+    <label class="btn btn-primary">
+      <input type="radio" name="options" id="edit-hardcopy-button" autocomplete="off">Edit HardCopy Header
+    </label>
+
+  </div>
+  <div class="header-output"></div>
+</script>
+
+<script type="text/template" id="edit-header-template">
+    <textarea class="form-control" id="edit-header-textarea" rows="15"></textarea>
+</script>
+<script type="text/template" id="edit-hardcopy-template">
+    <textarea class="form-control" id="edit-hardcopy-textarea" rows="15"></textarea>
+</script>
+
+
 
 <script type="text/template" id="problem-set-view-help-template">
 <h4>Problems</h4>
