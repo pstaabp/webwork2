@@ -1,8 +1,8 @@
-define(['backbone','views/SidePane', 'config'],function(Backbone,SidePane,config){
-	var EditorSidePane = SidePane.extend({
+define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
+	var EditorSidebar = Sidebar.extend({
     initialize: function(options){
-        this.settings = options.settings;
-        this.problemSets = options.problemSets;
+        Sidebar.prototype.initialize.apply(this,[options]);
+        _(this).extend(_(options).pick("settings","problemSets"));
         var EditorOptions = Backbone.Model.extend({});
         this.model = new EditorOptions({display_option: this.settings.getSettingValue("pg{options}{displayMode}"),
             save_option: "Auto Save", source_file: "",add_to_set: ""});
@@ -30,7 +30,9 @@ define(['backbone','views/SidePane', 'config'],function(Backbone,SidePane,config
         }},
         ".problem-filename": "source_file",
         ".select-add-to-set": {observe: "add_to_set", selectOptions: {
-            collection: function () { return this.problemSets.pluck("set_id"); },
+            collection: function () { 
+                return this.problemSets.pluck("set_id"); 
+            },
             defaultOption: {label: "Select Target...", value: null}
         }},
     },
@@ -42,5 +44,5 @@ define(['backbone','views/SidePane', 'config'],function(Backbone,SidePane,config
     }
 });
 
-return EditorSidePane;
+return EditorSidebar;
 })

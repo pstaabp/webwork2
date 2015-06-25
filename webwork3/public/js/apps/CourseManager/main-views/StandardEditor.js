@@ -8,9 +8,9 @@ define(['module','backbone','underscore','views/MainView','views/library-views/L
     'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'], 
 function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemList,ProblemView,
             config,moment,util){
-var StandardEditor = MainView.extend({
+var StandardEditor = Backbone.View.extend({
     initialize: function(options) {
-        MainView.prototype.initialize.call(this,options);
+        //MainView.prototype.initialize.call(this,options);
         this.parent = options.parent;
         _(this).bindAll("loadProblem");
     },
