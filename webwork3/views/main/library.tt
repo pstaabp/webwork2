@@ -151,7 +151,7 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
     </div>
   </td></tr>
   <tr><td style="padding-bottom: 10px">
-    <button class="btn btn-default goto-problem-set-button" disabled>View Target Problem Set</button>
+    <button class="btn btn-default" id="goto-problem-set-button" disabled>View Target Problem Set</button>
 </td></tr>
   <tr><td>
       <div class="form-group">

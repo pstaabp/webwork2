@@ -78,6 +78,9 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.state.set(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
             this.viewAttrs.type = opts.type || "set"; // what is this for?
             this.state.set(_(opts).pick("display_mode"));
+            if(this.state.get("display_mode")===""){
+                this.state.set("display_mode",this.settings.getSettingValue("pg{options}{displayMode}"));
+            }
             return this; 
         },
         // this function pulls out only the problems to show in the library. 

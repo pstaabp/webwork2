@@ -34,7 +34,7 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
                 this.localProblems = new ProblemList();
                 this.localProblems.type = this.libBrowserType;
                 this.localProblems.fetch({success: self.buildMenu});
-            } else if (this.tabState.get("dir")){
+            } else if (this.tabState.get("selected_dir")){
                 this.showProblems();
                 this.libraryProblemsView.renderProblems();
             }
@@ -57,7 +57,7 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
                 var comps = prob.get("source_file").split("/");
                 comps.pop();
                 var topDir = comps.join("/");
-                if( topDir==self.tabState.get("dir")){
+                if( topDir==self.tabState.get("selected_dir")){
                     self.problemList.add(new Problem(prob.attributes),{silent: true});
                 }
             });

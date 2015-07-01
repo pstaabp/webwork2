@@ -83,9 +83,9 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
             this.trigger("change-target-set",evt);
             $(evt.target).css("background-color","");
             if($(evt.target).val()===""){
-                this.$(".goto-problem-set-button").attr("disabled","disabled")
+                this.$("#goto-problem-set-button").attr("disabled","disabled")
             } else {
-                this.$(".goto-problem-set-button").removeAttr("disabled")
+                this.$("#goto-problem-set-button").removeAttr("disabled")
             }
         },
         "click .add-problem-set-button": function () { 
