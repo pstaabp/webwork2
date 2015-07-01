@@ -11,9 +11,14 @@ function(Backbone, _,LibraryView,ProblemList,config){
         className: "lib-browser",
         tabName: "Search",
     	initialize: function (options){
-            this.constructor.__super__.initialize.apply(this,[options]);
+            LibraryView.prototype.initialize.apply(this,[options]);
             _.bindAll(this,"search","showResults","checkForEnter");
+            this.tabState.on("change:search_query",this.search);
+            this.searchRE = /(author|level|keyword|insitution|subject|chapter|section):([a-zA-z]+)/;
     	},
+        bindings: {
+            ".search-query": {observe: "search_query", events: ["blur"]}
+        },
         events: function(){
             return _.extend({},LibraryView.prototype.events,{
                 "click .search-button": "search",      
@@ -23,25 +28,43 @@ function(Backbone, _,LibraryView,ProblemList,config){
     	render: function (){
             this.$el.html($("#library-search-template").html());
             this.libraryProblemsView.setElement(this.$(".problems-container")).render();
-            if(this.searchString){
-                this.$(".search-query").val(this.searchString);
-            }
-
+            this.stickit(this.tabState,this.bindings);
             this.libraryProblemsView.render();
 
             return this;
     	},
         search: function () {
-            this.searchString = this.$(".search-query").val();
             var params = {};
-            var searchTerms = this.searchString.split(/\s+and\s+/);
-            _(searchTerms).each(function(term){
+            
+            var searches = this.tabState.get("search_query").match(/^\s*(.*)\s*$/)[1].split(/\s+and\s*/);
+            var valid = true;
+            var error = "";
+            _(searches).each(function(term){
                 var comps = term.split(":");
+                if(comps.length!=2){
+                    valid = false;
+                    error = "This isn't a valid search";
+                }
+                if(["level","institution","author","subject","chapter","section"].indexOf(comps[0]) < 0){
+                    valid = false;
+                    error = "The term " + comps[0] + " is not a searchable field.";
+                }
+                if(comps[1]===""){
+                    valid = false;
+                    error = "Put a searchable term after " + comps[0] + ":";
+                }
                 params[comps[0]]=comps[1];
             });
-            this.$(".search-button").button("loading");
+            
 
-            $.get(config.urlPrefix + "library/problems", params, this.showResults);
+            if(valid){
+                this.$(".search-button").button("loading");
+                $.get(config.urlPrefix + "library/problems", params, this.showResults);
+                this.$(".search-query").parent().removeClass("has-error");
+            } else {
+                this.$(".search-query").popover({title: "Error", content: error , placement: "top"}).popover("show");
+                this.$(".search-query").parent().addClass("has-error");
+            }
         },
         showResults: function (data) {
             this.$(".search-button").button("reset");
@@ -51,7 +74,6 @@ function(Backbone, _,LibraryView,ProblemList,config){
         },
         checkForEnter: function(evt){
             if (evt.keyCode==13){
-                this.search();
                 $(evt.target).blur();
             }
         }

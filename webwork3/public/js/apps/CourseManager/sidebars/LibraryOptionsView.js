@@ -46,7 +46,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
         this.$el.html($("#library-options-template").html());
         this.stickit(this.state,this.bindings);
         if(this.state.get("target_set")){
-            this.$(".goto-problem-set-button").removeAttr("disabled");
+            this.$("#goto-problem-set-button").removeAttr("disabled");
             this.trigger("change-target-set",this.state.get("target_set"));  
         }
 
