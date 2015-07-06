@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+ 
+use Moo;
+use MooX::Options;
+use File::Find::Rule;
+use List::MoreUtils qw/first_index/;
+use Data::Dump qw/dd/;
+use File::Slurp;
+use MongoDB;
+use YAML qw(LoadFile);
+
+use Models::Library::Constant qw/$DBTYPE $MONGOclient/;
+use Models::Library::Problem;
+
+use Path::Tiny;
+use Try::Tiny;
+use Utils::PGParse;
+
+option dbtype => (is=>'ro', format=>'s');
+option dir => (is=>'ro',format=>'s');
+
+my @dbtables = qw/OPL_DBsubject OPL_DBchapter OPL_DBsection OPL_author OPL_textbook OPL_chapter OPL_section OPL_problem 
+                    OPL_keyword OPL_path OPL_morelt OPL_pgfile OPL_pgfile_problem OPL_pgfile_keyword/;
+my @subjects;
+my @chapters;
+my $taxon;
+my $logfile = 'opl.log';
+
+sub run {
+
+    my $start = time();
+
+    open LOGFH, '>', $logfile or die "Could not open $logfile: $!";
+
+    $DBTYPE = 'MONGO';
+
+    # Connect to database
+    if ($DBTYPE eq "MYSQL"){
+        DBIx::Mint->connect('dbi:mysql:dbname=testOPL', 'webworkWrite', 'passwordRW', {
+            AutoCommit    => 1,
+            RaiseError    => 1,
+            Callbacks     => {
+            },
+        });
+    } elsif ($DBTYPE eq "MONGO") {
+        $MONGOclient = MongoDB::MongoClient->new;
+    }
+
+
+
+    $| = 1;  # disable the print buffer
+
+    my $taxfile ='tax.yml';
+    my $tbLinkFile = 'textbooks.yml';
+
+    #my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/ma117DB/set1b';
+    #my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester';
+    my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary';
+    print "Building the OPL database for the library found at \n $dir \n";
+
+    rebuildDB();
+
+    print "Loading the Taxonomy File... \n";
+    $taxon = LoadFile($taxfile);
+    @subjects = map { $_->{name} } @{$taxon->{subjects}};
+    @chapters =(); 
+
+    # load the textbook link file
+    print "Loading the Textbooks File... \n";
+    my $tb_link_file = LoadFile($tbLinkFile);
+
+    my @pgfiles = File::Find::Rule->file()->name('*.pg')->in($dir);
+
+    print "Rebuilding the Database... \n";
+    for my $i (0 .. $#pgfiles) {
+        my $prob = Utils::PGParse::parse($pgfiles[$i],$tb_link_file);
+        
+        printf "%6s",$i if ($i>0 && $i % 100 == 0);
+        print "\n" if ($i>0 && $i % 1000 == 0);
+        if (! $prob->isLink){
+        if(valid($prob,$taxon,$i)){
+          $prob->insert;
+        } else {
+            print LOGFH "This problem is not written to the database: " . $prob->path . "\n";
+            #dd $prob->DBinfo;
+        }
+}
+    }
+
+    print "\nLibrary database rebuilt.\n";
+    
+    if($DBTYPE eq 'MONGO') {
+        print "building indexes in MONGO\n";
+        my $idx = Tie::IxHash->new(DBsubject => 1, DBchapter => 1, DBsection => 1, keyword=>1, level=>1);
+        my $db = $MONGOclient->get_database('testOPL');
+        my $problems = $db->get_collection('problems');
+        $problems->ensure_index($idx);
+        $problems->ensure_index({statement => "text"}, {language_override=>"DDDD"}); # make a dummy language field
+    }
+    my $timediff = time() - $start;
+
+    print "Amount of time is $timediff seconds.\n";
+
+    close LOGFH;
+}
+sub rebuildDB {
+    print "Recreating the Database tables\n";
+    
+    print $DBTYPE . "\n";
+    
+    if($DBTYPE eq 'MYSQL'){
+        my $mint  = DBIx::Mint->instance;  
+
+        ## drop all of the tables
+        my $dbh  = $mint->dbh;
+
+        for my $table (@dbtables) {
+            #print "DROP TABLE IF EXISTS $table ;\n";
+            $dbh->do('DROP TABLE IF EXISTS '.$table.';');
+        }
+        ## then create them
+        my $buildDB = read_file('setup_db.sql');
+        my @commands = split(';',$buildDB);
+
+        for my $command (@commands){
+            #print "command: " . $command . "\n";
+            $dbh->do($command.';');
+        }
+    } elsif($DBTYPE eq 'MONGO'){
+        my $db = $MONGOclient->get_database('testOPL');
+        my $problems = $db->get_collection('problems');
+        $problems->remove({});  # remove all problems;
+        my $tbprobs = $db->get_collection('textbook_problems');
+        $tbprobs->remove({});
+        
+    }
+    print "Finished recreating the Database tables\n";
+}
+
+sub valid {
+    my ($prob,$taxon,$i) = @_;
+    #if(! defined($prob->DBinfo)){
+    #    return;
+    #}
+    if($prob->DBinfo->DBsubject  eq "ZZZ-Inserted Text" && 
+        $prob->DBinfo->DBchapter  eq "ZZZ-Inserted Text" && 
+        $prob->DBinfo->DBsection  eq "ZZZ-Inserted Text") {
+        return "";
+    }
+    if($prob->DBinfo->DBsubject  eq "" && 
+        $prob->DBinfo->DBchapter  eq "" && 
+        $prob->DBinfo->DBsection  eq "") {
+        return "";
+    }
+
+    
+    my $name = $prob->DBinfo->DBsubject;
+    my $sname = "subject";  # name of the subject, chapter or section 
+    my $sub_found = first_index { $_ eq $prob->DBinfo->DBsubject} @subjects;
+    #print $name . " " . $prob->path . "\n";
+    if ($sub_found > -1) {
+        $name = $prob->DBinfo->DBchapter; 
+        $sname = "chapter";
+        
+        @chapters = map { $_->{name} }  @{$taxon->{subjects}[$sub_found]->{chapters}};
+        my $chap_found = first_index { $_ eq $prob->DBinfo->DBchapter} @chapters;
+        
+        if($chap_found > -1 ) {
+            $name = $prob->DBinfo->DBchapter;
+            $sname = "chapter";
+            if($taxon->{subjects}[$sub_found]->{chapters}[$chap_found]->{sections}){
+                my @sections = @{$taxon->{subjects}[$sub_found]->{chapters}[$chap_found]->{sections}};
+                #push(@sections,@valid_names);
+                $name = $prob->DBinfo->DBsection;
+                $sname = "section"; 
+                my $sect_found = first_index { $_ eq $prob->DBinfo->DBsection} @sections;
+                #print $sect_found . "\n";
+                if ($sect_found > -1 ) {
+                    return 1; 
+                } else {
+                    $name = $prob->DBinfo->DBsection;
+                    $sname = "section"; 
+                }
+            } else {
+                return 1;
+            }
+        } 
+    }
+
+    return 1;
+}
+
+main->new_with_options->run;
+
+1;
+
+1;
