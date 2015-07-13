@@ -8,11 +8,12 @@
  **/
 
 
-define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView','views/ProblemSetView',
-    'models/ProblemList','views/CollectionTableView','models/ProblemSet','models/UserSetList','sidebars/ProblemListOptionsSidebar',
-    'views/AssignmentCalendar','models/ProblemSetList','models/SetHeader','apps/util','config','bootstrap'], 
+define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView',
+        'views/ProblemSetView', 'models/ProblemList','views/CollectionTableView','models/ProblemSet',
+        'models/UserSetList','sidebars/ProblemListOptionsSidebar','views/AssignmentCalendar',
+        'models/ProblemSetList','models/SetHeader','apps/util','config','moment','bootstrap'], 
     function(Backbone, _,TabbedMainView,MainView,TabView,ProblemSetView,ProblemList,CollectionTableView,ProblemSet,
-        UserSetList,ProblemListOptionsSidebar, AssignmentCalendar,ProblemSetList,SetHeader,util, config){
+        UserSetList,ProblemListOptionsSidebar, AssignmentCalendar,ProblemSetList,SetHeader,util,config,moment){
 	var ProblemSetDetailsView = TabbedMainView.extend({
         className: "set-detail-view",
         messageTemplate: _.template($("#problem-sets-manager-messages-template").html()),
@@ -23,10 +24,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
 
             this.views = options.views = {
                 propertiesView : new DetailsView(opts),
-                setHeaderView: new SetHeadersView(opts),
-                problemsView : new ShowProblemsView(_.extend({messageTemplate: this.messageTemplate, parent: this},opts)),
+                problemsView : new ShowProblemsView(_.extend({messageTemplate: this.messageTemplate, 
+                                                              parent: this},opts)),
                 usersAssignedView : new AssignUsersView(opts),
-                customizeUserAssignView : new CustomizeUserAssignView(opts)
+                customizeUserAssignView : new CustomizeUserAssignView(opts),
+                setHeaderView: new SetHeadersView(opts)
             };
             this.views.problemsView.on("page-changed",function(num){
                 self.eventDispatcher.trigger("save-state");
@@ -83,6 +85,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                         this.sidebar.$(".undo-delete-button").attr("disabled","disabled");
                 }
             }
+        },
+        getDefaultState: function () {
+            return _.extend({set_id: ""}, TabbedMainView.prototype.getDefaultState.apply(this));   
         },
         changeProblemSet: function (setName)
         {
@@ -144,9 +149,10 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         tabName: "Set Details",
         initialize: function (options) {
             var self = this;
-            _.bindAll(this,'render','setProblemSet',"showHideReducedScoringDate");
+            _.bindAll(this,'render','setProblemSet',"showHideReducedScoringDate","showHideGateway");
             _(this).extend(_(options).pick("users","settings","problemSets"));
             TabView.prototype.initialize.apply(this,[options]);
+            this.model = this.problemSets.findWhere({set_id: this.tabState.get("set_id")});
             this.tabState.on("change:show_time",function (val){
                 self.showTime(self.tabState.get("show_time"));
                 self.stickit();
@@ -154,23 +160,30 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 $('span.time-span').children('br').attr("hidden",true)    
             }).on("change:show_calendar",function(){
                self.showCalendar(self.tabState.get("show_calendar"));
-            });
+            })
              // this sets up a problem set list containing only the current ProblemSet and builds a calendar.
             this.calendarProblemSets = new ProblemSetList([],{dateSettings: util.pluckDateSettings(this.settings)});
-            //this.problemSetList.add(this.problemSet);
-            this.calendar = new AssignmentCalendar({users: this.users,settings: this.settings, problemSets: this.calendarProblemSets});
+            this.calendar = new AssignmentCalendar({users: this.users,settings: this.settings,
+                                                problemSets: this.calendarProblemSets});
+            this.calendar.on("calendar-change",function() {
+                self.tabState.set({first_day: self.calendar.state.get("first_day")});  
+            })
         },
         render: function(){
             if(this.model){
                 this.$el.html($("#set-properties-tab-template").html());
                 this.showTime(this.tabState.get("show_time"));
                 this.showCalendar(this.tabState.get("show_calendar"));
+                this.showHideGateway();
                 this.showHideReducedScoringDate();
                 this.stickit();
                 // gets rid of the line break for showing the time in this view. 
                 $('span.time-span').children('br').attr("hidden",true)    
-                
-            }
+                this.model.on("change:assignment_type",this.showHideGateway);
+            }   
+            util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
+            util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
+
             return this;
         },
         events: {
@@ -181,13 +194,17 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             "click .show-calendar-toggle": function(evt){
                 this.tabState.set("show_calendar",!this.tabState.get("show_calendar"));
             },
+            "keyup .input-blur": function(evt){ 
+                if(evt.keyCode == 13) { $(evt.target).blur()}
+            },
         },
         assignAllUsers: function(){
             this.model.set({assigned_users: this.users.pluck("user_id")});
         },
         setProblemSet: function(_set) {
             var self = this; 
-            this.model = _set; 
+            this.model = _set;
+            this.tabState.set("set_id",this.model.get("set_id"));
             if(this.model){
                 this.model.on("change:enable_reduced_scoring",this.render);
             }
@@ -205,14 +222,42 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             ".num-problems": { observe: "problems", onGet:function(value,options) {
                 return value.length;  
             }},
+            ".set-type": {observe: "assignment_type", selectOptions: { 
+                collection: [{label: "Homework", value: "default"},
+                             {label: "Gateway/Quiz",value: "gateway"}]}},
             ".users-assigned": {
                 observe: "assigned_users",
                 onGet: function(value, options){ return value.length + "/" +this.users.size();}
-            }
+            },
+            ".version-time-limit": "version_time_limit",
+            ".time-limit-cap": "time_limit_cap",
+            ".attempts-per-version": "attempts_per_version",
+            ".time-interval": "time_interval",
+            ".version-per-interval": "version_per_interval",
+            ".problem-random-order": "problem-randorder",
+            ".problems-per-page": "problems_per_page",
+            // I18N
+            ".hide-score": {observe: ["hide_score","hide_score_by_problem"], selectOptions: {
+                collection: [{label: "Yes", value: "N:"},{label: "No", value: "Y:N"},
+                        {label: "Only After Set Answer Date", value: "BeforeAnswerDate:N"},
+                        {label: "Totals only (not problem scores)", value: "Y:Y"},
+                        {label: "Totals only, only after answer date", value: "BeforeAnswerDate:Y"}]},
+                           onGet: function(values){ return values.join(":"); },
+                           onSet: function(val) { return val.split(":");}
+                           },
+            ".hide-work": {observe: "hide_work", selectOptions: { 
+                // are these labels correct?  
+                collection: [{label:"Yes",value: "N"},{label: "No", value: "Y"},
+                                {label: "Only After Set Answer Date", value: "BeforeAnswerDate"}]}}
+        },
+        showHideGateway: function () {
+             util.changeClass({state: this.model.get("assignment_type")=="gateway",
+                                     els: this.$(".gateway-row"),remove_class: "hidden"});
         },
         showHideReducedScoringDate: function(){
             util.changeClass({state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
-                                add_class:"",remove_class: "hidden", els: this.$(".reduced-scoring-date").closest("tr")});
+                                remove_class: "hidden", 
+                                els: this.$(".reduced-scoring-date,.reduced-scoring").closest("tr")});
             if(this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}") &&  
                     this.model.get("enable_reduced_scoring")) { // show reduced credit field
                 this.$(".reduced-scoring-date").closest("tr").removeClass("hidden");
@@ -240,21 +285,29 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         showCalendar: function(_show){
             var self = this;
             this.tabState.set("show_calendar",_show);
-            util.changeClass({state: _show, remove_class: "", add_class: "hidden",els: this.$(".hideable")});
-            util.changeClass({state: _show, remove_class: "hidden", add_class: "",els: this.$(".calendar-row")});
             // change the button text
             this.$(".show-calendar-toggle").button(_show?"hide":"reset");
+            util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
+            util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
+
             if(! _show) return;
+            if(typeof(this.model)==="undefined") return;
             this.calendarProblemSets.reset(this.problemSets.where({set_id: this.model.get("set_id")}));
             var assignmentDateList = util.buildAssignmentDates(this.calendarProblemSets);
-            this.calendar.set({assignmentDates: assignmentDateList})
+            var first_day = this.tabState.get("first_day");
+            if(! moment(this.tabState.get("first_day")).isValid()){
+                var open_date = moment.unix(this.model.get("open_date"))
+                first_day = open_date.subtract(open_date.day(),"days");
+            }
+            this.calendar.set({assignmentDates: assignmentDateList,first_day: first_day})
                 .setElement(this.$(".calendar-cell")).render();
             this.problemSets.on("change",function(m){
                 self.calendarProblemSets.findWhere({set_id: m.get("set_id")}).set(m.changed);
                 self.calendar.render();
             });
+            
         },
-        getDefaultState: function () { return {set_id: "", show_time: false, show_calendar: false};}
+        getDefaultState: function () { return {set_id: "", show_time: false, show_calendar: false, first_day: ""};}
 
     });
     
@@ -276,6 +329,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             } else {
                 $.get(config.urlPrefix +  "courses/" + config.courseSettings.course_id + "/headers", function( data ) {
                     self.headerFiles = _(data).map(function(f){ return {label: f, value: f};});
+                    self.headerFiles.unshift({label: "Select a Header File...", value: "defaultHeader"});
                     self.render();
                 });
                 
@@ -283,27 +337,57 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 this.setHeader.on("change", function(model){
                     model.save(model.changed,{success: function () { self.showSetHeaders();}});
                     self.showSetHeaders();
+                }).on("change:set_header_content", function(){
+                    self.editing = "setheader";   
+                }).on("change:hardcopy_header_content",function(){
+                    self.editing = "hardcopyheader";   
+                }).on("sync",function(){
+                    switch(self.editing){
+                        case "setheader":
+                            $("#view-header-button").parent().button("toggle"); break;
+                        case "hardcopyheader":
+                            $("#view-hardcopy-button").parent().button("toggle"); break;
+                    }
+                    self.editing = "";
                 }).fetch({success: function (){
                     self.render();
                 }});
             }
         },
         showSetHeaders: function (){
+            var output = "";
+            this.$("#hardcopy-header,#set-header").parent().removeClass("has-error");
             switch($(".view-options input:checked").attr("id")){
                 case "view-header-button": 
-                    this.$(".header-output").addClass("rounded-border").html(this.setHeader.get("set_header_html"));    
+                    output = this.setHeader.get("set_header_html");
+                    this.$(".header-output").addClass("rounded-border");
                     break;   
                 case "view-hardcopy-button": 
-                    this.$(".header-output").addClass("rounded-border").html(this.setHeader.get("hardcopy_header_html"));    
+                    output = this.setHeader.get("hardcopy_header_html");
+                    this.$(".header-output").addClass("rounded-border");
                     break; 
                 case "edit-header-button":
-                    this.$(".header-output").html($("#edit-header-template").html());
+                    if(this.setHeader.get("set_header") == "defaultHeader") {
+                        // I18N
+                        output = "Please select a header file to edit"; 
+                        this.$("#set-header").parent().addClass("has-error");
+                    } else {
+                        output = $("#edit-header-template").html()
+                    }
+                    
                     break;
                 case "edit-hardcopy-button":
-                    this.$(".header-output").html($("#edit-hardcopy-template").html());
+                    if(this.setHeader.get("hardcopy_header") == "defaultHeader") {
+                        // I18N
+                        output = "Please select a header file to edit"; 
+                        this.$("#hardcopy-header").parent().addClass("has-error");
+                    } else {
+                        output = $("#edit-hardcopy-template").html()
+                    }
+                    
                     break;
-
             }
+            this.$(".header-output").html(output);
             this.stickit(this.setHeader,this.headerBindings);
         },
         events: {
@@ -344,8 +428,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             var self = this;
             _(this).bindAll("setProblemSet");
             this.parent = options.parent;
-            this.problemSetView = new ProblemSetView({settings: options.settings, 
-                                                      messageTemplate: options.messageTemplate});
+            this.problemSetView 
+                = new ProblemSetView(_(options).pick("settings","messageTemplate","eventDispatcher"));
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:show_path",function(){
                 self.problemSetView.showPath(self.tabState.get("show_path"));
@@ -371,7 +455,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                         .set({display_mode: this.tabState.get("display_mode")}); 
             if(this.problemSetView.problemSet){
                 this.problemSetView.problemSet.on("problem-deleted",function(p){
-                    self.parent.sidebar.$(".undo-delete-button").removeAttr("disabled");
+                    if(self.parent.sidebar){
+                        self.parent.sidebar.$(".undo-delete-button").removeAttr("disabled");
+                    }
                 })    
             }
             return this;
@@ -458,21 +544,17 @@ var AssignUsersView = Backbone.View.extend({
     var CustomizeUserAssignView = TabView.extend({
         tabName: "Student Overrides",
         initialize: function(options){
-            _.bindAll(this,"render","saveChanges","buildCollection","setProblemSet");
+            _.bindAll(this,"render","saveChanges","buildCollection","setProblemSet","update");
             var self = this;
             // this.model is a clone of the parent ProblemSet.  It is used to save properties for multiple students.
 
             this.model = options.problemSet ? new ProblemSet(options.problemSet.attributes): null;
             _.extend(this,_(options).pick("users","settings","eventDispatcher"));
             TabView.prototype.initialize.apply(this,[options]);
-            this.tabState.on({
-                "change:filter_string": function(){
+            this.tabState.on("change:filter_string", function(){
                     self.userSetTable.set(self.tabState.pick("filter_string")).updateTable();
                     self.update();
-                },
-                "change:show_section change:show_recitation change:show_time": function(){
-                    self.update();}
-                });
+            }).on("change:show_section change:show_recitation change:show_time", this.update);
         },
         render: function () {
             var self = this;
@@ -483,19 +565,16 @@ var AssignUsersView = Backbone.View.extend({
             this.$el.html($("#loading-usersets-template").html());
             if (this.collection.size()>0){
                 this.$el.html($("#customize-assignment-template").html());
-                (this.userSetTable = new CollectionTableView({columnInfo: this.cols, collection: this.collection, 
-                        paginator: {showPaginator: false}, tablename: ".users-table", page_size: -1,
-                        row_id_field: "user_id", table_classes: "table table-bordered table-condensed"})).render();
+                (this.userSetTable = new CollectionTableView({columnInfo: this.cols, 
+                                            collection: this.collection, 
+                                            paginator: {showPaginator: false}, 
+                                            tablename: ".users-table", page_size: -1,
+                                            row_id_field: "user_id", 
+                                            table_classes: "table table-bordered table-condensed"})).render();
                 this.userSetTable.set(this.tabState.pick("selected_rows"))
-                    .on({
-                        "selected-row-changed": function(rowIDs){
+                    .on("selected-row-changed", function(rowIDs){
                             self.tabState.set({selected_rows: rowIDs});
-                            }, 
-                        "table-sorted table-changed": function (){
-                            self.update();
-                            }
-                        })
-                    .updateTable();
+                    }).on("table-sorted table-changed",this.update).updateTable();
                 this.$el.append(this.userSetTable.el);
                 this.update();
                 this.stickit();
@@ -531,15 +610,23 @@ var AssignUsersView = Backbone.View.extend({
                 });
         },
         setProblemSet: function(_set) {
+            var self = this;
             this.problemSet = _set;  // this is the globalSet
             if(_set){
                 this.model = new ProblemSet(_set.attributes);  // this is used to pull properties for the userSets.  We don't want to overwrite the properties in this.problemSet
                 this.userSetList = new UserSetList([],{problemSet: this.model,type: "users"});
-                this.userSetList.on("change:due_date change:answer_date change:reduced_scoring_date change:open_date"
-                    , function(model){ model.save();
+                this.userSetList.on("change:due_date change:answer_date change:reduced_scoring_date "
+                                    + "change:open_date", function(model){ 
+                            model.adjustDates(); 
+                            model.save();
                 });
             }
-
+            if(this.problemSet){
+                this.problemSet.on("change:assigned_users",function(_m){
+                    self.collection = new Backbone.Collection(); // reset the collection so data is refetched.
+                });
+            }
+            
             // make a new collection that merges the UserSetListOfUsers and the userList 
             this.collection = new Backbone.Collection();
             return this;
@@ -572,10 +659,10 @@ var AssignUsersView = Backbone.View.extend({
                 var val = $("#customize-problem-set-controls " + date + " .wwdate").val()
                 $(date +" .wwdate").filter(function(i,v) {return $(v).val()!=val;}).css("color","blue");
             });
-            var h = $(window).height()-($(".navbar-fixed-top").outerHeight(true) + $(".header-set-name").outerHeight(true)+
-                                       $("#customize-problem-set-controls").parent().outerHeight()+
-                                       $("#footer").outerHeight());
-            console.log(h);
+            var h = $(window).height()-($(".navbar-fixed-top").outerHeight(true) 
+                                        + $(".header-set-name").outerHeight(true)
+                                        + $("#customize-problem-set-controls").parent().outerHeight()
+                                        + $("#footer").outerHeight());
             $("#student-override-container").height(h);
 
         },
@@ -600,7 +687,7 @@ var AssignUsersView = Backbone.View.extend({
                 ];
                 
         },
-        messageTemplate: _.template($("#customize-users-messages-template").html()),
+        messageTemplate: _.template($("#problem-set-messages").html()),
         setMessages: function(){
             var self = this;
             this.userSetList.on({

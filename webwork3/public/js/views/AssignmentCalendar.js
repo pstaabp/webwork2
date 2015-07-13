@@ -4,8 +4,9 @@
   */
 
 
-define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView','config','apps/util'], 
-    function(Backbone, _, moment,MainView, CalendarView,config,util) {
+define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView',
+        'models/AssignmentDate','models/AssignmentDateList','config','apps/util'], 
+    function(Backbone, _, moment,MainView, CalendarView,AssignmentDate,AssignmentDateList,config,util) {
 	
     var AssignmentCalendar = CalendarView.extend({
         template: this.$("#calendar-date-bar").html(),
@@ -17,8 +18,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
             _(this).extend(_(options).pick("problemSets","settings","users","eventDispatcher"));
   
             this.assignmentDates = util.buildAssignmentDates(this.problemSets);
-            this.problemSets.on({sync: function(){
-                                    console.log("here"); self.render()},                
+            this.problemSets.on({sync: self.render,                
                      remove: function(_set){
                   // update the assignmentDates to delete the proper assignments
 
@@ -33,8 +33,24 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                                     assign.set("date",moment.unix(assign.get("problemSet").get(assign.get("type")
                                                                         .replace("-","_")+"_date"))
                                 .format("YYYY-MM-DD"));
+                    })
+                }).on("sync",function(_set) {
+                    _(_set._network).chain().keys().each(function(key){ 
+                        switch(key){
+                            case "add":
+                                self.assignmentDates.add(new AssignmentDate({type: "open", problemSet: _set,
+                                    date: moment.unix(_set.get("open_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "due", problemSet: _set,
+                                    date: moment.unix(_set.get("due_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "answer", problemSet: _set,
+                                    date: moment.unix(_set.get("answer_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "reduced-scoring", problemSet: _set,
+                                    date: moment.unix(_set.get("reduced_scoring_date")).format("YYYY-MM-DD")}));
+                                delete _set._network;
+                                break;    
+                        }
                     });
-                });
+                }); 
             return this;
     	},
     	render: function (){
@@ -71,7 +87,6 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                     }
                 });
             });
-            console.log(this);
             this.update();
             //this.stickit(this.state,this.bindings);
             //this.showHideAssigns(this.state);
@@ -95,10 +110,10 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
             });
 
     	},
-        // make sure that the events within the Calendar class are included. 
-        //events : function() {
-	   //   	return CalendarView.prototype.events;
-	    //},
+        set: function(opts){
+            if(opts.assignmentDates)this.assignmentDates = opts.assignmentDates; 
+            return CalendarView.prototype.set.apply(this,[opts]);
+        },
         getHelpTemplate: function (){
             return $("#calendar-help-template").html();
         },

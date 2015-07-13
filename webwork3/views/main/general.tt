@@ -93,7 +93,7 @@
   <%if(draggable){%>
     <div class="col-md-1 pull-right"> <a class="drag-handle btn btn-default btn-sm" href="#"><i class="fa fa-arrows"></i></a></div>
   <%}%>
-
+  <%if(showPoints || showMaxAttempts){%>
   <div class="col-md-4 form-horizontal">
       <%if(showPoints){%>
       <label class="control-label">Value: 
@@ -104,11 +104,12 @@
         <input type="text" class="max-attempts input-small"></label>  
       <%}%>
     </div>
+  <%}%>
 
   <div class="col-md-4 btn-group btn-group-sm">
   <%if(showAddTool){%><a class="btn btn-default add-problem" href="#" title="add to target set">
     <i class="fa fa-plus"></i></a><%}%>
-  <%if(showEditTool){%><a class="btn btn-default" target="WW_editor" href="#" title="edit">
+  <%if(showEditTool){%><a onclick="return false;" class="btn btn-default" target="WW_editor" href="#" title="edit">
       <i class="fa fa-pencil"></i></a><%}%>
     <%if(showRefreshTool){%>
       <a onclick="return false;" href="#"  class="btn btn-default refresh-problem" title="randomize">
@@ -127,8 +128,13 @@
     <%if(mlt_leader){ %>
       <a href="#" onclick="return false;" class="mlt-button btn btn-default" title="Show/Hide More Like This problems">M</a>
     <%}%>
-  <a href="#" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
-  <a href="#" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
+    <%if(markCorrect){ %>
+      <a href="#" onclick="return false;" class="mark-correct-btn btn btn-default" title="Mark this problem correct for all assigned users.">
+        <i class="fa fa-check"></i></a>
+    <%}%>
+    
+  <a href="#" onclick="return false;" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
+  <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
   </div>
 
   <div class="col-md-2 btn-group btn-group-sm">

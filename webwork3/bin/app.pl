@@ -4,13 +4,15 @@ use Dancer::Plugin::Database;
 
 BEGIN {$ENV{MOD_PERL_API_VERSION}=2}
 
+use WeBWorK::CourseEnvironment;
+use WeBWorK::DB;
+use WeBWorK::Authen;
+
 # link to WeBWorK code libraries
 use lib config->{webwork_dir}.'/lib';
 use lib config->{pg_dir}.'/lib';
 
-use WeBWorK::CourseEnvironment;
-use WeBWorK::DB;
-use WeBWorK::Authen;
+
 
 ## note: Routes::Authenication must be passed first
 use Routes::Authentication qw/buildSession setCourseEnvironment setCookie/; 
@@ -23,14 +25,14 @@ use Routes::PastAnswers;
 
 set serializer => 'JSON';
 
-hook 'before' => sub {
-
-    # for my $key (keys(%{request->params})){
-    # 	my $value = defined(params->{$key}) ? params->{$key} : ''; 
-    # 	debug($key . " : " . $value);
-    # } 
-
-};
+#hook 'before' => sub {
+#
+#     for my $key (keys(%{request->params})){
+#     	my $value = defined(params->{$key}) ? params->{$key} : ''; 
+#     	debug($key . " : " . $value);
+#     } 
+#
+#};
 
 ## right now, this is to help handshaking between the original webservice and dancer.  
 ## it does nothing except sets the session using the hook 'before' above. 

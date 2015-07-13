@@ -72,6 +72,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                     this.sortProblems();
                 }
             }
+            _(this).extend(_(opts).pick("problem_set_view"));
             if(opts.current_page){
                 this.state.set("current_page", opts.current_page || 0);
             }
@@ -135,20 +136,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         },
         renderProblems: function () {
             var self = this;
-            var ul = this.$(".prob-list").empty();
-            if(this.problemViews.length == 0){
-                this.updateProblems();   
-            }
-            _(this.problemViews).each(function(pv){
-                ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el); 
-                //ul.append(pv.render().el); 
-                
-                // what is this needed for? 
-                pv.model.once("rendered",function(_m){
-                    if(self.libraryView){
-                        self.libraryView.sidebarChanged();
-                    }
-                })
+            var ul = this.$(".prob-list").empty(); 
+            _(this.pageRange).each(function(i){
+                ul.append((self.problemViews[i] = new ProblemView({model: self.problems.at(i),
+                                                                   problem_set_view: self.problem_set_view,
+                    libraryView: self.libraryView, viewAttrs: self.viewAttrs})).render().el); 
+                    
             });
 
             if(this.viewAttrs.reorderable){
@@ -159,18 +152,23 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
             // check if all of the problems are rendered.  When they are, trigger an event
             //
-            // I think this needs work.  It appears that MathJax fires lots of "Math End" signals, although why not just one. 
+            // I think this needs work.  It appears that MathJax fires lots of "Math End" signals, 
+            // although why not just one. 
             // 
             // this may also be part of the many calls to render throughout the app. 
-            //
+            // (Note: after further work on another branch, this may not be necessary)
             
             _(this.problemViews).each(function(pv){
-              pv.model.on("rendered", function () {
-                  if(_(self.problemViews).chain().map(function(pv){
-                      return pv.state.get("rendered");}).every().value()){
-                    self.trigger("rendered");   
-                  }
-              });
+                if(pv && pv.model){
+                      pv.model.on("rendered", function () {
+                          if(_(self.problemViews).chain().map(function(pv){
+                               if(pv) {
+                                    return pv.state.get("rendered");}
+                                }).every().value()){
+                            self.trigger("rendered");   
+                          }
+                      }); 
+                }
             })
             this.updatePaginator();
             this.updateNumProblems();
@@ -274,23 +272,20 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             if(typeof(self.problems.problemSet) == "undefined"){
                 return;
             }
-            this.problems.problemSet.changingAttributes = {"problems_reordered":""};
-            this.$(".problem").each(function (i) { 
-                self.problems.findWhere({source_file: $(this).data("path")})
-                        .set({problem_id: i+1}, {silent: true});  // set the new order of the problems.  
-            });   
-            this.problems.problemSet.save();
+            var oldProblems = this.problems.map(function(p) { return _.clone(p.attributes); });
+            this.$(".problem").each(function (i) {
+                var id = $(this).data("id").split(":")[1];
+                var prob = _(oldProblems).find(function(p) {return p.problem_id == id; });
+                self.problems.at(i).set(_.omit(prob,"problem_id"),{silent: true});
+                $(this).data("id",self.problems.problemSet.get("set_id")+":"+self.problems.at(i).get("problem_id"));
+            });
+            this.problems.problemSet.save({_reorder: true});
         },
         undoDelete: function(){
             if (this.undoStack.length>0){
                 var prob = this.undoStack.pop();
-                if(this.problems.findWhere({problem_id: prob.get("problem_id")})){
-                    prob.set("problem_id",parseInt(this.problems.last().get("problem_id"))+1);
-                }
-                this.problems.add(prob);
-                this.updatePaginator();
-                this.gotoPage(this.state.get("current_page"));
-                this.problemSet.trigger("change:problems",this.problemSet);
+                this.problemSet.addProblem(prob);
+                this.gotoPage(this.currentPage);
             }
         },
         setProblemSet: function(_set) {

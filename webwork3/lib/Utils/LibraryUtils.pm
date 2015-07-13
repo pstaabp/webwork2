@@ -12,6 +12,8 @@ use WeBWorK::GeneralUtils qw/readDirectory/;
 use Utils::Convert qw/convertArrayOfObjectsToHash/;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render);
+our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message 
+						student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name/;
 
 my %ignoredir = (
 	'.' => 1, '..' => 1, 'CVS' => 1, 'tmpEdit' => 1,
@@ -46,6 +48,7 @@ sub render {
 		displayMode     => $renderParams->{displayMode},
 		showHints       => $renderParams->{showHints},
 		showSolutions   => $renderParams->{showSolutions},
+		showAnswers		=> $renderParams->{showAnswers},
 		refreshMath2img => defined(param("refreshMath2img")) ? param("refreshMath2img") : 0 ,
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1,
 	};
@@ -75,14 +78,16 @@ sub render {
 
     # extract the important parts of the answer, but don't send the correct_ans if not requested. 
 
-    for my $key (@anskeys){
-    	for my $field (qw(preview_latex_string done original_student_ans preview_text_string ans_message student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name)) {
+    for my $key (@{$pg->{flags}->{ANSWER_ENTRY_ORDER}}){
+    	$answers->{$key} = {};
+    	for my $field (@answerFields) {
     		if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
 	    		$answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
 	    	}
+
 	    }
     }
-    
+
     my $flags = {};
 
     ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for 

@@ -31,7 +31,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
         initialize:function (options) {
             var self = this;
             _.bindAll(this,"render","removeProblem","showPath","showTags");
-            this.libraryView = options.libraryView;
+            _(this).extend(_(options).pick("libraryView","problem_set_view"));
             if(typeof(this.model)==="undefined"){
                 this.model = new Problem();
             }   
@@ -58,16 +58,22 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             
             this.state.set(_(options).pick("display_mode","hidden"));
                     
-            this.model.on('change:value', function () {
-                if(self.model.get("value").match(/^\d+$/)) {
-                    self.model.save();
-                }
-            }).on("change:show_hints",function(){
+            this.model.on('change:value change:max_attempts', function () {
+                var isValid = self.model.isValid(_(self.model.changed).keys());
+                if(isValid){
+                    self.problem_set_view.model.trigger("change:problems",self.problem_set_view.model,self.model);
+            } }).on("change:show_hints",function(){
                 self.showHints(self.model.get("show_hints"));
             }).on("change:show_solution",function(){
                 self.showSolution(self.model.get("show_solution"));
             });
             this.invBindings = util.invBindings(this.bindings);
+                }).on("change:show_path",function(){
+                    self.showPath(self.state.get("show_path"));
+                });
+
+            
+           this.invBindings = util.invBindings(this.bindings);
         },
 
         render:function () {
@@ -99,6 +105,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
 
                 this.el.id = this.model.cid; // why do we need this? 
                 this.$el.attr('data-path', this.model.get('source_file'));
+                this.$el.attr('data-id', this.model.get('set_id')+":"+this.model.get("problem_id"));
                 this.$el.attr('data-source', this.state.get("type"));
                 if (this.state.get("display_mode")==="MathJax"){
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
@@ -111,7 +118,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                         view.$(self.invBindings[attr]).popover("hide").popover("destroy");
                     },
                     invalid: function(view,attr,error){
-                        view.$(self.invBindings[attr]).popover({title: "Error", content: error}).popover("show");
+                        view.$(self.invBindings[attr]).popover({title: "Error", content: error,container: view.$el}).popover("show");
                     }
                 });
                 
@@ -158,7 +165,11 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             "click .seed-button": "toggleSeed",
             "click .mlt-button": function () {this.state.set("show_mlt",!this.state.get("show_mlt"))},
             "click .path-button": function () {this.state.set("show_path",!this.state.get("show_path"))},
-            "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))}
+            "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))},
+            "click .mark-correct-btn": "markCorrect",
+            "keyup .prob-value,.max-attempts": function (evt){
+                if(evt.keyCode == 13){ $(evt.target).blur() }   
+            }
         },
         bindings: {
             ".prob-value": {observe: "value", events: ['blur']},
@@ -215,6 +226,12 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
         toggleSeed: function () {
             this.$(".problem-seed").toggleClass("hidden");
         },
+        markCorrect: function () {
+            var conf = confirm(this.problem_set_view.messageTemplate({type:"mark_all_correct"}));
+            if(conf){
+                this.problem_set_view.markAllCorrect(this.model.get("problem_id"));   
+            }
+        },
         addProblem: function (evt){
             if(this.libraryView){
                 this.libraryView.addProblem(this.model);  
@@ -233,7 +250,8 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             this.$el.addClass("hidden");
         },
         removeProblem: function(){
-            this.model.collection.remove(this.model);
+            this.problem_set_view.model.problems.remove(this.model);
+            this.problem_set_view.model.trigger("change:problems",this.problem_set_view.model,this.model);
             this.remove();  // remove the view
         }, 
         set: function(opts){

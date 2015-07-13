@@ -4,14 +4,25 @@
 package Utils::ProblemSets;
 use base qw(Exporter);
 use Dancer ':syntax';
-use Data::Dumper;
+use Data::Dump qw/dump/;
 use List::Util qw(first);
+use List::MoreUtils qw/indexes/;
+use Data::Compare; 
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
+use WeBWorK::Utils qw/writeCourseLog encodeAnswers writeLog/;
+use Utils::Convert qw/convertObjectToHash/;
+use Array::Utils qw(array_minus);
 
 our @EXPORT    = ();
 our @EXPORT_OK = qw(reorderProblems addGlobalProblems deleteProblems addUserProblems addUserSet 
-        createNewUserProblem getGlobalSet record_results);
-our @boolean_set_props = qw/visible enable_reduced_scoring/;
+        createNewUserProblem getGlobalSet record_results renumber_problems updateProblems);
+        
+## This should only be in one spot.        
+our @boolean_set_props = qw/visible enable_reduced_scoring hide_hint time_limit_cap problem_randorder/;
+our @problem_props = qw/set_id problem_id source_file value max_attempts showMeAnother showMeAnotherCount flags/;
+our @user_problem_props = qw/user_id set_id problem_id source_file value max_attempts showMeAnother 
+                showMeAnotherCount flags problem_seed status attempted last_answer num_correct num_incorrect 
+                sub_status flags/;
 
 sub getGlobalSet {
     my ($setName) = @_;
@@ -19,6 +30,9 @@ sub getGlobalSet {
     my $problemSet = convertObjectToHash($set,\@boolean_set_props);
     my @users = vars->{db}->listSetUsers($setName);
     my @problems = vars->{db}->getAllGlobalProblems($setName);
+    for my $problem (@problems){
+        $problem->{_id} = $problem->{set_id} . ":" . $problem->{problem_id};  # this helps backbone on the client side
+    }
 
     $problemSet->{assigned_users} = \@users;
     $problemSet->{problems} = convertArrayOfObjectsToHash(\@problems);
@@ -32,38 +46,108 @@ sub getGlobalSet {
 # This reorders the problems
 
 sub reorderProblems {
+    my ($db,$setID,$new_problems,$assigned_users) = @_; 
+    
+    my @extra_fields = ("problem_id","set_id","user_id");
+    
+	my @problems_from_db = $db->getAllGlobalProblems($setID);
+    
+    
+    my $user_prob_db = {};   # this is the user information from the database
+            
+    for my $user_id (@$assigned_users){
+        $user_prob_db->{$user_id} = [$db->getAllUserProblems($user_id,$setID)];
+    }
+    
+    my $id_swap = {};  # this builds a hash of how the problems have switched around.  
+            
 
-	my @oldProblems = vars->{db}->getAllGlobalProblems(params->{set_id});
-
-    for my $p (@{params->{problems}}){
-        my $problem = first { $_->{source_file} eq $p->{source_file} } @oldProblems;
-
-        if (vars->{db}->existsGlobalProblem(params->{set_id},$p->{problem_id})){
-            $problem->problem_id($p->{problem_id});                 
-            vars->{db}->putGlobalProblem($problem);
-        } else {
-            # delete the problem with the old problem_id and create a new one
-            vars->{db}->deleteGlobalProblem(params->{set_id},$problem->{problem_id});
-            $problem->problem_id($p->{problem_id});
-            vars->{db}->addGlobalProblem($problem);
-
-            for my $user (@{params->{assigned_users}}){
-                my $userProblem = vars->{db}->newUserProblem;
-                $userProblem->set_id(params->{set_id});
-                $userProblem->user_id($user);
-                $userProblem->problem_id($p->{problem_id});
-                debug $userProblem;
-                vars->{db}->addUserProblem($userProblem);
+    for my $i (0..(scalar(@problems_from_db)-1)){
+        if (! problemEqual($problems_from_db[$i],$new_problems->[$i])){
+        
+            ## this is the in $new_problems that matches the current problem ($problems_from_db[$i] )
+            my $problem = first { $_->{problem_id} == $problems_from_db[$i]->{problem_id} } @$new_problems;
+            
+            ## gets the indexes of the problems in $new_problems identical to the current problem
+            my @indexes = indexes { Compare(convertObjectToHash($problems_from_db[$i]),$_,
+                    {ignore_hash_keys => [qw(problem_id _id data problem_seed)]}) == 1 }
+                @$new_problems;   
+            ## these are the problem_ids in $new_problems from the @indexes
+            my @prob_ids = map { $new_problems->[$_]->{problem_id}} @indexes;
+            
+            my @values = values($id_swap);
+            
+            ## this finds the index if there are multiple problems that matched
+            ## which occurs with the same problem source.  
+            my @ind = array_minus(@prob_ids,@values);
+            
+            my $other = first { $_->{problem_id} == $ind[0] } @$new_problems; 
+            
+            $id_swap->{$problem->{problem_id}} = $other->{problem_id};
+            $db->deleteGlobalProblem($setID,$problems_from_db[$i]->{problem_id});
+            my $new_problem = vars->{db}->newGlobalProblem();
+            $new_problem->{set_id}=$setID;
+            for my $prop (@problem_props){
+                $new_problem->{$prop} = $problem->{$prop};
             }
+            $db->addGlobalProblem($new_problem);
+        } else {
+            $id_swap->{$problems_from_db[$i]->{problem_id}} = $problems_from_db[$i]->{problem_id};
         }
     }
 
-    ## take care of the userProblems now
+    # Next, rebuild the user_problems. 
+    
+    for my $user_id (@$assigned_users){
+        for my $prob_id (keys($id_swap)) {
+        
+            my $userprob = first {$_->{problem_id} == $prob_id } @{$user_prob_db->{$user_id}};
+            my $newUserProblem = createNewUserProblem($user_id,$setID,$id_swap->{$prob_id});
+            for my $prop (array_minus(@user_problem_props, @extra_fields)) {
+                $newUserProblem->{$prop} = $userprob->{$prop};
+            }
+            $db->addUserProblem($newUserProblem) unless $db->existsUserProblem($user_id,$setID,$id_swap->{$prob_id});
+        }
+    }
+    
+    return $db->getAllGlobalProblems($setID);
+
+}
+
+###
+#
+#  tests for two problems being equal
+#
+###
+
+sub problemEqual {
+    my ($prob1,$prob2) = @_;
+    for my $prop (@problem_props){
+        if(defined($prob1->{$prop}) && defined($prob2->{$prop}) &&  $prob1->{$prop} ne $prob2->{$prop}){
+             return "";
+         }
+    }
+    
+    return 1;
 
 
+}
 
+####
+#
+#  This takes the problems in the array ref $problems and updates the global problems for course $setID
+#
+###
 
-    return vars->{db}->getAllGlobalProblems(params->{set_id});
+sub updateProblems {
+    my ($db,$setID,$problems) = @_;
+    for my $prob_to_update (@$problems){
+        my $prob = $db->getGlobalProblem($setID,$prob_to_update->{problem_id});
+        for my $attr (@problem_props){
+            $prob->{$attr} = $prob_to_update->{$attr} if $prob_to_update->{$attr};
+        }
+        $db->putGlobalProblem($prob);
+    }
 }
 
 ### 
@@ -104,19 +188,20 @@ sub addGlobalProblems {
 
 	my @oldProblems = vars->{db}->getAllGlobalProblems($setID);
 	for my $p (@{$problems}){
-        my $problem = first { $_->{source_file} eq $p->{source_file} } @oldProblems;
-
-        debug $problem;
         if(! vars->{db}->existsGlobalProblem($setID,$p->{problem_id})){
+            debug "making a new problem with id: " . $p->{problem_id};
         	my $prob = vars->{db}->newGlobalProblem();
+            
         	$prob->{problem_id} = $p->{problem_id};
         	$prob->{source_file} = $p->{source_file};
             $prob->{value} = $p->{value};
             $prob->{max_attempts} = $p->{max_attempts};
         	$prob->{set_id} = $setID;
-        	vars->{db}->addGlobalProblem($prob) unless vars->{db}->existsGlobalProblem($setID,$prob->{problem_id})
+            $prob->{_id} = $prob->{set_id} . ":" . $prob->{problem_id};  # this helps backbone on the client side 
+            vars->{db}->addGlobalProblem($prob) unless vars->{db}->existsGlobalProblem($setID,$prob->{problem_id});
         }
-	}
+    }
+    
 
     return vars->{db}->getAllGlobalProblems($setID);
 }
@@ -149,23 +234,22 @@ sub addUserProblems {
 # This deletes a problem.  The variable $problems is a reference to an array of problems and 
 # the subroutine checks if any of the given problems are not in the database
 #
+#  Note:  the calls to $db->deleteGlobalProblem also deletes any user problem associated with it. 
+#
 ##
 
-###  @oldProblems  = [1,2,3,4,5];
-### $problems = [1,2,4,5];
-
 sub deleteProblems {
-	my ($setID,$problems)=@_;
+	my ($db,$setID,$problems)=@_;
 
-	my @oldProblems = vars->{db}->getAllGlobalProblems($setID);
-	for my $p (@oldProblems){
-        my $problem = first { $_->{problem_id} eq $p->{problem_id} } @{$problems};
-        if(! defined($problem)){
-        	vars->{db}->deleteGlobalProblem($setID,$p->{problem_id});
-        }
+	my @old_ids = map { $_->{problem_id} } $db->getAllGlobalProblems($setID);
+    my @new_ids = map { $_->{problem_id} } @$problems;
+    my @ids_to_delete = array_minus(@old_ids,@new_ids);
+    
+    for my $id (@ids_to_delete){
+        $db->deleteGlobalProblem($setID,$id);
     }
 
-    return vars->{db}->getAllGlobalProblems($setID);
+    return $db->getAllGlobalProblems($setID);
 }
 
 
@@ -326,7 +410,6 @@ sub record_results {
                 $pureProblem->num_incorrect
             );
 
-            debug "here!";
         } else {
             if (before($renderParams->{set}->{open_date}) or after($renderParams->{set}->{due_date})) {
                 $scoreRecordedMessage = "Your score was not recorded because this homework set is closed.";
@@ -344,3 +427,68 @@ sub record_results {
     return $scoreRecordedMessage;
 }
 
+###
+#
+# The following renumbers problems.  If they come in as 2,4,9,11,13 they leave as 1,2,3,4,5
+#
+#  pstaab: It appears that there is a lot of overlap between this and reorder_problems at the top 
+#  of this file.  They should be combined or clarified how. 
+###
+
+sub renumber_problems {
+    my ($db,$setID,$assigned_users) = @_;
+    my %newProblemNumbers = ();
+	my $maxProblemNumber = -1;
+    my $force = 1;
+    my $val;
+    my @sortme;
+    my $j =1;
+    
+    debug "in renumber_problems";
+	for my $jj (sort { $a <=> $b } $db->listGlobalProblems($setID)) {
+		$newProblemNumbers{$j} = $jj;
+		$maxProblemNumber = $jj if $jj > $maxProblemNumber;
+        $j++;
+	}
+    
+    
+    
+    my @probs = $db->getAllGlobalProblems($setID);
+    my @prob_ids = ();
+    my %userprobs = ();
+    $j=1;
+    for my $prob (@probs) {
+        push(@prob_ids, $prob->{problem_id});
+        $prob->{problem_id} = $j++;
+    }
+    
+    for my $user_id (@{$assigned_users}){
+        $j=1;
+        my $userproblems = [$db->getAllUserProblems($user_id,$setID)];
+        for my $prob (@$userproblems) {
+            $prob->{problem_id} = $j++;
+        }
+        $userprobs{$user_id} = $userproblems;
+    }
+    
+    ## delete all old problems;
+    
+    for my $prob_id (@prob_ids){
+        $db->deleteGlobalProblem($setID,$prob_id);
+    }
+    
+    ## add in all of the global and user problems:
+    for my $prob (@probs) {
+        $db->addGlobalProblem($prob);
+    }
+    
+    for my $user_id (@{$assigned_users}){
+        for my $user_problem (@{$userprobs{$user_id}}){
+            $db->addUserProblem($user_problem);   
+        }
+    }
+    
+    return;
+}
+
+1;
