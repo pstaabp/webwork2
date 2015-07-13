@@ -81,6 +81,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.state.set(_(opts).pick("display_mode"));
             if(this.state.get("display_mode")===""){
                 this.state.set("display_mode",this.settings.getSettingValue("pg{options}{displayMode}"));
+                this.libraryView.parent.state.set("display_mode",this.state.get("display_mode",{silent: true}));
             }
             return this; 
         },
@@ -137,11 +138,20 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         renderProblems: function () {
             var self = this;
             var ul = this.$(".prob-list").empty(); 
-            _(this.pageRange).each(function(i){
-                ul.append((self.problemViews[i] = new ProblemView({model: self.problems.at(i),
-                                                                   problem_set_view: self.problem_set_view,
-                    libraryView: self.libraryView, viewAttrs: self.viewAttrs})).render().el); 
-                    
+            var ul = this.$(".prob-list").empty();
+            if(this.problemViews.length == 0){
+                this.updateProblems();   
+            }
+            _(this.problemViews).each(function(pv){
+                ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el); 
+                //ul.append(pv.render().el); 
+                
+                // what is this needed for? 
+                pv.model.once("rendered",function(_m){
+                    if(self.libraryView){
+                        self.libraryView.sidebarChanged();
+                    }
+                })
             });
 
             if(this.viewAttrs.reorderable){
@@ -150,26 +160,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                                 stop: this.reorder});
             }
             this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
-            // check if all of the problems are rendered.  When they are, trigger an event
-            //
-            // I think this needs work.  It appears that MathJax fires lots of "Math End" signals, 
-            // although why not just one. 
-            // 
-            // this may also be part of the many calls to render throughout the app. 
-            // (Note: after further work on another branch, this may not be necessary)
-            
-            _(this.problemViews).each(function(pv){
-                if(pv && pv.model){
-                      pv.model.on("rendered", function () {
-                          if(_(self.problemViews).chain().map(function(pv){
-                               if(pv) {
-                                    return pv.state.get("rendered");}
-                                }).every().value()){
-                            self.trigger("rendered");   
-                          }
-                      }); 
-                }
-            })
             this.updatePaginator();
             this.updateNumProblems();
             return this;
@@ -256,13 +246,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
 
             return this;
         },
-/*            this.updatePaginator();       
-            this.renderProblems();
-            this.$(".problem-paginator button").removeClass("current-page");
-            this.$(".problem-paginator button[data-page='" + this.state.get("current_page") + "']").addClass("current-page");
-            this.trigger("page-changed",this.state.get("current_page"));
-            return this;
-        }, */
         /* when the "new" button is clicked open up the simple editor. */
         openSimpleEditor: function(){  
             console.log("opening the simple editor."); 

@@ -54,7 +54,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 if(!self.state.get("hidden")){
                     self.render();
                 }
-            })
+            });
             
             this.state.set(_(options).pick("display_mode","hidden"));
                     
@@ -62,16 +62,15 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 var isValid = self.model.isValid(_(self.model.changed).keys());
                 if(isValid){
                     self.problem_set_view.model.trigger("change:problems",self.problem_set_view.model,self.model);
-            } }).on("change:show_hints",function(){
+                }
+            }).on("change:show_hints",function(){
                 self.showHints(self.model.get("show_hints"));
             }).on("change:show_solution",function(){
                 self.showSolution(self.model.get("show_solution"));
             });
-            this.invBindings = util.invBindings(this.bindings);
-                }).on("change:show_path",function(){
-                    self.showPath(self.state.get("show_path"));
-                });
 
+            this.invBindings = util.invBindings(this.bindings);
+                
             
            this.invBindings = util.invBindings(this.bindings);
         },
