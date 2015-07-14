@@ -17,6 +17,7 @@ my @basic_tags = qw/DBsubject DBchapter DBsection Institution Date Author Email 
 my @numbered_tags = qw/TitleText AuthorText EditionText Section Problem/;
 my $tb_links; 
 my $chapterSectionREGEX = qr{^(\d+)(\.(\d+))?$};
+my $integerREGEX = qr{^\s*(-?\d+)\s*$};
 
 sub parse {
   my $filepath = shift;
@@ -110,7 +111,16 @@ sub parseTags {
                     push(@textProblemInfo,$info);
             
                 } 
-                $textProblemInfo[$number-1]{$tag}=$value;
+                if($tag eq 'EditionText'){
+                    if(my @numMatch = $value =~ /$integerREGEX/){
+                        $textProblemInfo[$number-1]{$tag}=$numMatch[0];  
+                        #dd "I matched";
+                        #dd @numMatch;
+                        #dd $textProblemInfo[$number-1];
+                    }
+                } else {
+                    $textProblemInfo[$number-1]{$tag}=$value;
+                }
             }
         }
         
@@ -120,7 +130,11 @@ sub parseTags {
     
     # This parses the textbook information
     my @tmp = map { parseTextbook($_) } @textProblemInfo;
-
+    my @tmp = grep { defined($_) } @tmp;
+    
+    #dd "These are the textbooks";
+    #dd @tmp;
+    
     my $info = {}; # { %$author_info };
     
     for my $key (keys(%$author_info)){
@@ -133,8 +147,6 @@ sub parseTags {
     
     
 }
-
-
 
 sub parseStatement {
     my ($file,$prob) = @_;
@@ -160,7 +172,7 @@ sub parseStatement {
 sub parseTextbook {
     my $textbook = shift; 
     my $tp = {};
-
+    
     $tp->{author} = $textbook->{AuthorText} if $textbook->{AuthorText};
     $tp->{title} = $textbook->{TitleText} if $textbook->{TitleText};
     $tp->{edition} = $textbook->{EditionText} if $textbook->{EditionText};
@@ -169,27 +181,41 @@ sub parseTextbook {
         $_->{author} eq $tp->{author} && $_->{title} eq $tp->{title} && $_->{edition} eq $tp->{edition} 
     } @{$tb_links->{textbooks}};
     
+#    dd "in parseTextbook";
+#    dd $textbook;
+#    dd $ind;
+    
     if($ind>-1){
         if(my @matches = $textbook->{Section} =~ $chapterSectionREGEX){
+            #dd @matches; 
             my $sections = $tb_links->{textbooks}[$ind]->{sections};
             my $ch_index = first_index { $_->{section} eq $matches[0] } @$sections;
             my $ch_name = ${$sections}[$ch_index]->{name};
             my $sect_index = first_index {$_->{section} eq $textbook->{Section}} @$sections;
             my $sect_name = ${$sections}[$sect_index]->{name} if $sect_index >=0; 
-            $tp->{chapter_number} = $ch_index; 
+            $tp->{chapter_number} = $matches[0]; 
             $tp->{chapter} = $ch_name;
-            $tp->{section_number} = $sect_index;
-            $tp->{section} = $sect_name; 
-
-        } 
+            $tp->{section_number} = $sect_index if $sect_index > -1;
+            $tp->{section} = $sect_name if $sect_index > -1;
+            
+            if($sect_index < 0) {
+                print "\nERROR:  the section number " . $textbook->{Section} . " doesn't exist for the textbook  \n";
+                print "author: " . $tp->{author} . " and edition " . $tp->{edition} . " for file\n";
+            }
+        } else {
+            print "\nERROR:  the section number " . $textbook->{Section} . " doesn't exist for the textbook  \n";
+            print "author: " . $tp->{author} . " and edition " . $tp->{edition} . " for file\n";
+         
+        }
+        
     } else {
-        $tp->{section} = $_->{Section};
+        $tp->{section} = $textbook->{Section};
     }
-    $tp->{problem} = $_->{Problem} if $_->{Problem};
-
-    Models::Library::TextbookProblem->new($tp);
-
-
+    my @probs = split(qr{\s+},$textbook->{Problem});
+    $tp->{problem} = \@probs;
+    
+    return ($ind>-1) ?  Models::Library::TextbookProblem->new($tp) : undef;
+        
 }
 
 1;

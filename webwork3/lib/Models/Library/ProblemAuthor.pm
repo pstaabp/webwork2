@@ -2,15 +2,16 @@ package Models::Library::ProblemAuthor;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Str);
 
+use Models::Library::Schema;
 use namespace::clean;
 use Data::Dump qw/dd/;
 
 with 'DBIx::Mint::Table';
 has author_id => (is=>'rw');
-has institution => (is=>'rw',isa => Str);
-has lastname => (is=>'rw',isa => Str);
-has firstname => (is=>'rw',isa => Str);
-has email => (is=>'rw',isa => Str);
+has institution => (is=>'rw',isa => Str, default => "");
+has lastname => (is=>'rw',isa => Str, default => "");
+has firstname => (is=>'rw',isa => Str, default => "");
+has email => (is=>'rw',isa => Str, default => "");
 
 my %authfields = (lastname=>'author.lastname',firstname=>'author.firstname',institution=>'author.institution');
 
@@ -22,8 +23,8 @@ sub insertAuthor {
     $info->{firstname} = $self->firstname if defined($self->firstname);
     $info->{lastname} = $self->lastname if defined($self->lastname);
     $info->{institution} = $self->institution if defined($self->institution);
-    my $author = Library::ProblemAuthor->find($info);
-    return $author->{author_id} || Library::ProblemAuthor->insert($info);
+    my $author = Models::Library::ProblemAuthor->find($info);
+    return $author->{author_id} || Models::Library::ProblemAuthor->insert($info);
 }
 
 1;

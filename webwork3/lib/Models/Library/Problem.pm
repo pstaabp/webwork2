@@ -3,16 +3,17 @@ use feature 'say';
 use Moo;
 use MooX::Types::MooseLike::Base qw(ArrayRef InstanceOf);
 #with 'DBIx::Mint::Table';
-use Models::Library::Constant qw/$DBTYPE $MONGOclient/;
+use Models::Library::Constant qw/$DATABASE/;
 
 use namespace::clean;
 use Digest::SHA1  qw/sha1_hex/;
 use Hash::MoreUtils qw/slice_def_map slice_def/;
+use Path::Class;
+use Data::Dump qw/dd/;
 
-use Models::Library::Schema;
 use Models::Library::DBsubject;
 use Models::Library::ProblemAuthor;
-use Data::Dump qw/dd/;
+
 
 #my @problem_author_fields = qw/institution lastname firstname email/;
 
@@ -34,19 +35,6 @@ has statement => (is=> 'rw',default=>"");
 has isLink => (is=>'rw',default =>"");
 
 
-
-# this overrides the default constructor
-sub BUILDARGS {
-  my ($class, %args) = @_;
- 
-  my $pathToProblem = $args{path};
-  $args{id}=sha1_hex($pathToProblem);
-  
- 
-  return \%args;
-};
-
-
 ## this method inserts the LibraryProblem to the database
 
 sub insertMYSQL {
@@ -54,17 +42,21 @@ sub insertMYSQL {
   
     my $DBsection_id = $self->DBinfo->insert;
     my $author_id = $self->problem_author->insertAuthor; 
+  
     
+  
     my $path_info = {};
-    my $path_obj = Path::Tiny->new($self->path);
+    my $path_obj = file($self->path);
     $path_info->{path} = $path_obj->parent->stringify if $self->path; # get the directory of the pgfile. 
     #$path_info->{machine} = $self->machine if $self->machine;
     #$path_info->{user} = $self->user if $self->user;
 
+    #dd $path_info;
+    #dd length($path_info->{path});
 
 
-    my $path = Library::Path->find($path_info);
-    my $path_id = $path->{path_id} || Library::Path->insert($path_info);
+    my $path = Models::Library::Path->find($path_info);
+    my $path_id = $path->{path_id} || Models::Library::Path->insert($path_info);
 
     my $pgfile_info = {};
     $pgfile_info->{DBsection_id} = $DBsection_id if $DBsection_id;
@@ -77,16 +69,16 @@ sub insertMYSQL {
     $pgfile_info->{static} = $self->static if $self->static; 
     $pgfile_info->{MO} = $self->MO if $self->MO; 
     
-    my $pgfile = Library::PGFile->find($pgfile_info);
-    my $pgfile_id = $pgfile->{pgfile_id} || Library::PGFile->insert($pgfile_info);
+    my $pgfile = Models::Library::PGFile->find($pgfile_info);
+    my $pgfile_id = $pgfile->{pgfile_id} || Models::Library::PGFile->insert($pgfile_info);
   
     my $mlt_info = {};
     $mlt_info->{name} = $self->mlt if $self->mlt;
     $mlt_info->{DBsection_id} = $DBsection_id;
     $mlt_info->{leader} = $pgfile_id if $self->mlt_leader;
     if($mlt_info->{name} && $mlt_info->{leader}) {
-        my $mlt = Library::MoreLT->find($mlt_info);
-        my $mlt_id = $mlt->{moreld_id} || Library::MoreLT->insert($mlt_info);
+        my $mlt = Models::Library::MoreLT->find($mlt_info);
+        my $mlt_id = $mlt->{moreld_id} || Models::Library::MoreLT->insert($mlt_info);
     }
     
     for my $textbook (@{$self->textbookProblems}){
@@ -97,21 +89,21 @@ sub insertMYSQL {
     for my $keyword (@{$self->keywords}){
         $keyword =~ s/([[:upper:]])/defined $1 ? lc $1 : $1/eg;  # make everything lowercase
         $keyword =~ s/\s//g;  # remove spaces
-        my $kw = Library::Keyword->find({keyword=>$keyword});
-        my $keyword_id = $kw->{keyword_id} || Library::Keyword->insert({keyword=>$keyword});
-        
+        my $kw = Models::Library::Keyword->find({keyword=>$keyword});
+        my $keyword_id = $kw->{keyword_id} || Models::Library::Keyword->insert({keyword=>$keyword});
         # database table between pgfiles and keywords
-        my $pgkw = Library::PGFileKeyword->find({keyword_id => $keyword_id,pgfile_id=> $pgfile_id});
-        Library::PGFileKeyword->insert({keyword_id => $keyword_id,pgfile_id=> $pgfile_id}) unless $pgkw;
+        my $pgkw = Models::Library::PGFileKeyword->find({keyword_id => $keyword_id,pgfile_id=> $pgfile_id});
+        
+        Models::Library::PGFileKeyword->insert({keyword_id => $keyword_id,pgfile_id=> $pgfile_id}) unless $pgkw;
     }
   
 }
 
 sub insert {
     my $self = shift;
-    if($DBTYPE eq 'MYSQL'){
+    if($DATABASE->{type} eq 'MYSQL'){
         $self->insertMYSQL();
-    } elsif($DBTYPE eq 'MONGO'){
+    } elsif($DATABASE->{type} eq 'MONGO'){
         $self->insertMONGO();
     
     }
@@ -121,7 +113,7 @@ sub insert {
 
 sub insertMONGO {
     my $self = shift;
-    my $db = $MONGOclient->get_database('testOPL');
+    my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
     my $problems = $db->get_collection('problems');
     my $textbookProblems = $db->get_collection('textbook_problems');
     my @tbProbs = ();
@@ -182,9 +174,9 @@ sub insertMONGO {
 
 sub find {
     my $self = shift;
-    if($DBTYPE eq 'MYSQL'){
+    if($DATABASE->{type} eq 'MYSQL'){
         $self->findMYSQL(@_);
-    } elsif($DBTYPE eq 'MONGO'){
+    } elsif($DATABASE->{type} eq 'MONGO'){
         $self->findMONGO(@_);
     
     }
@@ -211,16 +203,15 @@ sub findMYSQL {
         ->inner_join(['OPL_pgfile_keyword','pgkw'],{'pg.pgfile_id' => 'pgkw.pgfile_id'})
         ->inner_join(['OPL_keyword','kw'],{'kw.keyword_id' => 'pgkw.keyword_id'})
         ->inner_join(['OPL_author','author'],{'pg.author_id' => 'author.author_id'});
-   # say  $dbrs->select_sql;
-        
-#    if(keys(%authhash)>0){
-#        $dbrs->inner_join(['OPL_author','author'],{'pg.author_id' => 'author.author_id'});
-#    }
+  
     $dbrs = $dbrs->select('pg.pgfile_id','subj.name|DBsubject','ch.name|DBchapter','me.name|DBsection','pg.author_id',
                             'pg.level');
     
+    say "here";
     $dbrs = $dbrs->search(\%searchhash);
-    my @all_records   = $dbrs->all;
+    say "and here";
+    my @all_records = $dbrs->all;
+    say "now here";
     dd @all_records;
 }
 
@@ -232,7 +223,7 @@ sub findMONGO {
     $searchQuery->{keyword} = undef; 
     my %query =  slice_def $searchQuery;  # throw away any undefined
     
-    my $db = $MONGOclient->get_database('testOPL');
+    my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
     my $problems = $db->get_collection('problems');
     my $textbookProblems = $db->get_collection('textbook_problems');
 

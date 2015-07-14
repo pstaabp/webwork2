@@ -8,7 +8,7 @@
 
 package Models::Library::TextbookProblem;
 use Moo;
-#with 'DBIx::Mint::Table';
+use MooX::Types::MooseLike::Base qw(Int ArrayRef);
 
 use Data::Dump qw/dd/;
 
@@ -27,7 +27,7 @@ has chapter => (is=>'rw',default=>'');
 has chapter_number => (is=>'rw');
 has section => (is=>'rw',default=>'');
 has section_number => (is=>'rw');
-has problem => (is=>'rw',default=>'');
+has problem => (is=>'rw',default=>'',isa => ArrayRef[Int]);
 has page => (is=>'rw');
 
 ## insert Textbook info in the database; 
@@ -43,40 +43,51 @@ sub insert {
     $textbook_info->{isbn} = $self->isbn if $self->isbn;
     $textbook_info->{pubdate} = $self->pubdate if $self->pubdate;
     
-    my $text = Library::Textbook->find($textbook_info);
+    my $text = Models::Library::Textbook->find($textbook_info);
     
+    #dd $self;
     # add it to the database unless it already exists. 
-    my $textbook_id = $text->{textbook_id} ||  Library::Textbook->insert($textbook_info);  
+    my $textbook_id = $text->{textbook_id} ||  Models::Library::Textbook->insert($textbook_info);  
     
 
     my $chapter_info = {};
     $chapter_info->{textbook_id} = $textbook_id;
     $chapter_info->{number} = $self->chapter_number if $self->chapter_number;
     $chapter_info->{name} = $self->chapter if $self->chapter;
+    
+#    dd "chapter_info line 58 Textbook problem";
+#    dd $chapter_info;
+#    dd $self;
+    if($chapter_info->{name}) {
+        my $chapter = Models::Library::Chapter->find($chapter_info);
+        my $chapter_id = $chapter->{chapter_id} || Models::Library::Chapter->insert($chapter_info);
+    
+        my $section_info = {};
+        $section_info->{chapter_id} = $chapter_id;
+        $section_info->{number} = $self->section_number if $self->section_number;
+        $section_info->{name} = $self->section if $self->section;
+        $section_info->{page} = $self->page if $self->page;
         
-    my $chapter = Library::Chapter->find($chapter_info);
-    my $chapter_id = $chapter->{chapter_id} || Library::Chapter->insert($chapter_info);
-    
-    my $section_info = {};
-    $section_info->{chapter_id} = $chapter_id;
-    $section_info->{number} = $self->section_number if $self->section_number;
-    $section_info->{name} = $self->section if $self->section;
-    $section_info->{page} = $self->page if $self->page;
-    
-    my $section = Library::Section->find($section_info);
-    my $section_id = $section->{section_id} || Library::Section->insert($section_info);
-    
-    my $problem_info = {};
-    $problem_info->{section_id} = $section_id;
-    $problem_info->{number} = $self->problem;
-    $problem_info->{page} = $self->page;
-    
-    my $problem = Library::ProblemInfo->find($problem_info);
-    my $problem_id = $problem->{problem_id} || Library::ProblemInfo->insert($problem_info);
-    
-    # this is the connection between the problem_is and the pgfile_id
-    my $pgfile_problem = Library::PGFileProblem->find({problem_id=>$problem_id,pgfile_id=>$pgfile_id});
-    Library::PGFileProblem->insert({problem_id=>$problem_id,pgfile_id=>$pgfile_id}) unless $pgfile_problem;
+        my $section = Models::Library::Section->find($section_info);
+        my $section_id = $section->{section_id} || Models::Library::Section->insert($section_info);
+
+        if(defined($self->problem) && $self->problem ne "") {
+
+
+            for my $prob (@{$self->problem}){
+                my $problem_info = {};
+                $problem_info->{section_id} = $section_id;
+                $problem_info->{number} = $prob;
+                $problem_info->{page} = $self->page if $self->page;
+                my $problem = Models::Library::ProblemInfo->find($problem_info);
+                my $problem_id = $problem->{problem_id} || Models::Library::ProblemInfo->insert($problem_info);
+
+                # this is the connection between the problem_is and the pgfile_id
+                my $pgfile_problem = Models::Library::PGFileProblem->find({problem_id=>$problem_id,pgfile_id=>$pgfile_id});
+                Models::Library::PGFileProblem->insert({problem_id=>$problem_id,pgfile_id=>$pgfile_id}) unless $pgfile_problem;
+            }
+        }
+    }
 
 }
 

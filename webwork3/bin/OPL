@@ -1,25 +1,35 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use feature 'say';
  
 use Moo;
 use MooX::Options;
 use File::Find::Rule;
 use List::MoreUtils qw/first_index/;
 use Data::Dump qw/dd/;
-use File::Slurp;
+use File::Slurp qw/read_file/;
 use MongoDB;
 use YAML qw(LoadFile);
+use Carp::Always;
+use Path::Class;
 
-use Models::Library::Constant qw/$DBTYPE $MONGOclient/;
+use lib '../lib';
+
+use Models::Library::Constant qw/$DATABASE $COURSE/;
 use Models::Library::Problem;
 
-use Path::Tiny;
-use Try::Tiny;
+
 use Utils::PGParse;
 
-option dbtype => (is=>'ro', format=>'s');
-option dir => (is=>'ro',format=>'s');
+option dbtype => (is=>'ro', format=>'s',default=>"MONGO");
+option library_directory => (is=>'ro',format=>'s');
+option library_base => (is=>'ro',format=>'s');
+option dbname => (is=>'ro',format=>'s', default => 'testOPL');
+option action => (is=>'ro', format => 's');
+option dbuser => (is=>'ro',format => 's', default=>'webworkWrite');
+option dbpass => (is=>'ro',format => 's', default=>'passwordRW');
+option find_in_db => (is=> 'ro',format=>'s@', repeatable=> 1, autosplit=>";");
 
 my @dbtables = qw/OPL_DBsubject OPL_DBchapter OPL_DBsection OPL_author OPL_textbook OPL_chapter OPL_section OPL_problem 
                     OPL_keyword OPL_path OPL_morelt OPL_pgfile OPL_pgfile_problem OPL_pgfile_keyword/;
@@ -29,25 +39,47 @@ my $taxon;
 my $logfile = 'opl.log';
 
 sub run {
-
-    my $start = time();
+    my $self = shift;
 
     open LOGFH, '>', $logfile or die "Could not open $logfile: $!";
 
-    $DBTYPE = 'MONGO';
+    $DATABASE->{type} = $self->dbtype;
 
     # Connect to database
-    if ($DBTYPE eq "MYSQL"){
-        DBIx::Mint->connect('dbi:mysql:dbname=testOPL', 'webworkWrite', 'passwordRW', {
+    if ($DATABASE->{type} eq "MYSQL"){
+        my $dbname = $self->dbname;
+        my $dbuser = $self->dbuser;
+        my $dbpass = $self->dbpass;
+        print "connecting to MYSQL database with database name: $dbname and user: $dbuser\n";
+        DBIx::Mint->connect("dbi:mysql:dbname=$dbname", $dbuser,$dbpass, {
             AutoCommit    => 1,
             RaiseError    => 1,
-            Callbacks     => {
-            },
         });
-    } elsif ($DBTYPE eq "MONGO") {
-        $MONGOclient = MongoDB::MongoClient->new;
+    } elsif ($DATABASE->{type} eq "MONGO") {
+        $DATABASE->{MONGOclient} = MongoDB::MongoClient->new;
+        $DATABASE->{dbname} = $self->dbname;
+    } else {
+        die "The database type $DATABASE->{type} is not allowed.  Only MYSQL and MONGO have been defined.";
     }
 
+    if(defined($self->action) && $self->action eq 'rebuildDB') {
+        $self->rebuildDB;
+    } elsif(defined($self->action) && $self->action eq 'search') {
+        die "The option find must be defined" unless defined($self->find_in_db);
+        $self->search;
+    } else {
+        my $action = $self->action || '' ;
+        die "The only options are 'rebuildDB' and 'search'.  You selected $action";
+    }
+    
+    close LOGFH;
+}
+
+sub rebuildDB {
+    my $self = shift;
+    my $start = time();
+    
+    print "Building a database of type: $DATABASE->{type} \n"; 
 
 
     $| = 1;  # disable the print buffer
@@ -55,46 +87,60 @@ sub run {
     my $taxfile ='tax.yml';
     my $tbLinkFile = 'textbooks.yml';
 
-    #my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/ma117DB/set1b';
-    #my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester';
-    my $dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary';
-    print "Building the OPL database for the library found at \n $dir \n";
+    $COURSE->{library_base} = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/';
+    #my $default_dir = 'WHFreeman/Rogawski_Calculus_Early_Transcendentals_Second_Edition/11_Parametric_Equations_Polar_Coordinates_and_Conic_Sections/11.4_Area_and_Arc_Length_in_Polar_Coordinates';
+    #my $default_dir = '/Library/WebServer/Documents/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester';
+    my $default_dir = '.';
+    my $lib_dir = $self->library_directory || $default_dir; 
+    my $dir = dir($COURSE->{library_base},$lib_dir)->cleanup;
+    print "Building the OPL database for the library found at:\n " . $dir->stringify . "\n";
 
-    rebuildDB();
+    
+    
+    $self->recreateDB();
 
-    print "Loading the Taxonomy File... \n";
+
+    print "Loading the Taxonomy File: $taxfile \n";
     $taxon = LoadFile($taxfile);
     @subjects = map { $_->{name} } @{$taxon->{subjects}};
     @chapters =(); 
 
     # load the textbook link file
-    print "Loading the Textbooks File... \n";
+    print "Loading the Textbooks File: $tbLinkFile \n";
     my $tb_link_file = LoadFile($tbLinkFile);
+    
+    my $dir = dir($COURSE->{library_base},$lib_dir)->cleanup;
+    
+    say $dir->stringify;
+    
+    my @pgfiles = File::Find::Rule->file()->name('*.pg')->in($dir->stringify);
 
-    my @pgfiles = File::Find::Rule->file()->name('*.pg')->in($dir);
+    my $path = dir($COURSE->{library_directory},$pgfiles[0]);
 
     print "Rebuilding the Database... \n";
     for my $i (0 .. $#pgfiles) {
         my $prob = Utils::PGParse::parse($pgfiles[$i],$tb_link_file);
+        my $file = file($pgfiles[$i]);
+        my $relFile = $file->relative(dir($COURSE->{library_base}));
+        $prob->path($relFile->stringify);
         
         printf "%6s",$i if ($i>0 && $i % 100 == 0);
         print "\n" if ($i>0 && $i % 1000 == 0);
         if (! $prob->isLink){
-        if(valid($prob,$taxon,$i)){
-          $prob->insert;
-        } else {
-            print LOGFH "This problem is not written to the database: " . $prob->path . "\n";
-            #dd $prob->DBinfo;
+            if(valid($prob,$taxon,$i)){
+              $prob->insert;
+            } else {
+                print LOGFH "This problem is not written to the database: " . $prob->path . "\n";
+            }
         }
-}
     }
 
     print "\nLibrary database rebuilt.\n";
-    
-    if($DBTYPE eq 'MONGO') {
+        
+    if($DATABASE->{type} eq 'MONGO') {
         print "building indexes in MONGO\n";
         my $idx = Tie::IxHash->new(DBsubject => 1, DBchapter => 1, DBsection => 1, keyword=>1, level=>1);
-        my $db = $MONGOclient->get_database('testOPL');
+        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
         my $problems = $db->get_collection('problems');
         $problems->ensure_index($idx);
         $problems->ensure_index({statement => "text"}, {language_override=>"DDDD"}); # make a dummy language field
@@ -103,14 +149,15 @@ sub run {
 
     print "Amount of time is $timediff seconds.\n";
 
-    close LOGFH;
 }
-sub rebuildDB {
+
+sub recreateDB {
+    my $self = shift; 
     print "Recreating the Database tables\n";
     
-    print $DBTYPE . "\n";
+    my $dbname = $self->dbname || 'testOPL';
     
-    if($DBTYPE eq 'MYSQL'){
+    if($DATABASE->{type} eq 'MYSQL'){
         my $mint  = DBIx::Mint->instance;  
 
         ## drop all of the tables
@@ -128,8 +175,8 @@ sub rebuildDB {
             #print "command: " . $command . "\n";
             $dbh->do($command.';');
         }
-    } elsif($DBTYPE eq 'MONGO'){
-        my $db = $MONGOclient->get_database('testOPL');
+    } elsif($DATABASE->{type} eq 'MONGO'){
+        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
         my $problems = $db->get_collection('problems');
         $problems->remove({});  # remove all problems;
         my $tbprobs = $db->get_collection('textbook_problems');
@@ -192,8 +239,25 @@ sub valid {
     return 1;
 }
 
-main->new_with_options->run;
+my @fields = qw/DBsubject DBchapter DBsection lastname firstname institution level keyword/;
 
-1;
+sub search {
+    my $self = shift;
+    my $params = {};
+    for my $obj (@{$self->find_in_db}){
+        my @results = split(":",$obj);
+        if(grep {$_ eq $results[0] } @fields){
+            $params->{$results[0]} = $results[1];
+        } else {
+            die "The field " . $results[0] . " is not an available search term.";
+        }
+    }
+    dd $params; 
+    my @find = Models::Library::Problem->find($params);
+    
+    ##dd scalar(@find);
+}
+
+main->new_with_options->run;
 
 1;

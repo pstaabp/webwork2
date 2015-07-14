@@ -1,4 +1,4 @@
-package Library::PGFile;
+package Models::Library::PGFile;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Int Str);
 
@@ -30,10 +30,10 @@ sub insertDB {
     $info->{static} = $self->static if $self->static;
     $info->{MO} = $self->MO if $self->MO;
     
-    my $pgfile = Library::Textbook->find($info);
+    my $pgfile = Models::Library::Textbook->find($info);
     
     # add it to the database unless it already exists. 
-    return $pgfile->{pgfile_id} ||  Library::Textbook->insert($info);  
+    return $pgfile->{pgfile_id} ||  Models::Library::Textbook->insert($info);  
     
 }
 

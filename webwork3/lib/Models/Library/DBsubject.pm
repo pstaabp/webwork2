@@ -1,4 +1,4 @@
-package Library::DBsubject;
+package Models::Library::DBsubject;
 
 use Moo;
 with 'DBIx::Mint::Table';
@@ -7,7 +7,7 @@ has DBsubject_id => (is=>'rw',default=>"");
 has name => (is=>'rw',default=>"");
 
 
-package Library::DBchapter;
+package Models::Library::DBchapter;
 use Moo;
 with 'DBIx::Mint::Table';
 
@@ -16,7 +16,7 @@ has name => (is=>'rw',default=>"");
 has DBsubject_id => (is=>'rw',default=>"");
 
 
-package Library::DBsection;
+package Models::Library::DBsection;
 use Moo;
 with 'DBIx::Mint::Table';
 
@@ -25,7 +25,7 @@ has name => (is=>'rw',default=>"");
 has DBchapter_id => (is=>'rw',default=>"");
 
 
-package Library::Textbook;
+package Models::Library::Textbook;
 use Moo;
 with 'DBIx::Mint::Table';
 has textbook_id => (is=>'rw',default=>'');
@@ -38,7 +38,7 @@ has pubdate => (is=>'rw',default=>'');
 
 
 
-package Library::Chapter;
+package Models::Library::Chapter;
 use Moo;
 with 'DBIx::Mint::Table';
 has chapter_id => (is=>'rw');
@@ -46,7 +46,7 @@ has textbook_id => (is=>'rw');
 has number => (is=>'rw');
 has name => (is=>'rw');
 
-package Library::Section;
+package Models::Library::Section;
 use Moo;
 with 'DBIx::Mint::Table';
 has section_id => (is=>'rw',default=>'');
@@ -55,7 +55,7 @@ has number => (is=>'rw',default=>-1);
 has name => (is=>'rw',default=>'');
 has page => (is=>'rw',default=>'');
 
-package Library::ProblemInfo;
+package Models::Library::ProblemInfo;
 use Moo;
 with 'DBIx::Mint::Table';
 has problem_id => (is=>'rw');
@@ -64,13 +64,13 @@ has number => (is=>'rw',default=>-1);
 has page => (is=>'rw',default=>'');
 
 
-package Library::Keyword;
+package Models::Library::Keyword;
 use Moo;
 with 'DBIx::Mint::Table';
 has keyword_id => (is=>'rw');
 has keyword => (is=>'rw');
 
-package Library::Path;
+package Models::Library::Path;
 use Moo;
 with 'DBIx::Mint::Table';
 has path_id => (is=>'rw');
@@ -78,7 +78,7 @@ has path => (is=>'rw');
 has machine => (is=>'rw');
 has user => (is=>'rw');
 
-package Library::PGFile;
+package Models::Library::PGFile;
 use Moo;
 with 'DBIx::Mint::Table';
 has pgfile_id => (is=>'rw');
@@ -93,7 +93,7 @@ has language => (is => 'rw');
 has static => (is=>'rw');
 has MO => (is=>'rw');
 
-package Library::MoreLT;
+package Models::Library::MoreLT;
 use Moo;
 with 'DBIx::Mint::Table';
 has morelt_id => (is=>'rw');
@@ -101,13 +101,13 @@ has name => (is=>'rw');
 has DBsection_id => (is=>'rw');
 has leader => (is=>'rw');
 
-package Library::PGFileProblem;
+package Models::Library::PGFileProblem;
 use Moo;
 with 'DBIx::Mint::Table';
 has pgfile_id => (is=>'rw');
 has problem_id => (is=>'rw');
 
-package Library::PGFileKeyword;
+package Models::Library::PGFileKeyword;
 use Moo;
 with 'DBIx::Mint::Table';
 has pgfile_id => (is=>'rw');

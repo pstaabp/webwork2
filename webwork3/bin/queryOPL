@@ -6,7 +6,7 @@ use Moo;
 use MooX::Options;
 use DBIx::Mint;
 use MongoDB;
-use Models::Library::Constant qw/$DBTYPE $MONGOclient/;
+use Models::Library::Constant qw/$DBTYPE $MONGOclient $MONGOdbname/;
 use Models::Library::Problem;
 use Data::Dump qw/dd/;
 use Carp::Always;
@@ -34,6 +34,8 @@ sub connectToDB {
     } elsif($DBTYPE eq 'MONGO'){
         $MONGOclient = MongoDB::MongoClient->new;
     }
+    
+    
 }
     
 

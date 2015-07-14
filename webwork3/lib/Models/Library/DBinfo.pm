@@ -12,15 +12,15 @@ has DBsection => (is=>'rw',isa => Str,default =>"");
 sub insert {
     my $self = shift; 
     
-    my $DBsubject = Library::DBsubject->find({name=>$self->DBsubject});
-    my $DBsubject_id = $DBsubject->{DBsubject_id} || Library::DBsubject->insert({name=>$self->DBsubject});
+    my $DBsubject = Models::Library::DBsubject->find({name=>$self->DBsubject});
+    my $DBsubject_id = $DBsubject->{DBsubject_id} || Models::Library::DBsubject->insert({name=>$self->DBsubject});
 
-    my $DBchapter = Library::DBchapter->find({name=>$self->DBchapter, DBsubject_id=>$DBsubject_id});
+    my $DBchapter = Models::Library::DBchapter->find({name=>$self->DBchapter, DBsubject_id=>$DBsubject_id});
     my $DBchapter_id = $DBchapter->{DBchapter_id} 
-        || Library::DBchapter->insert({name=>$self->DBchapter, DBsubject_id=>$DBsubject_id});
-    my $DBsection = Library::DBsection->find({name=>$self->DBsection, DBchapter_id=>$DBchapter_id});
+        || Models::Library::DBchapter->insert({name=>$self->DBchapter, DBsubject_id=>$DBsubject_id});
+    my $DBsection = Models::Library::DBsection->find({name=>$self->DBsection, DBchapter_id=>$DBchapter_id});
     my $DBsection_id = $DBsection->{DBsection_id} 
-        || Library::DBsection->insert({name=>$self->DBsection, DBchapter_id=>$DBchapter_id});
+        || Models::Library::DBsection->insert({name=>$self->DBsection, DBchapter_id=>$DBchapter_id});
 
     return $DBsection_id; 
     
