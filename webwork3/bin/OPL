@@ -10,7 +10,7 @@ use List::MoreUtils qw/first_index/;
 use Data::Dump qw/dd/;
 use File::Slurp qw/read_file/;
 use MongoDB;
-use YAML qw(LoadFile);
+use YAML qw(LoadFile DumpFile);
 use Carp::Always;
 use Path::Class;
 
@@ -29,7 +29,7 @@ option dbname => (is=>'ro',format=>'s', default => 'testOPL');
 option action => (is=>'ro', format => 's');
 option dbuser => (is=>'ro',format => 's', default=>'webworkWrite');
 option dbpass => (is=>'ro',format => 's', default=>'passwordRW');
-option find_in_db => (is=> 'ro',format=>'s@', repeatable=> 1, autosplit=>";");
+option finddb => (is=> 'ro',format=>'s@', repeatable=> 1, autosplit=>";");
 
 my @dbtables = qw/OPL_DBsubject OPL_DBchapter OPL_DBsection OPL_author OPL_textbook OPL_chapter OPL_section OPL_problem 
                     OPL_keyword OPL_path OPL_morelt OPL_pgfile OPL_pgfile_problem OPL_pgfile_keyword/;
@@ -40,8 +40,6 @@ my $logfile = 'opl.log';
 
 sub run {
     my $self = shift;
-
-    open LOGFH, '>', $logfile or die "Could not open $logfile: $!";
 
     $DATABASE->{type} = $self->dbtype;
 
@@ -65,14 +63,12 @@ sub run {
     if(defined($self->action) && $self->action eq 'rebuildDB') {
         $self->rebuildDB;
     } elsif(defined($self->action) && $self->action eq 'search') {
-        die "The option find must be defined" unless defined($self->find_in_db);
+        die "The option finddb must be defined" unless defined($self->finddb);
         $self->search;
     } else {
         my $action = $self->action || '' ;
         die "The only options are 'rebuildDB' and 'search'.  You selected $action";
     }
-    
-    close LOGFH;
 }
 
 sub rebuildDB {
@@ -83,6 +79,8 @@ sub rebuildDB {
 
 
     $| = 1;  # disable the print buffer
+    
+    my @problems_not_in_db = (); 
 
     my $taxfile ='tax.yml';
     my $tbLinkFile = 'textbooks.yml';
@@ -95,12 +93,9 @@ sub rebuildDB {
     my $dir = dir($COURSE->{library_base},$lib_dir)->cleanup;
     print "Building the OPL database for the library found at:\n " . $dir->stringify . "\n";
 
-    
-    
     $self->recreateDB();
 
-
-    print "Loading the Taxonomy File: $taxfile \n";
+print "Loading the Taxonomy File: $taxfile \n";
     $taxon = LoadFile($taxfile);
     @subjects = map { $_->{name} } @{$taxon->{subjects}};
     @chapters =(); 
@@ -109,34 +104,33 @@ sub rebuildDB {
     print "Loading the Textbooks File: $tbLinkFile \n";
     my $tb_link_file = LoadFile($tbLinkFile);
     
-    my $dir = dir($COURSE->{library_base},$lib_dir)->cleanup;
-    
-    say $dir->stringify;
-    
     my @pgfiles = File::Find::Rule->file()->name('*.pg')->in($dir->stringify);
 
     my $path = dir($COURSE->{library_directory},$pgfiles[0]);
 
     print "Rebuilding the Database... \n";
     for my $i (0 .. $#pgfiles) {
-        my $prob = Utils::PGParse::parse($pgfiles[$i],$tb_link_file);
-        my $file = file($pgfiles[$i]);
-        my $relFile = $file->relative(dir($COURSE->{library_base}));
-        $prob->path($relFile->stringify);
-        
+        my $parser = Utils::PGParse->new(problem_path=>$pgfiles[$i],library_dir=>$COURSE->{library_base});
+        my $prob = $parser->parse;
+
         printf "%6s",$i if ($i>0 && $i % 100 == 0);
         print "\n" if ($i>0 && $i % 1000 == 0);
-        if (! $prob->isLink){
-            if(valid($prob,$taxon,$i)){
-              $prob->insert;
-            } else {
-                print LOGFH "This problem is not written to the database: " . $prob->path . "\n";
-            }
+        my $msg = isValid($prob,$taxon,$i);
+        if ($prob->isLink){
+            push(@problems_not_in_db,{message => "The problem is a link",path=>$prob->path});
+        } elsif(length($msg)>0){
+            push(@problems_not_in_db,{message => $msg,path=>$prob->path});
+        } else {
+            $prob->insert;
         }
     }
 
     print "\nLibrary database rebuilt.\n";
-        
+
+    DumpFile("prob_not_in_db.yml",\@problems_not_in_db);
+    
+    print "Problems not in the databse written to: prob_not_in_db.yml \n";
+
     if($DATABASE->{type} eq 'MONGO') {
         print "building indexes in MONGO\n";
         my $idx = Tie::IxHash->new(DBsubject => 1, DBchapter => 1, DBsection => 1, keyword=>1, level=>1);
@@ -145,6 +139,8 @@ sub rebuildDB {
         $problems->ensure_index($idx);
         $problems->ensure_index({statement => "text"}, {language_override=>"DDDD"}); # make a dummy language field
     }
+    
+    
     my $timediff = time() - $start;
 
     print "Amount of time is $timediff seconds.\n";
@@ -186,20 +182,20 @@ sub recreateDB {
     print "Finished recreating the Database tables\n";
 }
 
-sub valid {
+sub isValid {
     my ($prob,$taxon,$i) = @_;
     #if(! defined($prob->DBinfo)){
     #    return;
     #}
-    if($prob->DBinfo->DBsubject  eq "ZZZ-Inserted Text" && 
-        $prob->DBinfo->DBchapter  eq "ZZZ-Inserted Text" && 
+    if($prob->DBinfo->DBsubject  eq "ZZZ-Inserted Text" || 
+        $prob->DBinfo->DBchapter  eq "ZZZ-Inserted Text" || 
         $prob->DBinfo->DBsection  eq "ZZZ-Inserted Text") {
-        return "";
+        return "contains ZZZ-Inserted Text";
     }
-    if($prob->DBinfo->DBsubject  eq "" && 
-        $prob->DBinfo->DBchapter  eq "" && 
+    if($prob->DBinfo->DBsubject  eq "" || 
+        $prob->DBinfo->DBchapter  eq "" || 
         $prob->DBinfo->DBsection  eq "") {
-        return "";
+        return "db info blank";
     }
 
     
@@ -225,18 +221,18 @@ sub valid {
                 my $sect_found = first_index { $_ eq $prob->DBinfo->DBsection} @sections;
                 #print $sect_found . "\n";
                 if ($sect_found > -1 ) {
-                    return 1; 
+                    return ""; 
                 } else {
                     $name = $prob->DBinfo->DBsection;
                     $sname = "section"; 
                 }
             } else {
-                return 1;
+                return "";
             }
         } 
     }
 
-    return 1;
+    return "";  # this returns the msg, if empty then valid. 
 }
 
 my @fields = qw/DBsubject DBchapter DBsection lastname firstname institution level keyword/;
@@ -244,7 +240,7 @@ my @fields = qw/DBsubject DBchapter DBsection lastname firstname institution lev
 sub search {
     my $self = shift;
     my $params = {};
-    for my $obj (@{$self->find_in_db}){
+    for my $obj (@{$self->finddb}){
         my @results = split(":",$obj);
         if(grep {$_ eq $results[0] } @fields){
             $params->{$results[0]} = $results[1];
