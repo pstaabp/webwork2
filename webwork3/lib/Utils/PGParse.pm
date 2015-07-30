@@ -8,8 +8,10 @@ package Utils::PGParse;
 use Moo;
 use MooX::Types::MooseLike::Base qw(Str InstanceOf);
 use Data::Dump qw/dd/;
-use List::MoreUtils qw/any first_index/;
+use List::MoreUtils qw/any first_index uniq/;
 use Path::Class;
+use Text::Balanced qw/extract_bracketed extract_delimited/; 
+use feature 'say';
 
 require Models::Library::Problem;
 use Models::Library::TextbookProblem;
@@ -28,13 +30,14 @@ my $integerREGEX = qr{^\s*(-?\d+)\s*$};
 sub parse {
     my $self = shift; 
   
-
     my $relPath = file($self->problem_path)->relative(dir($self->library_dir));
+    #say $relPath;
     $self->problem(Models::Library::Problem->new(path=>$relPath->stringify)); 
 
     $self->parseTags();
-    $self->parseStatement();
-
+    $self->problem->statement($self->parseStateOrSolution("statement"));
+    $self->problem->solution($self->parseStateOrSolution("solution"));
+    
     return $self->problem;
 }
 
@@ -88,12 +91,33 @@ sub parseTags {
                 elsif($tag eq "MO"){          $self->problem->MO($value);}
                 elsif($tag eq "KEYWORDS"){
                     my @keywords = $value =~ m/'([^']+)'/g;
+                    
+                   # say "KEYWORDS";
+                    
                     my @kws = ();
                     # this is needed for badly nested commas/quotes
                     for my $keyword (@keywords) {
                         push(@kws,split(",",$keyword));
                     }
-                    $self->problem->keywords([@kws]);
+                    
+                    # make everything lower case and then avoid duplicates. 
+                    
+                    @kws = uniq map {$_ = lc($_); $_ } @kws;
+                    
+                    @keywords = ();
+                    
+                    for my $kw (@kws){
+                        if (my @trim = $kw =~ /^\s*(.*)\s*$/){
+                            if(!($trim[0] =~ /^$/)){
+                                push(@keywords,$trim[0]);
+                            }
+                        }
+                    }
+                    #@kws = grep { $_ =~ /^\w/ } 
+                    
+                    #dd \@kws;
+                    
+                    $self->problem->keywords([@keywords]);
                 }
             }
       # check for matching a numbered tag
@@ -150,28 +174,53 @@ sub parseTags {
     close $FILE;
 }
 
-sub parseStatement {
-    my $self = shift; 
+
+sub parseStateOrSolution {
+    my ($self,$st_or_soln) = @_; 
     my $statement = "";
     my $found = "";
     my $inclPGregex = qr{includePGproblem};
     my $FILE;
+    my $line;
+    
+    my $startRE = ($st_or_soln eq "statement") ? qr/^\s*(TEXT\(EV2\(\<\<EOT\)\));\s*$|^\s*BEGIN_TEXT\s*$/i :
+                qr/SOLUTION/i; 
+    my $stopRE = qr/^EOT|EOF|END_TEXT|ENDDOCUMENT|END_SOLUTION/i;
+    
     
     open $FILE, $self->problem_path or die "Could not open $FILE: $!";
-    while(my $line = <$FILE>)  {
+    while($line = <$FILE>)  {
         if ($line =~ $inclPGregex){
           $self->problem->isLink(1);
-        } elsif (my @matches = $line =~ /^\s*(TEXT\(EV2\(<<EOT\)\));\s*$|^\s*BEGIN_TEXT\s*$/i ){
+        } elsif (my @matches = $line =~ $startRE ){
           last;
         }
     }
-    while(my $line = <$FILE>)  {
-        if (!($line =~ /EOT|END_TEXT/i)){
-            $statement .= $line;
+    while(<$FILE>)  {
+        chomp(my $line = $_);
+        if ($line =~ $stopRE){
+            last;
+        } else {
+            $statement .= $line . " " ;
         }
     }
     close $FILE;
-    $self->problem->statement($statement); 
+    
+    return removeMath($statement);
+    
+}
+
+sub removeMath {
+    my $input = shift;
+    
+    $input =~ s/\\\{.*?\\\}//g;  ## remove everything between \{ and \} 
+    $input =~ s/\\\(.*?\\\)//g; ## remove everything between \( and \) 
+    $input =~ s/\\\[.*?\\\]//g;  ## remove everything between \[ and \] 
+    $input =~ s/\$[a-zA-z]\w*//g;  ## remove $VARIABES  
+    $input =~ s/\$\{B(\w+)\}(.*?)\$\{E\1\}/$2/g;  # remove things like ${BBOLD} and {$EBOLD}
+    $input =~ s/\s+/ /g;  ## remove extra white space. 
+
+    return $input
 }
 
 sub parseTextbook {
@@ -186,9 +235,6 @@ sub parseTextbook {
         $_->{author} eq $tp->{author} && $_->{title} eq $tp->{title} && $_->{edition} eq $tp->{edition} 
     } @{$tb_links->{textbooks}};
     
-#    dd "in parseTextbook";
-#    dd $textbook;
-#    dd $ind;
     
     if($ind>-1){
         if(my @matches = $textbook->{Section} =~ $chapterSectionREGEX){

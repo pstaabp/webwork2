@@ -32,6 +32,7 @@ has MO => (is=>'rw',default=>"");
 has language => (is=>'rw');
 has static => (is=>'rw');
 has statement => (is=> 'rw',default=>"");
+has solution => (is=> 'rw',default=>"");
 has isLink => (is=>'rw',default =>"");
 
 
@@ -163,6 +164,7 @@ sub insertMONGO {
                 language => $self->language,
                 static => $self->static,
                 statement => $self->statement,
+                solution => $self->solution,
                 tb_problems => \@tbProbs
                 };
     
@@ -180,6 +182,37 @@ sub find {
         $self->findMONGO(@_);
     
     }
+}
+
+## this returns the number of documents in the database.
+
+sub count {
+    my $self = shift;
+    if($DATABASE->{type} eq 'MYSQL'){
+        return "not yet implemented.";
+    } elsif($DATABASE->{type} eq 'MONGO'){
+        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
+        return $db->get_collection('problems')->count;
+    
+    }
+}
+
+## this returns a unique list of elements in the database
+
+sub unique_results {
+    my ($self,$info) = @_;
+    if($DATABASE->{type} eq 'MYSQL'){
+        return "not yet implemented.";
+    } elsif($DATABASE->{type} eq 'MONGO'){
+        my $command = { distinct => "problems", key => $info };
+        dd $command; 
+        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
+        my $obj = $db->run_command($command);
+        return sort { lc($a) cmp lc($b) } @{$obj->{values}};
+    
+    }
+
+
 }
 
 sub findMYSQL {
