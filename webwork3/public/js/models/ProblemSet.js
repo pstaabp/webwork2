@@ -18,24 +18,27 @@ var ProblemSet = Backbone.Model.extend({
         reduced_scoring_date: "",
         visible: false,
         enable_reduced_scoring: false,
-        assignment_type: "",
+        assignment_type: "default",
         attempts_per_version: -1,
         time_interval: 0,
         versions_per_interval: 0,
         version_time_limit: 0,
         version_creation_time: 0,
-        problem_randorder: 0,
+        problem_randorder: false,
         version_last_attempt_time: 0,
         problems_per_page: 0,
         hide_score: "N",
         hide_score_by_problem: "N",
         hide_work: "N",
-        time_limit_cap: "0",
+        hide_hint: false,
+        time_limit_cap: false,
         restrict_ip: "No",
         relax_restrict_ip: "No",
         restricted_login_proctor: "No",
         assigned_users: [],
-        problems: null
+        problems: null,
+        description: "",
+        pg_password: "",
     },
     validation: {
        open_date: "checkDates",
@@ -53,18 +56,15 @@ var ProblemSet = Backbone.Model.extend({
     initialize: function (opts,dateSettings) {
         _.bindAll(this,"addProblem");
         this.dateSettings = dateSettings;
-        _(this.attributes).extend(_(util.parseAsIntegers(opts,this.integerFields)).pick(this.integerFields));
-        var pbs = (opts && opts.problems) ? opts.problems : [];
-        this.problems = new ProblemList(pbs);
-        this.attributes.problems = this.problems;
-        this.saveProblems = [];   // holds added problems temporarily if the problems haven't been loaded. 
-
+        this.problems = new ProblemList();
+        opts = this.parse(opts); 
     },
     parse: function (response) {
         if (response.problems){
-            this.problems.set(response.problems);
+            this.problems.set(response.problems,{silent: true});
             this.attributes.problems = this.problems;
         }
+        response.assignment_type = response.assignment_type || "default"; 
         response = util.parseAsIntegers(response,this.integerFields);
         return _.omit(response, 'problems');
     },
@@ -90,12 +90,22 @@ var ProblemSet = Backbone.Model.extend({
     },
     addProblem: function (prob) {  
         var self = this; 
-        var newProblem = new Problem(prob.attributes);
         var lastProblem = this.get("problems").last();
-        newProblem.set("problem_id",lastProblem ? parseInt(lastProblem.get("problem_id"))+1:1);
-        this.get("problems").add(newProblem);
-        this.trigger("change:problems",this); // 
+        //var prob = new Problem();
+        var attrs = _.extend({},prob.attributes, 
+                                    { problem_id: lastProblem ? parseInt(lastProblem.get("problem_id"))+1:1});
+        this.get("problems").add(_(attrs).omit("_id"));;
+        this.set("_add_problem",true);
         this.save();
+        this.unset("_add_problem",{silent: true});
+    },
+    // delete the problem _prob and if successfull remove the view _view
+    deleteProblem: function(_prob,_view){
+        var self = this; 
+        this.set("_delete_problem_id",_prob.get("problem_id"));
+        this.save();
+        this.unset("_delete_problem_id",{silent: true});
+        this.get("problems").remove(_prob); 
     },
     setDate: function(attr,_date){ // sets the date of open_date, answer_date or due_date without changing the time
         var currentDate = moment.unix(this.get(attr))
@@ -139,6 +149,13 @@ var ProblemSet = Backbone.Model.extend({
                     return "due date is after reduced scoring date";       
             }
         }
+    },
+    // this checks if the problem set is open.  Using current time to determine this.
+    isOpen: function(){
+        var openDate = moment.unix(this.get("open_date"))
+            , dueDate = moment.unix(this.get("due_date"))
+            , now = moment();
+        return now.isBefore(dueDate) && now.isAfter(openDate);
     },
     // this adjusts all of the dates to make sure that they don't trigger an error. 
     adjustDates: function (){

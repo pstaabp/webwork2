@@ -4,39 +4,71 @@
   */
 
 
-define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView','config'], 
-    function(Backbone, _, moment,MainView, CalendarView,config) {
+define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView',
+        'models/AssignmentDate','models/AssignmentDateList','config','apps/util'], 
+    function(Backbone, _, moment,MainView, CalendarView,AssignmentDate,AssignmentDateList,config,util) {
 	
     var AssignmentCalendar = CalendarView.extend({
         template: this.$("#calendar-date-bar").html(),
         popupTemplate: _.template(this.$("#calendar-date-popup-bar").html()),
-        headerInfo: {template: "#calendar-header", events: 
-                { "click .previous-week": "viewPreviousWeek",
-                    "click .next-week": "viewNextWeek",
-                    "click .view-week": "showWeekView",
-                    "click .view-month": "showMonthView"}
-        },
     	initialize: function (options) {
             var self = this;
             CalendarView.prototype.initialize.call(this,options);
     		_.bindAll(this,"render","renderDay","update","showHideAssigns");
+            _(this).extend(_(options).pick("problemSets","settings","users","eventDispatcher"));
+  
+            this.assignmentDates = util.buildAssignmentDates(this.problemSets);
+            this.problemSets.on({sync: self.render,                
+                     remove: function(_set){
+                  // update the assignmentDates to delete the proper assignments
 
-            this.problemSets.on({sync: this.render});
-            this.state.on("change:reduced_scoring_date change:answer_date change:due_date change:open_date",
-                    this.showHideAssigns);
-        this.state.on("change",this.render);
+                    self.assignmentDates.remove(self.assignmentDates.filter(function(assign) { 
+                        return assign.get("problemSet").get("set_id")===_set.get("set_id");}));  
+                }}).on("change:due_date change:open_date change:answer_date change:reduced_scoring_date",
+                        function(_set){
+                            _set.adjustDates();
+                            self.assignmentDates.chain().filter(function(assign) { 
+                                    return assign.get("problemSet").get("set_id")===_set.get("set_id");})
+                                .each(function(assign){
+                                    assign.set("date",moment.unix(assign.get("problemSet").get(assign.get("type")
+                                                                        .replace("-","_")+"_date"))
+                                .format("YYYY-MM-DD"));
+                    })
+                }).on("sync",function(_set) {
+                    _(_set._network).chain().keys().each(function(key){ 
+                        switch(key){
+                            case "add":
+                                self.assignmentDates.add(new AssignmentDate({type: "open", problemSet: _set,
+                                    date: moment.unix(_set.get("open_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "due", problemSet: _set,
+                                    date: moment.unix(_set.get("due_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "answer", problemSet: _set,
+                                    date: moment.unix(_set.get("answer_date")).format("YYYY-MM-DD")}));
+                                self.assignmentDates.add(new AssignmentDate({type: "reduced-scoring", problemSet: _set,
+                                    date: moment.unix(_set.get("reduced_scoring_date")).format("YYYY-MM-DD")}));
+                                delete _set._network;
+                                break;    
+                        }
+                    });
+                }); 
             return this;
     	},
     	render: function (){
     		CalendarView.prototype.render.apply(this);
-            this.update();
+            
+            
+            // remove any popups that exist already.  
+            this.$(".show-set-popup-info").popover("destroy")
 
 
     		this.$(".assign").popover({html: true});
 
 
             // set up the calendar to scroll correctly
-            this.$(".calendar-container").height($(window).height()-160);
+            var navbarHeight = $(".navbar-fixed-top").outerHeight(true);
+            var footerHeight = $(".navbar-fixed-bottom").outerHeight(true);
+            var buttonRow = $(".calendar-button-row").outerHeight(true); 
+            this.$(".calendar-container").height($(window).height()-navbarHeight - buttonRow-footerHeight);
             $('.show-date-types input, .show-date-types label').click(function(e) {
                 e.stopPropagation();
             });
@@ -55,9 +87,10 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                     }
                 });
             });
-
-            this.stickit(this.state,this.bindings);
-            this.showHideAssigns(this.state);
+            this.update();
+            //this.stickit(this.state,this.bindings);
+            //this.showHideAssigns(this.state);
+            
             return this;
     	},
         bindings: {
@@ -77,6 +110,10 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
             });
 
     	},
+        set: function(opts){
+            if(opts.assignmentDates)this.assignmentDates = opts.assignmentDates; 
+            return CalendarView.prototype.set.apply(this,[opts]);
+        },
         getHelpTemplate: function (){
             return $("#calendar-help-template").html();
         },
@@ -101,7 +138,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                     } else if ($(ui.draggable).hasClass("assign-reduced-scoring")){
                         self.setDate($(ui.draggable).data("setname"),$(this).data("date"),"reduced_scoring_date");
                     }
-
+                    self.trigger("calendar-change");
                 }
             });
 
@@ -128,7 +165,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                 keys = _(keys).without("reduced_scoring_date");
             }
             _(keys).each(function(key){
-                config.changeClass({state: model.get(key), remove_class: "hidden", els: this.$(".assign." + obj[key]) });
+                util.changeClass({state: model.get(key), remove_class: "hidden", els: this.$(".assign." + obj[key]) });
             });
 
             if(!model.get("reduced_scoring_date")){
@@ -143,7 +180,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
                 return;
             }
             this.problemSets.chain().each(function(_set) { 
-                config.changeClass({state: _set.get("enable_reduced_scoring"), remove_class: "hidden", 
+                util.changeClass({state: _set.get("enable_reduced_scoring"), remove_class: "hidden", 
                     els: self.$(".assign-reduced-scoring[data-setname='"+_set.get("set_id")+"']")});
             });
         },

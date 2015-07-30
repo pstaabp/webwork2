@@ -2,11 +2,19 @@
 	"main_views": [
 	{
 		"name": "Calendar",
-		"path": "main-views/AssignmentCalendar",
+		"path": "main-views/CourseCalendar",
 		"icon": "fa fa-calendar fa-lg",
 		"default_sidebar": "problemSets",
 		"other_sidebars": ["problemSets", "userlist"],
 		"id": "calendar"
+	},
+	{
+		"name": "User Settings",
+		"path": "views/UserSettingsView",
+        "icon": "fa fa-user fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "userSettings"
 	},
 	{
 		"name": "Problem Set Details",
@@ -59,7 +67,7 @@
 	{
 		"name": "Settings",
 		"path": "main-views/SettingsView",
-		"icon": "fa fa-gear fa-lg",
+		"icon": "fa fa-gears fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "settings"

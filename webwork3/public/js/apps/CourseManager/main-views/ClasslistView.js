@@ -25,7 +25,6 @@ var ClasslistView = MainView.extend({
         })
 
         this.tableSetup();
-	    
             
         this.users.on({"add": this.addUser,"change": this.changeUser,"sync": this.syncUserMessage,
     					"remove": this.removeUser});
@@ -61,6 +60,14 @@ var ClasslistView = MainView.extend({
 	    // bind the collection to the Validation.  See Backbone.Validation at https://github.com/thedersen/backbone.validation	  
 	    this.users.each(function(model){
 	    	model.bind('validated:invalid', function(_model, errors) {
+              
+                // if the classlist view isn't the main view, ignore the error.  
+                // pstaab:  perhaps there is a better way of handling the errors on a global basis.
+              
+                if(self.parent.currentView.info.id!=="classlist"){
+                  return;
+                }
+              
 			    var row; 
 			    self.$("td.user-id").each(function(i,v){
 			    	if($(v).text()===_model.get("user_id")){
@@ -125,9 +132,9 @@ var ClasslistView = MainView.extend({
     	_user.save();
     },
     changeUser: function(_user){
-       
-    	if(( _user.changingAttributes && _(_user.changingAttributes).has("user_added")) 
-                  || _.keys(_user.changed)[0]==="action"){
+
+    	if((_user.changingAttributes && _(_user.changingAttributes).has("user_added")) 
+              || _.keys(_user.changed)[0]==="action"){
     		return;
     	}
     	_user.changingAttributes=_.pick(_user._previousAttributes,_.keys(_user.changed));
@@ -285,7 +292,8 @@ var ClasslistView = MainView.extend({
         		stickit_options: {events: ['blur']}},
         	{name: "Permission", key: "permission", classname: "permission", datatype: "string",
                 search_value: function(model){
-                    return _(config.permissions).findWhere({value: ""+model.get("permission")}).label;  // the ""+ is needed to stringify the permission level
+                    var obj = _(config.permissions).findWhere({value: ""+model.get("permission")});
+                    return obj.label || "";  // the ""+ is needed to stringify the permission level
                 },
         		stickit_options: { selectOptions: { collection: config.permissions }}
         }];
@@ -316,7 +324,9 @@ var ClasslistView = MainView.extend({
                 success: function(data){
                 	_(data).each(function(st){
                 		var user = self.users.findWhere({user_id: st.user_id});
-                		user.set("logged_in",st.logged_in);
+                        if(user){
+                            user.set("logged_in",st.logged_in);
+                        }
                 	})
                 }});
 
