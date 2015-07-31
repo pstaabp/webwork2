@@ -9,7 +9,7 @@
 #use strict;
 #use warnings;
 #use Dancer ':syntax';
-#use Dancer::Plugin::Database;
+use Dancer::Plugin::Database;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
@@ -353,7 +353,7 @@ get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:secti
 #  
 # ###
 
-get '/library/problems' => sub {
+get '/Library/problems' => sub {
 
 	my $searchParams = {};
 	for my $key (qw/keyword level author institution subject chapter section section_id textbook_id chapter_id/){

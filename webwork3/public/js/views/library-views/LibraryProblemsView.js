@@ -5,8 +5,8 @@
  **/
 
 
-define(['backbone', 'views/ProblemListView','config'], 
-function(Backbone, ProblemListView,config) {
+define(['backbone', 'views/ProblemListView','apps/util'], 
+function(Backbone, ProblemListView,util) {
     var LibraryProblemsView = ProblemListView.extend({
         initialize: function (options) {
             _(this).bindAll("highlightCommonProblems");
@@ -35,7 +35,6 @@ function(Backbone, ProblemListView,config) {
             _(pvs).each(function(pv,i) { 
                 if(i>0) {
                     pv.state.set("hidden", !_show);
-                    //config.changeClass({state: _show, els: pv.$el, remove_class: "hidden"}); 
                 }
                 if(i>0 && i<pvs.length-1){
                     util.changeClass({state: _show, els: pv.$el, 

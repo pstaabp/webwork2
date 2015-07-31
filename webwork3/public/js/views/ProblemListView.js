@@ -35,7 +35,13 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.currentPage = 0;
             this.show_tags = false;
             this.show_path = false; 
+            this.undoStack = []; // this is where problems are placed upon delete, so the delete can be undone.  
+            this.pages = [];  // this stores the pages as arrays of problems
+            this.problemViews = []; // this is the problemView for the viewable set of problems 
+
             _.extend(this.viewAttrs,{type: options.type});
+            this.state = new Backbone.Model({show_tags: false, page_size: 10, show_path: false, 
+                                 show_hints: false, show_solution: false, current_page: 0});
             this.state.on("change:current_page",function(){
                 self.updateProblems();    
                 if(self.state.get("current_page") >= self.pages.length){

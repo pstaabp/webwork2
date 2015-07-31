@@ -6,8 +6,10 @@ use base qw(Exporter);
 use Path::Class qw/file dir/;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
+use List::MoreUtils qw/distinct first_index indexes/;
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
+use Utils::Convert qw/convertArrayOfObjectsToHash convertBooleans/;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render);
 our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message 
@@ -368,6 +370,13 @@ sub searchLibrary {
     return $sorted_probs;
 }
 
+###
+# 
+# This routine takes an array of problems in the array ref $problems, sorts them to put problem
+# with common mlt tags and returns the result.
+#
+###
+
 sub sortByMLT {
     my $problems = shift; 
     
@@ -379,6 +388,9 @@ sub sortByMLT {
         $leaders->{$mlt_id} = $results[3]; 
     }
     
+    
+    debug to_dumper( \@mlts);
+    
     my @sorted_problems = (); 
     while(scalar(@$problems)>0){
         if (! defined($leaders->{$problems->[0]->{morelt_id}}) 
@@ -387,7 +399,7 @@ sub sortByMLT {
             push(@sorted_problems,$prob);
         } else {
             # find the more_lt leader for the given morelt_id
-            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
+            my $i = first_index { debug $_; $_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
                                 } @$problems;
             my $prob = splice(@$problems,$i,1);
             $prob->{mlt_leader} = 1; 
