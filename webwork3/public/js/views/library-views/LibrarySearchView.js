@@ -14,7 +14,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
             LibraryView.prototype.initialize.apply(this,[options]);
             _.bindAll(this,"search","showResults","checkForEnter");
             this.tabState.on("change:search_query",this.search);
-            this.searchRE = /(author|level|keyword|insitution|subject|chapter|section):([a-zA-z]+)/;
+            this.fields = ["level","institution","author","subject","chapter","section","keyword"];
     	},
         bindings: {
             ".search-query": {observe: "search_query", events: ["blur"]}
@@ -35,8 +35,8 @@ function(Backbone, _,LibraryView,ProblemList,config){
     	},
         search: function () {
             var params = {};
-            
-            var searches = this.tabState.get("search_query").match(/^\s*(.*)\s*$/)[1].split(/\s+and\s*/);
+            var self = this; 
+            var searches = this.tabState.get("search_query").match(/^\s*(.*)\s*$/)[1].split(/\s+and\s*/i);
             var valid = true;
             var error = "";
             _(searches).each(function(term){
@@ -45,7 +45,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
                     valid = false;
                     error = "This isn't a valid search";
                 }
-                if(["level","institution","author","subject","chapter","section"].indexOf(comps[0]) < 0){
+                if(self.fields.indexOf(comps[0]) < 0){
                     valid = false;
                     error = "The term " + comps[0] + " is not a searchable field.";
                 }
@@ -55,6 +55,10 @@ function(Backbone, _,LibraryView,ProblemList,config){
                 }
                 params[comps[0]]=comps[1];
             });
+            
+            if(_(params).has("keyword")){
+                params.keyword = "%" + params.keyword + "%";
+            }
             
 
             if(valid){

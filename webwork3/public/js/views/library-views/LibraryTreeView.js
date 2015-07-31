@@ -15,7 +15,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
     		_.bindAll(this,"render","loadProblems","changeLibrary");
             var self = this;
             this.libraryTree = new LibraryTree({type: options.type});
-            this.libraryTree.set("header",options.type==="textbooks"?"textbooks/":"Library/");
+            this.libraryTree.set("header",options.type==="textbooks"?"textbooks/":"library/");
             // this is the library view that contains this view. 
             this.libraryView = options.libraryView || console.error("libraryView must be defined");
             (this.fields = new LibraryLevels()).type = options.type;
