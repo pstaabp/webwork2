@@ -21,7 +21,7 @@ use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
 use WeBWorK::Constants;
 
-get '/Library/subjects' => sub {
+get '/library/subjects' => sub {
 
 	my $webwork_dir = config->{webwork_dir};
 	my $file = "$webwork_dir/htdocs/DATA/library-subject-tree.json";
@@ -46,7 +46,7 @@ get '/Library/subjects' => sub {
 ####
 
 
-get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => sub {
+get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => sub {
 
 	my ($subj,$chap,$sect) = splat;
 
@@ -64,7 +64,7 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => s
 #
 ####
 
-get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
+get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 
 	my ($subj,$chap) = splat;
 
@@ -83,7 +83,7 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 ####
 
 
-get qr{\/Library\/subjects\/(.+)\/problems} => sub {
+get qr{\/library\/subjects\/(.+)\/problems} => sub {
 
 	my ($subj) = splat;
 
@@ -101,7 +101,7 @@ get qr{\/Library\/subjects\/(.+)\/problems} => sub {
 #
 ####
 
-get '/Library/directories' => sub {
+get '/library/directories' => sub {
 
 	my $webwork_dir = config->{webwork_dir};
 	my $file = "$webwork_dir/htdocs/DATA/library-directory-tree.json";
@@ -126,7 +126,7 @@ get '/Library/directories' => sub {
 #
 ####
 
-get '/Library/directories/**' => sub {
+get '/library/directories/**' => sub {
 
 	## pstaab: trying to figure out the best way to pass the course_id.  It needs to be passed in as a parameter for this
 	##         to work.
@@ -150,7 +150,7 @@ get '/Library/directories/**' => sub {
 #
 ####
 
-get '/courses/:course_id/Library/local' => sub {
+get '/courses/:course_id/library/local' => sub {
 
 	debug "in /Library/local";
 
@@ -191,7 +191,7 @@ get '/courses/:course_id/Library/local' => sub {
 #
 ####
 
-get '/courses/:course_id/Library/setDefinition' => sub {
+get '/courses/:course_id/library/setDefinition' => sub {
 
 	debug "in /Library/setDefinition";
 
@@ -257,7 +257,7 @@ get '/courses/:course_id/Library/setDefinition' => sub {
 #
 ####
 
-get '/Library/textbooks' => sub {
+get '/library/textbooks' => sub {
 
 	my $webwork_dir = config->{webwork_dir};
 	my $file = "$webwork_dir/htdocs/DATA/textbook-tree.json";
@@ -279,7 +279,7 @@ get '/Library/textbooks' => sub {
 #
 ##
 
-get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
+get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
 
 	return searchLibrary({section_id=>params->{section_id},textbook_id=>params->{textbook_id},
 			chapter_id=>params->{chapter_id}});
@@ -294,7 +294,7 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/p
 #
 ##
 
-get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
+get '/library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
 	return searchLibrary({textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
 
@@ -308,7 +308,7 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 #
 ##
 
-get '/Library/textbooks/:textbook_id/problems' => sub {
+get '/library/textbooks/:textbook_id/problems' => sub {
 
 	return searchLibrary({textbook_id=>params->{textbook_id}});
 
@@ -353,7 +353,7 @@ get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:secti
 #  
 # ###
 
-get '/Library/problems' => sub {
+get '/library/problems' => sub {
 
 	my $searchParams = {};
 	for my $key (qw/keyword level author institution subject chapter section section_id textbook_id chapter_id/){
@@ -372,7 +372,7 @@ get '/Library/problems' => sub {
 #
 ## 
 
-get '/Library/problems/:problem_id/tags' => sub {
+get '/library/problems/:problem_id/tags' => sub {
 
 	return getProblemTags(params->{problem_id});
 };

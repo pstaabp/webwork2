@@ -79,12 +79,13 @@ sub render {
     # extract the important parts of the answer, but don't send the correct_ans if not requested. 
 
     for my $key (@{$pg->{flags}->{ANSWER_ENTRY_ORDER}}){
-    	$answers->{$key} = {};
-    	for my $field (@answerFields) {
-    		if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
-	    		$answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
-	    	}
-
+        if($key){
+            $answers->{$key} = {};
+            for my $field (@answerFields) {
+                if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
+                    $answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
+                }
+            }   
 	    }
     }
 
@@ -234,8 +235,12 @@ sub get_section_problems {
 
 sub searchLibrary {
 	my $p = shift;
+    my $param = {};
 
-	my $param = {};
+    # if no params are passed return an empty array. 
+    if(!( keys($p))){
+        return [];
+    }
 
 	# escape the ' in any parameter. 
 
@@ -354,6 +359,8 @@ sub searchLibrary {
 		$whereClause .="AND " if(length($whereClause)>6); 
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
+    
+    debug ($selectClause . $whereClause . $groupClause . ";");
 
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
     
@@ -388,9 +395,6 @@ sub sortByMLT {
         $leaders->{$mlt_id} = $results[3]; 
     }
     
-    
-    debug to_dumper( \@mlts);
-    
     my @sorted_problems = (); 
     while(scalar(@$problems)>0){
         if (! defined($leaders->{$problems->[0]->{morelt_id}}) 
@@ -399,7 +403,7 @@ sub sortByMLT {
             push(@sorted_problems,$prob);
         } else {
             # find the more_lt leader for the given morelt_id
-            my $i = first_index { debug $_; $_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
+            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
                                 } @$problems;
             my $prob = splice(@$problems,$i,1);
             $prob->{mlt_leader} = 1; 

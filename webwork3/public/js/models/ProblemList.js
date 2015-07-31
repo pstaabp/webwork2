@@ -30,9 +30,10 @@ define(['backbone', 'underscore','config','./Problem'], function(Backbone, _, co
                 if (this.path[0]) {_path += "/subjects/" + this.path[0];}
                 if (this.path[1]) {_path += "/chapters/" + this.path[1];}
                 if (this.path[2]) {_path += "/sections/" + this.path[2];}
-                return config.urlPrefix + "Library" + _path + "/problems";
+                return config.urlPrefix + "library" + _path + "/problems";
             }  else if (this.type=="directories"){
-                return config.urlPrefix+"Library/directories/"+this.path.join("/") +"?course_id=" + config.courseSettings.course_id;
+                return config.urlPrefix+"library/directories/"+this.path.join("/") +"?course_id=" 
+                            + config.courseSettings.course_id;
             }  else if (this.type==="textbooks"){
                 var title = this.path[0].split(" - ")[0];
                 var author = this.path[0].split(" - ")[1];
@@ -50,9 +51,9 @@ define(['backbone', 'underscore','config','./Problem'], function(Backbone, _, co
 
                 return config.urlPrefix+_path; 
             } else if (this.type=="localLibrary"){
-                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/Library/local";
+                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/local";
             } else if (this.type=="setDefinition"){
-                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/Library/setDefinition";
+                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/setDefinition";
             }
         }
     });
