@@ -126,7 +126,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 // send rendered signal after MathJax 
                 if(MathJax){
                     MathJax.Hub.Register.MessageHook("End Math", function (message) { 
-                        self.model.trigger("rendered",this);
+                        self.model.trigger("rendered",self);
                         self.state.set("rendered",true);
                     })
                 } else {
