@@ -18,7 +18,7 @@ var ProblemSet = Backbone.Model.extend({
         reduced_scoring_date: "",
         visible: false,
         enable_reduced_scoring: false,
-        assignment_type: "",
+        assignment_type: "default",
         attempts_per_version: -1,
         time_interval: 0,
         versions_per_interval: 0,
@@ -38,6 +38,7 @@ var ProblemSet = Backbone.Model.extend({
         assigned_users: [],
         problems: null,
         description: "",
+        pg_password: "",
     },
     validation: {
        open_date: "checkDates",
@@ -55,18 +56,15 @@ var ProblemSet = Backbone.Model.extend({
     initialize: function (opts,dateSettings) {
         _.bindAll(this,"addProblem");
         this.dateSettings = dateSettings;
-        _(this.attributes).extend(_(util.parseAsIntegers(opts,this.integerFields)).pick(this.integerFields));
-        var pbs = (opts && opts.problems) ? opts.problems : [];
-        this.problems = new ProblemList(pbs);
-        this.attributes.problems = this.problems;
+        this.problems = new ProblemList();
+        opts = this.parse(opts); 
     },
     parse: function (response) {
         if (response.problems){
-            this.problems.reset(response.problems);
+            this.problems.set(response.problems,{silent: true});
             this.attributes.problems = this.problems;
-            // somehow the problems inside a problemListView are losing the collection attribute. 
-            
         }
+        response.assignment_type = response.assignment_type || "default"; 
         response = util.parseAsIntegers(response,this.integerFields);
         return _.omit(response, 'problems');
     },
@@ -93,11 +91,21 @@ var ProblemSet = Backbone.Model.extend({
     addProblem: function (prob) {  
         var self = this; 
         var lastProblem = this.get("problems").last();
-        var attrs = _.omit(_.extend({},prob.attributes,
-                                    { problem_id: lastProblem ? parseInt(lastProblem.get("problem_id"))+1:1})
-                           ,"_id"); // remove the _id so backbone thinks the problem is new.
-        this.get("problems").add(new Problem(attrs));
-        this.trigger("change:problems",this,prob); // 
+        //var prob = new Problem();
+        var attrs = _.extend({},prob.attributes, 
+                                    { problem_id: lastProblem ? parseInt(lastProblem.get("problem_id"))+1:1});
+        this.get("problems").add(_(attrs).omit("_id"));;
+        this.set("_add_problem",true);
+        this.save();
+        this.unset("_add_problem",{silent: true});
+    },
+    // delete the problem _prob and if successfull remove the view _view
+    deleteProblem: function(_prob,_view){
+        var self = this; 
+        this.set("_delete_problem_id",_prob.get("problem_id"));
+        this.save();
+        this.unset("_delete_problem_id",{silent: true});
+        this.get("problems").remove(_prob); 
     },
     setDate: function(attr,_date){ // sets the date of open_date, answer_date or due_date without changing the time
         var currentDate = moment.unix(this.get(attr))

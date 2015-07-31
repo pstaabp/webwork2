@@ -6,10 +6,8 @@ use base qw(Exporter);
 use Path::Class qw/file dir/;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
-use Data::Dumper;
-use List::MoreUtils qw/distinct first_index indexes/;
-use WeBWorK::GeneralUtils qw/readDirectory/;
-use Utils::Convert qw/convertArrayOfObjectsToHash/;
+use WeBWorK::Utils qw(readDirectory);
+use WeBWorK3::PG::Local;
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render);
 our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message 
@@ -27,7 +25,7 @@ my %ignoredir = (
 ###
 
 sub render {
-	my $renderParams = shift;
+	my ($ce,$renderParams) = @_;
 	my @anskeys = split(";",params->{answer_fields} || ""); 
 	
 	$renderParams->{formFields}= {};
@@ -38,8 +36,8 @@ sub render {
     $renderParams->{formFields}->{effectiveUser} = params->{effectiveUser} || session->{user};
     
 	# remove any pretty garbage around the problem
-	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
-	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
 
     vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_solutions} = 0; 
     vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_hints} = 0; 
@@ -54,8 +52,8 @@ sub render {
 	};
     
     
-	my $pg = new WeBWorK::PG(
-		vars->{ce},
+	my $pg = new WeBWorK3::PG::Local(
+		$ce,
 		$renderParams->{user},
 		params->{session_key},
 		$renderParams->{set},
@@ -114,6 +112,15 @@ sub render {
 		debug_messages              => \@pgdebug_messages,
 		internal_debug_messages     => \@internal_debug_messages,
 	};
+    
+    if($problem_hash->{errors}){
+        my $text = qq|<div><em>An error occurred while processing this problem.</em>  
+                    Click <a href="#" onclick='\$(this).parent().find(".bg-danger").removeClass("hidden"); return false'>here</a>
+                    to show details of the error. <p class='bg-danger hidden'>|;
+        $text .= $problem_hash->{errors} . "</p></div>";
+        
+        $problem_hash->{text} = $text;
+    }
 
 	return $problem_hash;
 
@@ -504,8 +511,6 @@ sub getProblemTags {
 
 # 	my ($top,$base,$dir,$probLib) = @_;
 
-# 	debug "top: $top  base: $base dir:  $dir probLib: $probLib \n";
-# 	debug Dumper($probLib);
 # 	my @lis = readDirectory("$base/$dir");
 # 	return () if grep /^=library-ignore$/, @lis;
 # 	return () if !$top && grep /^=library-no-combine$/, @lis;
@@ -516,8 +521,6 @@ sub getProblemTags {
 
 # 	my @dirs = grep {!$ignoredir{$_} and -d "$base/$dir/$_"} @lis;
 # 	if ($top == 1) {@dirs = grep {!$problib->{$_}} @dirs}
-
-# 	debug Dumper(@dirs);
 
 # 	foreach my $subdir (@dirs) {push(@pgs, get_library_pgs(0,"$base/$dir",$subdir,$probLib))}
 
@@ -572,3 +575,5 @@ sub munge_pg_file_path {
 	# set.def file.
 	return($pg_path);
 }
+
+1;

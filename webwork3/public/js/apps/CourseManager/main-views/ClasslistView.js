@@ -25,7 +25,6 @@ var ClasslistView = MainView.extend({
         })
 
         this.tableSetup();
-	    
             
         this.users.on({"add": this.addUser,"change": this.changeUser,"sync": this.syncUserMessage,
     					"remove": this.removeUser});
@@ -293,7 +292,8 @@ var ClasslistView = MainView.extend({
         		stickit_options: {events: ['blur']}},
         	{name: "Permission", key: "permission", classname: "permission", datatype: "string",
                 search_value: function(model){
-                    return _(config.permissions).findWhere({value: ""+model.get("permission")}).label;  // the ""+ is needed to stringify the permission level
+                    var obj = _(config.permissions).findWhere({value: ""+model.get("permission")});
+                    return obj.label || "";  // the ""+ is needed to stringify the permission level
                 },
         		stickit_options: { selectOptions: { collection: config.permissions }}
         }];
@@ -324,7 +324,9 @@ var ClasslistView = MainView.extend({
                 success: function(data){
                 	_(data).each(function(st){
                 		var user = self.users.findWhere({user_id: st.user_id});
-                		user.set("logged_in",st.logged_in);
+                        if(user){
+                            user.set("logged_in",st.logged_in);
+                        }
                 	})
                 }});
 

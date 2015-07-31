@@ -11,9 +11,10 @@
 define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView',
         'views/ProblemSetView', 'models/ProblemList','views/CollectionTableView','models/ProblemSet',
         'models/UserSetList','sidebars/ProblemListOptionsSidebar','views/AssignmentCalendar',
-        'models/ProblemSetList','models/SetHeader','apps/util','config','moment','bootstrap'], 
+        'models/ProblemSetList','models/SetHeader','models/Problem',
+        'apps/util','config','moment','bootstrap'], 
     function(Backbone, _,TabbedMainView,MainView,TabView,ProblemSetView,ProblemList,CollectionTableView,ProblemSet,
-        UserSetList,ProblemListOptionsSidebar, AssignmentCalendar,ProblemSetList,SetHeader,util,config,moment){
+        UserSetList,ProblemListOptionsSidebar, AssignmentCalendar,ProblemSetList,SetHeader,Problem,util,config,moment){
 	var ProblemSetDetailsView = TabbedMainView.extend({
         className: "set-detail-view",
         messageTemplate: _.template($("#problem-sets-manager-messages-template").html()),
@@ -80,10 +81,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             "undo-problem-delete": function(){
                 this.views.problemsView.problemSetView.undoDelete();
                 this.views.problemsView.problemSetView.updateNumProblems()
-                if(this.views.problemsView.problemSetView.undoStack.length==0 && 
-                    this.sidebar instanceof ProblemListOptionsSidebar){
-                        this.sidebar.$(".undo-delete-button").attr("disabled","disabled");
-                }
+            },
+            "add-prob-from-group": function(group_name) {
+                this.problemSet.addProblem(new Problem({source_file: "group:" + group_name}));
             }
         },
         getDefaultState: function () {
@@ -95,6 +95,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             this.state.set("set_id",setName);
         	this.problemSet = this.problemSets.findWhere({set_id: setName});
             _(this.views).chain().keys().each(function(view){
+                self.views[view].unstickit();
                 self.views[view].setProblemSet(self.problemSet);
             });
             this.views.problemsView.currentPage = 0; // make sure that the problems start on a new page. 
@@ -123,10 +124,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 _userSetList.on(
                 {
                     change: function(_userSet){
+                        console.log(_userSet.changed);
                         _userSet.changingAttributes=_.pick(_userSet._previousAttributes,_.keys(_userSet.changed));
                         _userSet.save();
                     },
-                    sync: function(_userSet){  // note: this was just copied from HomeworkManager.js  perhaps a common place for this
+                    sync: function(_userSet){  // note: this was just copied from ProblemSetsManager.js  perhaps a common place for this
                         _(_userSet.changingAttributes||{}).chain().keys().each(function(key){
                             var _old = key.match(/date$/)
                                         ? moment.unix(_userSet.changingAttributes[key]).format("MM/DD/YYYY [at] hh:mmA")
@@ -136,8 +138,10 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                                         : _userSet.get(key);
                             self.eventDispatcher.trigger("add-message",{type: "success", 
                                 short: self.messageTemplate({type:"set_saved",opts:{setname:_userSet.get("set_id")}}),
-                                text: self.messageTemplate({type:"set_saved_details",opts:{setname:_userSet.get("set_id"),key: key,
-                                    oldValue: _old, newValue: _new}})});
+                                text: self.messageTemplate({type:"set_saved_details",
+                                                            opts:{setname:_userSet.get("set_id"),key: key,
+                                                            oldValue: _old, newValue: _new}})});
+                            _set.changingAttributes = _(_set.changingAttributes).omit(key);
                         });
                     }
                 }); //  _userSetList.on 
@@ -155,9 +159,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             this.model = this.problemSets.findWhere({set_id: this.tabState.get("set_id")});
             this.tabState.on("change:show_time",function (val){
                 self.showTime(self.tabState.get("show_time"));
-                self.stickit();
+                if(self.model){
+                    self.stickit();
+                }
                 // gets rid of the line break for showing the time in this view. 
-                $('span.time-span').children('br').attr("hidden",true)    
+                self.$('span.time-span').children('br').attr("hidden",true)    
             }).on("change:show_calendar",function(){
                self.showCalendar(self.tabState.get("show_calendar"));
             })
@@ -166,7 +172,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             this.calendar = new AssignmentCalendar({users: this.users,settings: this.settings,
                                                 problemSets: this.calendarProblemSets});
             this.calendar.on("calendar-change",function() {
-                self.tabState.set({first_day: self.calendar.state.get("first_day")});  
+                self.tabState.set({first_day: self.calendar.state.get("first_day")}); 
+                self.showHideReducedScoringDate();
             })
         },
         render: function(){
@@ -175,14 +182,15 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 this.showTime(this.tabState.get("show_time"));
                 this.showCalendar(this.tabState.get("show_calendar"));
                 this.showHideGateway();
+                util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
+                util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
+
                 this.showHideReducedScoringDate();
                 this.stickit();
                 // gets rid of the line break for showing the time in this view. 
                 $('span.time-span').children('br').attr("hidden",true)    
                 this.model.on("change:assignment_type",this.showHideGateway);
             }   
-            util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
-            util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
 
             return this;
         },
@@ -208,6 +216,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             if(this.model){
                 this.model.on("change:enable_reduced_scoring",this.render);
             }
+            this.model.on("sync",function(){  // pstaab: can we integrate this into the stickit handler code in config.js ? 
+                // gets rid of the line break for showing the time in this view. 
+                self.$('span.time-span').children('br').attr("hidden",true);
+                _.delay(self.showHideReducedScoringDate,100); // hack to get reduced scoring to be hidden. 
+            });
             return this;
         },
         bindings: {
@@ -222,9 +235,10 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             ".num-problems": { observe: "problems", onGet:function(value,options) {
                 return value.length;  
             }},
-            ".set-type": {observe: "assignment_type", selectOptions: { 
+            "#set-type": {observe: "assignment_type", selectOptions: { 
                 collection: [{label: "Homework", value: "default"},
-                             {label: "Gateway/Quiz",value: "gateway"}]}},
+                             {label: "Gateway/Quiz",value: "gateway"},
+                             {label: "Proctored Gateway/Quiz", value: "proctored_gateway"}]}},
             ".users-assigned": {
                 observe: "assigned_users",
                 onGet: function(value, options){ return value.length + "/" +this.users.size();}
@@ -236,6 +250,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             ".version-per-interval": "version_per_interval",
             ".problem-random-order": "problem-randorder",
             ".problems-per-page": "problems_per_page",
+            ".pg-password": "pg_password",
             // I18N
             ".hide-score": {observe: ["hide_score","hide_score_by_problem"], selectOptions: {
                 collection: [{label: "Yes", value: "N:"},{label: "No", value: "Y:N"},
@@ -251,17 +266,29 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                                 {label: "Only After Set Answer Date", value: "BeforeAnswerDate"}]}}
         },
         showHideGateway: function () {
-             util.changeClass({state: this.model.get("assignment_type")=="gateway",
+            var type = this.model.get("assignment_type");
+            util.changeClass({state: type =="gateway" || type == "proctored_gateway",
                                      els: this.$(".gateway-row"),remove_class: "hidden"});
+            util.changeClass({state: type=="gateway" || type == "default",
+                                     els: this.$(".pg-row"),add_class:"hidden"});                  
         },
         showHideReducedScoringDate: function(){
+            if(typeof(this.model)==="undefined"){ return;}
             util.changeClass({state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
                                 remove_class: "hidden", 
                                 els: this.$(".reduced-scoring-date,.reduced-scoring").closest("tr")});
-            if(this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}") &&  
-                    this.model.get("enable_reduced_scoring")) { // show reduced credit field
-                this.$(".reduced-scoring-date").closest("tr").removeClass("hidden");
+            util.changeClass({ state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}") &&  
+                    this.model.get("enable_reduced_scoring"), els: this.$(".reduced-scoring-date").closest("tr"), 
+                              remove_class: "hidden"});
+            if(this.tabState.get("show_calendar")){
+                util.changeClass({state: true, els: this.$(".reduced-scoring-date").closest("tr"), 
+                              add_class: "hidden"});
+                util.changeClass({state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}") &&  
+                    this.model.get("enable_reduced_scoring"), els: this.$(".assign-reduced-scoring"),
+                                  remove_class: "hidden"});
+            }
 
+            if(this.model.get("enable_reduced_scoring")){
                 // fill in a reduced_scoring_date if the field is empty or 0. 
                 // I think this should go into the ProblemSet model upon either parsing or creation. 
                 if(this.model.get("reduced_scoring_date")=="" || this.model.get("reduced_scoring_date")==0){
@@ -269,9 +296,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                         .subtract(this.settings.getSettingValue("pg{ansEvalDefaults}{reducedScoringPeriod}"),"minutes");
                     this.model.set({reduced_scoring_date: rcDate.unix()});
                 }
-            } else {
-                this.$(".reduced-scoring-date").closest("tr").addClass("hidden");
-            }
+            } 
         },
         showTime: function(_show){
             this.tabState.set("show_time",_show);
@@ -289,7 +314,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             this.$(".show-calendar-toggle").button(_show?"hide":"reset");
             util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
             util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
-
+            this.showHideReducedScoringDate();
             if(! _show) return;
             if(typeof(this.model)==="undefined") return;
             this.calendarProblemSets.reset(this.problemSets.where({set_id: this.model.get("set_id")}));
@@ -462,6 +487,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             }
             return this;
         },
+        // set a parameter. 
         set: function(options){
             this.problemSetView.set(_.extend({},options,this.tabState.pick("show_path","show_tags")));
             return this;
@@ -472,7 +498,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         getDefaultState: function () {
             return {set_id: "", library_path: "", page_num: 0, rendered: false, page_size: 10, 
-                            show_path: false, show_tags: false};
+                    show_path: false, show_tags: false};
         },
 
     });
@@ -549,6 +575,7 @@ var AssignUsersView = Backbone.View.extend({
             // this.model is a clone of the parent ProblemSet.  It is used to save properties for multiple students.
 
             this.model = options.problemSet ? new ProblemSet(options.problemSet.attributes): null;
+            
             _.extend(this,_(options).pick("users","settings","eventDispatcher"));
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:filter_string", function(){
@@ -570,14 +597,17 @@ var AssignUsersView = Backbone.View.extend({
                                             paginator: {showPaginator: false}, 
                                             tablename: ".users-table", page_size: -1,
                                             row_id_field: "user_id", 
-                                            table_classes: "table table-bordered table-condensed"})).render();
+                                            table_classes: "table table-bordered table-condensed"}));
+                // The following is needed to make sure that the reduced-scoring date shows up in the student overrides table. 
+                this.userSetTable.collection.each(function(model) { model.show_reduced_scoring = true;}); 
+                this.userSetTable.render();
                 this.userSetTable.set(this.tabState.pick("selected_rows"))
                     .on("selected-row-changed", function(rowIDs){
                             self.tabState.set({selected_rows: rowIDs});
                     }).on("table-sorted table-changed",this.update).updateTable();
+                
                 this.$el.append(this.userSetTable.el);
                 this.update();
-                this.stickit();
                 this.stickit(this.tabState,{
                     ".filter-text": "filter_string",
                     ".show-section": "show_section",
@@ -613,7 +643,9 @@ var AssignUsersView = Backbone.View.extend({
             var self = this;
             this.problemSet = _set;  // this is the globalSet
             if(_set){
-                this.model = new ProblemSet(_set.attributes);  // this is used to pull properties for the userSets.  We don't want to overwrite the properties in this.problemSet
+                // this is used to pull properties for the userSets.  We don't want to overwrite the properties in this.problemSet
+                this.model = new ProblemSet(_set.attributes);  
+                this.model.show_reduced_scoring = true; 
                 this.userSetList = new UserSetList([],{problemSet: this.model,type: "users"});
                 this.userSetList.on("change:due_date change:answer_date change:reduced_scoring_date "
                                     + "change:open_date", function(model){ 
@@ -634,26 +666,39 @@ var AssignUsersView = Backbone.View.extend({
         buildCollection: function(){ // since the collection needs to contain a mixture of userSet and user properties, we merge them. 
             var self = this;
             this.collection.reset(this.userSetList.models);
+            //this.collection is a collection of models based on user sets.  The following will also pick information
+            // from the users that is useful for this view. 
             this.collection.each(function(model){
-                model.set(self.users.findWhere({user_id: model.get("user_id")}).pick("section","recitation","first_name","last_name"));
+                model.set(self.users.findWhere({user_id: model.get("user_id")})
+                          .pick("section","recitation","first_name","last_name"),{silent: true});  
             });
             this.collection.on({change: function(model){
                 self.userSetList.findWhere({user_id: model.get("user_id")})
-                    .set(model.pick("open_date","due_date","answer_date","enable_reduced_scoring")).save();
+                    .set(model.pick("open_date","due_date","answer_date","reduced_scoring_date")).save();
             }});
             this.setMessages();
 
             return this;
         },
         update: function () {
+            if(typeof(this.problemSet) === "undefined"){
+                return;
+            }
+            
             util.changeClass({state: this.tabState.get("show_section"), els: this.$(".section"), remove_class: "hidden"})
             util.changeClass({state: this.tabState.get("show_recitation"), els: this.$(".recitation"), remove_class: "hidden"})
-            util.changeClass({state: this.problemSet.get("enable_reduced_scoring") && this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
+            util.changeClass({state: this.problemSet.get("enable_reduced_scoring") 
+                              && this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"),
                 els: this.$(".reduced-scoring-date,.reduced-scoring-header"), remove_class: "hidden"});
             util.changeClass({state: this.tabState.get("show_time"), remove_class: "edit-datetime", add_class: "edit-datetime-showtime",
                 els: this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")})
-            this.userSetTable.refreshTable();
-            this.stickit();
+            if(this.userSetTable && this.model){
+                this.userSetTable.refreshTable();
+                this.stickit();
+            } else {
+                this.render();
+                return; 
+            }
             // color the changed dates blue
             _([".open-date",".due-date",".reduced-scoring-date",".answer-date"]).each(function(date){
                 var val = $("#customize-problem-set-controls " + date + " .wwdate").val()
@@ -682,8 +727,8 @@ var AssignUsersView = Backbone.View.extend({
                         editable: false, datatype: "integer", use_contenteditable: false},
                 {name: "Section", key: "section", classname: "section", editable: false, datatype: "string"},
                 {name: "Recitation", key: "recitation", classname: "recitation", editable: false,datatype: "string"},
-                {name: "Enable Reduced Scoring", key: "enable_reduced_scoring", classname: "enable-reduced-scoring",
-                    editable: false, datatype: "boolean", show_column: false}
+                {name: "Enab RS", key: "enable_reduced_scoring", classname: "enable_reduced_scoring", editable: false, 
+                        datatype: "boolean", show_column: false}
                 ];
                 
         },
@@ -706,6 +751,7 @@ var AssignUsersView = Backbone.View.extend({
                                         {type:"set_saved",opts:{set_id:_set.get("set_id"), user_id: _set.get("user_id")}}),
                                     text: self.messageTemplate({type:"set_saved_details",opts:{setname:_set.get("set_id"),
                                         key: key, user_id: _set.get("user_id"),oldValue: _old, newValue: _new}})});
+                                _set.changingAttributes = _(_set.changingAttributes).omit(key);
                             }
                         });
                 }

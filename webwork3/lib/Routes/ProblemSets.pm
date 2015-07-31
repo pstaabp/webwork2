@@ -14,20 +14,20 @@ use File::Slurp qw/write_file/;
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use Utils::LibraryUtils qw/render/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash convertBooleans/;
-use Utils::ProblemSets qw/reorderProblems addGlobalProblems addUserSet addUserProblems deleteProblems createNewUserProblem renumber_problems updateProblems/;
+use Utils::ProblemSets qw/reorderProblems addGlobalProblems addUserSet addUserProblems deleteProblems createNewUserProblem 
+                            renumber_problems updateProblems getGlobalSet putGlobalSet putUserSet getUserSet
+                            @time_props @set_props @boolean_set_props @user_set_props @problem_props/;
 use WeBWorK::Utils qw/parseDateTime decodeAnswers/;
-use Array::Utils qw(array_minus); 
-use Routes::Authentication qw/checkPermissions setCourseEnvironment/;
+use Array::Utils qw/array_minus/;
+use List::MoreUtils qw/first_value/;
+use Utils::Authentication qw/checkPermissions setCourseEnvironment/;
 use Utils::CourseUtils qw/getCourseSettings/;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::Ajax;
 use List::Util qw/first max/;
-use Data::Dumper;
 
-our @set_props = qw/set_id set_header hardcopy_header open_date reduced_scoring_date due_date answer_date visible enable_reduced_scoring assignment_type description attempts_per_version time_interval versions_per_interval version_time_limit version_creation_time version_last_attempt_time problem_randorder hide_score hide_score_by_problem hide_work time_limit_cap restrict_ip relax_restrict_ip restricted_login_proctor hide_hint/;
-our @user_set_props = qw/user_id set_id psvn set_header hardcopy_header open_date reduced_scoring_date due_date answer_date visible enable_reduced_scoring assignment_type description restricted_release restricted_status attempts_per_version time_interval versions_per_interval version_time_limit version_creation_time problem_randorder version_last_attempt_time problems_per_page hide_score hide_score_by_problem hide_work time_limit_cap restrict_ip relax_restrict_ip restricted_login_proctor hide_hint/;
-our @problem_props = qw/problem_id flags value max_attempts status source_file/;
-our @boolean_set_props = qw/visible enable_reduced_scoring hide_hint time_limit_cap problem_randorder/;
+
+
 
 ###
 #  return all problem sets (as objects) for course *course_id* 
@@ -39,20 +39,10 @@ our @boolean_set_props = qw/visible enable_reduced_scoring hide_hint time_limit_
 get '/courses/:course_id/sets' => sub {
 
     checkPermissions(10,session->{user});
-
-
     my @globalSetNames = vars->{db}->listGlobalSets;
-    my @globalSets = vars->{db}->getGlobalSets(@globalSetNames);
-
-    for my $set (@globalSets){
-        my @globalProblems = vars->{db}->getAllGlobalProblems($set->{set_id});
-        $set->{problems} = convertArrayOfObjectsToHash(\@globalProblems);
-        my @userNames = vars->{db}->listSetUsers($set->{set_id});
-        $set->{assigned_users} = \@userNames;
-        $set->{_id} = $set->{set_id};
-    }
+    my @allGlobalSets = map { getGlobalSet(vars->{db},vars->{ce},$_)} @globalSetNames; 
     
-    return convertArrayOfObjectsToHash(\@globalSets,\@boolean_set_props);
+    return convertArrayOfObjectsToHash(\@allGlobalSets,\@boolean_set_props);
 };
 
 
@@ -67,20 +57,13 @@ get '/courses/:course_id/sets/:set_id' => sub {
 
     checkPermissions(10,session->{user});
 
-    my $globalSet = vars->{db}->getGlobalSet(param('set_id'));
-    my @userNamesFromDB = vars->{db}->listSetUsers(params->{set_id});
-    my @problemsFromDB = vars->{db}->getAllGlobalProblems(params->{set_id});
+    my $globalSet = getGlobalSet(vars->{db},vars->{ce},params->{set_id});
 
-    my $setResults = convertObjectToHash($globalSet,\@boolean_set_props);
-
-    $setResults->{assigned_users} = \@userNamesFromDB;
-    $setResults->{problems} = convertArrayOfObjectsToHash(\@problemsFromDB);
-
-    return $setResults;
+    return convertObjectToHash($globalSet,\@boolean_set_props);
 };
 
 ####
-#  create a new problem set *set_id* for course *course_id*
+#  create a new problem set or update an existing problem set *set_id* for course *course_id*
 #
 #  any property can be set by assigning that property a value
 #
@@ -89,69 +72,34 @@ get '/courses/:course_id/sets/:set_id' => sub {
 #  permission > Student
 ##
 
-post '/courses/:course_id/sets/:set_id' => sub {
+
+
+any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
+
+    debug 'in put or post /courses/:course_id/sets/:set_id';
     checkPermissions(10,session->{user});
 
-  # call validator directly instead
-
-    if (params->{set_id} !~ /^[\w\_.-]+$/) {
-        send_error("The set name must only contain A-Za-z0-9_-.",403);
-    } 
-
-    send_error("The set name: " . param('set_id'). " already exists.",404) if (vars->{db}->existsGlobalSet(param('set_id')));
-
-    my $set = vars->{db}->newGlobalSet();
-    for my $key (@set_props) {
-        $set->{$key} = params->{$key} if defined(params->{$key});
-    }
-
-    vars->{db}->addGlobalSet($set);
-
-    for my $user(@{params->{assigned_users}}){
-        addUserSet($user,params->{set_id});
-    }
-
-    addGlobalProblems(params->{set_id},params->{problems});
-    addUserProblems(params->{set_id},params->{problems},params->{assigned_users});
-
-    my @globalProblems = vars->{db}->getAllGlobalProblems(params->{set_id});
-
-    my $returnSet = convertObjectToHash($set,\@boolean_set_props);
-
-
-    $returnSet->{assigned_users} = params->{assigned_users};
-    $returnSet->{problems} = convertArrayOfObjectsToHash(\@globalProblems);
-    $returnSet->{_id} = params->{set_id};
-
-    return $returnSet;
-
-
-};
-
-put '/courses/:course_id/sets/:set_id' => sub {
-
-    debug 'in put /courses/:course_id/sets/:set_id';
-    
-    checkPermissions(10,session->{user});
-
-    send_error("The set name: " . param('set_id'). " does not exist.",404)
-        if (! vars->{db}->existsGlobalSet(params->{set_id})); 
-
-
-    
-    ####
-    #
-    # set all the parameters sent from the client as new properties.
-    #
-    ##
+    # set all of the new parameters sent from the client
     my %allparams = params;
-    my $set =  vars->{db}->getGlobalSet(params->{set_id}); 
-    my $setFromClient = convertBooleans(\%allparams,\@boolean_set_props);
-    for my $key (@set_props){
-        $set->{$key} = $setFromClient->{$key};
-    }
-    my $result = vars->{db}->putGlobalSet($set);
+    
+    my $problems_from_client = params->{problems}; 
+    
+    if(request->is_post()){
+        if (params->{set_id} !~ /^[\w\_.-]+$/) {
+            send_error("The set name must only contain A-Za-z0-9_-.",403);
+        } 
 
+        send_error("The set name: " . param('set_id'). " already exists.",404) if (vars->{db}->existsGlobalSet(param('set_id')));
+        my $set = vars->{db}->newGlobalSet();
+        $set->{set_id} = params->{set_id};
+        vars->{db}->addGlobalSet($set);
+    } else {
+        send_error("The set name: " . param('set_id'). " does not exist.",404)
+        if (! vars->{db}->existsGlobalSet(params->{set_id})); 
+    }
+        
+    putGlobalSet(vars->{db},vars->{ce},\%allparams);
+    
     ##
     #
     #  Take care of the assigned users
@@ -163,48 +111,42 @@ put '/courses/:course_id/sets/:set_id' => sub {
     my @usersToDelete = array_minus(@userNamesFromDB,@{params->{assigned_users}});
 
     for my $user(@usersToAdd){
-        addUserSet($user,params->{set_id});
+        addUserSet(vars->{db},$user,params->{set_id});
     }
     for my $user (@usersToDelete){
         vars->{db}->deleteUserSet($user,params->{set_id});
     }
 
     # handle the global problems. 
-
-    
     
     my @problemsFromDB = vars->{db}->getAllGlobalProblems(params->{set_id});
 
     if(params->{_reorder}){  # reorder the problems
+        debug "the problems are being reordered";
         reorderProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users});
     } elsif (scalar(@problemsFromDB) < scalar(@{params->{problems}})) { # problems have been added
         addGlobalProblems(params->{set_id},params->{problems});
-        addUserProblems(params->{set_id},params->{problems},params->{assigned_users});
-    } elsif(scalar(@problemsFromDB) > scalar(@{params->{problems}})) { # problems have been deleted.  
-        deleteProblems(vars->{db},params->{set_id},params->{problems});
-        renumber_problems(vars->{db},params->{set_id},params->{assigned_users});
+        addUserProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users});
+    } elsif(params->{_delete_problem_id}) { # problems have been deleted.  
+        deleteProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users},
+                params->{_delete_problem_id});
     } else { # problem may have been updated
         updateProblems(vars->{db},params->{set_id},params->{problems});
     }
 
-    my @globalProblems = vars->{db}->getAllGlobalProblems(params->{set_id});
-    for my $prob (@globalProblems) {
-        $prob->{_id} = $prob->{set_id} . ":" . $prob->{problem_id};  # this helps backbone on the client side
+    my $returnSet = getGlobalSet(vars->{db},vars->{ce},params->{set_id});
+    
+    for my $set (@{$returnSet->{problems}}){
+        ## return the rendered data that was sent from the client. 
+        my $set_from_client = first_value { $set->{source_file} eq $_->{source_file} && 
+                                    $set->{problem_id} eq $_->{problem_id} } @$problems_from_client;
+        $set->{data} = $set_from_client->{data} if defined($set_from_client);
+        $set->{problem_seed} = $set_from_client->{problem_seed} if defined($set_from_client->{problem_seed}); 
     }
-
     
-    
-    
-    my $setFromDB = vars->{db}->getGlobalSet(params->{set_id});
+    $returnSet->{pg_password} = $allparams{pg_password} if defined($allparams{pg_password});
 
-    my $returnSet = convertObjectToHash($setFromDB,\@boolean_set_props);
-
-
-    $returnSet->{assigned_users} = params->{assigned_users};
-    $returnSet->{problems} = convertArrayOfObjectsToHash(\@globalProblems);
-    $returnSet->{_id} = params->{set_id};
-
-    return $returnSet;
+    return convertObjectToHash($returnSet);
 
 };
 
@@ -243,7 +185,7 @@ del '/courses/:course_id/sets/:set_id' => sub {
 
 ##
 #
-#  Get a list of all user_id's assigned to set *set_id* in course *course_id* 
+#  Get an array of user sets for all users in course :course_id for set :set_id
 #
 #  return:  array of properties.
 ##
@@ -255,15 +197,9 @@ get '/courses/:course_id/sets/:set_id/users' => sub {
    
     my @userIDs = vars->{db}->listSetUsers(params->{set_id});
 
-    my @sets = ();
-
-    foreach my $user_id (@userIDs){
-        my $userSet = convertObjectToHash(vars->{db}->getMergedSet($user_id,params->{set_id}),\@boolean_set_props);
-        $userSet->{_id} = $user_id;
-        push(@sets,$userSet);
-    }
-
-    return \@sets;
+    my @sets = map { getUserSet(vars->{db},vars->{ce},$_,params->{set_id});} @userIDs; 
+    
+    return \@sets; 
 };
 
 
@@ -350,7 +286,7 @@ del '/courses/:course_id/sets/:set_id/users' => sub {
 #
 #  permission > Student
 #
-#  The users are assigned by setting the users_assigned parameter to a comma delimited list of user_id's.
+#  The users are assigned by setting the users_assigned parameter an array ref of user_id's.
 #
 #####
 
@@ -498,25 +434,8 @@ put '/courses/:course_id/users/:user_id/sets/:set_id' => sub {
 
     # check to see if the user has already been assigned and skip the addition if exists already.
 
-    my $userSet = vars->{db}->getUserSet(params->{user_id},params->{set_id});
-    send_error("The user " . params->{user_id} . " has not been assigned problem set " . params->{set_id} . ".")
-        unless $userSet;
-
-    # get the global problem set to determine if the value has changed
-    my $globalSet = vars->{db}->getGlobalSet(params->{set_id});
-
-    for my $key (@user_set_props) {
-        my $globalValue = $globalSet->{$key} || "";
-        # check to see if the value differs from the global value.  If so, set it else delete it. 
-        $userSet->{$key} = params->{$key} if defined(params->{$key});
-        delete $userSet->{$key} if $globalValue eq $userSet->{$key} && $key ne "set_id";
-
-    }
-    vars->{db}->putUserSet($userSet);
-
-    my $mergedSet = vars->{db}->getMergedSet(params->{user_id},params->{set_id});
-
-    return convertObjectToHash($mergedSet,\@boolean_set_props);
+    my %allparams = request->params; 
+    return putUserSet(vars->{db},vars->{ce},\%allparams);
 };
 
 
@@ -587,9 +506,9 @@ get '/courses/:course_id/users/:user_id/sets' => sub {
     
     checkPermissions(10,session->{user});
 
-    my @userSetNames = vars->{db}->listUserSets(param('user_id'));
-    my @userSets = vars->{db}->getMergedSets(map { [params->{user_id}, $_]} @userSetNames);
-    
+    my @setIDs = vars->{db}->listUserSets(param('user_id'));
+    my @userSets = map { getUserSet(vars->{db},vars->{ce},params->{user_id},$_) } @setIDs; 
+        
     return convertArrayOfObjectsToHash(\@userSets);
 };
 
@@ -657,12 +576,10 @@ get '/courses/:course_id/sets/:set_id/users/all/problems' => sub {
     send_error("The set " . param('set_id'). " doesn't exist for course " . param("course_id"),404)
         unless vars->{db}->existsGlobalSet(params->{set_id});
 
-    my @allUsers = vars->{db}->listSetUsers(params->{set_id});
-    my @userSets = ();
-    for my $userID (@allUsers){
-        my $userSet = convertObjectToHash(vars->{db}->getMergedSet($userID,params->{set_id}));
-
-        my @problems = vars->{db}->getAllMergedUserProblems($userID,params->{set_id});
+    my @allUserIDs = vars->{db}->listSetUsers(params->{set_id});
+    my @userSets = map { 
+        my $userSet = getUserSet(vars->{db},vars->{ce},$_,params->{set_id});
+        my @problems = vars->{db}->getAllMergedUserProblems($_,params->{set_id});
         my @userProblems = ();
         for my $problem (@problems){
             my @lastAnswers = decodeAnswers($problem->{last_answer});
@@ -671,8 +588,7 @@ get '/courses/:course_id/sets/:set_id/users/all/problems' => sub {
             push(@userProblems,$prob);
         }
         $userSet->{problems} = \@userProblems;
-        push(@userSets,$userSet);
-    }
+    } @allUserIDs; 
 
     return \@userSets;
 };
@@ -695,8 +611,7 @@ get '/courses/:course_id/users/:user_id/sets/all/problems' => sub {
     my @userSetNames = vars->{db}->listUserSets(params->{user_id});
     my @userSets = ();
     for my $setID (@userSetNames){
-         my $userSet = convertObjectToHash(vars->{db}->getMergedSet(params->{user_id},$setID));
-
+         my $userSet = getUserSet(vars->{db},vars->{ce}, params->{user_id},$setID);
         my @problems = vars->{db}->getAllMergedUserProblems(params->{user_id},$setID);
         my @userProblems = ();
         for my $problem (@problems){
@@ -737,6 +652,7 @@ get '/courses/:course_id/sets/:set_id/users/:user_id/problems' => sub {
     for my $problem (@problems){
         my @lastAnswers = decodeAnswers($problem->{last_answer});
         $problem->{last_answer} = \@lastAnswers;
+        $problem->{_id} = params->{set_id} . ":" . params->{user_id} . ":" . $problem->{problem_id};
     }
 
     return convertArrayOfObjectsToHash(\@problems);
@@ -907,7 +823,7 @@ del '/courses/:course_id/sets/:set_id/problems/:problem_id' => sub {
 #
 # get '/courses/:course_id/status/usersets'
 #
-# This returns the status of each problem sets in the course course_id.  If the userProblems match 
+# This returns the status of each problem set in the course course_id.  If the userProblems match 
 # the global problems then a 1 is returned for the problem_status for each set or a 0 if not. 
 #
 # This is mainly used for troubleshooting where there are inconsistencies in the problem set databases
@@ -931,16 +847,16 @@ get '/courses/:course_id/status/usersets' => sub {
         my @setOkay = ();
 
         my @userNames = vars->{db}->listSetUsers($set->{set_id});
-        my @userSets = map { {user_id=>$_}} @userNames; 
-
+        my @userSets = map { {user_id=>$_}} @userNames;
+        
         for my $userSet (@userSets){
             my @userProblems = vars->{db}->listUserProblems($userSet->{user_id},$set->{set_id});
             $userSet->{problems} = \@userProblems; 
-            push(@setOkay,(@userProblems ~~ @problems &&  @problems ~~ @userProblems)?1:0);
+            push(@setOkay,(join("|",@userProblems) eq join("|",@problems))?1:0);
         }
 
-        #$set->{userSets} = \@userSets;
-        $set->{problem_status} = (0 ~~ @setOkay)?0:1;
+        my @okays = grep { $_ == 0 } @setOkay;
+        $set->{problem_status} = scalar(@setOkay)==0?0:1;
         $set->{problem_length} = scalar(@problems);
 
     }
@@ -966,8 +882,6 @@ post '/courses/:course_id/fix/usersets' => sub {
     checkPermissions(10,session->{user});
 
     my $p = vars->{db}->getUserProblem("profa","HW5.2",6);
-    debug $p;
-    debug defined($p->{problem_seed});
 
     my @setNames = vars->{db}->listGlobalSets;
     my @sets = map { {set_id=>$_} } @setNames; 
@@ -1059,6 +973,15 @@ put '/courses/:course_id/users/:user_id/sets/:set_id/problems/:problem_id' => su
     vars->{db}->putUserProblem($problem);
     return convertObjectToHash(vars->{db}->getMergedProblem(params->{user_id},params->{set_id}
                                 ,params->{problem_id}));
+};
+
+### redirect to the above put if the parameters are out of order:
+
+put '/courses/:course_id/sets/:set_id/users/:user_id/problems/:problem_id' => sub {
+    redirect '/courses/' . params->{course_id} . '/users/' . params->{user_id} .'/sets/' . params->{set_id} .
+            '/problems/ ' . params->{problem_id}; 
+
+
 };
 
 ###
@@ -1164,7 +1087,7 @@ get '/courses/:course_id/pgeditor' => sub {
 
 get '/courses/:course_id/headers' => sub {
 
-    #checkPermissions(10,session->{user});
+    checkPermissions(10,session->{user});
 
     my $templateDir = vars->{ce}->{courseDirs}->{templates};
     my $include = qr/header.*\.pg$/i;
@@ -1211,7 +1134,6 @@ any ['get', 'put'] => '/courses/:course_id/sets/:set_id/setheader' => sub {
                         path(dirname($templateDir),'templates',$hardcopyHeader); 
     my $headerContent = params->{set_header_content}; 
     
-    debug $headerContent; 
     my $hardcopyHeaderContent = params->{hardcopy_header_content};
 
     if(request->is_put()){
@@ -1222,7 +1144,8 @@ any ['get', 'put'] => '/courses/:course_id/sets/:set_id/setheader' => sub {
     $headerContent = read_file_content($setHeaderFile);
     $hardcopyHeaderContent = read_file_content($hardcopyHeaderFile);
     
-    
+    my $mergedSet = vars->{db}->getMergedSet(session->{user},params->{set_id});
+     
     my $renderParams = {
         displayMode => param('displayMode') || vars->{ce}->{pg}{options}{displayMode},
         problemSeed => defined(params->{problemSeed}) ? params->{problemSeed} : 1,
@@ -1230,15 +1153,15 @@ any ['get', 'put'] => '/courses/:course_id/sets/:set_id/setheader' => sub {
         showSolutions=>0,
         showAnswers=>0,
         user=>vars->{db}->getUser(session->{user}),
-        set=>vars->{db}->getMergedSet(session->{user},params->{set_id}),
+        set=>$mergedSet,
         problem=>fake_problem(vars->{db}) };
     
 	# check to see if the problem_path is defined
     $renderParams->{problem}->{source_file} = $setHeaderFile;
-    my $ren = render($renderParams);
+    my $ren = render(vars->{ce},$renderParams);
     my $setHeaderHTML = $ren->{text};
     $renderParams->{problem}->{source_file} = $hardcopyHeaderFile;
-    $ren = render($renderParams);
+    $ren = render(vars->{ce},$renderParams);
     my $hardcopyHeaderHTML = $ren->{text};
     
     return {_id=>params->{set_id},set_header=>$setHeader,hardcopy_header=>$hardcopyHeader,

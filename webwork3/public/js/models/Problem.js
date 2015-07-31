@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
+define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, config,util){
     /**
      *
      * This defines a single webwork Problem (Global Problem)
@@ -19,11 +19,17 @@ define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
             mlt_leader: false,
             show_hints: false,
             show_solution: false,
+            showMeAnotherCount: 0,
+            showMeAnother: -1
         },
+        integerFields: ["problem_id","value","max_attempts","problem_seed","showMeAnotherCount","showMeAnother"],
         validation: {
              // need to put the validation message in a template
             value: {pattern: /^[1-9]\d*$/, msg: "The value must be a positive whole number." },
             max_attempts: {pattern: /^(-1|\d*)$/, msg: "The value must be a whole number or -1 for unlimited attempts." }
+        },
+        parse: function(response){
+              return util.parseAsIntegers(response,this.integerFields);
         },
         idAttribute: "_id",
         url: function () {

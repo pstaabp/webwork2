@@ -4,18 +4,18 @@
 #
 ##
 
-package Routes::Library;
+#package Routes::Library;
 
-use strict;
-use warnings;
-use Dancer ':syntax';
-use Dancer::Plugin::Database;
+#use strict;
+#use warnings;
+#use Dancer ':syntax';
+#use Dancer::Plugin::Database;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
 use Utils::ProblemSets qw/record_results/;
-use Routes::Authentication qw/checkPermissions setCourseEnvironment/;
+use Utils::Authentication qw/checkPermissions setCourseEnvironment/;
 use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
@@ -393,9 +393,8 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 	setCourseEnvironment(params->{course_id});
 
 	my $renderParams = {};
-	
-	
-    $renderParams->{displayMode} = params->{'displayMode'} || vars->{ce}->{pg}{options}{displayMode};
+    	
+    $renderParams->{displayMode} = params->{displayMode} || vars->{ce}->{pg}{options}{displayMode};
 	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1; 
 	$renderParams->{showHints} = params->{show_hints} eq 'true' ? 1 :  0;
 	$renderParams->{showSolutions} = params->{show_solution} eq 'true' ? 1 : 0;
@@ -432,10 +431,9 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
 	} 
 
-    my $rp = render($renderParams);
+    my $rp = render(vars->{ce},$renderParams);
     $rp->{tags} = getProblemTags(-1);  # lookup the tags using the source_file. 
 	return $rp;
-
 };
 
 ###

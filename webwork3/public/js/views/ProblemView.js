@@ -77,9 +77,10 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
 
         render:function () {
             var self = this;
-            if(this.model.get('data') || this.state.get("display_mode")=="None"){
-            
-                if(this.state.get("display_mode")=="None"){
+            var group_name; 
+            if(this.model.get('data') || this.state.get("displayMode")=="None"){
+                
+                if(this.state.get("displayMode")=="None"){
                     this.model.attributes.data="";
                 }
 
@@ -132,7 +133,12 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                     this.model.trigger("rendered",this);
                     this.state.set("rendered",true);
                 }
-            } else if (! this.state.get("hidden")) {
+            } else if(group_name = this.model.get("source_file").match(/group:([\w._]+)$/)){
+                if(! this.state.get("rendered")){
+                    this.model.set("data","This problem is selected from the group: " + group_name[1]);
+                    this.render();
+                }
+            } else {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
                 if(!this.state.get("data_fetched")){
@@ -168,11 +174,22 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             "click .mark-correct-btn": "markCorrect",
             "keyup .prob-value,.max-attempts": function (evt){
                 if(evt.keyCode == 13){ $(evt.target).blur() }   
+            }, 
+            "blur .max-attempts": function(evt){
+                if($(evt.target).val()==-1){
+                    //I18N
+                    $(evt.target).val("unlimited");   
+                }
             }
         },
         bindings: {
             ".prob-value": {observe: "value", events: ['blur']},
-            ".max-attempts": {observe: "max_attempts", events: ['blur']},
+            ".max-attempts": {observe: "max_attempts", events: ['blur'] , onSet: function(val) {
+                    return (val=="unlimited")?-1:val;
+                }, onGet: function(val){
+                    return (val==-1)?"unlimited":val;
+                }
+            },
             ".mlt-tag": "morelt",
             ".level-tag": "level",
             ".keyword-tag": "keyword",
@@ -249,9 +266,8 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             this.$el.addClass("hidden");
         },
         removeProblem: function(){
-            this.problem_set_view.model.problems.remove(this.model);
-            this.problem_set_view.model.trigger("change:problems",this.problem_set_view.model,this.model);
-            this.remove();  // remove the view
+            this.problem_set_view.deleteProblem(this.model); 
+            
         }, 
         set: function(opts){
             this.state.set(_(opts).pick("show_path","show_tags","tags_loaded","display_mode","data_fetched"));
