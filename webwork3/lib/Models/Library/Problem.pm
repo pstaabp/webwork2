@@ -151,8 +151,8 @@ sub insertMONGO {
                 DBsubject => $self->DBinfo->DBsubject,
                 DBchapter => $self->DBinfo->DBchapter,
                 DBsection => $self->DBinfo->DBsection,
-                last_name => $self->problem_author->lastname,
-                first_name => $self->problem_author->firstname,
+                lastname => $self->problem_author->lastname,
+                firstname => $self->problem_author->firstname,
                 email => $self->problem_author->email,
                 institution => $self->problem_author->institution,
                 date => $self->date,
@@ -177,9 +177,9 @@ sub insertMONGO {
 sub find {
     my $self = shift;
     if($DATABASE->{type} eq 'MYSQL'){
-        $self->findMYSQL(@_);
+        return $self->findMYSQL(@_);
     } elsif($DATABASE->{type} eq 'MONGO'){
-        $self->findMONGO(@_);
+        return $self->findMONGO(@_);
     
     }
 }
@@ -204,10 +204,8 @@ sub unique_results {
     if($DATABASE->{type} eq 'MYSQL'){
         return "not yet implemented.";
     } elsif($DATABASE->{type} eq 'MONGO'){
-        my $command = { distinct => "problems", key => $info };
-        dd $command; 
         my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
-        my $obj = $db->run_command($command);
+        my $obj = $db->run_command([ distinct => "problems", key => $info ]);
         return sort { lc($a) cmp lc($b) } @{$obj->{values}};
     
     }
@@ -255,13 +253,14 @@ sub findMONGO {
     $searchQuery->{keywords} = $searchQuery->{keyword};
     $searchQuery->{keyword} = undef; 
     my %query =  slice_def $searchQuery;  # throw away any undefined
-    
+        
     my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
     my $problems = $db->get_collection('problems');
     my $textbookProblems = $db->get_collection('textbook_problems');
 
     my $cursor = $problems->find(\%query);
-    return $cursor->all;
+    my @results = map { new Models::Library::Problem($_) } $cursor->all;
+    return \@results;
 }
 
 ## this method updates the LibraryProblem to the database

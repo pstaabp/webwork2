@@ -267,18 +267,20 @@ sub search {
     dd $params; 
     my @find = Models::Library::Problem->find($params);
     
-    dd scalar(@find);
+    dd @find;
 }
 
 sub showDbinfo {
     my $self = shift;
     my $num_documents = Models::Library::Problem->count; 
     print "The number of documents in the database is: $num_documents\n";
-    
-    if(defined($self->dbinfo)){
+    if( defined($self->dbinfo) &&  (grep {$self->dbinfo eq $_ } @fields)){
         my @unique_results = Models::Library::Problem->unique_results($self->dbinfo);
         dd @unique_results;
+    } else {
+        say "The field " . $self->dbinfo . " is not an available database term.";
     }
+    
 }
 
 main->new_with_options->run;
