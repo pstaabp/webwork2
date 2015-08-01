@@ -43,7 +43,7 @@ option show_in_browser => (is => 'ro', default => '',
     doc => 'opens the result in a browser.');
 
 has results => (is => 'rw', type=> Str);
-has raw_output => (is =>'rw', type=> Str);
+has problem => (is => 'rw', type=> [Models::Library::Problem]);
 
 
 
@@ -65,8 +65,10 @@ sub run {
     if(!$session->{logged_in}){
         die "You were not able to log in.  Please check the credentials.";
     }
+    
+    self->problem(new Model::Library::Problem(path=> '');
 
-    open($FH, '>>', $outputFile) or die "Could not open file '$outputFile' $!";	
+    open($FH, '>', $outputFile) or die "Could not open file '$outputFile' $!";	
 
     ## auto flush printing
     $| = 1; 
@@ -75,69 +77,42 @@ sub run {
         $self->checkFile;
     }
     
+    print $FH $self->results;
+    if($self->{show_warnings} and scalar(@warnings)>0){
+        print $FH join("\n", @warnings) . "\n";
+    }
+    
     close($FH);
     
 }
 
-#
-#
-#
-## auto flush printing
-#my $so = select(STDOUT);
-#$| = 1;
-#select($so);
-#
-#
-#if (@ARGV) {
-#	if($showInBrowser){
-#		showInBrowser($ARGV[0]);
-#		exit 1;
-#	}
-#
-#	for my $filename (@ARGV){
-#		checkFile($filename);			
-#	}
-#	
-#	print $fh $results;
-#	if($showWarnings and scalar(@warnings)>0){
-#		print $fh join("\n",@warnings) . "\n";
-#	}
-#
-#} else {
-#   showHelp();
-#}
-#
-#
-#close $fh;
 
 sub checkFile {
     my $self = shift;
-
-	my $file_source = read_file $self->file || die "Could not open file: $self->file"; 
+	my $file_source = read_file $self->file || die "Could not open file: " . $self->file . "\n"; 
 	my $data = encode_entities $file_source;
 	my $output;
 	my $parse; 
 	my $isRandom; 
-
+    
 	if($self->check_randomize){
 		$isRandom = $self->checkForRandomize($data)->{is_random};
 	} else {
 		$output = $self->renderOnServer($data);
-        
-        dd $output; 
-		$parse = from_json($output);
+        $parse = from_json($output);
 		# print "$output\n";
 	}
-
+    
 	if($parse->{errors} or $parse->{error}){
-		printResults("0\t $self->file has errors.");
+        my $file = $self->file;
+		$self->printResults("0\t $file has errors.");
 		if($self->show_errors){
-			printResults(($parse->{errors} || "" ) . ($parse->{error} || ""));
+			$self->printResults(($parse->{errors} || "" ) . ($parse->{error} || ""));
 		}
 	} else {
-		printResults("1\t $self->file is ok.");
+		$self->printResults("1\t" . $self->file . " is ok.");
 		if($self->check_randomize){
-			printResults("\trandom: ". ($isRandom || 0 ));
+			$self->printResults("\trandom: ". ($isRandom || 0 ));
 		} 
 	}
 	if($self->show_warnings){
@@ -148,13 +123,13 @@ sub checkFile {
 		}
 	}	
 	if($self->check_missing_alt_tag){
-		printResults("\t\tmissing alt tag: ". isAltTagMissing($file_source));
+		$self->printResults("\t\tmissing alt tag: ". isAltTagMissing($file_source));
 	}
 
-	printResults("\n");
+	$self->printResults("\n");
 
 	if($self->raw_output and $self->verbose){
-		printResults(Dumper($parse));
+		$self->printResults(Dumper($parse));
 	}
 	return $parse;
 }
@@ -180,7 +155,7 @@ sub renderOnServer {
 	my $flags = "-s -b /tmp/dancer-cookies -X POST --data-urlencode 'source=$data' -d course_id=$courseName " . 
 					 (defined($seed) ? "-d seed=$seed" : "");
                      
-    dd qq!curl $flags $hostname/webwork3/renderer!;
+    #dd qq!curl $flags $hostname/webwork3/renderer!;
 	return qx!curl $flags $hostname/webwork3/renderer!;
 }
 

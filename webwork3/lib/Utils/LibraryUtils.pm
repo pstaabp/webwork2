@@ -26,7 +26,7 @@ my %ignoredir = (
 
 sub render {
 	my ($ce,$renderParams) = @_;
-	my @anskeys = split(";",params->{answer_fields} || ""); 
+	my @anskeys = split(";",params->{answer_fields} || ""); ## params->{answer_fields} needs to be changed as this won't use Dancer in the long term. 
 	
 	$renderParams->{formFields}= {};
 	for my $key (@anskeys){
@@ -39,7 +39,7 @@ sub render {
 	local $ce->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
 	local $ce->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
 
-
+    
 	my $translationOptions = {
 		displayMode     => $renderParams->{displayMode},
 		showHints       => $renderParams->{showHints},
@@ -49,6 +49,7 @@ sub render {
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
 	};
     
+    $translationOptions->{r_source} = $renderParams->{source} if defined($renderParams->{source});
     
 	my $pg = new WeBWorK3::PG::Local(
 		$ce,
@@ -241,8 +242,6 @@ sub searchLibrary {
 		$param->{$key} = $val;
 	}
 
-	debug $param;
-
 	my $selectClause = "SELECT CONCAT(path.path,'/',pg.filename),pg.pgfile_id "
 					. "FROM OPL_path AS path "
 					. "JOIN OPL_pgfile AS pg ON path.path_id=pg.path_id ";
@@ -354,8 +353,6 @@ sub searchLibrary {
 	}
 
 
-	debug $selectClause,$whereClause.$groupClause;
-
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
 
 	my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1] } } @{$results};
@@ -401,8 +398,6 @@ sub getProblemTags {
 						. "LEFT JOIN OPL_textbook AS textbook ON textbook.textbook_id = ch.textbook_id ";
 	my $whereClause ="WHERE pg.pgfile_id='". $fileID ."'";
 	
-	debug $selectClause. $whereClause;
-
 	my $results = database->selectrow_arrayref($selectClause . $whereClause . ";");
 
 	return { author => $results->[0], keyword => $results->[1] , level=>$results->[2], institution=>$results->[3],
