@@ -21,11 +21,10 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
 
         initialize: function(options){
             var self = this;
-            _.bindAll(this,"render","deleteProblem","undoDelete","reorder","addProblemView");  
+            _.bindAll(this,"render","addProblemView");  
             _(this).extend(_(options).pick("settings","problemSet","messageTemplate"));
             this.problems = options.problems ? options.problems : new ProblemList();
             this.problemSet = options.problemSet; 
-            this.undoStack = []; // this is where problems are placed upon delete, so the delete can be undone.  
             this.pageSize = 10; // this should be a parameter.
             this.pageRange = _.range(this.pageSize);
             this.currentPage = 0;
@@ -36,12 +35,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         set: function(opts){
             if(opts.problems){
                 this.problems = opts.problems; 
-                this.problems.off("remove").on("remove",this.deleteProblem);
                 if(opts.problemSet){
                     this.problemSet = opts.problemSet;
                     this.problems.problemSet = opts.problemSet;
                 }
             }
+            _(this).extend(_(opts).pick("problem_set_view"));
             if(opts.current_page){
                 this.currentPage = opts.current_page || 0;
             }
@@ -58,7 +57,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             return this;
         },
         render: function() {
-            this.$el.html(_.template($("#problem-list-template").html(),{show_undo: this.viewAttrs.show_undo}));
+            var tmpl = _.template($("#problem-list-template").html());
+            this.$el.html(tmpl({show_undo: this.viewAttrs.show_undo}));
             _(this.problemViews).each(function(pv){
                 pv.rendered = false;  
             })
@@ -72,7 +72,8 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var self = this;
             var ul = this.$(".prob-list").empty(); 
             _(this.pageRange).each(function(i){
-                ul.append((self.problemViews[i] = new ProblemView({model: self.problems.at(i), 
+                ul.append((self.problemViews[i] = new ProblemView({model: self.problems.at(i),
+                                                                   problem_set_view: self.problem_set_view,
                     libraryView: self.libraryView, viewAttrs: self.viewAttrs})).render().el); 
                     
             });
@@ -82,6 +83,26 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                                 placeholder: "sortable-placeholder",axis: "y",
                                                 stop: this.reorder});
             }
+            // check if all of the problems are rendered.  When they are, trigger an event
+            //
+            // I think this needs work.  It appears that MathJax fires lots of "Math End" signals, 
+            // although why not just one. 
+            // 
+            // this may also be part of the many calls to render throughout the app. 
+            // (Note: after further work on another branch, this may not be necessary)
+            
+            _(this.problemViews).each(function(pv){
+                if(pv && pv.model){
+                      pv.model.on("rendered", function () {
+                          if(_(self.problemViews).chain().map(function(pv){
+                               if(pv) {
+                                    return pv.state.get("rendered");}
+                                }).every().value()){
+                            self.trigger("rendered");   
+                          }
+                      }); 
+                }
+            })
             this.showPath(this.show_path);
             this.showTags(this.show_tags);
             this.updatePaginator();
@@ -111,8 +132,9 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 stop = start+8<this.maxPages?start+8 : this.maxPages;
             }
             if(this.maxPages>1){
-                this.$(".problem-paginator").html(_.template($("#paginator-template").html(),
-                        {current_page: this.currentPage, page_start:start,page_stop:stop,num_pages:this.maxPages}));
+                var tmpl = _.template($("#paginator-template").html()); 
+                this.$(".problem-paginator").html(tmpl({current_page: this.currentPage, page_start:start,               
+                                                        page_stop:stop,num_pages:this.maxPages}));
             }
             return this;
         },
@@ -135,12 +157,12 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         },
         showPath: function(_show){
             this.show_path = _show;
-            _(this.problemViews).each(function(pv){ pv.set({show_path: _show})});
+            _(this.problemViews).each(function(pv){ if(pv){pv.set({show_path: _show})}});
             return this;
         },
         showTags: function (_show) {
             this.show_tags = _show;
-            _(this.problemViews).each(function(pv){ pv.set({show_tags: _show})});
+            _(this.problemViews).each(function(pv){ if(pv){pv.set({show_tags: _show})}});
             return this;
         },
         firstPage: function() { this.gotoPage(0);},
@@ -163,33 +185,6 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
         openSimpleEditor: function(){  
             console.log("opening the simple editor."); 
         },
-        reorder: function (event,ui) {
-            var self = this;
-            if(typeof(self.problems.problemSet) == "undefined"){
-                return;
-            }
-            this.problems.problemSet.changingAttributes = {"problems_reordered":""};
-            this.$(".problem").each(function (i) { 
-                self.problems.findWhere({source_file: $(this).data("path")})
-                        .set({problem_id: i+1}, {silent: true});  // set the new order of the problems.  
-            });   
-            this.problems.problemSet.save();
-        },
-        undoDelete: function(){
-            if (this.undoStack.length>0){
-                var prob = this.undoStack.pop();
-                if(this.problems.findWhere({problem_id: prob.get("problem_id")})){
-                    prob.set("problem_id",parseInt(this.problems.last().get("problem_id"))+1);
-                }
-                this.problems.add(prob);
-                this.updatePaginator();
-                this.gotoPage(this.currentPage);
-                this.problemSet.trigger("change:problems",this.problemSet);
-                if(this.undoStack.length==0){
-                    this.$(".undo-delete-button").attr("disabled","disabled");
-                }
-            }
-        },
         setProblemSet: function(_set) {
             this.model = _set; 
             if(this.model){
@@ -198,23 +193,18 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             return this;
         },
         addProblemView: function (prob){
-            var probView = new ProblemView({model: prob, type: this.type, viewAttrs: this.viewAttrs});
-            this.$("#prob-list").append(probView.el);
-            probView.render();
-            this.trigger("update-num-problems",
-                {number_shown: this.$(".prob-list li").length, total: this.problems.size()});
-
+            if(this.pageRange.length < this.pageSize){
+                var probView = new ProblemView({model: prob, problem_set_view: this.problem_set_view,
+                                                type: this.type, viewAttrs: this.viewAttrs});
+                var numViews = this.problemViews.length; 
+                probView.render().$el.data("id",this.model.get("set_id")+":"+(numViews+1));
+                probView.model.set("_id", this.model.get("set_id")+":"+(numViews+1));
+                this.$(".prob-list").append(probView.el);
+                this.problemViews.push(probView);                
+                this.pageRange.push(_(this.pageRange).last() +1);
+            } 
+            this.updateNumProblems();
         },
-        // this is called when the problem has been removed from the problemList
-        deleteProblem: function (problem){
-            var self = this; 
-            this.problemSet.changingAttributes = 
-                {"problem_deleted": {setname: this.problemSet.get("set_id"), problem_id: problem.get("problem_id")}};
-            this.problemSet.trigger("change:problems",this.problemSet);
-            this.undoStack.push(problem);
-            this.gotoPage(this.currentPage);
-            this.$(".undo-delete-button").removeAttr("disabled");
-        }
     });
 	return ProblemListView;
 });

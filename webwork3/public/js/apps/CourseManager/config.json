@@ -2,14 +2,24 @@
 	"main_views": [
 	{
 		"name": "Calendar",
-		"path": "main-views/AssignmentCalendar",
+		"path": "main-views/CourseCalendar",
+		"icon": "fa fa-calendar fa-lg",
 		"default_sidebar": "problemSets",
 		"other_sidebars": ["problemSets", "userlist"],
 		"id": "calendar"
 	},
 	{
+		"name": "User Settings",
+		"path": "views/UserSettingsView",
+        "icon": "fa fa-user fa-lg",
+		"default_sidebar": "",
+		"other_sidebars": [],
+		"id": "userSettings"
+	},
+	{
 		"name": "Problem Set Details",
 		"path": "main-views/ProblemSetDetailView",
+		"icon": "fa fa-info-circle fa-lg",
 		"default_sidebar": "problemSets",
 		"other_sidebars": ["problemSets","userlist", "problemListOptions"],
 		"id": "problemSetDetails"
@@ -17,6 +27,7 @@
 	{
 		"name": "Library Browser",
 		"path": "main-views/LibraryBrowser",
+		"icon": "fa fa-university fa-lg",
 		"default_sidebar": "libraryOptions",
 		"other_sidebars": ["libraryOptions","problemSets","userlist"],
 		"id": "libraryBrowser"
@@ -24,6 +35,7 @@
 	{
 		"name": "Problem Sets Manager",
 		"path": "main-views/ProblemSetsManager",
+		"icon": "fa fa-list-alt fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "problemSetsManager"
@@ -31,6 +43,7 @@
 	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",
+		"icon": "fa fa-bar-chart-o fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "statistics"
@@ -38,6 +51,7 @@
 	{
 		"name": "Classlist Manager",
 		"path": "main-views/ClasslistView",
+		"icon": "fa fa-users fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "classlist"
@@ -45,6 +59,7 @@
 	{
 		"name": "Import/Export Sets",
 		"path": "main-views/ImportExportView",
+		"icon": "fa fa-expand fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": ["problemSets"],
 		"id": "importExport"
@@ -52,6 +67,7 @@
 	{
 		"name": "Settings",
 		"path": "main-views/SettingsView",
+		"icon": "fa fa-gears fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "settings"

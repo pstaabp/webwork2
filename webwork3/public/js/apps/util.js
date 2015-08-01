@@ -4,8 +4,9 @@
  * 
  */
              
-define(['underscore','config'], function(_,config){
+define(['underscore','config','models/AssignmentDateList','models/AssignmentDate','moment'], function(_,config,AssignmentDateList,AssignmentDate,moment){
 var util = {             
+    // as of 2015-01-02, this function is no longer used in lieu of a library.  To delete after some testing. 
     CSVToHTMLTable: function( strData,headers, strDelimiter ){
         strDelimiter = (strDelimiter || ",");
         
@@ -41,26 +42,17 @@ var util = {
                 arr[ arr.length - 1 ].push( strMatchedValue );
         }
 
-        var str = "<table id='sTable'><thead><td><input  id='selectAllASW' type='checkbox'></input></td>";
-        for (var k = 0; k < arr[0].length; k++){
-            str += "<td><select class='colHeader' id='col" + k + "'>";
-            for (var i=0; i< headers.length; i++){
-            str += "<option>" + headers[i] + "</option>";}
-            str += "</select></td>";
+        return arr; 
+     },
+     // this function escapes both commas and double quotes (")
+     csvEscape: function(str){
+        if(/[\"|,]/.test(str))
+        {
+            str = str.replace(/\"/g,'""');
+            return '"' + str + '"';
+        }   else {
+            return str;
         }
-        str += "</thead><tbody><tr><td colspan='" + (arr[0].length+1) + "' style='padding: 0px;'><div class='inner'><table id='inner-table'><tbody>"
-        for (var i in arr){
-            if(arr[i].length===1){
-                break;
-            }
-            str += "<tr id='row" + i + "'><td><input  id='cbrow" + i + "' type='checkbox' class='selRow'></input></td>";
-            for (var j in arr[i]){
-                str += "<td class='column" + j + "'>" + arr[i][j] + "</td>";
-            }
-            str += "</tr>"
-        }
-        str += "</tbody></table></div></td></tr></tbody></table>";
-        return str;
      },
      readSetDefinitionFile: function(file){
         var self = this;
@@ -112,7 +104,49 @@ var util = {
         return settings.chain().map(function(_s) { return [_s.get("var"),_s.get("value")]})
             .object().pick("pg{timeAssignDue}","pg{assignOpenPriorToDue}","pg{answersOpenAfterDueDate}"
                                 ,"pg{ansEvalDefaults}{reducedScoringPeriod}").value();
-    }
+    },
+
+    getInverseBindings: function(bindings){
+        return _.object(_(_(bindings).values()).map(function(v) { 
+            return _(v).isObject() ? v.observe : v ;}),_(bindings).keys()) 
+    },
+
+        // this parses the fields in obj as integers.
+    parseAsIntegers: function(obj,fields){
+        var values = _(obj).chain().pick(fields).values().map(function(d) {return d?parseInt(d):d;}).value();
+        _.extend(obj,_.object(fields,values));
+        return obj;
+    },
+    // this returns the object for a Backbone.Stickit bindings object.  This is useful for error reporting.
+    invBindings: function(bindings){
+        var keys = _(bindings).keys()
+        var vals = _(bindings).chain().values().map(function(x) { return _.isObject(x)? x.observe : x;}).value();
+        return _.object(vals,keys);
+    },
+    // This travels through all of the assignments and determines the days that assignment dates fall
+    buildAssignmentDates: function (problemSets) {
+        var assignmentDateList = new AssignmentDateList();
+        problemSets.each(function(_set){
+            assignmentDateList.add(new AssignmentDate({type: "open", problemSet: _set,
+                    date: moment.unix(_set.get("open_date")).format("YYYY-MM-DD")}));
+            assignmentDateList.add(new AssignmentDate({type: "due", problemSet: _set,
+                    date: moment.unix(_set.get("due_date")).format("YYYY-MM-DD")}));
+            assignmentDateList.add(new AssignmentDate({type: "answer", problemSet: _set,
+                    date: moment.unix(_set.get("answer_date")).format("YYYY-MM-DD")}));
+            if(parseInt(_set.get("reduced_scoring_date"))>0) {
+                assignmentDateList.add(new AssignmentDate({type: "reduced-scoring", problemSet: _set,
+                    date: moment.unix(_set.get("reduced_scoring_date")).format("YYYY-MM-DD")}) );
+            }
+        });
+        return assignmentDateList;
+    },
+    changeClass:function(opts){
+        if(opts.state){
+            opts.els.removeClass(opts.remove_class).addClass(opts.add_class)
+        } else {
+            opts.els.addClass(opts.remove_class).removeClass(opts.add_class)
+        }
+    },
 }
 
 

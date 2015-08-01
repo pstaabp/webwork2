@@ -9,11 +9,13 @@ package Routes::User;
 use strict;
 use warnings;
 use Dancer ':syntax';
-use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
-use WeBWorK::GeneralUtils qw/cryptPassword/;
-use Data::Dumper;
+use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash convertBooleans/;
+use Utils::Authentication qw/checkPermissions/;
+use WeBWorK::Utils qw/cryptPassword/;
 
-our @user_props = qw/first_name last_name student_id user_id email_address permission status section recitation comment/;
+our @user_props = qw/first_name last_name student_id user_id email_address permission status 
+                    section recitation comment displayMode showOldAnswers useMathView/;
+our @boolean_user_props = qw/showOldAnswers useMathView/;
 our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 
 
@@ -26,7 +28,7 @@ our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 
 get '/courses/:course/users' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
     my @allUsers = vars->{db}->getUsers(vars->{db}->listUsers);
     my %permissionsHash =  reverse %{vars->{ce}->{userRoles}};
@@ -39,6 +41,7 @@ get '/courses/:course/users' => sub {
 		$u->{'student_id'} = "$studid";  # make sure that the student_id is returned as a string. 
 		
     }
+    
     return convertArrayOfObjectsToHash(\@allUsers);
 };
 
@@ -53,7 +56,7 @@ get '/courses/:course/users' => sub {
 
 post '/courses/:course_id/users/:user_id' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
 	my $enrolled = vars->{ce}->{statuses}->{Enrolled}->{abbrevs}->[0];
 	my $user = vars->{db}->getUser(param('user_id'));
@@ -88,8 +91,6 @@ post '/courses/:course_id/users/:user_id' => sub {
 	$permission->{user_id} = params->{user_id};
 	$permission->{permission} = params->{permission};	
 
-	debug $permission;
-
 	vars->{db}->addUser($user);
 	vars->{db}->addPassword($password);
 	vars->{db}->addPermissionLevel($permission);
@@ -114,19 +115,14 @@ put '/courses/:course_id/users/:user_id' => sub {
 
 	# update the standard user properties
 	
+    my %allparams = params;
+    my $setFromClient = convertBooleans(\%allparams,\@boolean_user_props);
 	for my $key (@user_props) {
-        $user->{$key} = params->{$key} if (defined(params->{$key}));
+        $user->{$key} = $setFromClient->{$key} if (defined(params->{$key}));
     }
+    
 	vars->{db}->putUser($user);
 	$user->{_id} = $user->{user_id}; # this will help Backbone on the client end to know if a user is new or existing. 
-
-    # update the password
-
-    my $password;
-    if (defined(params->{new_password})){ #update existing user
-    	my $password->{password} = cryptPassword(params->{new_password});
-    	vars->{db}->putPassword($password);
-    }
 
     my $permission = vars->{db}->getPermissionLevel(params->{user_id});
 	
@@ -135,12 +131,15 @@ put '/courses/:course_id/users/:user_id' => sub {
 		vars->{db}->putPermissionLevel($permission);
 	}
 
-	my $u =convertObjectToHash($user);
-	$u->{_id} = $u->{user_id}; 
+	my $u =convertObjectToHash($user, \@boolean_user_props);
+    
+    $u->{_id} = $u->{user_id}; 
 
 	return $u;
 
 };
+
+
 ###
 #
 #  create a new user user_id in course *course_id*
@@ -150,7 +149,7 @@ put '/courses/:course_id/users/:user_id' => sub {
 
 del '/courses/:course_id/users/:user_id' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 	
 	# check to see if the user exists
 
@@ -169,8 +168,49 @@ del '/courses/:course_id/users/:user_id' => sub {
 	} else {
 		send_error("User with login " . param('user_id') . ' could not be deleted.',400);
 	}
+};
+
+####
+#
+# Gets the status (logged in or not) of all users.  Useful for the classlist manager.
+#
+####
+
+get '/courses/:course_id/users/loginstatus' => sub {
+	checkPermissions(10,session->{user});
+
+	my @users = vars->{db}->listUsers();
+	my @status = map {
+		my $key = vars->{db}->getKey($_);
+		{ user_id=>$_, 
+			logged_in => ($key and time <= $key->timestamp()+vars->{ce}->{sessionKeyTimeout}) ? JSON::true : JSON::false}
+	} @users;
+
+	return \@status;
 
 };
+
+# set a new password for user :user_id in course :course_id
+
+post '/courses/:course_id/users/:user_id/password' => sub {
+	#
+	# if the user is not a professor, check that the current password is correct.
+	#
+    
+	if(session->{permission} < 10 and session->{user} ne params->{user_id}){
+		send_error("You don't have the permission to change another password");
+	}
+
+	my $password = vars->{db}->getPassword(params->{user_id});
+	if(crypt(params->{old_password}, $password->password) eq $password->password){
+    	$password->{password} = cryptPassword(params->{new_password});
+    	vars->{db}->putPassword($password);
+        return {message => "password changed", success => 1}
+	} else {
+        return {message => "orig password not correct", success => 0}
+	}
+};
+
 
 ####
 #
@@ -182,7 +222,7 @@ del '/courses/:course_id/users/:user_id' => sub {
 
 get '/courses/:course_id/sets/:set_id/users/:user_id/problems' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
 	debug 'in /courses/sets/users/problems';
 
@@ -218,7 +258,7 @@ get '/courses/:course_id/sets/:set_id/users/:user_id/problems' => sub {
 
 get '/users/:user_id/courses/:course_id/sets/:set_id/problems/:problem_id' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
 
   	my $problem = vars->{db}->getUserProblem(param('user_id'),param('set_id'),param('problem_id'));
 
@@ -227,7 +267,8 @@ get '/users/:user_id/courses/:course_id/sets/:set_id/problems/:problem_id' => su
 
 put '/users/:user_id/courses/:course_id/sets/:set_id/problems/:problem_id' => sub {
 
-	if(session->{permission} < 10){send_error($PERMISSION_ERROR,403)}
+	checkPermissions(10,session->{user});
+    
 
 	my $problem = vars->{db}->getUserProblem(param('user_id'),param('set_id'),param('problem_id'));
 

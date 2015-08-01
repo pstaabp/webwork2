@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
+define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, config,util){
     /**
      *
      * This defines a single webwork Problem (Global Problem)
@@ -6,17 +6,28 @@ define(['backbone', 'underscore', 'config'], function(Backbone, _, config){
      * @type {*}
      */
     var Problem = Backbone.Model.extend({
-        defaults:{  source_file:"",
-                //data: "",
-                problem_id: 0,
-                value: 1,
-                max_attempts: -1,
-                set_id: "",
-                flags: ""
-                //displayMode: "MathJax",  //this has been commented out.  it should be a property of the problem view, not the problem.
-                //problem_seed: 1
+        defaults:{  
+            source_file:"",
+            data: "",
+            problem_id: 0,
+            value: 1,
+            max_attempts: -1,
+            set_id: "",
+            flags: "",
+            problem_seed: 1,
+            showMeAnotherCount: 0,
+            showMeAnother: -1
         },
-        idAttribute: "source_file",
+        integerFields: ["problem_id","value","max_attempts","problem_seed","showMeAnotherCount"],
+        validation: {
+             // need to put the validation message in a template
+            value: {pattern: /^[1-9]\d*$/, msg: "The value must be a positive whole number." },
+            max_attempts: {pattern: /^(-1|\d*)$/, msg: "The value must be a whole number or -1 for unlimited attempts." }
+        },
+        parse: function(response){
+              return util.parseAsIntegers(response,this.integerFields);
+        },
+        idAttribute: "_id",
         url: function () {
             // need to determine if this is a problem in a problem set or a problem from a library browser
             if(typeof(this.collection.problemSet)!=="undefined") { // the problem comes from a problem set

@@ -1,4 +1,5 @@
-define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl'], function(Backbone, _,config,Problem){
+define(['backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'], 
+       function(Backbone, _,config,Problem,util){
     //##The problem View
 
     //A view defined for the browser app for the webwork Problem model.
@@ -8,6 +9,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
     
         reorderable (boolean): whether the reorder arrow should be shown
         showPoints (boolean): whether the # of points should be shown
+        showMaxAttemptes (boolean): whether the maximum number of attempts is shown. 
         showAddTool (boolean): whether the + should be shown to be added to a problemSet
         showEditTool (boolean): whether the edit button should be shown
         showViewTool (boolean): whether the show button should be shown (to be taken to the userSetView )
@@ -30,7 +32,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
         initialize:function (options) {
             var self = this;
             _.bindAll(this,"render","removeProblem","showPath","showTags");
-            this.libraryView = options.libraryView;
+            _(this).extend(_(options).pick("libraryView","problem_set_view"));
             if(typeof(this.model)==="undefined"){
                 this.model = new Problem();
             }
@@ -48,17 +50,19 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
                     self.showPath(self.state.get("show_path"));
                 });
 
-            this.model.on('change:value', function () {
-                if(self.model.get("value").match(/^\d+$/)) {
-                    self.model.save();
-                }
-            });
+            this.model.on('change:value change:max_attempts', function () {
+                var isValid = self.model.isValid(_(self.model.changed).keys());
+                if(isValid){
+                    self.problem_set_view.model.trigger("change:problems",self.problem_set_view.model,self.model);
+                } });
+           this.invBindings = util.invBindings(this.bindings);
         },
 
         render:function () {
             var self = this;
+            var group_name; 
             if(this.model.get('data') || this.state.get("displayMode")=="None"){
-            
+                
                 if(this.state.get("displayMode")=="None"){
                     this.model.attributes.data="";
                 }
@@ -84,6 +88,7 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
 
                 this.el.id = this.model.cid; // why do we need this? 
                 this.$el.attr('data-path', this.model.get('source_file'));
+                this.$el.attr('data-id', this.model.get('set_id')+":"+this.model.get("problem_id"));
                 this.$el.attr('data-source', this.state.get("type"));
                 if (this.state.get("displayMode")==="MathJax"){
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.el]);
@@ -91,8 +96,31 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
 
                 this.showPath(this.state.get("show_path"));
                 this.stickit();
-                this.model.trigger("rendered",this);
-                this.state.set("rendered",true);                
+                Backbone.Validation.bind(this,{
+                    valid: function(view,attr){
+                        view.$(self.invBindings[attr]).popover("hide").popover("destroy");
+                    },
+                    invalid: function(view,attr,error){
+                        view.$(self.invBindings[attr]).popover({title: "Error", content: error,container: view.$el}).popover("show");
+                    }
+                });
+                
+                 
+                // send rendered signal after MathJax 
+                if(MathJax){
+                    MathJax.Hub.Register.MessageHook("End Math", function (message) { 
+                        self.model.trigger("rendered",this);
+                        self.state.set("rendered",true);
+                    })
+                } else {
+                    this.model.trigger("rendered",this);
+                    this.state.set("rendered",true);
+                }
+            } else if(group_name = this.model.get("source_file").match(/group:([\w._]+)$/)){
+                if(! this.state.get("rendered")){
+                    this.model.set("data","This problem is selected from the group: " + group_name[1]);
+                    this.render();
+                }
             } else {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
@@ -115,9 +143,26 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             "click .add-problem": "addProblem",
             "click .seed-button": "toggleSeed",
             "click .path-button": function () {this.state.set("show_path",!this.state.get("show_path"))},
-            "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))}
+            "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))},
+            "click .mark-correct-btn": "markCorrect",
+            "keyup .prob-value,.max-attempts": function (evt){
+                if(evt.keyCode == 13){ $(evt.target).blur() }   
+            }, 
+            "blur .max-attempts": function(evt){
+                if($(evt.target).val()==-1){
+                    //I18N
+                    $(evt.target).val("unlimited");   
+                }
+            }
         },
-        bindings: {".prob-value": "value",
+        bindings: {
+            ".prob-value": {observe: "value", events: ['blur']},
+            ".max-attempts": {observe: "max_attempts", events: ['blur'] , onSet: function(val) {
+                    return (val=="unlimited")?-1:val;
+                }, onGet: function(val){
+                    return (val==-1)?"unlimited":val;
+                }
+            },
             ".mlt-tag": "morelt",
             ".level-tag": "level",
             ".keyword-tag": "keyword",
@@ -129,39 +174,37 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             ".DBsubject-tag": "subject",
             ".DBchapter-tag": "chapter",
             ".DBsection-tag": "section",
+            ".problem-path": "source_file",
+            ".seed": "problem_seed"
         },
         reloadWithRandomSeed: function (){
             var seed = Math.floor((Math.random()*10000));
             console.log("reloading with new seed " + seed);
-            this.model.set({data:"", problem_seed: seed},{silent: true});
+            this.model.set({data:"", problem_seed: seed});
             this.render();
         },
         showPath: function (_show){
-            if(_show){
-                this.$(".path-row").removeClass("hidden");
-            } else {
-                this.$(".path-row").addClass("hidden");
-            }
+            util.changeClass({els: this.$(".path-row"), state: _show, remove_class: "hidden"});
         },
         showTags: function (_show){
             var self = this;
-            if(_show){
-                if(this.state.get("tags_loaded")){
-                    this.$(".tag-row").removeClass("hidden");
-                } else {
-                    this.$(".loading-row").removeClass("hidden");
-                    this.model.loadTags({success: function (){ 
+            if(_show && ! this.state.get("tags_loaded")){
+                this.model.loadTags({success: function (){ 
                         self.$(".loading-row").addClass("hidden");
                         self.$(".tag-row").removeClass("hidden");
                         self.state.set('tags_loaded',true);
                     }});
-                }
-            } else {
-                this.$(".tag-row").addClass("hidden");
             }
+            util.changeClass({els:this.$(".tag-row"),state: _show, remove_class: "hidden"});
         },
         toggleSeed: function () {
             this.$(".problem-seed").toggleClass("hidden");
+        },
+        markCorrect: function () {
+            var conf = confirm(this.problem_set_view.messageTemplate({type:"mark_all_correct"}));
+            if(conf){
+                this.problem_set_view.markAllCorrect(this.model.get("problem_id"));   
+            }
         },
         addProblem: function (evt){
             if(this.libraryView){
@@ -181,11 +224,11 @@ define(['backbone', 'underscore','config','models/Problem','imagesloaded','knowl
             this.$el.addClass("hidden");
         },
         removeProblem: function(){
-            this.model.collection.remove(this.model);
-            this.remove();  // remove the view
+            this.problem_set_view.deleteProblem(this.model); 
+            
         }, 
         set: function(opts){
-            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded"))
+            this.state.set(_(opts).pick("show_path","show_tags","tags_loaded"));
         }
     });
 
