@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use feature 'say';
+use Moo;
+use MooX::Options;
+use DBIx::Mint;
+use MongoDB;
+use Models::Library::Constant qw/$DBTYPE $MONGOclient $MONGOdbname/;
+use Models::Library::Problem;
+use Data::Dump qw/dd/;
+use Carp::Always;
+
+option dbsubject => (is=>'ro', format=>'s');
+option dbchapter => (is => 'ro', format => 's');
+option dbsection => (is => 'ro', format => 's');
+option authlast => (is => 'ro', format => 's');
+option authfirst => (is => 'ro', format => 's');
+option institution => (is => 'ro', format => 's');
+option level => (is => 'ro', format => 's');
+option keyword => (is => 'ro', format => 's');
+
+### this is a test script to see about querying the OPL
+
+
+sub connectToDB {
+    if($DBTYPE eq 'MYSQL') {
+        DBIx::Mint->connect('dbi:mysql:dbname=testOPL', 'webworkWrite', 'passwordRW', {
+            AutoCommit    => 1,
+            RaiseError    => 1,
+            Callbacks     => {
+            },
+        });
+    } elsif($DBTYPE eq 'MONGO'){
+        $MONGOclient = MongoDB::MongoClient->new;
+    }
+    
+    
+}
+    
+
+
+
+sub run {
+    my $self = shift;
+    my $start = time();
+
+    $DBTYPE = 'MONGO';
+    $self->connectToDB;
+    my $searchQuery = {DBsubject => $self->dbsubject,
+                    DBchapter => $self->dbchapter,
+                    DBsection => $self->dbsection,
+                    lastname => $self->authlast,
+                    firstname => $self->authfirst,
+                    institution => $self->institution,
+                    level => $self->level, 
+                    keyword => $self->keyword  
+                    };
+                    
+    my @find = Models::Library::Problem->find($searchQuery);
+    
+    dd scalar(@find);
+    
+     my $timediff = time() - $start;
+
+    print "Amount of time is $timediff seconds.\n";
+
+    
+}
+ 
+main->new_with_options->run;
+
+1;

@@ -1,0 +1,4448 @@
+---
+textbooks:
+  - author: Jeffrey Holt
+    edition: 1
+    sections:
+      - name: Systems of Linear Equations
+        section: 1
+      - name: Lines and Linear Equations
+        section: 1.1
+      - name: Linear Systems and Matrices
+        section: 1.2
+      - name: Numerical Solutions
+        section: 1.3
+      - name: Applications of Linear Systems
+        section: 1.4
+      - name: Euclidean Space
+        section: 2
+      - name: Vectors
+        section: 2.1
+      - name: Span
+        section: 2.2
+      - name: Linear Independence
+        section: 2.3
+      - name: Matrices
+        section: 3
+      - name: Linear Transformations
+        section: 3.1
+      - name: Matrix Algebra
+        section: 3.2
+      - name: Inverses
+        section: 3.3
+      - name: LU Factorization
+        section: 3.4
+      - name: Markov Chains
+        section: 3.5
+      - name: Subspaces
+        section: 4
+      - name: Introduction to Subspaces
+        section: 4.1
+      - name: Basis and Dimension
+        section: 4.2
+      - name: Row and Column Spaces
+        section: 4.3
+      - name: Determinants
+        section: 5
+      - name: The Determinant Function
+        section: 5.1
+      - name: Properties of the Determinant
+        section: 5.2
+      - name: Applications of the Determinant
+        section: 5.3
+      - name: Eigenvalues and Eigenvectors
+        section: 6
+      - name: Eigenvalues and Eigenvectors
+        section: 6.1
+      - name: Approximation Methods
+        section: 6.2
+      - name: Change of Basis
+        section: 6.3
+      - name: Diagonalization
+        section: 6.4
+      - name: Complex Eigenvalues
+        section: 6.5
+      - name: Systems of Differential Equations
+        section: 6.6
+      - name: Vector Spaces
+        section: 7
+      - name: Vector Spaces and Subspaces
+        section: 7.1
+      - name: Span and Linear Independence
+        section: 7.2
+      - name: Basis and Dimension
+        section: 7.3
+      - name: Orthogonality
+        section: 8
+      - name: Dot Products and Orthogonal Sets
+        section: 8.1
+      - name: Projection and the Gram-Schmidt Process
+        section: 8.2
+      - name: Diagonalizing Symmetric Matrices and QR Factorization
+        section: 8.3
+      - name: The Singular Value Decomposition
+        section: 8.4
+      - name: Least Squares Regression
+        section: 8.5
+      - name: Linear Transformations
+        section: 9
+      - name: Definition and Properties
+        section: 9.1
+      - name: Isomorphisms
+        section: 9.2
+      - name: The Matrix of a Linear Transformation
+        section: 9.3
+      - name: Similarity
+        section: 9.4
+      - name: Inner Product Spaces
+        section: 10
+      - name: Inner Products
+        section: 10.1
+      - name: The Gram-Schmidt Process Revisited
+        section: 10.2
+      - name: Applications of Inner Products
+        section: 10.3
+      - name: Additional Topics and Applications
+        section: 11
+      - name: Quadratic Forms
+        section: 11.1
+      - name: Positive Definite Matrices
+        section: 11.2
+      - name: Constrained Optimization
+        section: 11.3
+      - name: Complex Vector Spaces
+        section: 11.4
+      - name: Hermitian Matrices
+        section: 11.5
+    title: Linear Algebra with Applications
+  - author: Holt
+    edition: 1
+    sections:
+      - name: Introduction to Interest
+        section: 1
+      - name: Algebra Prerequisites
+        section: 1.0
+      - name: Simple Interest
+        section: 1.1
+      - name: Compound Interest
+        section: 1.2
+      - name: Effective and Nominal Rates of Interest
+        section: 1.3
+      - name: Present and Future Value
+        section: 1.4
+      - name: Equations of Value
+        section: 2
+      - name: Time Value of Money
+        section: 2.1
+      - name: Unknown Time and Logarithms
+        section: 2.2
+      - name: Dollar Weighted Rate of Return
+        section: 2.3
+      - name: Time Weighted Rate of Return
+        section: 2.4
+      - name: Annuities
+        section: 3
+      - name: Geometric Sums
+        section: 3.1
+      - name: Annuities
+        section: 3.2
+      - name: Loans
+        section: 3.3
+      - name: Sinking Funds
+        section: 3.4
+      - name: Varying Payments
+        section: 3.5
+      - name: Perpetuities
+        section: 3.6
+      - name: Bonds
+        section: 4
+      - name: Yield Rates
+        section: 4.1
+      - name: Bonds
+        section: 4.2
+      - name: Book Value
+        section: 4.3
+      - name: Other Bonds
+        section: 4.4
+      - name: Probability and Contingent Payments
+        section: 5
+      - name: Introduction to Probability
+        section: 5.1
+      - name: Expected Values
+        section: 5.2
+      - name: Contingent Payments
+        section: 5.3
+      - name: Options
+        section: 6
+      - name: Introduction to Options
+        section: 6.1
+      - name: Hedging Strategies
+        section: 6.2
+      - name: Binomial Trees
+        section: 6.3
+    title: Financial Mathematics
+  - author: 'Wackerly, Mendenhall, Scheaffer'
+    edition: 6
+    sections:
+      - name: What Is Statistics?
+        section: 1
+      - name: Introduction
+        section: 1.1
+      - name: 'Characterizing a Set of Measurements: Graphical Methods'
+        section: 1.2
+      - name: 'Characterizing a Set of Measurements: Numerical Methods'
+        section: 1.3
+      - name: How Inferences Are Made
+        section: 1.4
+      - name: Theory and Reality
+        section: 1.5
+      - name: Summary
+        section: 1.6
+      - name: Probability
+        section: 2
+      - name: Introduction
+        section: 2.1
+      - name: Probability and Inference
+        section: 2.2
+      - name: A Review of Set Notation
+        section: 2.3
+      - name: 'A Probabilistic Model for an Experiment: The Discrete Case'
+        section: 2.4
+      - name: 'Calculating the Probability of an Event: The Sample-Point Method'
+        section: 2.5
+      - name: Tools for Counting Sample Points
+        section: 2.6
+      - name: Conditional Probability and the Independence of Events
+        section: 2.7
+      - name: Two Laws of Probability
+        section: 2.8
+      - name: 'Calculating the Probability of an Event: The Event-Composition Methods'
+        section: 2.9
+      - name: The Law of Total Probability and Bayes's Rule
+        section: 2.10
+      - name: Numerical Events and Random Variables
+        section: 2.11
+      - name: Random Sampling
+        section: 2.12
+      - name: Summary
+        section: 2.13
+      - name: Discrete Random Variables and Their Probability Distributions
+        section: 3
+      - name: Basic Definition
+        section: 3.1
+      - name: The Probability Distribution for Discrete Random Variable
+        section: 3.2
+      - name: The Expected Value of Random Variable or a Function of Random Variable
+        section: 3.3
+      - name: The Binomial Probability Distribution
+        section: 3.4
+      - name: The Geometric Probability Distribution
+        section: 3.5
+      - name: The Negative Binomial Probability Distribution
+        section: 3.6
+      - name: The Hypergeometric Probability Distribution
+        section: 3.7
+      - name: Moments and Moment-Generating Functions
+        section: 3.8
+      - name: Probability-Generating Functions
+        section: 3.9
+      - name: Tchebysheff's Theorem
+        section: 3.10
+      - name: Summary
+        section: 3.11
+      - name: Continuous Random Variables and Their Probability Distributions
+        section: 4
+      - name: Introduction
+        section: 4.1
+      - name: The Probability Distribution for Continuous Random Variable
+        section: 4.2
+      - name: The Expected Value for Continuous Random Variable
+        section: 4.3
+      - name: The Uniform Probability Distribution
+        section: 4.4
+      - name: The Normal Probability Distribution
+        section: 4.5
+      - name: The Gamma Probability Distribution
+        section: 4.6
+      - name: The Beta Probability Distribution
+        section: 4.7
+      - name: Some General Comments
+        section: 4.8
+      - name: Other Expected Values
+        section: 4.9
+      - name: Tchebysheff's Theorem
+        section: 4.10
+      - name: Expectations of Discontinuous Functions and Mixed Probability Distributions
+        section: 4.11
+      - name: Summary
+        section: 4.12
+      - name: Multivariate Probability Distributions
+        section: 5
+      - name: Introduction
+        section: 5.1
+      - name: Bivariate and Multivariate Probability Distributions
+        section: 5.2
+      - name: Independent Random Variables
+        section: 5.3
+      - name: The Expected Value of a Function of Random Variables
+        section: 5.4
+      - name: Special Theorems
+        section: 5.5
+      - name: The Covariance of Two Random Variables
+        section: 5.6
+      - name: The Expected Value and Variance of Linear Functions of Random Variables
+        section: 5.7
+      - name: The Multinomial Probability Distribution
+        section: 5.8
+      - name: The Bivariate Normal Distribution
+        section: 5.9
+      - name: Conditional Expectations
+        section: 5.10
+      - name: Summary
+        section: 5.11
+      - name: Functions of Random Variables
+        section: 6
+      - name: Introductions
+        section: 6.1
+      - name: Finding the Probability Distribution of a Function of Random Variables
+        section: 6.2
+      - name: The Method of Distribution Functions
+        section: 6.3
+      - name: The Methods of Transformations
+        section: 6.4
+      - name: Multivariable Transformations Using Jacobians
+        section: 6.5
+      - name: Order Statistics
+        section: 6.6
+      - name: Summary
+        section: 6.7
+      - name: Sampling Distributions and the Central Limit Theorem
+        section: 7
+      - name: Introduction
+        section: 7.1
+      - name: Sampling Distributions Related to the Normal Distribution
+        section: 7.2
+      - name: The Central Limit Theorem
+        section: 7.3
+      - name: A Proof of the Central Limit Theorem
+        section: 7.4
+      - name: The Normal Approximation to the Binomial Distributions
+        section: 7.5
+      - name: Summary
+        section: 7.6
+      - name: Estimation
+        section: 8
+      - name: Introduction
+        section: 8.1
+      - name: The Bias and Mean Square Error of Point Estimators
+        section: 8.2
+      - name: Some Common Unbiased Point Estimators
+        section: 8.3
+      - name: Evaluating the Goodness of Point Estimator
+        section: 8.4
+      - name: Confidence Intervals
+        section: 8.5
+      - name: Large-Sample Confidence Intervals Selecting the Sample Size
+        section: 8.6
+      - name: Small-Sample Confidence Intervals for u and u1-u2
+        section: 8.7
+      - name: Confidence Intervals for o2
+        section: 8.8
+      - name: Summary
+        section: 8.9
+      - name: Properties of Point Estimators and Methods of Estimation
+        section: 9
+      - name: Introduction
+        section: 9.1
+      - name: Relative Efficiency
+        section: 9.2
+      - name: Consistency
+        section: 9.3
+      - name: Sufficiency
+        section: 9.4
+      - name: The Rao-Blackwell Theorem and Minimum-Variance Unbiased Estimation
+        section: 9.5
+      - name: The Method of Moments
+        section: 9.6
+      - name: The Method of Maximum Likelihood
+        section: 9.7
+      - name: Some Large-Sample Properties of MLEs
+        section: 9.8
+      - name: Summary
+        section: 9.9
+      - name: Hypothesis Testing
+        section: 10
+      - name: Introduction
+        section: 10.1
+      - name: Elements of a Statistical Test
+        section: 10.2
+      - name: Common Large-Sample Tests
+        section: 10.3
+      - name: Calculating Type II Error Probabilities and Finding the Sample Size for the Z Test
+        section: 10.4
+      - name: Relationships Between Hypothesis Testing Procedures and Confidence Intervals
+        section: 10.5
+      - name: 'Another Way to Report the Results of a Statistical Test: Attained Significance Levels or p-Values'
+        section: 10.6
+      - name: Some Comments on the Theory of Hypothesis Testing
+        section: 10.7
+      - name: Small-Sample Hypothesis Testing for u and u1-u2
+        section: 10.8
+      - name: Testing Hypotheses Concerning Variances
+        section: 10.9
+      - name: Power of Test and the Neyman-Pearson Lemma
+        section: 10.10
+      - name: Likelihood Ration Test
+        section: 10.11
+      - name: Summary
+        section: 10.12
+      - name: Linear Models and Estimation by Least Squares
+        section: 11
+      - name: Introduction
+        section: 11.1
+      - name: Linear Statistical Models
+        section: 11.2
+      - name: The Method of Least Squares
+        section: 11.3
+      - name: Properties of the Least Squares Estimators for the Simple Linear Regression Model
+        section: 11.4
+      - name: Inference Concerning the Parameters BI
+        section: 11.5
+      - name: 'Inferences Concerning Linear Functions of the Model Parameters: Simple Linear Regression'
+        section: 11.6
+      - name: Predicting a Particular Value of Y Using Simple Linear Regression
+        section: 11.7
+      - name: Correlation
+        section: 11.8
+      - name: Some Practical Examples
+        section: 11.9
+      - name: Fitting the Linear Model by Using Matrices
+        section: 11.10
+      - name: Properties of the Least Squares Estimators for the Multiple Linear Regression Model
+        section: 11.11
+      - name: 'Inferences Concerning Linear Functions of the Model Parameters: Multiple Linear Regression'
+        section: 11.12
+      - name: Prediction a Particular Value of Y Using Multiple Regression
+        section: 11.13
+      - name: 'A Test for H0: Bg+1 + Bg+2 = ? = Bk = 0'
+        section: 11.14
+      - name: Summary and Concluding Remarks
+        section: 11.15
+      - name: Considerations in Designing Experiments
+        section: 12
+      - name: The Elements Affecting the Information in a Sample
+        section: 12.1
+      - name: Designing Experiment to Increase Accuracy
+        section: 12.2
+      - name: The Matched Pairs Experiment
+        section: 12.3
+      - name: Some Elementary Experimental Designs
+        section: 12.4
+      - name: Summary
+        section: 12.5
+      - name: The Analysis of Variance
+        section: 13
+      - name: Introduction
+        section: 13.1
+      - name: The Analysis of Variance Procedure
+        section: 13.2
+      - name: 'Comparison of More than Two Means: Analysis of Variance for a One-way Layout'
+        section: 13.3
+      - name: An Analysis of Variance Table for a One-Way Layout
+        section: 13.4
+      - name: A Statistical Model of the One-Way Layout
+        section: 13.5
+      - name: Proof of Additivity of the Sums of Squares and E (MST) for a One-Way Layout
+        section: 13.6
+      - name: Estimation in the One-Way Layout
+        section: 13.7
+      - name: A Statistical Model for the Randomized Block Design
+        section: 13.8
+      - name: The Analysis of Variance for a Randomized Block Design
+        section: 13.9
+      - name: Estimation in the Randomized Block Design
+        section: 13.10
+      - name: Selecting the Sample Size
+        section: 13.11
+      - name: Simultaneous Confidence Intervals for More than One Parameter
+        section: 13.12
+      - name: Analysis of Variance Using Linear Models
+        section: 13.13
+      - name: Summary
+        section: 13.14
+      - name: Analysis of Categorical Data
+        section: 14
+      - name: A Description of the Experiment
+        section: 14.1
+      - name: The Chi-Square Test
+        section: 14.2
+      - name: 'A Test of Hypothesis Concerning Specified Cell Probabilities: A Goodness-of-Fit Test'
+        section: 14.3
+      - name: Contingency Tables
+        section: 14.4
+      - name: r x c Tables with Fixed Row or Column Totals
+        section: 14.5
+      - name: Other Applications
+        section: 14.6
+      - name: Summary and Concluding Remarks
+        section: 14.7
+      - name: Nonparametric Statistics
+        section: 15
+      - name: Introduction
+        section: 15.1
+      - name: A General Two-Sampling Shift Model
+        section: 15.2
+      - name: A Sign Test for a Matched Pairs Experiment
+        section: 15.3
+      - name: The Wilcoxon Signed-Rank Test for a Matched Pairs Experiment
+        section: 15.4
+      - name: 'The Use of Ranks for Comparing Two Population Distributions: Independent Random Samples'
+        section: 15.5
+      - name: 'The Mann-Whitney U Test: Independent Random Samples'
+        section: 15.6
+      - name: The Kruskal-Wallis Test for One-Way Layout
+        section: 15.7
+      - name: The Friedman Test for Randomized Block Designs
+        section: 15.8
+      - name: 'The Runs Test: A Test for Randomness'
+        section: 15.9
+      - name: Rank Correlation Coefficient
+        section: 15.10
+      - name: Some General Comments on Nonparametric Statistical Test
+        section: 15.11
+      - name: 'Appendix 1: Matrices and Other Useful Mathematical Results'
+        section: 16
+      - name: 'Appendix 1.1: Matrices and Matrix Algebra'
+        section: 16.1
+      - name: 'Appendix 1.2: Addition of Matrices'
+        section: 16.2
+      - name: 'Appendix 1.3: Multiplication of a Matrix by a Real Number'
+        section: 16.3
+      - name: 'Appendix 1.4: Matrix Multiplication'
+        section: 16.4
+      - name: 'Appendix 1.5: Identity Elements'
+        section: 16.5
+      - name: 'Appendix 1.6: The Inverse of a Matrix'
+        section: 16.6
+      - name: 'Appendix 1.7: The Transpose of a Matrix'
+        section: 16.7
+      - name: 'Appendix 1.8: A Matrix Expression for a System of Simultaneous Linear Equations'
+        section: 16.8
+      - name: 'Appendix 1.9: Inverting a Matrix'
+        section: 16.9
+      - name: 'Appendix 1.10: Solving a System of Simultaneous Linear Equations'
+        section: 16.10
+      - name: 'Appendix 1.11: Other Useful Mathematical Results'
+        section: 16.11
+      - name: 'Appendix 2: Common Probability Distributions, Means, Variances, and Moment Generating Functions'
+        section: 17
+      - name: 'Appendix 2.1: Discrete Distributions'
+        section: 17.1
+      - name: 'Appendix 2.2: Continuous Distributions.'
+        section: 17.2
+      - name: 'Appendix 3: Tables'
+        section: 18
+      - name: 'Appendix 3.1: Binomial Probabilities'
+        section: 18.1
+      - name: 'Appendix 3.2: Table of e-x'
+        section: 18.2
+      - name: 'Appendix 3.3: Poisson Probabilities'
+        section: 18.3
+      - name: 'Appendix 3.4: Normal Curve Areas'
+        section: 18.4
+      - name: 'Appendix 3.5: Percentage Points of the t Distributions'
+        section: 18.5
+      - name: 'Appendix 3.6: Percentage Points of the F Distributions'
+        section: 18.6
+      - name: 'Appendix 3.7: Distribution of Function U'
+        section: 18.7
+      - name: 'Appendix 3.8: Critical Values of T in the Wilcoxon Matched-Pairs, Signed-Ranks Test'
+        section: 18.8
+      - name: 'Appendix 3.9: Distribution of the Total Number of Runs R in Sample Size (n1,n2); P(R < a)'
+        section: 18.9
+      - name: "Appendix 3.10: Critical Values of Pearman's Rank Correlation Coefficient"
+        section: 18.10
+      - name: 'Appendix 3.11: Random Numbers'
+        section: 18.11
+    title: Mathematical Statistics
+  - author: Stewart
+    edition: 5
+    sections:
+      - name: Functions and Models
+        section: 1
+      - name: Four Ways to Represent a Function
+        section: 1.1
+      - name: 'Mathematical Models: A Catalog of Essential Functions'
+        section: 1.2
+      - name: New Functions from Old Functions
+        section: 1.3
+      - name: Graphing Calculators and Computers
+        section: 1.4
+      - name: Limits and Rates of Change
+        section: 2
+      - name: The Tangent and Velocity Problems
+        section: 2.1
+      - name: The Limit of a Function
+        section: 2.2
+      - name: Calculating Limits Using the Limit Laws
+        section: 2.3
+      - name: The Precise Definition of a Limit
+        section: 2.4
+      - name: Continuity
+        section: 2.5
+      - name: 'Tangents, Velocities, and Other Rates of Change'
+        section: 2.6
+      - name: Derivatives
+        section: 3
+      - name: Derivatives
+        section: 3.1
+      - name: The Derivative as a Function
+        section: 3.2
+      - name: Differentiation Formulas
+        section: 3.3
+      - name: Rates of Change in the Natural and Social Sciences
+        section: 3.4
+      - name: Derivatives of Trigonometric Functions
+        section: 3.5
+      - name: The Chain Rule
+        section: 3.6
+      - name: Implicit Differentiation
+        section: 3.7
+      - name: Higher Derivatives
+        section: 3.8
+      - name: Related Rates
+        section: 3.9
+      - name: Linear Approximations and Differentials
+        section: 3.10
+      - name: Applications of Differentiation
+        section: 4
+      - name: Maximum and Minimum Values
+        section: 4.1
+      - name: The Mean Value Theorem
+        section: 4.2
+      - name: How Derivatives Affect the Shape of a Graph
+        section: 4.3
+      - name: Limits at Infinity; Horizontal Asymptotes
+        section: 4.4
+      - name: Summary of Curve Sketching
+        section: 4.5
+      - name: Graphing with Calculus and Calculators
+        section: 4.6
+      - name: Optimization Problems
+        section: 4.7
+      - name: Applications to Business and Economics
+        section: 4.8
+      - name: Newton's Method
+        section: 4.9
+      - name: Antiderivatives
+        section: 4.10
+      - name: Integrals
+        section: 5
+      - name: Areas and Distances
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem of Calculus
+        section: 5.3
+      - name: Indefinite Integrals and the Net Change Theorem
+        section: 5.4
+      - name: The Substitution Rule
+        section: 5.5
+      - name: Applications of Integration
+        section: 6
+      - name: Areas between Curves
+        section: 6.1
+      - name: Volumes
+        section: 6.2
+      - name: Volumes by Cylindrical Shells
+        section: 6.3
+      - name: Work
+        section: 6.4
+      - name: Average Value of a Function
+        section: 6.5
+      - name: Inverse Functions
+        section: 7
+      - name: Inverse Functions
+        section: 7.1
+      - name: Exponential Functions and Their Derivatives
+        section: 7.2
+      - name: Logarithmic Functions
+        section: 7.3
+      - name: Derivatives of Logarithmic Functions
+        section: 7.4
+      - name: Inverse Trigonometric Functions
+        section: 7.5
+      - name: Hyperbolic Functions
+        section: 7.6
+      - name: Indeterminate Forms and L'Hospital's Rule
+        section: 7.7
+      - name: Techniques of Integration
+        section: 8
+      - name: Integration by Parts
+        section: 8.1
+      - name: Trigonometric Integrals
+        section: 8.2
+      - name: Trigonometric Substitution
+        section: 8.3
+      - name: Integration of Rational Functions by Partial Fractions
+        section: 8.4
+      - name: Strategy for Integration
+        section: 8.5
+      - name: Integration Using Tables and Computer Algebra Systems
+        section: 8.6
+      - name: Approximate Integration
+        section: 8.7
+      - name: Improper Integrals
+        section: 8.8
+      - name: Further Applications of Integration
+        section: 9
+      - name: Arc Length
+        section: 9.1
+      - name: Area of a Surface of Revolution
+        section: 9.2
+      - name: Applications to Physics and Engineering
+        section: 9.3
+      - name: Applications to Economics and Biology
+        section: 9.4
+      - name: Probability
+        section: 9.5
+      - name: Differential Equations
+        section: 10
+      - name: Modeling with Differential Equations
+        section: 10.1
+      - name: Direction Fields and Euler's Method
+        section: 10.2
+      - name: Separable Equations
+        section: 10.3
+      - name: Exponential Growth and Decay
+        section: 10.4
+      - name: The Logistic Equation
+        section: 10.5
+      - name: Linear Equations
+        section: 10.6
+      - name: Predator-Prey Systems
+        section: 10.7
+      - name: Parametric Equations and Polar Coordinates
+        section: 11
+      - name: Curves Defined by Parametric Equations
+        section: 11.1
+      - name: Calculus with Parametric Curves
+        section: 11.2
+      - name: Polar Coordinates
+        section: 11.3
+      - name: Areas and Lengths in Polar Coordinates
+        section: 11.4
+      - name: Conic Sections
+        section: 11.5
+      - name: Conic Sections in Polar Coordinates
+        section: 11.6
+      - name: Infinite Sequences and Series
+        section: 12
+      - name: Sequences
+        section: 12.1
+      - name: Series
+        section: 12.2
+      - name: The Integral Test and Estimates of Sums
+        section: 12.3
+      - name: The Comparison Tests
+        section: 12.4
+      - name: Alternating Series
+        section: 12.5
+      - name: Absolute Convergence and the Ratio and Root Tests
+        section: 12.6
+      - name: Strategy for Testing Series
+        section: 12.7
+      - name: Power Series
+        section: 12.8
+      - name: Representations of Functions as Power Series
+        section: 12.9
+      - name: Taylor and Maclaurin Series
+        section: 12.10
+      - name: The Binomial Series
+        section: 12.11
+      - name: Applications of Taylor Polynomials
+        section: 12.12
+      - name: Vectors and the Geometry of Space
+        section: 13
+      - name: Three-Dimensional Coordinate Systems
+        section: 13.1
+      - name: Vectors
+        section: 13.2
+      - name: The Dot Product
+        section: 13.3
+      - name: The Cross Product
+        section: 13.4
+      - name: Equations of Lines and Planes
+        section: 13.5
+      - name: Cylinders and Quadric Surfaces
+        section: 13.6
+      - name: Cylindrical and Spherical Coordinates
+        section: 13.7
+      - name: Vector Functions
+        section: 14
+      - name: Vector Functions and Space Curves
+        section: 14.1
+      - name: Derivatives and Integrals of Vector Functions
+        section: 14.2
+      - name: Arc Length and Curvature
+        section: 14.3
+      - name: 'Motion in Space: Velocity and Acceleration'
+        section: 14.4
+      - name: Partial Derivatives
+        section: 15
+      - name: Functions of Several Variables
+        section: 15.1
+      - name: Limits and Continuity
+        section: 15.2
+      - name: Partial Derivatives
+        section: 15.3
+      - name: Tangent Planes and Linear Approximations
+        section: 15.4
+      - name: The Chain Rule
+        section: 15.5
+      - name: Directional Derivatives and the Gradient Vector
+        section: 15.6
+      - name: Maximum and Minimum Values
+        section: 15.7
+      - name: Lagrange Multipliers
+        section: 15.8
+      - name: Multiple Integrals
+        section: 16
+      - name: Double Integrals over Rectangles
+        section: 16.1
+      - name: Iterated Integrals
+        section: 16.2
+      - name: Double Integrals over General Regions
+        section: 16.3
+      - name: Double Integrals in Polar Coordinates
+        section: 16.4
+      - name: Applications of Double Integrals
+        section: 16.5
+      - name: Surface Area
+        section: 16.6
+      - name: Triple Integrals
+        section: 16.7
+      - name: Triple Integrals in Cylindrical and Spherical Coordinates
+        section: 16.8
+      - name: Change of Variables in Multiple Integrals
+        section: 16.9
+      - name: Vector Calculus
+        section: 17
+      - name: Vector Fields
+        section: 17.1
+      - name: Line Integrals
+        section: 17.2
+      - name: The Fundamental Theorem for Line Integrals
+        section: 17.3
+      - name: Green's Theorem
+        section: 17.4
+      - name: Curl and Divergence
+        section: 17.5
+      - name: Parametric Surfaces and Their Areas
+        section: 17.6
+      - name: Surface Integrals
+        section: 17.7
+      - name: Stokes' Theorem
+        section: 17.8
+      - name: The Divergence Theorem
+        section: 17.9
+      - name: Summary
+        section: 17.10
+      - name: Second-Order Differential Equations
+        section: 18
+      - name: Second-Order Linear Equations
+        section: 18.1
+      - name: Nonhomogeneous Linear Equations
+        section: 18.2
+      - name: 'Applications of Second- Order Differential Equations'
+        section: 18.3
+      - name: Series Solutions
+        section: 18.4
+      - name: 'Appendix H: Complex Numbers'
+        section: 25
+    title: Calculus
+  - author: 'Stewart, Redlin, Watson'
+    edition: 4
+    sections:
+      - name: Prerequisites
+        section: 0
+      - name: Modeling the Real World
+        section: 0.1
+      - name: Real Numbers
+        section: 0.2
+      - name: Integer Exponents
+        section: 0.3
+      - name: Rational Exponents and Radicals
+        section: 0.4
+      - name: Algebraic Expressions
+        section: 0.5
+      - name: Factoring
+        section: 0.6
+      - name: Rational Expressions
+        section: 0.7
+      - name: Equations and Inequalities
+        section: 1
+      - name: Basic Equations
+        section: 1.1
+      - name: Modeling with Equations
+        section: 1.2
+      - name: Quadratic Equations
+        section: 1.3
+      - name: Complex Numbers
+        section: 1.4
+      - name: Other Types of Equations
+        section: 1.5
+      - name: Inequalities
+        section: 1.6
+      - name: Absolute Value Equations and Inequalities
+        section: 1.7
+      - name: Coordinates and Graphs
+        section: 2
+      - name: The Coordinate Plane
+        section: 2.1
+      - name: Graphs of Equations in Two Variables
+        section: 2.2
+      - name: Graphing Calculators; Solving Equations and Inequalitie Graphically
+        section: 2.3
+      - name: Lines
+        section: 2.4
+      - name: 'Modeling: Variation'
+        section: 2.5
+      - name: Functions
+        section: 3
+      - name: What Is a Function?
+        section: 3.1
+      - name: Graphs of Functions
+        section: 3.2
+      - name: Increasing and Decreasing Functions; Average Rate of Change
+        section: 3.3
+      - name: Transformations of Functions
+        section: 3.4
+      - name: Quadratic Functions; Maxima and Minima
+        section: 3.5
+      - name: Combining Functions
+        section: 3.6
+      - name: One-to-One Functions and Their Inverses
+        section: 3.7
+      - name: Polynomial and Rational Functions
+        section: 4
+      - name: Polynomial Functions and Their Graphs
+        section: 4.1
+      - name: Dividing Polynomials
+        section: 4.2
+      - name: Real Zeros of Polynomials
+        section: 4.3
+      - name: Complex Zeros and the Fundamental Theorem of Algebra
+        section: 4.4
+      - name: Rational Functions
+        section: 4.5
+      - name: Exponential and Logarithmic Functions
+        section: 5
+      - name: Exponential Functions
+        section: 5.1
+      - name: Logarithmic Functions
+        section: 5.2
+      - name: Laws of Logarithms
+        section: 5.3
+      - name: Exponential and Logarithmic Equations
+        section: 5.4
+      - name: Modeling with Exponential and Logarithmic Functions
+        section: 5.5
+      - name: Systems of Equations and Inequalities
+        section: 6
+      - name: Systems of Equations
+        section: 6.1
+      - name: Systems of Linear Equations in Two Variables
+        section: 6.2
+      - name: Systems of Linear Equations in Several Variables
+        section: 6.3
+      - name: Systems of Inequalities
+        section: 6.4
+      - name: Partial Fractions
+        section: 6.5
+      - name: Matrices and Determinants
+        section: 7
+      - name: Matrices and Systems of Linear Equations
+        section: 7.1
+      - name: The Algebra of Matrices
+        section: 7.2
+      - name: Inverses of Matrices and Matrix Equations
+        section: 7.3
+      - name: Determinants and Cramer's Rule
+        section: 7.4
+      - name: Conic Sections
+        section: 8
+      - name: Parabolas
+        section: 8.1
+      - name: Ellipses
+        section: 8.2
+      - name: Hyperbolas
+        section: 8.3
+      - name: Shifted Conics
+        section: 8.4
+      - name: Sequences and Series
+        section: 9
+      - name: Sequences and Summation Notation
+        section: 9.1
+      - name: Arithmetic Sequences
+        section: 9.2
+      - name: Geometric Sequences
+        section: 9.3
+      - name: Mathematics of Finance
+        section: 9.4
+      - name: Mathematical Induction
+        section: 9.5
+      - name: The Binomial Theorem
+        section: 9.6
+      - name: Counting and Probability
+        section: 10
+      - name: Counting Principles
+        section: 10.1
+      - name: Permutations and Combinations
+        section: 10.2
+      - name: Probability
+        section: 10.3
+      - name: Binomial Probability
+        section: 10.4
+      - name: Expected Value
+        section: 10.5
+    title: College Algebra
+  - author: Keller
+    edition: 7
+    sections:
+      - name: What is Statistics?
+        section: 1
+      - name: Key Statistical Concepts
+        section: 1.1
+      - name: Statistical Applications in Business
+        section: 1.2
+      - name: Statistics and the Computer
+        section: 1.3
+      - name: World Wide Web and Learning Center
+        section: 1.4
+      - name: Graphical and Tabular Descriptive Techniques
+        section: 2
+      - name: Types of Data and Information
+        section: 2.1
+      - name: Graphical and Tabular Techniques for Nominal Data
+        section: 2.2
+      - name: Graphical Techniques for Interval Data
+        section: 2.3
+      - name: Describing the relationship Between Two Variables
+        section: 2.4
+      - name: Describing Time-Series Data
+        section: 2.5
+      - name: Art and Science of Graphical Presentations
+        section: 3
+      - name: Graphical Excellence
+        section: 3.1
+      - name: Graphical Deception
+        section: 3.2
+      - name: 'Presenting Statistics: Written Reports and Oral Presentations'
+        section: 3.3
+      - name: Numerical Descriptive Techniques
+        section: 4
+      - name: Measures of Central Location
+        section: 4.1
+      - name: Measures of Variability
+        section: 4.2
+      - name: Measures of Relative Standing and Box Plots
+        section: 4.3
+      - name: Measures of Linear Relationship
+        section: 4.4
+      - name: 'Applications in Professional Sports: Baseball'
+        section: 4.5
+      - name: Comparing Graphical and Numerical Techniques
+        section: 4.6
+      - name: General Guidelines for Exploring Data
+        section: 4.7
+      - name: Data Collection and Sampling
+        section: 5
+      - name: Methods of Collecting Data
+        section: 5.1
+      - name: Sampling
+        section: 5.2
+      - name: Sampling Plans
+        section: 5.3
+      - name: Sampling and Nonsampling Errors
+        section: 5.4
+      - name: Probability
+        section: 6
+      - name: Assigning Probability to Events
+        section: 6.1
+      - name: 'Joint, Marginal, and Conditional Probability'
+        section: 6.2
+      - name: Probability Rules and Trees
+        section: 6.3
+      - name: Bayes' Law
+        section: 6.4
+      - name: Identifying the Correct Method
+        section: 6.5
+      - name: Random Variables and Discrete Probability Distributions
+        section: 7
+      - name: Random Variables and Probability Distributions
+        section: 7.1
+      - name: Bivariate Distributions
+        section: 7.2
+      - name: 'Applications in Finance: Portfolio Diversification and Asset Allocation'
+        section: 7.3
+      - name: Binomial Distribution
+        section: 7.4
+      - name: Poisson Distribution
+        section: 7.5
+      - name: Continuous Probability Distributions
+        section: 8
+      - name: Probability Density Functions
+        section: 8.1
+      - name: Normal Distribution
+        section: 8.2
+      - name: Exponential Distribution
+        section: 8.3
+      - name: Other Continuous Distributions
+        section: 8.4
+      - name: Sampling Distributions
+        section: 9
+      - name: Sampling Distribution of the Mean
+        section: 9.1
+      - name: Sampling Distribution of a Proportion
+        section: 9.2
+      - name: Sampling Distribution of the Difference Between Two Means
+        section: 9.3
+      - name: From Here to Inference
+        section: 9.4
+      - name: Introduction to Estimation
+        section: 10
+      - name: Concepts of Estimation
+        section: 10.1
+      - name: Estimating the Population Mean When the Population Standard Deviation is Known
+        section: 10.2
+      - name: Selecting the Sample Size
+        section: 10.3
+      - name: Introduction to Hypothesis Testing
+        section: 11
+      - name: Concepts of Hypothesis Testing
+        section: 11.1
+      - name: Testing the Population Mean When the Population Standard Deviation is Known
+        section: 11.2
+      - name: Calculating the Probability of a Type II Error
+        section: 11.3
+      - name: The Road Ahead
+        section: 11.4
+      - name: Inference About a Population
+        section: 12
+      - name: Inference About a Population Mean When the Standard Deviation is Unknown
+        section: 12.1
+      - name: Inference about a Population Variance
+        section: 12.2
+      - name: inference about a Population Proportion
+        section: 12.3
+      - name: 'Applications in Marketing: Market Segmentation'
+        section: 12.4
+      - name: 'Applications in Marketing: Auditing'
+        section: 12.5
+      - name: Inference About Comparing Two Populations
+        section: 13
+      - name: 'Inference about the Difference Between Two Means: Independent Samples'
+        section: 13.1
+      - name: Observational and Experimental Data
+        section: 13.2
+      - name: 'Inference about the Difference Between Two Means: Matched Pairs Experiment'
+        section: 13.3
+      - name: Inference about the Ratio of Two Variances
+        section: 13.4
+      - name: Inference about the Difference Between Two Population Proportions
+        section: 13.5
+      - name: 'Statistical Inference: Review of Chapters 12 and 13'
+        section: 14
+      - name: 'Guide to Identifying the Correct Technique: Chapters 12 and 13'
+        section: 14.1
+      - name: Analysis of Variance
+        section: 15
+      - name: One-Way Analysis of Variance
+        section: 15.1
+      - name: Analysis of Variance Experimental Designs
+        section: 15.2
+      - name: Randomized Blocks (Two-Way) Analysis of Variance
+        section: 15.3
+      - name: Two-Factor Analysis of Variance
+        section: 15.4
+      - name: 'Appplications in Operations Management: Finding and Reducing Variation'
+        section: 15.5
+      - name: Multiple Comparisons
+        section: 15.6
+      - name: Chi-Squared Tests
+        section: 16
+      - name: Chi-Squared Goodness-of-Fit Test
+        section: 16.1
+      - name: Chi-Squared Test of a Contingency Table
+        section: 16.2
+      - name: Summary of Tests on Nominal Data
+        section: 16.3
+      - name: Chi-Squared Tests of Normality
+        section: 16.4
+      - name: Simple Linear Regression and Correlation
+        section: 17
+      - name: Model
+        section: 17.1
+      - name: Estimating the Coefficients
+        section: 17.2
+      - name: 'Error Variable: Required Conditions'
+        section: 17.3
+      - name: Assessing the Model
+        section: 17.4
+      - name: 'Applications in Finance: Market Model'
+        section: 17.5
+      - name: Using the Regression Equation
+        section: 17.6
+      - name: Regression Diagnostics-I
+        section: 17.7
+      - name: Multiple Regression
+        section: 18
+      - name: Model and Required Conditions
+        section: 18.1
+      - name: Estimating the Coefficients and Assessing the Model
+        section: 18.2
+      - name: Regression Diagnostics-II
+        section: 18.3
+      - name: Regression Diagnostics-III (Time Series)
+        section: 18.4
+      - name: 'Appendix A: Excel Troubleshooting and Detailed Instructions'
+        section: 19
+      - name: 'Appendix B: Minitab Detailed Instructions'
+        section: 20
+      - name: 'Appendix C: Approximating Means and Variances from Grouped Data'
+        section: 21
+      - name: 'Appendix D: Descriptive Techniques Review Exercises'
+        section: 22
+      - name: 'Appendix E: Couting Formulas'
+        section: 23
+      - name: 'Appendix F: Hypergeometric Distribution'
+        section: 24
+      - name: 'Appendix G: Continuous Probability Distributions: Calculus Approach'
+        section: 25
+      - name: 'Appendix H: Using the Laws of Expected Value and Variance to Derive the Parameters of Sampling Distributions'
+        section: 26
+      - name: 'Appendix I: Excel Spreadsheets for Techniques in Chapters 10-13'
+        section: 27
+      - name: "Appendix K: Converting Excel's Probabilities to p-Values"
+        section: 28
+      - name: 'Appendix J: Excel and Minitab Instructions for Missing Data and for Recoding Data'
+        section: 29
+      - name: 'Appendix L: Probability of a Type II Error When Testing a Proportion'
+        section: 30
+      - name: 'Appendix M: Approximating p-Values from the Student t Table'
+        section: 31
+      - name: 'Appendix N: Probability of a Type II Error When Testing the Difference Between Two Means'
+        section: 32
+      - name: 'Appendix O: Probability of a Type II Erorr When Testing the Difference Between Two Proportions'
+        section: 33
+      - name: "Appendix P: Bartlett's Test"
+        section: 34
+      - name: 'Appendix Q: Minitab Instructions for the Chi-Squared Goodness-of-Fit Test and the Test for Normality'
+        section: 35
+      - name: 'Appendix R: The Rule of Five'
+        section: 36
+      - name: 'Appendix S: Deriving the Normal Equations'
+        section: 37
+      - name: "Appendix T: Szroeter's Test for Heteroscedasticity"
+        section: 38
+      - name: 'Appendix U: Transformations'
+        section: 39
+    title: Statistics for Management and Economics
+  - author: 'Larson, Edwards, Falvo'
+    edition: 5
+    sections:
+      - name: Systems of Linear Equations
+        section: 1
+      - name: Introduction to Systems of Linear Equations
+        section: 1.1
+      - name: Gaussian Elimination and Gauss-Jordan Elimination
+        section: 1.2
+      - name: Applications of Systems of Linear Equations
+        section: 1.3
+      - name: Matrices
+        section: 2
+      - name: Operations with Matrices
+        section: 2.1
+      - name: Properties of Matrix Operations
+        section: 2.2
+      - name: The Inverse of a Matrix
+        section: 2.3
+      - name: Elementary Matrices
+        section: 2.4
+      - name: Applications of Matrix Operations
+        section: 2.5
+      - name: Determinants
+        section: 3
+      - name: The Determinant of a Matrix
+        section: 3.1
+      - name: Evaluation of a Determinant Using Elementary Operations
+        section: 3.2
+      - name: Properties of Determinants
+        section: 3.3
+      - name: Introduction to Eigenvalues
+        section: 3.4
+      - name: Applications of Determinants
+        section: 3.5
+      - name: Vector Spaces
+        section: 4
+      - name: Vectors in Rn
+        section: 4.1
+      - name: Vector Spaces
+        section: 4.2
+      - name: Subspaces of Vector Spaces
+        section: 4.3
+      - name: Spanning Sets and Linear Independence
+        section: 4.4
+      - name: Basis and Dimension
+        section: 4.5
+      - name: Rank of a Matrix and Systems of Linear Equations
+        section: 4.6
+      - name: Coordinates and Change of Basis
+        section: 4.7
+      - name: Applications of Vector Spaces
+        section: 4.8
+      - name: Inner Product Spaces
+        section: 5
+      - name: Length and Dot Product in Rn
+        section: 5.1
+      - name: Inner Product Spaces
+        section: 5.2
+      - name: 'Orthonormal Bases: Gram-Schmidt Process'
+        section: 5.3
+      - name: Mathematical Models and Least Squares Analysis
+        section: 5.4
+      - name: Applications of Inner Product Spaces
+        section: 5.5
+      - name: Linear Transformations
+        section: 6
+      - name: Introduction to Linear Transformations
+        section: 6.1
+      - name: The Kernel and Range of a Linear Transformation
+        section: 6.2
+      - name: Matrices for Linear Transformations
+        section: 6.3
+      - name: Transition Matrices and Similarity
+        section: 6.4
+      - name: Applications of Linear Transformations
+        section: 6.5
+      - name: Eigenvalues and Eigenvectors
+        section: 7
+      - name: Eigenvalues and Eigenvectors
+        section: 7.1
+      - name: Diagonalization
+        section: 7.2
+      - name: Symmetric Matrices and Orthogonal Diagonalization
+        section: 7.3
+      - name: Applications of Eigenvalues and Eigenvectors
+        section: 7.4
+      - name: Complex Vector Spaces
+        section: 8
+      - name: Complex Numbers
+        section: 8.1
+      - name: Conjugates and Division of Complex Numbers
+        section: 8.2
+      - name: Polar Form and DeMoivre's Theorem
+        section: 8.3
+      - name: Complex Vector Spaces and Inner Products
+        section: 8.4
+      - name: Unitary and Hermitian Matrices
+        section: 8.5
+      - name: Linear Programming
+        section: 9
+      - name: Systems of Linear Inequalities
+        section: 9.1
+      - name: Linear Programming Involving Two Variables
+        section: 9.2
+      - name: 'The Simplex Method: Maximization'
+        section: 9.3
+      - name: 'The Simplex Method: Minimization'
+        section: 9.4
+      - name: 'The Simplex Method: Mixed Constraints'
+        section: 9.5
+      - name: Numerical Methods
+        section: 10
+      - name: Gaussian Elimination with Partial Pivoting
+        section: 10.1
+      - name: Interative Methods for Solving Linear Systems
+        section: 10.2
+      - name: Power Method for Approximating Eigenvalues
+        section: 10.3
+      - name: Applications of Numerical Methods
+        section: 10.4
+      - name: 'Appendix A: Mathematical Induction and Other Forms of Proofs'
+        section: 11
+      - name: 'Appendix B: Computer Algebra Systems and Graphing Calculators'
+        section: 12
+    title: Elementary Linear Algebra
+  - author: 'Marsden, Tromba, Weinstein'
+    edition: 3
+    sections:
+      - name: Algebra and Geometry of Euclidean Space
+        section: 1
+      - name: Vectors in the Plane and Space
+        section: 1.1
+      - name: The Inner Product and Distance
+        section: 1.2
+      - name: 2 x 2 and 3 x 3 Matrices and Determinants
+        section: 1.3
+      - name: The Cross Product and Planes
+        section: 1.4
+      - name: n-Dimensional Euclidean Space
+        section: 1.5
+      - name: Curves in the Plane and in Space
+        section: 1.6
+      - name: Differentiation
+        section: 2
+      - name: Graphs and Level Surfaces
+        section: 2.1
+      - name: Partial Derivatives and Continuity
+        section: 2.2
+      - name: 'Differentiability, the Derivative Matrix, and Tangent Planes'
+        section: 2.3
+      - name: The Chain Rule
+        section: 2.4
+      - name: Gradients and Directional Derivatives
+        section: 2.5
+      - name: Implicit Differentiation
+        section: 2.6
+      - name: Higher Derivatives and Extrema
+        section: 3
+      - name: Higher Order Partial Derivatives
+        section: 3.1
+      - name: Taylor's Theorem
+        section: 3.2
+      - name: Maxima and Minima
+        section: 3.3
+      - name: Second Derivative Test
+        section: 3.4
+      - name: Constrained Extrema and Lagrange Multipliers
+        section: 3.5
+      - name: Vector-Valued Functions
+        section: 4
+      - name: Acceleration
+        section: 4.1
+      - name: Arc Length
+        section: 4.2
+      - name: Vector Fields
+        section: 4.3
+      - name: Divergence and Curl
+        section: 4.4
+      - name: Multiple Integrals
+        section: 5
+      - name: Volume and Cavalieri's Principle
+        section: 5.1
+      - name: The Double Integral Over a Rectangle
+        section: 5.2
+      - name: The Double Integral Over Regions
+        section: 5.3
+      - name: Triple Integrals
+        section: 5.4
+      - name: 'Change of Variables, Cylindrical and Spherical Coordinates'
+        section: 5.5
+      - name: Applications of Multiple Integrals
+        section: 5.6
+      - name: Integrals Over Curves and Surfaces
+        section: 6
+      - name: Line Integrals
+        section: 6.1
+      - name: Parametrized Surfaces
+        section: 6.2
+      - name: Area of a Surface
+        section: 6.3
+      - name: Surface Integrals
+        section: 6.4
+      - name: The Integral Theorems of Vector Analysis
+        section: 7
+      - name: Green's Theorem
+        section: 7.1
+      - name: Stokes' Theorem
+        section: 7.2
+      - name: Gauss' Theorem
+        section: 7.3
+      - name: Path Independence and the Fundamental Theorems of Calculus
+        section: 7.4
+    title: Basic Multivariable Calculus
+  - author: 'Stewart, Redlin, Watson'
+    edition: 5
+    sections:
+      - name: Fundamentals
+        section: 1
+      - name: Real Numbers
+        section: 1.1
+      - name: Exponents and Radicals
+        section: 1.2
+      - name: Algebraic Expressions
+        section: 1.3
+      - name: Rational Expression
+        section: 1.4
+      - name: Equations
+        section: 1.5
+      - name: Modeling with Equations
+        section: 1.6
+      - name: Inequalities
+        section: 1.7
+      - name: Coordinate Geometry
+        section: 1.8
+      - name: Graphing Calculators; Solving Equations and Inequalities Graphically
+        section: 1.9
+      - name: Lines
+        section: 1.10
+      - name: Modeling Variation
+        section: 1.11
+      - name: Functions
+        section: 2
+      - name: What is a Function?
+        section: 2.1
+      - name: Graphs of Functions
+        section: 2.2
+      - name: Increasing and Decreasing Functions; Average Rate of Change
+        section: 2.3
+      - name: Transformations of Functions
+        section: 2.4
+      - name: Quadratic Functions; Maxima and Minima
+        section: 2.5
+      - name: Modeling with Functions
+        section: 2.6
+      - name: Combining Functions
+        section: 2.7
+      - name: One-to-One Functions and Their Inverses
+        section: 2.8
+      - name: Polynomial and Rational Functions
+        section: 3
+      - name: Polynomial Functions and Their Graphs
+        section: 3.1
+      - name: Dividing Polynomials
+        section: 3.2
+      - name: Real Zeros of Polynomials
+        section: 3.3
+      - name: Complex Numbers
+        section: 3.4
+      - name: Complex Zeros and the Fundamental Theorem of Algebra
+        section: 3.5
+      - name: Rational Functions
+        section: 3.6
+      - name: Exponential and Logarithmic Functions
+        section: 4
+      - name: Exponential Functions
+        section: 4.1
+      - name: Logarithmic Functions
+        section: 4.2
+      - name: Laws of Logarithms
+        section: 4.3
+      - name: Exponential and Logarithmic Equations
+        section: 4.4
+      - name: Modeling with Exponential and Logarithmic Functions
+        section: 4.5
+      - name: Trigonometric Functions of Real Numbers
+        section: 5
+      - name: The Unit Circle
+        section: 5.1
+      - name: Trigonometric Functions of Real Numbers
+        section: 5.2
+      - name: Trigonometric Graphs
+        section: 5.3
+      - name: More Trigonometric Graphs
+        section: 5.4
+      - name: Modeling Harmonic Motion
+        section: 5.5
+      - name: Trigonometric Functions of Angles
+        section: 6
+      - name: Angle Measures
+        section: 6.1
+      - name: Trigonometry of Right Triangles
+        section: 6.2
+      - name: Trigonometric Functions of Angles
+        section: 6.3
+      - name: The Law of Sines
+        section: 6.4
+      - name: The Law of Cosines
+        section: 6.5
+      - name: Analytic Trigonometry
+        section: 7
+      - name: Trigonometric Identities
+        section: 7.1
+      - name: Addition and Subtraction Formulas
+        section: 7.2
+      - name: 'Double-Angle, Half-Angle, and Sum-Product Formulas'
+        section: 7.3
+      - name: Inverse Trigonometric Functions
+        section: 7.4
+      - name: Trigonometric Equations
+        section: 7.5
+      - name: Polar Coordinates and Vectors
+        section: 8
+      - name: Polar Coordinates
+        section: 8.1
+      - name: Graphs of Polar Equations
+        section: 8.2
+      - name: Polar Form of Complex Numbers; DeMoivre's Theorem
+        section: 8.3
+      - name: Vectors
+        section: 8.4
+      - name: The Dot Product
+        section: 8.5
+      - name: Systems of Equations and Inequalities
+        section: 9
+      - name: Systems of Equations
+        section: 9.1
+      - name: Systems of Linear Equations in Two Variables
+        section: 9.2
+      - name: Systems of Linear Equations in Several Variables
+        section: 9.3
+      - name: 'Systems of Linear Equations: Matrices'
+        section: 9.4
+      - name: The Algebra of Matrices
+        section: 9.5
+      - name: Inverses of Matrices and Matrix Equations
+        section: 9.6
+      - name: Determinants and Cramer's Rule
+        section: 9.7
+      - name: Partial Fractions
+        section: 9.8
+      - name: Systems of Inequalities
+        section: 9.9
+      - name: Analytic Geometry
+        section: 10
+      - name: Parabolas
+        section: 10.1
+      - name: Ellipses
+        section: 10.2
+      - name: Hyperbolas
+        section: 10.3
+      - name: Shifted Conics
+        section: 10.4
+      - name: Rotation of Axes
+        section: 10.5
+      - name: Polar Equations of Conics
+        section: 10.6
+      - name: Plane Curves and Parametric Equations
+        section: 10.7
+      - name: Sequences and Series
+        section: 11
+      - name: Sequences and Summation Notation
+        section: 11.1
+      - name: Arithmetic Sequences
+        section: 11.2
+      - name: Geometric Sequences
+        section: 11.3
+      - name: Mathematics of Finance
+        section: 11.4
+      - name: Mathematical Induction
+        section: 11.5
+      - name: The Binomial Theorem
+        section: 11.6
+      - name: 'Limits: A Preview of Calculus'
+        section: 12
+      - name: Finding Limits Numerically and Graphically
+        section: 12.1
+      - name: Finding Limits Algebraically
+        section: 12.2
+      - name: Tangent Lines and Derivatives
+        section: 12.3
+      - name: 'Limits at Infinity: Limits of Sequences'
+        section: 12.4
+      - name: Areas
+        section: 12.5
+    title: Precalculus
+  - author: Rosen
+    edition: 4
+    sections:
+      - name: 'The Foundations: Logic, Sets, and Functions'
+        section: 1
+      - name: Logic
+        section: 1.1
+      - name: Propositional Equivalences
+        section: 1.2
+      - name: Predicates and Quantifiers
+        section: 1.3
+      - name: Sets
+        section: 1.4
+      - name: Set Operations
+        section: 1.5
+      - name: Functions
+        section: 1.6
+      - name: Sequences and Summations
+        section: 1.7
+      - name: The Growth Functions
+        section: 1.8
+      - name: 'The Fundamentals: Algorithms, the Integers, and Matrices'
+        section: 2
+      - name: Algorithms
+        section: 2.1
+      - name: Complexity of Algorithms
+        section: 2.2
+      - name: The Integers and Division
+        section: 2.3
+      - name: Integers and Algorithms
+        section: 2.4
+      - name: Applications of Number Theory
+        section: 2.5
+      - name: Matrices
+        section: 2.6
+      - name: Mathematical Reasoning
+        section: 3
+      - name: Methods of Proof
+        section: 3.1
+      - name: Mathematical Induction
+        section: 3.2
+      - name: Recursive Definitions
+        section: 3.3
+      - name: Recursive Algorithms
+        section: 3.4
+      - name: Program Correctness
+        section: 3.5
+      - name: Counting
+        section: 4
+      - name: The Basics of Counting
+        section: 4.1
+      - name: The Pigeonhole Principle
+        section: 4.2
+      - name: Permutations and Combinations
+        section: 4.3
+      - name: Discrete Probability
+        section: 4.4
+      - name: Probability Theory
+        section: 4.5
+      - name: Generalized Permutations and Combinations
+        section: 4.6
+      - name: Generating Permutations and Combinations
+        section: 4.7
+      - name: Advanced Counting Techniques
+        section: 5
+      - name: Recurrence Relations
+        section: 5.1
+      - name: Solving Recurrence Relations
+        section: 5.2
+      - name: Divide-and-Conquer Relations
+        section: 5.3
+      - name: Generating Functions
+        section: 5.4
+      - name: Inclusion-Exclusion
+        section: 5.5
+      - name: Applications of Inclusion-Exclusion
+        section: 5.6
+      - name: Relations
+        section: 6
+      - name: Relations and Their Properties
+        section: 6.1
+      - name: n-ary Relations and Their Applications
+        section: 6.2
+      - name: Representing Relations
+        section: 6.3
+      - name: Closures of Relations
+        section: 6.4
+      - name: Equivalence Relations
+        section: 6.5
+      - name: Partial Orderings
+        section: 6.6
+      - name: Graphs
+        section: 7
+      - name: Introduction to Graphs
+        section: 7.1
+      - name: Graph Terminology
+        section: 7.2
+      - name: Representing Graphs and Graph Isomorphism
+        section: 7.3
+      - name: Connectivity
+        section: 7.4
+      - name: Euler and Hamilton Paths
+        section: 7.5
+      - name: Shortest Path Problems
+        section: 7.6
+      - name: Planar Graphs
+        section: 7.7
+      - name: Graph Coloring
+        section: 7.8
+      - name: Trees
+        section: 8
+      - name: Introduction to Trees
+        section: 8.1
+      - name: Applications of Trees
+        section: 8.2
+      - name: Tree Traversal
+        section: 8.3
+      - name: Trees and Sorting
+        section: 8.4
+      - name: Spanning Trees
+        section: 8.5
+      - name: Minimum Spanning Trees
+        section: 8.6
+      - name: Boolean Algebra
+        section: 9
+      - name: Boolean Functions
+        section: 9.1
+      - name: Representing Boolean Functions
+        section: 9.2
+      - name: Logic Gates
+        section: 9.3
+      - name: Minimization of Circuits
+        section: 9.4
+      - name: Modeling Computation
+        section: 10
+      - name: Languages and Grammars
+        section: 10.1
+      - name: Finite-State Machines with Output
+        section: 10.2
+      - name: Finite-State Machines with No Output
+        section: 10.3
+      - name: Language Recognition
+        section: 10.4
+      - name: Turing Machines
+        section: 10.5
+      - name: 'Appendix: Exponential and Logarithmic Functions'
+        section: 11
+      - name: 'Appendix: Pseudocode'
+        section: 12
+    title: Discrete Mathematics
+  - author: 'Saff, Snider'
+    edition: 3
+    sections:
+      - name: Complex Numbers
+        section: 1
+      - name: The Algebra of Complex Numbers
+        section: 1.1
+      - name: Point Representation of Complex Numbers
+        section: 1.2
+      - name: Vectors and Polar Forms
+        section: 1.3
+      - name: The Complex Exponential
+        section: 1.4
+      - name: Powers and Roots
+        section: 1.5
+      - name: Planar Sets
+        section: 1.6
+      - name: The Riemann Sphere and Stereographic Projection
+        section: 1.7
+      - name: Analytic Functions
+        section: 2
+      - name: Functions of a Complex Variable
+        section: 2.1
+      - name: Limits and Continuity
+        section: 2.2
+      - name: Analyticity
+        section: 2.3
+      - name: The Cauchy-Riemann Equations
+        section: 2.4
+      - name: Harmonic Functions
+        section: 2.5
+      - name: Steady-State Temperature as a Harmonic Function
+        section: 2.6
+      - name: 'Iterated Maps: Julia and Mandelbrot Sets'
+        section: 2.7
+      - name: Elementary Functions
+        section: 3
+      - name: Polynomials and Rational Functions
+        section: 3.1
+      - name: 'The Exponential, Trigonometric, and Hyperbolic Functions'
+        section: 3.2
+      - name: The Logarithmic Function
+        section: 3.3
+      - name: 'Washers, Wedges, and Walls'
+        section: 3.4
+      - name: Complex Powers and Inverse Trigonometric Functions
+        section: 3.5
+      - name: Application to Oscillating Systems
+        section: 3.6
+      - name: Complex Integration
+        section: 4
+      - name: Contours
+        section: 4.1
+      - name: Contour Integrals
+        section: 4.2
+      - name: Independence of Path
+        section: 4.3
+      - name: Cauchy's Integral Theorem
+        section: 4.4
+      - name: Deformation of Contours Approach
+        section: 4.5
+      - name: Vector Analysis Approach
+        section: 4.6
+      - name: Cauchy's Integral Formula and Its Consequences
+        section: 4.7
+      - name: Bounds for Analytic Functions
+        section: 4.8
+      - name: Applications to Harmonic Functions
+        section: 4.9
+      - name: Series Representations for Analytic Functions
+        section: 5
+      - name: Sequences and Series
+        section: 5.1
+      - name: Taylor Series
+        section: 5.2
+      - name: Power Series
+        section: 5.3
+      - name: Mathematical Theory of Convergence
+        section: 5.4
+      - name: Laurent Series
+        section: 5.5
+      - name: Zeros and Singularities
+        section: 5.6
+      - name: The Point at Infinity
+        section: 5.7
+      - name: Analytic Continuation
+        section: 5.8
+      - name: Residue Theory
+        section: 6
+      - name: The Residue Theorem
+        section: 6.1
+      - name: Trigonometric Integrals
+        section: 6.2
+      - name: Improper Integrals of Certain Functions
+        section: 6.3
+      - name: Improper Integrals Involving Trigonometric Functions
+        section: 6.4
+      - name: Indented Contours
+        section: 6.5
+      - name: Integrals Involving Multiple-Valued Functions
+        section: 6.6
+      - name: The Argument Principle and Rouche's Theorem
+        section: 6.7
+      - name: Conformal Mapping
+        section: 7
+      - name: Invariance of Laplace's Equation
+        section: 7.1
+      - name: Geometric Considerations
+        section: 7.2
+      - name: Mobius Transformations
+        section: 7.3
+      - name: 'Mobius Transformations, Continued'
+        section: 7.4
+      - name: The Schwarz-Christoffel Transformation
+        section: 7.5
+      - name: 'Applications in Electrostatics, Heat Flow, and Fluid Mechanics'
+        section: 7.6
+      - name: Further Physical Applications of Conformal Mapping
+        section: 7.7
+      - name: The Transforms of Applied Mathematics
+        section: 8
+      - name: Fourier Series (The Finite Fourier Transform)
+        section: 8.1
+      - name: The Fourier Transform
+        section: 8.2
+      - name: The Laplace Transform
+        section: 8.3
+      - name: The z-Transform
+        section: 8.4
+      - name: Cauchy Integrals and the Hilbert Transform
+        section: 8.5
+      - name: 'Appendix A: Numerical Construction of Conformal Maps'
+        section: 9
+      - name: The Schwarz-Christoffel Parameter Problem
+        section: 9.1
+      - name: Examples
+        section: 9.2
+      - name: Numerical Integration
+        section: 9.3
+      - name: Conformal Mapping of Smooth Domains
+        section: 9.4
+      - name: Conformal Mapping Software
+        section: 9.5
+      - name: 'Appendix B: Table of Conformal Mappings'
+        section: 10
+      - name: Mobius Transformations
+        section: 10.1
+      - name: Other Transformations
+        section: 10.2
+    title: Complex Analysis
+  - author: Stewart
+    edition: 5
+    sections:
+      - name: Functions and Models
+        section: 1
+      - name: Four Ways to Represent a Function
+        section: 1.1
+      - name: 'Mathematical Models: A Catalog of Essential Functions'
+        section: 1.2
+      - name: New Functions from Old Functions
+        section: 1.3
+      - name: Graphing Calculators and Computers
+        section: 1.4
+      - name: Exponential Functions
+        section: 1.5
+      - name: Inverse Functions and Logarithms
+        section: 1.6
+      - name: Limits and Derivatives
+        section: 2
+      - name: The Tangent and Velocity Problems
+        section: 2.1
+      - name: The Limit of a Function
+        section: 2.2
+      - name: Calculating Limits Using the Limit Laws
+        section: 2.3
+      - name: The Precise Definition of a Limit
+        section: 2.4
+      - name: Continuity
+        section: 2.5
+      - name: Limits at Infinity; Horizontal Asymptotes
+        section: 2.6
+      - name: 'Tangents, Velocities, and Other Rates of Change'
+        section: 2.7
+      - name: Derivatives
+        section: 2.8
+      - name: The Derivative as a Function
+        section: 2.9
+      - name: Differentiation Rules
+        section: 3
+      - name: Derivatives of Polynomials and Exponential Functions
+        section: 3.1
+      - name: The Product and Quotient Rules
+        section: 3.2
+      - name: Rates of Change in the Natural and Social Sciences
+        section: 3.3
+      - name: Derivatives of Trigonometric Functions
+        section: 3.4
+      - name: The Chain Rule
+        section: 3.5
+      - name: Implicit Differentiation
+        section: 3.6
+      - name: Higher Derivatives
+        section: 3.7
+      - name: Derivatives of Logarithmic Functions
+        section: 3.8
+      - name: Hyperbolic Functions
+        section: 3.9
+      - name: Related Rates
+        section: 3.10
+      - name: Linear Approximations and Differentials
+        section: 3.11
+      - name: Applications of Differentiation
+        section: 4
+      - name: Maximum and Minimum Values
+        section: 4.1
+      - name: The Mean Value Theorem
+        section: 4.2
+      - name: How Derivatives Affect the Shape of a Graph
+        section: 4.3
+      - name: Indeterminate Forms and L'Hospital's Rule
+        section: 4.4
+      - name: Summary of Curve Sketching
+        section: 4.5
+      - name: Graphing with Calculus and Calculators
+        section: 4.6
+      - name: Optimization Problems
+        section: 4.7
+      - name: Applications to Business and Economics
+        section: 4.8
+      - name: Newton's Method
+        section: 4.9
+      - name: Antiderivatives
+        section: 4.10
+      - name: Integrals
+        section: 5
+      - name: Areas and Distances
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem of Calculus
+        section: 5.3
+      - name: Indefinite Integrals and the Net Change Theorem
+        section: 5.4
+      - name: The Substitution Rule
+        section: 5.5
+      - name: The Logarithm Defined as an Integral
+        section: 5.6
+      - name: Applications of Integration
+        section: 6
+      - name: Areas between Curves
+        section: 6.1
+      - name: Volumes
+        section: 6.2
+      - name: Volumes by Cylindrical Shells
+        section: 6.3
+      - name: Work
+        section: 6.4
+      - name: Average Value of a Function
+        section: 6.5
+      - name: Techniques of Integration
+        section: 7
+      - name: Integration by Parts
+        section: 7.1
+      - name: Trigonometric Integrals
+        section: 7.2
+      - name: Trigonometric Substitution
+        section: 7.3
+      - name: Integration of Rational Functions by Partial Fractions
+        section: 7.4
+      - name: Strategy for Integration
+        section: 7.5
+      - name: Integration Using Tables and Computer Algebra Systems
+        section: 7.6
+      - name: Approximate Integration
+        section: 7.7
+      - name: Improper Integrals
+        section: 7.8
+      - name: Further Applications of Integration
+        section: 8
+      - name: Arc Length
+        section: 8.1
+      - name: Area of a Surface of Revolution
+        section: 8.2
+      - name: Applications to Physics and Engineering
+        section: 8.3
+      - name: Applications to Economics and Biology
+        section: 8.4
+      - name: Probability
+        section: 8.5
+      - name: Differential Equations
+        section: 9
+      - name: Modeling with Differential Equations
+        section: 9.1
+      - name: Direction Fields and Euler's Method
+        section: 9.2
+      - name: Separable Equations
+        section: 9.3
+      - name: Exponential Growth and Decay
+        section: 9.4
+      - name: The Logistic Equation
+        section: 9.5
+      - name: Linear Equations
+        section: 9.6
+      - name: Predator-Prey Systems
+        section: 9.7
+      - name: Parametric Equations and Polar Coordinates
+        section: 10
+      - name: Curves Defined by Parametric Equations
+        section: 10.1
+      - name: Calculus with Parametric Curves
+        section: 10.2
+      - name: Polar Coordinates
+        section: 10.3
+      - name: Areas and Lengths in Polar Coordinates
+        section: 10.4
+      - name: Conic Sections
+        section: 10.5
+      - name: Conic Sections in Polar Coordinates
+        section: 10.6
+      - name: Infinite Sequences and Series
+        section: 11
+      - name: Sequences
+        section: 11.1
+      - name: Series
+        section: 11.2
+      - name: The Integral Test and Estimates of Sums
+        section: 11.3
+      - name: The Comparison Tests
+        section: 11.4
+      - name: Alternating Series
+        section: 11.5
+      - name: Absolute Convergence and the Ratio and Root Tests
+        section: 11.6
+      - name: Strategy for Testing Series
+        section: 11.7
+      - name: Power Series
+        section: 11.8
+      - name: Representations of Functions as Power Series
+        section: 11.9
+      - name: Taylor and Maclaurin Series
+        section: 11.10
+      - name: The Binomial Series
+        section: 11.11
+      - name: Applications of Taylor Polynomials
+        section: 11.12
+      - name: Vectors and the Geometry of Space
+        section: 12
+      - name: Three-Dimensional Coordinate Systems
+        section: 12.1
+      - name: Vectors
+        section: 12.2
+      - name: The Dot Product
+        section: 12.3
+      - name: The Cross Product
+        section: 12.4
+      - name: Equations of Lines and Planes
+        section: 12.5
+      - name: Cylinders and Quadric Surfaces
+        section: 12.6
+      - name: Cylindrical and Spherical Coordinates
+        section: 12.7
+      - name: Vector Functions
+        section: 13
+      - name: Vector Functions and Space Curves
+        section: 13.1
+      - name: Derivatives and Integrals of Vector Functions
+        section: 13.2
+      - name: Arc Length and Curvature
+        section: 13.3
+      - name: 'Motion in Space: Velocity and Acceleration'
+        section: 13.4
+      - name: Partial Derivatives
+        section: 14
+      - name: Functions of Several Variables
+        section: 14.1
+      - name: Limits and Continuity
+        section: 14.2
+      - name: Partial Derivatives
+        section: 14.3
+      - name: Tangent Planes and Linear Approximations
+        section: 14.4
+      - name: The Chain Rule
+        section: 14.5
+      - name: Directional Derivatives and the Gradient Vector
+        section: 14.6
+      - name: Maximum and Minimum Values
+        section: 14.7
+      - name: Lagrange Multipliers
+        section: 14.8
+      - name: Multiple Integrals
+        section: 15
+      - name: Double Integrals over Rectangles
+        section: 15.1
+      - name: Iterated Integrals
+        section: 15.2
+      - name: Double Integrals over General Regions
+        section: 15.3
+      - name: Double Integrals in Polar Coordinates
+        section: 15.4
+      - name: Applications of Double Integrals
+        section: 15.5
+      - name: Surface Area
+        section: 15.6
+      - name: Triple Integrals
+        section: 15.7
+      - name: Triple Integrals in Cylindrical and Spherical Coordinates
+        section: 15.8
+      - name: Change of Variables in Multiple Integrals
+        section: 15.9
+      - name: Vector Calculus
+        section: 16
+      - name: Vector Fields
+        section: 16.1
+      - name: Line Integrals
+        section: 16.2
+      - name: The Fundamental Theorem for Line Integrals
+        section: 16.3
+      - name: Green's Theorem
+        section: 16.4
+      - name: Curl and Divergence
+        section: 16.5
+      - name: Parametric Surfaces and their Areas
+        section: 16.6
+      - name: Surface Integrals
+        section: 16.7
+      - name: Stokes' Theorem
+        section: 16.8
+      - name: The Divergence Theorem
+        section: 16.9
+      - name: Summary
+        section: 16.10
+      - name: Second-Order Differential Equations
+        section: 17
+      - name: Second-Order Linear Equations
+        section: 17.1
+      - name: Nonhomogeneous Linear Equations
+        section: 17.2
+      - name: Applications of Second-Order Differential Equations
+        section: 17.3
+      - name: Series Solutions
+        section: 17.4
+      - name: 'Appendix A: Numbers, Inequalities, and Absolute Values'
+        section: 18
+      - name: 'Appendix B: Coordinate Geometry and Lines'
+        section: 19
+      - name: 'Appendix C: Graphs of Second-Degree Equations'
+        section: 20
+      - name: 'Appendix D: Trigonometry'
+        section: 21
+      - name: 'Appendix E: Sigma Notation'
+        section: 22
+      - name: 'Appendix F: Proofs of Theorems'
+        section: 23
+      - name: 'Appendix G: Complex Numbers'
+        section: 24
+      - name: 'Appendix H: Answers to Odd-Numbered Exercises'
+        section: 25
+    title: 'Calculus: Early Transcendentals'
+  - author: Stewart
+    edition: 6
+    sections:
+      - name: Functions and Models
+        section: 1
+      - name: Four Ways to Represent a Function
+        section: 1.1
+      - name: 'Mathematical Models: A Catalog of Essential Functions'
+        section: 1.2
+      - name: New Functions from Old Functions
+        section: 1.3
+      - name: Graphing Calculators and Computers
+        section: 1.4
+      - name: Exponential Functions
+        section: 1.5
+      - name: Inverse Functions and Logarithms
+        section: 1.6
+      - name: Limits and Derivatives
+        section: 2
+      - name: The Tangent and Velocity Problems
+        section: 2.1
+      - name: The Limit of a Function
+        section: 2.2
+      - name: Calculating Limits Using the Limit Laws
+        section: 2.3
+      - name: The Precise Definition of a Limit
+        section: 2.4
+      - name: Continuity
+        section: 2.5
+      - name: Limits at Infinity; Horizontal Asymptotes
+        section: 2.6
+      - name: Derivatives and Rates of Change
+        section: 2.7
+      - name: The Derivative as a Function
+        section: 2.8
+      - name: Differentiation Rules
+        section: 3
+      - name: Derivatives of Polynomials and Exponential Functions
+        section: 3.1
+      - name: The Product and Quotient Rules
+        section: 3.2
+      - name: Derivatives of Trigonometric Functions
+        section: 3.3
+      - name: The Chain Rule
+        section: 3.4
+      - name: Implicit Differentiation
+        section: 3.5
+      - name: Derivatives of Logarithmic Functions
+        section: 3.6
+      - name: Rates of Change in the Natural and Social Sciences
+        section: 3.7
+      - name: Exponential Growth and Decay
+        section: 3.8
+      - name: Related Rates
+        section: 3.9
+      - name: Linear Approximations and Differentials
+        section: 3.10
+      - name: Hyperbolic Functions
+        section: 3.11
+      - name: Applications of Differentiation
+        section: 4
+      - name: Maximum and Minimum Values
+        section: 4.1
+      - name: The Mean Value Theorem
+        section: 4.2
+      - name: How Derivatives Affect the Shape of a Graph
+        section: 4.3
+      - name: Indeterminate Forms and L'Hospital's Rule
+        section: 4.4
+      - name: Summary of Curve Sketching
+        section: 4.5
+      - name: Graphing with Calculus and Calculators
+        section: 4.6
+      - name: Optimization Problems
+        section: 4.7
+      - name: Newton's Method
+        section: 4.8
+      - name: Antiderivatives
+        section: 4.9
+      - name: Integrals
+        section: 5
+      - name: Areas and Distances
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem of Calculus
+        section: 5.3
+      - name: Indefinite Integrals and the Net Change Theorem
+        section: 5.4
+      - name: The Substitution Rule
+        section: 5.5
+      - name: Applications of Integration
+        section: 6
+      - name: Areas between Curves
+        section: 6.1
+      - name: Volumes
+        section: 6.2
+      - name: Volumes by Cylindrical Shells
+        section: 6.3
+      - name: Work
+        section: 6.4
+      - name: Average Value of a Function
+        section: 6.5
+      - name: Techniques of Integration
+        section: 7
+      - name: Integration by Parts
+        section: 7.1
+      - name: Trigonometric Integrals
+        section: 7.2
+      - name: Trigonometric Substitution
+        section: 7.3
+      - name: Integration of Rational Functions by Partial Fractions
+        section: 7.4
+      - name: Strategy for Integration
+        section: 7.5
+      - name: Integration Using Tables and Computer Algebra Systems
+        section: 7.6
+      - name: Approximate Integration
+        section: 7.7
+      - name: Improper Integrals
+        section: 7.8
+      - name: Further Applications of Integration
+        section: 8
+      - name: Arc Length
+        section: 8.1
+      - name: Area of a Surface of Revolution
+        section: 8.2
+      - name: Applications to Physics and Engineering
+        section: 8.3
+      - name: Applications to Economics and Biology
+        section: 8.4
+      - name: Probability
+        section: 8.5
+      - name: Differential Equations
+        section: 9
+      - name: Modeling with Differential Equations
+        section: 9.1
+      - name: Direction Fields and Euler's Method
+        section: 9.2
+      - name: Separable Equations
+        section: 9.3
+      - name: Models for Population Growth
+        section: 9.4
+      - name: Linear Equations
+        section: 9.5
+      - name: Predator-Prey Systems
+        section: 9.6
+      - name: Parametric Equations and Polar Coordinates
+        section: 10
+      - name: Curves Defined by Parametric Equations
+        section: 10.1
+      - name: Calculus with Parametric Curves
+        section: 10.2
+      - name: Polar Coordinates
+        section: 10.3
+      - name: Areas and Lengths in Polar Coordinates
+        section: 10.4
+      - name: Conic Sections
+        section: 10.5
+      - name: Conic Sections in Polar Coordinates
+        section: 10.6
+      - name: Infinite Sequences and Series
+        section: 11
+      - name: Sequences
+        section: 11.1
+      - name: Series
+        section: 11.2
+      - name: The Integral Test and Estimates of Sum
+        section: 11.3
+      - name: The Comparison Tests
+        section: 11.4
+      - name: Alternating Series
+        section: 11.5
+      - name: Absolute Convergence and the Ratio and Root Tests
+        section: 11.6
+      - name: Strategy for Testing Series
+        section: 11.7
+      - name: Power Series
+        section: 11.8
+      - name: Representations of Functions as Power Series
+        section: 11.9
+      - name: Taylor and Maclaurin Series
+        section: 11.10
+      - name: Applications of Taylor Polynomials
+        section: 11.11
+      - name: Vectors and the Geometry of Space
+        section: 12
+      - name: Three-Dimensional Coordinate Systems
+        section: 12.1
+      - name: Vectors
+        section: 12.2
+      - name: The Dot Product
+        section: 12.3
+      - name: The Cross Product
+        section: 12.4
+      - name: Equations of Lines and Planes
+        section: 12.5
+      - name: Cylinders and Quadric Surfaces
+        section: 12.6
+      - name: Vector Functions
+        section: 13
+      - name: Vector Functions and Space Curves
+        section: 13.1
+      - name: Derivatives and Integrals of Vector Functions
+        section: 13.2
+      - name: Arc Length and Curvature
+        section: 13.3
+      - name: 'Motion in Space: Velocity and Acceleration'
+        section: 13.4
+      - name: Partial Derivatives
+        section: 14
+      - name: Functions of Several Variables
+        section: 14.1
+      - name: Limits and Continuity
+        section: 14.2
+      - name: Partial Derivatives
+        section: 14.3
+      - name: Tangent Planes and Linear Approximations
+        section: 14.4
+      - name: The Chain Rule
+        section: 14.5
+      - name: Directional Derivatives and the Gradient Vector
+        section: 14.6
+      - name: Maximum and Minimum Values
+        section: 14.7
+      - name: Lagrange Multipliers
+        section: 14.8
+      - name: Multiple Integrals
+        section: 15
+      - name: Double Integrals over Rectangles
+        section: 15.1
+      - name: Iterated Integrals
+        section: 15.2
+      - name: Double Integrals over General Regions
+        section: 15.3
+      - name: Double Integrals in Polar Coordinates
+        section: 15.4
+      - name: Applications of Double Integrals
+        section: 15.5
+      - name: Triple Integrals
+        section: 15.6
+      - name: Triple Integrals in Cylindrical Coordinates
+        section: 15.7
+      - name: Triple Integrals in Spherical Coordinates
+        section: 15.8
+      - name: Change of Variables in Multiple Integrals
+        section: 15.9
+      - name: Vector Calculus
+        section: 16
+      - name: Vector Fields
+        section: 16.1
+      - name: Line Integrals
+        section: 16.2
+      - name: The Fundamental Theorem for Line Integrals
+        section: 16.3
+      - name: Green's Theorem
+        section: 16.4
+      - name: Curl and Divergence
+        section: 16.5
+      - name: Parametric Surfaces and their Areas
+        section: 16.6
+      - name: Surface Integrals
+        section: 16.7
+      - name: Stokes' Theorem
+        section: 16.8
+      - name: The Divergence Theorem
+        section: 16.9
+      - name: Summary
+        section: 16.10
+      - name: Second-Order Differential Equations
+        section: 17
+      - name: Second-Order Linear Equations
+        section: 17.1
+      - name: Nonhomogeneous Linear Equations
+        section: 17.2
+      - name: Applications of Second-Order Differential Equations
+        section: 17.3
+      - name: Series Solutions
+        section: 17.4
+      - name: 'Appendix A:  Numbers, Inequalities, and Absolute Values'
+        section: 18
+      - name: 'Appendix B: Coordinate Geometry and Lines'
+        section: 19
+      - name: 'Appendix C: Graphs of Second-Degree Equations'
+        section: 20
+      - name: 'Appendix D: Trigonometry'
+        section: 21
+      - name: 'Appendix E: Sigma Notation'
+        section: 22
+      - name: 'Appendix F: Proofs of Theorems'
+        section: 23
+      - name: 'Appendix G: The Logarithm Defined as an Integral'
+        section: 24
+      - name: 'Appendix H: Complex Numbers'
+        section: 25
+      - name: 'Appendix I: Answers to Odd-Numbered Exercises'
+        section: 26
+    title: 'Calculus: Early Transcendentals'
+  - author: 'Stewart, Redlin, Watson'
+    edition: 3
+    sections:
+      - name: Basic Algebra
+        section: 1
+      - name: What is Algebra?
+        section: 1.1
+      - name: Real Numbers
+        section: 1.2
+      - name: Exponentials and Radicals
+        section: 1.3
+      - name: Algebraic Equations
+        section: 1.4
+      - name: Fractional Expressions
+        section: 1.5
+      - name: Basic Equations
+        section: 1.6
+      - name: Coordinates and Graphs
+        section: 2
+      - name: The Coordinate Plane
+        section: 2.1
+      - name: Graphs of Equations
+        section: 2.2
+      - name: Graphing Calculators and Computers
+        section: 2.3
+      - name: Lines
+        section: 2.4
+      - name: Equations and Inequalities
+        section: 3
+      - name: Algebraic and Graphical Solutions of Equations
+        section: 3.1
+      - name: Modeling with Equations
+        section: 3.2
+      - name: Quadratic Equations
+        section: 3.3
+      - name: Complex Numbers
+        section: 3.4
+      - name: Other Equations
+        section: 3.5
+      - name: Linear Inequalities
+        section: 3.6
+      - name: Nonlinear Inequalities
+        section: 3.7
+      - name: Absolute Value
+        section: 3.8
+      - name: Functions
+        section: 4
+      - name: What is a Function?
+        section: 4.1
+      - name: Graphs of Functions
+        section: 4.2
+      - name: 'Applied Functions: Variation'
+        section: 4.3
+      - name: 'Average Rate of Change: Increasing and Decreasing Functions'
+        section: 4.4
+      - name: Transformations of Functions
+        section: 4.5
+      - name: Extreme Values of Functions
+        section: 4.6
+      - name: Combining Functions
+        section: 4.7
+      - name: One-to-One Functions and Their Inverses
+        section: 4.8
+      - name: Polynomial and Rational Functions
+        section: 5
+      - name: Polynomial Functions and Their Graphs
+        section: 5.1
+      - name: Dividing Polynomials
+        section: 5.2
+      - name: Real Zeros of Polynomials
+        section: 5.3
+      - name: The Fundamental Theorem of Algebra
+        section: 5.4
+      - name: Rational Functions
+        section: 5.5
+      - name: Exponential and Logarithmic Functions
+        section: 6
+      - name: Exponential Functions
+        section: 6.1
+      - name: The Natural Exponential Function
+        section: 6.2
+      - name: Logistic Functions
+        section: 6.3
+      - name: Laws of Logarithms
+        section: 6.4
+      - name: Exponential and Logarithmic Equations
+        section: 6.5
+      - name: Applications of Exponential and Logarithmic Functions
+        section: 6.6
+      - name: Systems of Equations and Inequalities
+        section: 7
+      - name: Systems of Equations
+        section: 7.1
+      - name: Pairs of Lines
+        section: 7.2
+      - name: Systems of Linear Equations
+        section: 7.3
+      - name: The Algebra of Matrices
+        section: 7.4
+      - name: Inverses of Matrices and Matrix Equations
+        section: 7.5
+      - name: Determinants and Cramer's Rule
+        section: 7.6
+      - name: Systems of Inequalities
+        section: 7.7
+      - name: Partial Fractions
+        section: 7.8
+      - name: Conic Sections
+        section: 8
+      - name: Parabolas
+        section: 8.1
+      - name: Ellipses
+        section: 8.2
+      - name: Hyperbolas
+        section: 8.3
+      - name: Shifted Conics
+        section: 8.4
+      - name: Sequences and Series
+        section: 9
+      - name: Sequences and Summation Notation
+        section: 9.1
+      - name: Arithmetic Sequences
+        section: 9.2
+      - name: Geometric Sequences
+        section: 9.3
+      - name: Annuities and Installment Buying
+        section: 9.4
+      - name: Mathematical Induction
+        section: 9.5
+      - name: The Binomial Theorem
+        section: 9.6
+      - name: Counting and Probability
+        section: 10
+      - name: Counting Principles
+        section: 10.1
+      - name: Permutations and Combinations
+        section: 10.2
+      - name: Probability
+        section: 10.3
+      - name: Expected Value
+        section: 10.4
+    title: College Algebra
+  - author: 'Stewart, Redlin, Watson'
+    edition: 3
+    sections:
+      - name: Fundamentals
+        section: 1
+      - name: Real Numbers
+        section: 1.1
+      - name: Exponents and Radicals
+        section: 1.2
+      - name: Algebraic Expressions
+        section: 1.3
+      - name: Fractional Expressions
+        section: 1.4
+      - name: Equations
+        section: 1.5
+      - name: Problem Solving with Equations
+        section: 1.6
+      - name: Inequalities
+        section: 1.7
+      - name: Coordinate Geometry
+        section: 1.8
+      - name: Graphing Calculators and Computers
+        section: 1.9
+      - name: Lines
+        section: 1.10
+      - name: Functions
+        section: 2
+      - name: What is a Function?
+        section: 2.1
+      - name: Graphs of Functions
+        section: 2.2
+      - name: Applied Functions
+        section: 2.3
+      - name: Transformations of Functions
+        section: 2.4
+      - name: Extreme Values of Functions
+        section: 2.5
+      - name: Combining Functions
+        section: 2.6
+      - name: One-to-One Functions and Their Inverses
+        section: 2.7
+      - name: Polynomials and Rational Functions
+        section: 3
+      - name: Polynomial Functions and Their Graphs
+        section: 3.1
+      - name: Real Zeros of Polynomials
+        section: 3.2
+      - name: Complex Numbers
+        section: 3.3
+      - name: Complex Roots and The Fundamental Theorem of Algebra
+        section: 3.4
+      - name: Rational Functions
+        section: 3.5
+      - name: Exponential and Logarithmic Functions
+        section: 4
+      - name: Exponential Functions
+        section: 4.1
+      - name: The Natural Exponential Function
+        section: 4.2
+      - name: Logarithmic Functions
+        section: 4.3
+      - name: Laws of Logarithms
+        section: 4.4
+      - name: Exponential and Logarithmic Equations
+        section: 4.5
+      - name: Applications of Exponential and Logarithmic Equations
+        section: 4.6
+      - name: Trigonometric Functions
+        section: 5
+      - name: The Unit Circle
+        section: 5.1
+      - name: Trigonometric Functions of Real Numbers
+        section: 5.2
+      - name: Trigonometric Graphs
+        section: 5.3
+      - name: More Trigonometric Graphs
+        section: 5.4
+      - name: Trigonometric Functions of Angles
+        section: 6
+      - name: Angle Measure
+        section: 6.1
+      - name: Trigonometry of Right Triangles
+        section: 6.2
+      - name: Trigonometric Functions of Angles
+        section: 6.3
+      - name: The Law of Sines
+        section: 6.4
+      - name: The Law of Cosines
+        section: 6.5
+      - name: Analytic Trigonometry
+        section: 7
+      - name: Trigonometric Identities
+        section: 7.1
+      - name: Addition and Subtraction Formulas
+        section: 7.2
+      - name: 'Double-Angle, Half-Angle, and Product-Sum Formulas'
+        section: 7.3
+      - name: Inverse Trigonometric Functions
+        section: 7.4
+      - name: Trigonometric Equations
+        section: 7.5
+      - name: Trigonometric Form of Complex Numbers; DeMoivre's Theorem
+        section: 7.6
+      - name: Vectors
+        section: 7.7
+      - name: Systems of Equations and Inequalities
+        section: 8
+      - name: Systems of Equations
+        section: 8.1
+      - name: Pairs of Lines
+        section: 8.2
+      - name: Systems of Linear Equations
+        section: 8.3
+      - name: The Algebra of Matrices
+        section: 8.4
+      - name: Inverses of Matrices and Matrix Equations
+        section: 8.5
+      - name: Determinants and Cramer's Rule
+        section: 8.6
+      - name: Systems of Inequalities
+        section: 8.7
+      - name: Partial Fractions
+        section: 8.8
+      - name: Topics in Analytic Geometry
+        section: 9
+      - name: Parabolas
+        section: 9.1
+      - name: Ellipses
+        section: 9.2
+      - name: Hyperbolas
+        section: 9.3
+      - name: Shifted Conics
+        section: 9.4
+      - name: Rotation of Axes
+        section: 9.5
+      - name: Polar Coordinates
+        section: 9.6
+      - name: Polar Equations of Conics
+        section: 9.7
+      - name: Parametric Equations
+        section: 9.8
+      - name: Sequences and Series
+        section: 10
+      - name: Sequences and Summation Notation
+        section: 10.1
+      - name: Arithmetic Sequences
+        section: 10.2
+      - name: Geometric Sequences
+        section: 10.3
+      - name: Annuities and Installment Buying
+        section: 10.4
+      - name: Mathematical Induction
+        section: 10.5
+      - name: The Binomial Theorem
+        section: 10.6
+      - name: Counting and Probability
+        section: 11
+      - name: Counting Principles
+        section: 11.1
+      - name: Permutations and Combinations
+        section: 11.2
+      - name: Probability
+        section: 11.3
+      - name: Expected Value
+        section: 11.4
+    title: Precalculus
+  - author: Connally
+    edition: 3
+    sections:
+      - name: Linear Functions and Change
+        section: 1
+      - name: Functions and Function Notation
+        section: 1.1
+      - name: Rate of Change
+        section: 1.2
+      - name: Linear Functions
+        section: 1.3
+      - name: Formulas for Linear Functions
+        section: 1.4
+      - name: Geometric Properties of Linear Functions
+        section: 1.5
+      - name: Fitting Linear Functions to Data
+        section: 1.6
+      - name: Functions
+        section: 2
+      - name: Input and Output
+        section: 2.1
+      - name: Domain and Range
+        section: 2.2
+      - name: Piecewise Defined Functions
+        section: 2.3
+      - name: Composite and Inverse Functions
+        section: 2.4
+      - name: Concavity
+        section: 2.5
+      - name: Quadratic Functions
+        section: 2.6
+      - name: Exponential Functions
+        section: 3
+      - name: Introduction to the Family of Exponential Functions
+        section: 3.1
+      - name: Comparing Exponential and Linear Functions
+        section: 3.2
+      - name: Graphs of Exponential Functions
+        section: 3.3
+      - name: Continuous Growth and the Number e
+        section: 3.4
+      - name: Compound Interest
+        section: 3.5
+      - name: Logarithmic Functions
+        section: 4
+      - name: Logarithms and their Properties
+        section: 4.1
+      - name: Logarithms and Exponential Models
+        section: 4.2
+      - name: The Logarithmic Function
+        section: 4.3
+      - name: Logarithmic Scales
+        section: 4.4
+      - name: Transformations of Functions and their Graphs
+        section: 5
+      - name: Vertical and Horizontal Shifts
+        section: 5.1
+      - name: Reflections and Symmetry
+        section: 5.2
+      - name: Vertical Stretches and Compressions
+        section: 5.3
+      - name: Horizontal Stretches and Compressions
+        section: 5.4
+      - name: The Family of Quadratic Functions
+        section: 5.5
+      - name: Trigonometric Functions
+        section: 6
+      - name: Introduction to Periodic Functions
+        section: 6.1
+      - name: The Sine and Cosine Functions
+        section: 6.2
+      - name: Radians
+        section: 6.3
+      - name: Graphs of the Sine and Cosine
+        section: 6.4
+      - name: Sinusoidal Functions
+        section: 6.5
+      - name: Other Trigonometric Functions
+        section: 6.6
+      - name: Inverse Trigonometric Functions
+        section: 6.7
+      - name: Trigonometry
+        section: 7
+      - name: 'General Triangles: Laws of Sines and Cosines'
+        section: 7.1
+      - name: Trigonometric Identities
+        section: 7.2
+      - name: Sum and Difference Formulas for Sine and Cosine
+        section: 7.3
+      - name: Trigonometric Models
+        section: 7.4
+      - name: Polar Coordinates
+        section: 7.5
+      - name: Complex Numbers and Polar Coordinates
+        section: 7.6
+      - name: 'Compositions, Inverses and Combinations of Functions'
+        section: 8
+      - name: Composition of Functions
+        section: 8.1
+      - name: Inverse Functions
+        section: 8.2
+      - name: Combinations of Functions
+        section: 8.3
+      - name: Polynomial and Rational Functions
+        section: 9
+      - name: Power Functions
+        section: 9.1
+      - name: Polynomial Functions
+        section: 9.2
+      - name: The Short-Run Behavior of Polynomials
+        section: 9.3
+      - name: Rational Functions
+        section: 9.4
+      - name: The Short-Run Behavior of Rational Functions
+        section: 9.5
+      - name: 'Comparing Power, Exponential and Log Functions'
+        section: 9.6
+      - name: Fitting Exponentials and Polynomials to Data
+        section: 9.7
+      - name: Vector and Matrices
+        section: 10
+      - name: Vectors
+        section: 10.1
+      - name: The Components of a Vector
+        section: 10.2
+      - name: Application of Vectors
+        section: 10.3
+      - name: The Dot Product
+        section: 10.4
+      - name: Matrices
+        section: 10.5
+      - name: Sequences and Series
+        section: 11
+      - name: Sequences
+        section: 11.1
+      - name: 'Defining Functions Using Sums: Arithmetic Series'
+        section: 11.2
+      - name: Finite Geometric Series
+        section: 11.3
+      - name: Parametric Equations and Conic Sections
+        section: 12
+      - name: Parametric Equations
+        section: 12.1
+      - name: Implicitly Defined Curves and Circles
+        section: 12.2
+      - name: Ellipses
+        section: 12.3
+      - name: Hyperbolas
+        section: 12.4
+      - name: Geometric Properties of Conic Sections
+        section: 12.5
+      - name: Hyperbolic Functions
+        section: 12.6
+    title: Functions Modeling Change
+  - author: Connally
+    edition: 4
+    sections:
+      - name: Linear Functions and Change
+        section: 1
+      - name: Functions and Function Notation
+        section: 1.1
+      - name: Rate of Change
+        section: 1.2
+      - name: Linear Functions
+        section: 1.3
+      - name: Formulas for Linear Functions
+        section: 1.4
+      - name: Geometric Properties of Linear Functions
+        section: 1.5
+      - name: Fitting Linear Functions to Data
+        section: 1.6
+      - name: Functions
+        section: 2
+      - name: Input and Output
+        section: 2.1
+      - name: Domain and Range
+        section: 2.2
+      - name: Piecewise Defined Functions
+        section: 2.3
+      - name: Composite and Inverse Functions
+        section: 2.4
+      - name: Concavity
+        section: 2.5
+      - name: Quadratic Functions
+        section: 3
+      - name: Introduction to the Family of Quadratic Functions
+        section: 3.1
+      - name: The Vertex of a Parabola
+        section: 3.2
+      - name: Exponential Functions
+        section: 4
+      - name: Introduction to the Family of Exponential Functions
+        section: 4.1
+      - name: Comparing Exponential and Linear Functions
+        section: 4.2
+      - name: Graphs of Exponential Functions
+        section: 4.3
+      - name: Applications to Compound Interest
+        section: 4.4
+      - name: The Number e
+        section: 4.5
+      - name: Logarithmic Functions
+        section: 5
+      - name: Logarithms and their Properties
+        section: 5.1
+      - name: Logarithms and Exponential Models
+        section: 5.2
+      - name: The Logarithmic Function
+        section: 5.3
+      - name: Logarithmic Scales
+        section: 5.4
+      - name: Transformations of Functions and Their Graphs
+        section: 6
+      - name: Vertical and Horizontal Shifts
+        section: 6.1
+      - name: Reflections and Symmetry
+        section: 6.2
+      - name: Vertical Stretches and Compressions
+        section: 6.3
+      - name: Horizontal Stretches and Compressions
+        section: 6.4
+      - name: Combining Transformations
+        section: 6.5
+      - name: Trigonometric in Circles and Triangles
+        section: 7
+      - name: Introduction to Periodic Functions
+        section: 7.1
+      - name: The Sine and Cosine Functions
+        section: 7.2
+      - name: Graphs of Sine and Cosine
+        section: 7.3
+      - name: The Tangent Function
+        section: 7.4
+      - name: 'Right Triangles: Inverse Trigonometric Functions'
+        section: 7.5
+      - name: Non-Right Triangles
+        section: 7.6
+      - name: The Trigonometric Functions
+        section: 8
+      - name: Radians and Arc Length
+        section: 8.1
+      - name: Sinusoidal Functions and Their Graphs
+        section: 8.2
+      - name: 'Trigonometric Functions: Relationships and Graphs'
+        section: 8.3
+      - name: Trigonometric Equations and Inverse Functions
+        section: 8.4
+      - name: Polar Coordinates
+        section: 8.5
+      - name: Complex Numbers and Polar Coordinates
+        section: 8.6
+      - name: Trigonometric Identities and Their Applications
+        section: 9
+      - name: 'Identities, Expressions and Equations'
+        section: 9.1
+      - name: Sum and Difference Formulas for Sine and Cosine
+        section: 9.2
+      - name: Trigonometric Models
+        section: 9.3
+      - name: 'Compositions, Inverses and Combinations of Functions'
+        section: 10
+      - name: Composition of Functions
+        section: 10.1
+      - name: Invertibility and Properties of Inverse Functions
+        section: 10.2
+      - name: Combinations of Functions
+        section: 10.3
+      - name: Polynomial and Rational Functions
+        section: 11
+      - name: Power Functions
+        section: 11.1
+      - name: Polynomial Functions
+        section: 11.2
+      - name: The Short-Run Behavior of Polynomials
+        section: 11.3
+      - name: Rational Functions
+        section: 11.4
+      - name: The Short-Run Behavior of Rational Functions
+        section: 11.5
+      - name: 'Comparing Power, Exponential and Log Functions'
+        section: 11.6
+      - name: Fitting Exponentials and Polynomials to Data
+        section: 11.7
+      - name: Vector and Matrices
+        section: 12
+      - name: Vectors
+        section: 12.1
+      - name: The Components of a Vector
+        section: 12.2
+      - name: Application of Vectors
+        section: 12.3
+      - name: The Dot Product
+        section: 12.4
+      - name: Matrices
+        section: 12.5
+      - name: Sequences and Series
+        section: 13
+      - name: Sequences
+        section: 13.1
+      - name: 'Defining Functions Using Sums: Arithmetic Series'
+        section: 13.2
+      - name: Finite Geometric Series
+        section: 13.3
+      - name: Parametric Equations and Conic Sections
+        section: 14
+      - name: Parametric Equations
+        section: 14.1
+      - name: Implicitly Defined Curves and Circles
+        section: 14.2
+      - name: Ellipses
+        section: 14.3
+      - name: Hyperbolas
+        section: 14.4
+      - name: Geometric Properties of Conic Sections
+        section: 14.5
+      - name: Hyperbolic Functions
+        section: 14.6
+    title: Functions Modeling Change
+  - author: Hughes-Hallett
+    edition: 4
+    sections:
+      - name: Functions and Change
+        section: 1
+      - name: What is a Function?
+        section: 1.1
+      - name: Linear Functions
+        section: 1.2
+      - name: Average Rate of Change and Relative Change
+        section: 1.3
+      - name: Applications of Functions to Economics
+        section: 1.4
+      - name: Exponential Functions
+        section: 1.5
+      - name: The Natural Logarithm
+        section: 1.6
+      - name: Exponential Growth and Decay
+        section: 1.7
+      - name: New Functions from Old
+        section: 1.8
+      - name: Proportionality and Power Functions
+        section: 1.9
+      - name: Periodic Functions
+        section: 1.10
+      - name: 'Rate of Change: The Derivative'
+        section: 2
+      - name: Instantaneous Rate of Change
+        section: 2.1
+      - name: The Derivative Function
+        section: 2.2
+      - name: Interpretations of the Derivative
+        section: 2.3
+      - name: The Second Derivative
+        section: 2.4
+      - name: Marginal Cost and Revenue
+        section: 2.5
+      - name: Shortcuts to Differentiation
+        section: 3
+      - name: Derivative Formulas for Powers and Polynomials
+        section: 3.1
+      - name: Exponential and Logarithmic Functions
+        section: 3.2
+      - name: The Chain Rule
+        section: 3.3
+      - name: The Product and Quotient Rules
+        section: 3.4
+      - name: Derivatives of Periodic Functions
+        section: 3.5
+      - name: Using the Derivative
+        section: 4
+      - name: Local Maxima and Minima
+        section: 4.1
+      - name: Inflection Points
+        section: 4.2
+      - name: Global Maxima and Minima
+        section: 4.3
+      - name: 'Profit, Cost and Revenue'
+        section: 4.4
+      - name: Average Cost
+        section: 4.5
+      - name: Elasticity of Demand
+        section: 4.6
+      - name: Logistic Growth
+        section: 4.7
+      - name: The Surge Function and Dug Concentration
+        section: 4.8
+      - name: 'Accumulated Change: The Definite Integral'
+        section: 5
+      - name: Distance and Accumulated Change
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Definite Integral as Area
+        section: 5.3
+      - name: Interpretations of the Definite Integral
+        section: 5.4
+      - name: The Fundamental Theorem of Calculus
+        section: 5.5
+      - name: Using the Definite Integral
+        section: 6
+      - name: Average Value
+        section: 6.1
+      - name: Consumer and Producer Surplus
+        section: 6.2
+      - name: Present and Future Value
+        section: 6.3
+      - name: Integrating Relative Growth Rates
+        section: 6.4
+      - name: Antiderivatives
+        section: 7
+      - name: Constructing Antiderivatives Analytically
+        section: 7.1
+      - name: Integration by Substitution
+        section: 7.2
+      - name: Using the Fundamental Theorem to Find Definite Integrals
+        section: 7.3
+      - name: Integration by Parts
+        section: 7.4
+      - name: Analyzing Antiderivatives Graphically and Numerically
+        section: 7.5
+      - name: Probability
+        section: 8
+      - name: Density Functions
+        section: 8.1
+      - name: Cumulative Distribution Functions and Probability
+        section: 8.2
+      - name: The Median and the Mean
+        section: 8.3
+      - name: Functions of Several Variables
+        section: 9
+      - name: Understanding Functions of Two Variables
+        section: 9.1
+      - name: Contour Diagrams
+        section: 9.2
+      - name: Partial Derivatives
+        section: 9.3
+      - name: Computing Partial Derivatives Algebraically
+        section: 9.4
+      - name: Critical Points and Optimization
+        section: 9.5
+      - name: Constrained Optimization
+        section: 9.6
+      - name: Mathematical Modeling Using Differential Equations
+        section: 10
+      - name: 'Mathematical Modeling: Setting up a Differential Equation'
+        section: 10.1
+      - name: Solutions of Differential Equations
+        section: 10.2
+      - name: Slope Fields
+        section: 10.3
+      - name: Exponential Growth and Decay
+        section: 10.4
+      - name: Applications and Modeling
+        section: 10.5
+      - name: Modeling the Interaction of Two Populations
+        section: 10.6
+      - name: Modeling the Spread of a Disease
+        section: 10.7
+      - name: Geometric Series
+        section: 11
+      - name: Geometric Series
+        section: 11.1
+      - name: Applications to Business and Economics
+        section: 11.2
+      - name: Applications to the Natural Sciences
+        section: 11.3
+    title: Applied Calculus
+  - author: Hughes-Hallett
+    edition: 4
+    sections:
+      - name: A Library of Functions
+        section: 1
+      - name: Functions and Change
+        section: 1.1
+      - name: Exponential Functions
+        section: 1.2
+      - name: New Functions from Old
+        section: 1.3
+      - name: Logarithmic Functions
+        section: 1.4
+      - name: Trigonometric Functions
+        section: 1.5
+      - name: 'Powers, Polynomials, and Rational Functions'
+        section: 1.6
+      - name: Introduction to Continuity
+        section: 1.7
+      - name: Limits
+        section: 1.8
+      - name: 'Key Concept: The Derivative'
+        section: 2
+      - name: How do we measure speed?
+        section: 2.1
+      - name: The Derivative at a Point
+        section: 2.2
+      - name: The Derivative Function
+        section: 2.3
+      - name: Interpretations of the Derivative
+        section: 2.4
+      - name: The Second Derivative
+        section: 2.5
+      - name: Differentiability
+        section: 2.6
+      - name: Shortcuts to Differentiation
+        section: 3
+      - name: Powers and Polynomials
+        section: 3.1
+      - name: The Exponential Function
+        section: 3.2
+      - name: The Product and Quotient Rules
+        section: 3.3
+      - name: The Chain Rule
+        section: 3.4
+      - name: The Trigonometric Functions
+        section: 3.5
+      - name: The Chain Rule and Inverse Functions
+        section: 3.6
+      - name: Implicit Functions
+        section: 3.7
+      - name: Hyperbolic Functions
+        section: 3.8
+      - name: Linear Approximation and the Derivative
+        section: 3.9
+      - name: Theorems About Differentiable Functions
+        section: 3.10
+      - name: Using the Derivative
+        section: 4
+      - name: Using First and Second Derivatives
+        section: 4.1
+      - name: Families of Curves
+        section: 4.2
+      - name: Optimization
+        section: 4.3
+      - name: Applications to Marginality
+        section: 4.4
+      - name: Optimization and Modeling
+        section: 4.5
+      - name: Rates and Related Rates
+        section: 4.6
+      - name: "L'Hopital's Rule, Growth, and Dominance"
+        section: 4.7
+      - name: Parametric Equations
+        section: 4.8
+      - name: 'Key Concept: The Definite Integral'
+        section: 5
+      - name: How do we measure distance traveled?
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem and Interpretations
+        section: 5.3
+      - name: Theorems About Definite Integrals
+        section: 5.4
+      - name: Constructing Antiderivatives
+        section: 6
+      - name: Antiderivatives Graphically and Numerically
+        section: 6.1
+      - name: Constructing Antiderivatives Analytically
+        section: 6.2
+      - name: Differential Equations
+        section: 6.3
+      - name: Second Fundamental Theorem of Calculus
+        section: 6.4
+      - name: The Equations of Motion
+        section: 6.5
+      - name: Integration
+        section: 7
+      - name: Integration by Substitution
+        section: 7.1
+      - name: Integration by Parts
+        section: 7.2
+      - name: Tables of Integrals
+        section: 7.3
+      - name: Algebraic Identities and Trigonometric Substitutions
+        section: 7.4
+      - name: Approximating Definite Integrals
+        section: 7.5
+      - name: Approximation Errors an Simpson's Rule
+        section: 7.6
+      - name: Improper Integrals
+        section: 7.7
+      - name: Comparison of Improper Integrals
+        section: 7.8
+      - name: Using the Definite Integral
+        section: 8
+      - name: Areas and Volumes
+        section: 8.1
+      - name: Applications to Geometry
+        section: 8.2
+      - name: Area and Arc Length in Polar Coordinates
+        section: 8.3
+      - name: Density and Center of Mass
+        section: 8.4
+      - name: Applications to Physics
+        section: 8.5
+      - name: Applications to Economics
+        section: 8.6
+      - name: Distribution Functions
+        section: 8.7
+      - name: 'Probability, Mean, and Median'
+        section: 8.8
+      - name: Sequences and Series
+        section: 9
+      - name: Sequences
+        section: 9.1
+      - name: Geometric Series
+        section: 9.2
+      - name: Convergence of Series
+        section: 9.3
+      - name: Tests for Convergence
+        section: 9.4
+      - name: Power Series and Interval of Convergence
+        section: 9.5
+      - name: Approximating Functions Using Series
+        section: 10
+      - name: Taylor Polynomials
+        section: 10.1
+      - name: Taylor Series
+        section: 10.2
+      - name: Finding and Using Taylor Series
+        section: 10.3
+      - name: The Error in Taylor Polynomial Approximations
+        section: 10.4
+      - name: Fourier Series
+        section: 10.5
+      - name: Differential Equations
+        section: 11
+      - name: What is a differential equation?
+        section: 11.1
+      - name: Slope Fields
+        section: 11.2
+      - name: Euler's Method
+        section: 11.3
+      - name: Separation of Variables
+        section: 11.4
+      - name: Growth and Decay
+        section: 11.5
+      - name: Applications and Modeling
+        section: 11.6
+      - name: Models of Population Growth
+        section: 11.7
+      - name: Systems of Differential Equations
+        section: 11.8
+      - name: Analyzing the Phase Plane
+        section: 11.9
+      - name: 'Second-Order Differential Equations: Oscillations'
+        section: 11.10
+      - name: Linear Second-Order Differential Equations
+        section: 11.11
+      - name: Functions of Several Variables
+        section: 12
+      - name: Functions of Two Variables
+        section: 12.1
+      - name: Graphs of Functions of Two Variables
+        section: 12.2
+      - name: Contour Diagrams
+        section: 12.3
+      - name: Linear Functions
+        section: 12.4
+      - name: Functions of Three Variables
+        section: 12.5
+      - name: Limits and Continuity
+        section: 12.6
+      - name: 'A Fundamental Tool: Vectors'
+        section: 13
+      - name: Displacement Vectors
+        section: 13.1
+      - name: Vectors in General
+        section: 13.2
+      - name: The Dot Product
+        section: 13.3
+      - name: The Cross Product
+        section: 13.4
+      - name: Differentiating Functions of Several Variables
+        section: 14
+      - name: The Partial Derivative
+        section: 14.1
+      - name: Computing Partial Derivatives Algebraically
+        section: 14.2
+      - name: Local Linearity and the Differential
+        section: 14.3
+      - name: Gradients and Directional Derivatives in the Plane
+        section: 14.4
+      - name: Gradients and Directional Derivatives in Space
+        section: 14.5
+      - name: The Chain Rule
+        section: 14.6
+      - name: Second-Order Partial Derivatives
+        section: 14.7
+      - name: Differentiability
+        section: 14.8
+      - name: 'Optimization: Local and Global Extrema'
+        section: 15
+      - name: Local Extrema
+        section: 15.1
+      - name: Optimization
+        section: 15.2
+      - name: 'Constrained Optimization: Lagrange Multipliers'
+        section: 15.3
+      - name: Integrating Functions of Several Variables
+        section: 16
+      - name: The Definite Integral of a Function of Two Variables
+        section: 16.1
+      - name: Iterated Integrals
+        section: 16.2
+      - name: Triple Integrals
+        section: 16.3
+      - name: Double Integrals in Polar Coordinates
+        section: 16.4
+      - name: Integrals in Cylindrical and Spherical Coordinates
+        section: 16.5
+      - name: Applications of Integration to Probability
+        section: 16.6
+      - name: Change of Variables in Multiple Integral
+        section: 16.7
+      - name: Parameterization and Vector Fields
+        section: 17
+      - name: Parameterized Curves
+        section: 17.1
+      - name: 'Motion, Velocity, and Acceleration'
+        section: 17.2
+      - name: Vector Fields
+        section: 17.3
+      - name: The Flow of a Vector Field
+        section: 17.4
+      - name: Parameterized Surfaces
+        section: 17.5
+      - name: Line Integrals
+        section: 18
+      - name: The Idea of a Line Integral
+        section: 18.1
+      - name: Computing Line Integrals Over Parameterized Curves
+        section: 18.2
+      - name: Gradient Fields and Path-Independent Fields
+        section: 18.3
+      - name: Path-Independent Vector Fields and Green's Theorem
+        section: 18.4
+      - name: Flux Integrals
+        section: 19
+      - name: The Idea of a Flux Integral
+        section: 19.1
+      - name: 'Flux Integrals for Graphs, Cylinders, and Spheres'
+        section: 19.2
+      - name: Flux Integrals over Parameterized Surfaces
+        section: 19.3
+      - name: Calculus of Vector Fields
+        section: 20
+      - name: The Divergence of a Vector Field
+        section: 20.1
+      - name: The Divergence Theorem
+        section: 20.2
+      - name: The Curl of a Vector Field
+        section: 20.3
+      - name: Stokes' Theorem
+        section: 20.4
+      - name: The Three Fundamental Theorems
+        section: 20.5
+    title: Calculus
+  - author: Hughes-Hallett
+    edition: 5
+    sections:
+      - name: A Library of Functions
+        section: 1
+      - name: Functions and Change
+        section: 1.1
+      - name: Exponential Functions
+        section: 1.2
+      - name: New Functions From Old
+        section: 1.3
+      - name: Logarithmic Functions
+        section: 1.4
+      - name: Trigonometric Functions
+        section: 1.5
+      - name: 'Powers, Polynomials and Rational Functions'
+        section: 1.6
+      - name: Introduction to Continuity
+        section: 1.7
+      - name: Limits
+        section: 1.8
+      - name: 'Key Concept: The Derivative'
+        section: 2
+      - name: How Do We Measure Speed
+        section: 2.1
+      - name: The Derivative at a Point
+        section: 2.2
+      - name: The Derivative Function
+        section: 2.3
+      - name: Interpretations of the Derivative
+        section: 2.4
+      - name: The Second Derivative
+        section: 2.5
+      - name: Differentiability
+        section: 2.6
+      - name: Short-Cuts to Differentiation
+        section: 3
+      - name: Powers and Polynomials
+        section: 3.1
+      - name: The Exponential Function
+        section: 3.2
+      - name: The Product and Quotient Rules
+        section: 3.3
+      - name: The Chain Rule
+        section: 3.4
+      - name: The Trigonometric Functions
+        section: 3.5
+      - name: The Chain Rule and Inverse Functions
+        section: 3.6
+      - name: Implicit Functions
+        section: 3.7
+      - name: Hyperbolic Functions
+        section: 3.8
+      - name: Linear Approximation and the Derivative
+        section: 3.9
+      - name: Theorems About Differentiable Functions
+        section: 3.10
+      - name: Using the Derivative
+        section: 4
+      - name: Using First and Second Derivatives
+        section: 4.1
+      - name: Optimization
+        section: 4.2
+      - name: Families of Functions
+        section: 4.3
+      - name: 'Optimization, Geometry and Modeling'
+        section: 4.4
+      - name: Applications to Marginality
+        section: 4.5
+      - name: Rates and Related Rates
+        section: 4.6
+      - name: "L'Hopital's Rule, Growth and Dominance"
+        section: 4.7
+      - name: Parametric Equations
+        section: 4.8
+      - name: 'Key Concept: The Definite Integral'
+        section: 5
+      - name: How Do We Measure Distance Traveled
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem and Interpretations
+        section: 5.3
+      - name: Theorems about Definite Integrals
+        section: 5.4
+      - name: Constructing Antiderivatives
+        section: 6
+      - name: Antiderivatives Graphically and Numerically
+        section: 6.1
+      - name: Constructing Antiderivatives Analytically
+        section: 6.2
+      - name: Differential Equations
+        section: 6.3
+      - name: The Second Fundamental Theorem of Calculus
+        section: 6.4
+      - name: The Equations of Motion
+        section: 6.5
+      - name: Integration
+        section: 7
+      - name: Integration by Substitution
+        section: 7.1
+      - name: Integration by Parts
+        section: 7.2
+      - name: Tables of Integrals
+        section: 7.3
+      - name: Algebraic Identities and Trigonometric Substitutions
+        section: 7.4
+      - name: Approximating Definite Integrals
+        section: 7.5
+      - name: Approximation Errors and Simpson's Rule
+        section: 7.6
+      - name: Improper Integrals
+        section: 7.7
+      - name: Comparison of Improper Integrals
+        section: 7.8
+      - name: Using the Definite Integral
+        section: 8
+      - name: Areas and Volumes
+        section: 8.1
+      - name: Applications to Geometry
+        section: 8.2
+      - name: Area and Arc Length in Polar Coordinates
+        section: 8.3
+      - name: Density and Center of Mass
+        section: 8.4
+      - name: Applications to Physics
+        section: 8.5
+      - name: Applications to Economics
+        section: 8.6
+      - name: Distribution Functions
+        section: 8.7
+      - name: 'Probability, Mean and Median'
+        section: 8.8
+      - name: Sequences and Series
+        section: 9
+      - name: Sequences
+        section: 9.1
+      - name: Geometric Series
+        section: 9.2
+      - name: Convergence of Series
+        section: 9.3
+      - name: Tests for Convergence
+        section: 9.4
+      - name: Power Series and Interval of Convergence
+        section: 9.5
+      - name: Approximating Functions Using Series
+        section: 10
+      - name: Taylor Polynomials
+        section: 10.1
+      - name: Taylor Series
+        section: 10.2
+      - name: Finding and Using Taylor Series
+        section: 10.3
+      - name: The Error in Taylor Polynomial Approximations
+        section: 10.4
+      - name: Fourier Series
+        section: 10.5
+      - name: Differential Equations
+        section: 11
+      - name: What is a Differential Equation
+        section: 11.1
+      - name: Slope Fields
+        section: 11.2
+      - name: Euler's Method
+        section: 11.3
+      - name: Separation of Variables
+        section: 11.4
+      - name: Growth and Decay
+        section: 11.5
+      - name: Applications and Modeling
+        section: 11.6
+      - name: The Logistic Model
+        section: 11.7
+      - name: Systems of Differential Equations
+        section: 11.8
+      - name: Analyzing the Phase Plane
+        section: 11.9
+      - name: 'Second-Order Differential Equations: Oscillations'
+        section: 11.10
+      - name: Linear Second-Order Differential Equations
+        section: 11.11
+      - name: Functions of Several Variables
+        section: 12
+      - name: Functions of Two Variables
+        section: 12.1
+      - name: Graphs of Functions of Two Variables
+        section: 12.2
+      - name: Contour Diagrams
+        section: 12.3
+      - name: Linear Functions
+        section: 12.4
+      - name: Functions of Three Variables
+        section: 12.5
+      - name: Limits and Continuity
+        section: 12.6
+      - name: 'A Fundamental Tool: Vectors'
+        section: 13
+      - name: Displacement Vectors
+        section: 13.1
+      - name: Vectors in General
+        section: 13.2
+      - name: The Dot Product
+        section: 13.3
+      - name: The Cross Product
+        section: 13.4
+      - name: Differentiating Functions of Several Variables
+        section: 14
+      - name: The Partial Derivative
+        section: 14.1
+      - name: Computing Partial Derivatives Algebraically
+        section: 14.2
+      - name: Local Linearity and the Differential
+        section: 14.3
+      - name: Gradients and Directional Derivatives in the Plane
+        section: 14.4
+      - name: Gradients and Directional Derivatives in Space
+        section: 14.5
+      - name: The Chain Rule
+        section: 14.6
+      - name: Second-Order Partial Derivatives
+        section: 14.7
+      - name: Differentiability
+        section: 14.8
+      - name: 'Optimization: Local and Global Extrema'
+        section: 15
+      - name: Local Extrema
+        section: 15.1
+      - name: Optimization
+        section: 15.2
+      - name: 'Constrained Optimization: Lagrange Multipliers'
+        section: 15.3
+      - name: Integrating Functions of Several Variables
+        section: 16
+      - name: The Definite Integral of a Function of Two Variables
+        section: 16.1
+      - name: Iterated Integrals
+        section: 16.2
+      - name: Triple Integrals
+        section: 16.3
+      - name: Double Integrals in Polar Coordinates
+        section: 16.4
+      - name: Integrals in Cylindrical and Spherical Coordinates
+        section: 16.5
+      - name: Applications of Integration to Probability
+        section: 16.6
+      - name: Change of Variables in Multiple Integral
+        section: 16.7
+      - name: Parameterization and Vector Fields
+        section: 17
+      - name: Parameterized Curves
+        section: 17.1
+      - name: 'Motion, Velocity, and Acceleration'
+        section: 17.2
+      - name: Vector Fields
+        section: 17.3
+      - name: The Flow of a Vector Field
+        section: 17.4
+      - name: Parameterized Surfaces
+        section: 17.5
+      - name: Line Integrals
+        section: 18
+      - name: The Idea of a Line Integral
+        section: 18.1
+      - name: Computing Line Integrals Over Parameterized Curves
+        section: 18.2
+      - name: Gradient Fields and Path-Independent Fields
+        section: 18.3
+      - name: Path-Independent Vector Fields and Green's Theorem
+        section: 18.4
+      - name: Flux Integrals
+        section: 19
+      - name: The Idea of a Flux Integral
+        section: 19.1
+      - name: 'Flux Integrals for Graphs, Cylinders, and Spheres'
+        section: 19.2
+      - name: Flux Integrals over Parameterized Surfaces
+        section: 19.3
+      - name: Calculus of Vector Fields
+        section: 20
+      - name: The Divergence of a Vector Field
+        section: 20.1
+      - name: The Divergence Theorem
+        section: 20.2
+      - name: The Curl of a Vector Field
+        section: 20.3
+      - name: Stokes' Theorem
+        section: 20.4
+      - name: The Three Fundamental Theorems
+        section: 20.5
+    title: Calculus
+  - author: Hughes-Hallett
+    edition: 6
+    sections:
+      - name: A Library of Functions
+        section: 1
+      - name: Functions and Change
+        section: 1.1
+      - name: Exponential Functions
+        section: 1.2
+      - name: New Functions From Old
+        section: 1.3
+      - name: Logarithmic Functions
+        section: 1.4
+      - name: Trigonometric Functions
+        section: 1.5
+      - name: 'Powers, Polynomials and Rational Functions'
+        section: 1.6
+      - name: Introduction to Continuity
+        section: 1.7
+      - name: Limits
+        section: 1.8
+      - name: 'Key Concept: The Derivative'
+        section: 2
+      - name: How Do We Measure Speed
+        section: 2.1
+      - name: The Derivative at a Point
+        section: 2.2
+      - name: The Derivative Function
+        section: 2.3
+      - name: Interpretations of the Derivative
+        section: 2.4
+      - name: The Second Derivative
+        section: 2.5
+      - name: Differentiability
+        section: 2.6
+      - name: Short-Cuts to Differentiation
+        section: 3
+      - name: Powers and Polynomials
+        section: 3.1
+      - name: The Exponential Function
+        section: 3.2
+      - name: The Product and Quotient Rules
+        section: 3.3
+      - name: The Chain Rule
+        section: 3.4
+      - name: The Trigonometric Functions
+        section: 3.5
+      - name: The Chain Rule and Inverse Functions
+        section: 3.6
+      - name: Implicit Functions
+        section: 3.7
+      - name: Hyperbolic Functions
+        section: 3.8
+      - name: Linear Approximation and the Derivative
+        section: 3.9
+      - name: Theorems About Differentiable Functions
+        section: 3.10
+      - name: Using the Derivative
+        section: 4
+      - name: Using First and Second Derivatives
+        section: 4.1
+      - name: Optimization
+        section: 4.2
+      - name: Optimization and Modeling
+        section: 4.3
+      - name: Families of Functions
+        section: 4.4
+      - name: Applications to Marginality
+        section: 4.5
+      - name: Rates and Related Rates
+        section: 4.6
+      - name: "L'Hopital's Rule, Growth and Dominance"
+        section: 4.7
+      - name: Parametric Equations
+        section: 4.8
+      - name: 'Key Concept: The Definite Integral'
+        section: 5
+      - name: How Do We Measure Distance Traveled
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: The Fundamental Theorem and Interpretations
+        section: 5.3
+      - name: Theorems about Definite Integrals
+        section: 5.4
+      - name: Constructing Antiderivatives
+        section: 6
+      - name: Antiderivatives Graphically and Numerically
+        section: 6.1
+      - name: Constructing Antiderivatives Analytically
+        section: 6.2
+      - name: Differential Equations and Motion
+        section: 6.3
+      - name: The Second Fundamental Theorem of Calculus
+        section: 6.4
+      - name: Integration
+        section: 7
+      - name: Integration by Substitution
+        section: 7.1
+      - name: Integration by Parts
+        section: 7.2
+      - name: Tables of Integrals
+        section: 7.3
+      - name: Algebraic Identities and Trigonometric Substitutions
+        section: 7.4
+      - name: Numerical Methods for Definite Integrals
+        section: 7.5
+      - name: Improper Integrals
+        section: 7.6
+      - name: Comparison of Improper Integrals
+        section: 7.7
+      - name: Using the Definite Integral
+        section: 8
+      - name: Areas and Volumes
+        section: 8.1
+      - name: Applications to Geometry
+        section: 8.2
+      - name: Area and Arc Length in Polar Coordinates
+        section: 8.3
+      - name: Density and Center of Mass
+        section: 8.4
+      - name: Applications to Physics
+        section: 8.5
+      - name: Applications to Economics
+        section: 8.6
+      - name: Distribution Functions
+        section: 8.7
+      - name: 'Probability, Mean and Median'
+        section: 8.8
+      - name: Sequences and Series
+        section: 9
+      - name: Sequences
+        section: 9.1
+      - name: Geometric Series
+        section: 9.2
+      - name: Convergence of Series
+        section: 9.3
+      - name: Tests for Convergence
+        section: 9.4
+      - name: Power Series and Interval of Convergence
+        section: 9.5
+      - name: Approximating Functions Using Series
+        section: 10
+      - name: Taylor Polynomials
+        section: 10.1
+      - name: Taylor Series
+        section: 10.2
+      - name: Finding and Using Taylor Series
+        section: 10.3
+      - name: The Error in Taylor Polynomial Approximations
+        section: 10.4
+      - name: Fourier Series
+        section: 10.5
+      - name: Differential Equations
+        section: 11
+      - name: What is a Differential Equation
+        section: 11.1
+      - name: Slope Fields
+        section: 11.2
+      - name: Euler's Method
+        section: 11.3
+      - name: Separation of Variables
+        section: 11.4
+      - name: Growth and Decay
+        section: 11.5
+      - name: Applications and Modeling
+        section: 11.6
+      - name: The Logistic Model
+        section: 11.7
+      - name: Systems of Differential Equations
+        section: 11.8
+      - name: Analyzing the Phase Plane
+        section: 11.9
+      - name: Functions of Several Variables
+        section: 12
+      - name: Functions of Two Variables
+        section: 12.1
+      - name: Graphs and Surfaces
+        section: 12.2
+      - name: Contour Diagrams
+        section: 12.3
+      - name: Linear Functions
+        section: 12.4
+      - name: Functions of Three Variables
+        section: 12.5
+      - name: Limits and Continuity
+        section: 12.6
+      - name: 'A Fundamental Tool: Vectors'
+        section: 13
+      - name: Displacement Vectors
+        section: 13.1
+      - name: Vectors in General
+        section: 13.2
+      - name: The Dot Product
+        section: 13.3
+      - name: The Cross Product
+        section: 13.4
+      - name: Differentiating Functions of Several Variables
+        section: 14
+      - name: The Partial Derivative
+        section: 14.1
+      - name: Computing Partial Derivatives Algebraically
+        section: 14.2
+      - name: Local Linearity and the Differential
+        section: 14.3
+      - name: Gradients and Directional Derivatives in the Plane
+        section: 14.4
+      - name: Gradients and Directional Derivatives in Space
+        section: 14.5
+      - name: The Chain Rule
+        section: 14.6
+      - name: Second-Order Partial Derivatives
+        section: 14.7
+      - name: Differentiability
+        section: 14.8
+      - name: 'Optimization: Local and Global Extrema'
+        section: 15
+      - name: 'Critical Points: Local Extrema and Saddle Points'
+        section: 15.1
+      - name: Optimization
+        section: 15.2
+      - name: 'Constrained Optimization: Lagrange Multipliers'
+        section: 15.3
+      - name: Integrating Functions of Several Variables
+        section: 16
+      - name: The Definite Integral of a Function of Two Variables
+        section: 16.1
+      - name: Iterated Integrals
+        section: 16.2
+      - name: Triple Integrals
+        section: 16.3
+      - name: Double Integrals in Polar Coordinates
+        section: 16.4
+      - name: Integrals in Cylindrical and Spherical Coordinates
+        section: 16.5
+      - name: Applications of Integration to Probability
+        section: 16.6
+      - name: Parameterization and Vector Fields
+        section: 17
+      - name: Parameterized Curves
+        section: 17.1
+      - name: 'Motion, Velocity, and Acceleration'
+        section: 17.2
+      - name: Vector Fields
+        section: 17.3
+      - name: The Flow of a Vector Field
+        section: 17.4
+      - name: Line Integrals
+        section: 18
+      - name: The Idea of a Line Integral
+        section: 18.1
+      - name: Computing Line Integrals Over Parameterized Curves
+        section: 18.2
+      - name: Gradient Fields and Path-Independent Fields
+        section: 18.3
+      - name: Path-Independent Vector Fields and Green's Theorem
+        section: 18.4
+      - name: Flux Integrals and Divergence
+        section: 19
+      - name: The Idea of a Flux Integral
+        section: 19.1
+      - name: 'Flux Integrals for Graphs, Cylinders, and Spheres'
+        section: 19.2
+      - name: The Divergence of a Vector Field
+        section: 19.3
+      - name: The Divergence Theorem
+        section: 19.4
+      - name: The Curl and Stokes' Theorem
+        section: 20
+      - name: The Curl of a Vector Field
+        section: 20.1
+      - name: Stokes' Theorem
+        section: 20.2
+      - name: The Three Fundamental Theorems
+        section: 20.3
+      - name: 'Parameters, Coordinates and Integrals'
+        section: 21
+      - name: Coordinates and Parameterized Surfaces
+        section: 21.1
+      - name: Change of Coordinates in a Multiple Integral
+        section: 21.2
+      - name: Flux Integrals over Parameterized Surfaces
+        section: 21.3
+    title: Calculus
+  - author: Rogawski
+    edition: 1
+    sections:
+      - name: Precalculus Review
+        section: 1
+      - name: 'Real Numbers, Functions, and Graphs'
+        section: 1.1
+      - name: Linear and Quadratic Functions
+        section: 1.2
+      - name: The Basic Classes of Functions
+        section: 1.3
+      - name: Trigonometric Functions
+        section: 1.4
+      - name: Inverse Functions
+        section: 1.5
+      - name: Exponential and Logarithmic Functions
+        section: 1.6
+      - name: 'Technology: Calculators and Computers'
+        section: 1.7
+      - name: Limits
+        section: 2
+      - name: 'Limits, Rates of Change, and Tangent Lines'
+        section: 2.1
+      - name: 'Limits: A Numerical and Graphical Approach'
+        section: 2.2
+      - name: Basic Limit Laws
+        section: 2.3
+      - name: Limits and Continuity
+        section: 2.4
+      - name: Evaluating Limits Algebraically
+        section: 2.5
+      - name: Trigonometric Limits
+        section: 2.6
+      - name: Intermediate Value Theorem
+        section: 2.7
+      - name: The Formal Definition of a Limit
+        section: 2.8
+      - name: Differentiation
+        section: 3
+      - name: Definition of the Derivative
+        section: 3.1
+      - name: The Derivative as a Function
+        section: 3.2
+      - name: Product and Quotient Rules
+        section: 3.3
+      - name: Rates of Change
+        section: 3.4
+      - name: Higher Derivatives
+        section: 3.5
+      - name: Trigonometric Functions
+        section: 3.6
+      - name: The Chain Rule
+        section: 3.7
+      - name: Implicit Differentiation
+        section: 3.8
+      - name: Derivatives of Inverse Functions
+        section: 3.9
+      - name: Derivatives of General Exponential and Logarithmic Functions
+        section: 3.10
+      - name: Related Rates
+        section: 3.11
+      - name: Applications of the Derivative
+        section: 4
+      - name: Linear Approximation and Applications
+        section: 4.1
+      - name: Extreme Values
+        section: 4.2
+      - name: The Mean Value Theorem and Monotonicity
+        section: 4.3
+      - name: The Shape of a Graph
+        section: 4.4
+      - name: Graph Sketching and Asymptotes
+        section: 4.5
+      - name: Applied Optimization
+        section: 4.6
+      - name: L'Hopital's Rule
+        section: 4.7
+      - name: Newton's Method
+        section: 4.8
+      - name: Antiderivatives
+        section: 4.9
+      - name: The Integral
+        section: 5
+      - name: Approximating and Computing Area
+        section: 5.1
+      - name: The Definite Integral
+        section: 5.2
+      - name: 'The Fundamental Theorem of Calculus, Part I'
+        section: 5.3
+      - name: 'The Fundamental Theorem of Calculus, Part II'
+        section: 5.4
+      - name: Net or Total Change as the Integral of a Rate
+        section: 5.5
+      - name: Substitution Method
+        section: 5.6
+      - name: Further Transcendental Functions
+        section: 5.7
+      - name: Exponential Growth and Decay
+        section: 5.8
+      - name: Applications of the Integral
+        section: 6
+      - name: Area Between Two Curves
+        section: 6.1
+      - name: 'Setting Up Integrals: Volumes, Density, Average Value'
+        section: 6.2
+      - name: Volumes of Revolution
+        section: 6.3
+      - name: The Method of Cylindrical Shells
+        section: 6.4
+      - name: Work and Energy
+        section: 6.5
+      - name: Techniques of Integration
+        section: 7
+      - name: Numerical Integration
+        section: 7.1
+      - name: Integration by Parts
+        section: 7.2
+      - name: Trigonometric Integrals
+        section: 7.3
+      - name: Trigonometric Substitution
+        section: 7.4
+      - name: Integrals of Hyperbolic and Inverse Hyperbolic Functions
+        section: 7.5
+      - name: The Method of Partial Fractions
+        section: 7.6
+      - name: Improper Integrals
+        section: 7.7
+      - name: Further Applications of the Integral and Taylor Polynomials
+        section: 8
+      - name: Arc Length and Surface Area
+        section: 8.1
+      - name: Fluid Pressure and Force
+        section: 8.2
+      - name: Center of Mass
+        section: 8.3
+      - name: Taylor Polynomials
+        section: 8.4
+      - name: Introduction to Differential Equations
+        section: 9
+      - name: Solving Differential Equations
+        section: 9.1
+      - name: Models Involving y'=k(y-b)
+        section: 9.2
+      - name: Graphical and Numerical Methods
+        section: 9.3
+      - name: The Logistic Equation
+        section: 9.4
+      - name: First-Order Linear Equations
+        section: 9.5
+      - name: Infinite Series
+        section: 10
+      - name: Sequences
+        section: 10.1
+      - name: Summing an Infinite Series
+        section: 10.2
+      - name: Convergence of Series with Positive Terms
+        section: 10.3
+      - name: Absolute and Conditional Convergence
+        section: 10.4
+      - name: The Ratio and Root Tests
+        section: 10.5
+      - name: Power Series
+        section: 10.6
+      - name: Taylor Series
+        section: 10.7
+      - name: 'Parametric Equations, Polar Coordinates, and Conic Sections'
+        section: 11
+      - name: Parametric Equations
+        section: 11.1
+      - name: Arc Length and Speed
+        section: 11.2
+      - name: Polar Coordinates
+        section: 11.3
+      - name: Area and Arc Length in Polar Coordinates
+        section: 11.4
+      - name: Conic Sections
+        section: 11.5
+      - name: Vector Geometry
+        section: 12
+      - name: Vectors in the Plane
+        section: 12.1
+      - name: Vectors in Three Dimensions
+        section: 12.2
+      - name: Dot Product and the Angle Between Two Vectors
+        section: 12.3
+      - name: The Cross Product
+        section: 12.4
+      - name: Planes in Three-Space
+        section: 12.5
+      - name: A Survey of Quadric Surfaces
+        section: 12.6
+      - name: Cylindrical and Spherical Coordinates
+        section: 12.7
+      - name: Calculus of Vector-Valued Functions
+        section: 13
+      - name: Vector-Valued Functions
+        section: 13.1
+      - name: Calculus of Vector-Valued Functions
+        section: 13.2
+      - name: Arc Length and Speed
+        section: 13.3
+      - name: Curvature
+        section: 13.4
+      - name: Motion in Three-Space
+        section: 13.5
+      - name: Planetary Motion According to Kepler and Newton
+        section: 13.6
+      - name: Differentiation in Several Variables
+        section: 14
+      - name: Functions in Two or More Variables
+        section: 14.1
+      - name: Limits and Continuity in Several Variables
+        section: 14.2
+      - name: Partial Derivatives
+        section: 14.3
+      - name: 'Differentiability, Linear Approximation, and Tangent Planes'
+        section: 14.4
+      - name: The Gradient and Directional Derivatives
+        section: 14.5
+      - name: The Chain Rule
+        section: 14.6
+      - name: Optimization in Several Variables
+        section: 14.7
+      - name: 'Lagrange Multipliers: Optimizing with a Constraint'
+        section: 14.8
+      - name: Multiple Integration
+        section: 15
+      - name: Integrals in Several Variables
+        section: 15.1
+      - name: Double Integrals over More General Regions
+        section: 15.2
+      - name: Triple Integrals
+        section: 15.3
+      - name: 'Integration in Polar, Cylindrical, and Spherical Coordinates'
+        section: 15.4
+      - name: Change of Variables
+        section: 15.5
+      - name: Line and Surface Integrals
+        section: 16
+      - name: Vector Fields
+        section: 16.1
+      - name: Line Integrals
+        section: 16.2
+      - name: Conservative Vector Fields
+        section: 16.3
+      - name: Parametrized Surfaces and Surface Integrals
+        section: 16.4
+      - name: Integrals of Vector Fields
+        section: 16.5
+      - name: Fundamental Theorems of Vector Analysis
+        section: 17
+      - name: Green's Theorem
+        section: 17.1
+      - name: Stokes' Theorem
+        section: 17.2
+      - name: Divergence Theorem
+        section: 17.3
+    title: 'Calculus: Early Transcendentals'
