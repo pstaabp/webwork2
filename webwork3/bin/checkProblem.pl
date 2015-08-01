@@ -36,13 +36,7 @@ option login => (is => 'ro', json => 1, default => sub { return {hostname => 'ht
     course_name => 'test',
     user => 'profa',
     password =>  'profa'} });
-#default => "{
-#	'hostname': 'http://localhost',
-#	'course_name': 'test',
-#	'user': 'profa',
-#	'password': 'profa'
-#}");
-
+option file => (is => 'ro', format => 's', doc => 'Path to file to be checked (REQUIRED)', required => 1); 
 option output_raw => (is => 'ro', default => '', 
     doc => 'shows the output (as JSON) from the renderer.');
 option show_in_browser => (is => 'ro', default => '',
@@ -51,52 +45,14 @@ option show_in_browser => (is => 'ro', default => '',
 has results => (is => 'rw', type=> Str);
 has raw_output => (is =>'rw', type=> Str);
 
-#sub showHelp {
-#   print <<EOF
-#usage: checkProblem [flags] filename(s)
-#   flags:
-#   		--verbose: 				send the output to the commandline as well as the output file.
-#   		--show-errors: 			print the errors (default: hides the errors)
-#   		--show-warnings: 		print the errors (default: hides the warnings)
-#   		--test-randomize: 		tests if the problem has randomization. (default: don't check)
-#   		--show-in-browser: 		opens the result in a browser.
-#   		--check-missing-alt-tag: checks in the pg code if there are any images that are missing alt tags.  
-#   		--output-raw:			shows the output (as JSON) from the renderer.
-#   		--output output_file: 	send the output to output_file.  (default: $outputFile)
-#
-#EOF
-#
-#}
 
 
 my $WW_ROOT = $ENV{WEBWORK_ROOT};
-
-#my $verbose = '';	# option variable with default value (false)
-
-#my $showErrors = '';
-#my $showWarnings = '';
-#my $testRandomize = '';
-#my $showInBrowser = '';
-#my $showHelp = '';
-#my $loginCredentials = {
-#	hostname => 'https://webwork.fitchburgstate.edu',
-#	course_name => 'staab_course',
-#	user => 'profa',
-#	password => 'profa'
-#};
-#my $checkMissingAltTag = '';
-#my $outputRaw = '';
-#my $loginFile = '';
 my @warnings = ();
-
-#GetOptions ('verbose' => \$verbose, 'output:s' => \$outputFile, 'show-errors' => \$showErrors,
-#		'show-warnings' => \$showWarnings, 'check-for-randomize' => \$testRandomize,
-#		'show-in-browser' => \$showInBrowser, 'check-missing-alt-tag' => \$checkMissingAltTag,
-#		'help' =>\$showHelp, 'login-file:s' => \$loginFile, 'output-raw' => \$outputRaw);
 
 
 my $FH; 
-my $outputFile = $WW_ROOT . "/../libraries/t/check_library_output.txt";
+my $outputFile = $WW_ROOT . "/webwork3/environments/logs/check_library_output.txt";
 
 sub run {
     my $self  = shift; 
@@ -105,15 +61,22 @@ sub run {
     
     my $out = $self->loginToServer;
 
-    dd "after loginToServer";
-    dd $out; 
     my $session = from_json($out);
-if(!$session->{logged_in}){
-	die "You were not able to log in.  Please check the credentials.";
-}
+    if(!$session->{logged_in}){
+        die "You were not able to log in.  Please check the credentials.";
+    }
 
-open($FH, '>>', $outputFile) or die "Could not open file '$outputFile' $!";	
+    open($FH, '>>', $outputFile) or die "Could not open file '$outputFile' $!";	
 
+    ## auto flush printing
+    $| = 1; 
+    
+    if($self->file){
+        $self->checkFile;
+    }
+    
+    close($FH);
+    
 }
 
 #
@@ -148,29 +111,31 @@ open($FH, '>>', $outputFile) or die "Could not open file '$outputFile' $!";
 #close $fh;
 
 sub checkFile {
-    my ($self,$file) = @_;
+    my $self = shift;
 
-	my $file_source = read_file $file || die "Could not open file $file";
+	my $file_source = read_file $self->file || die "Could not open file: $self->file"; 
 	my $data = encode_entities $file_source;
 	my $output;
 	my $parse; 
 	my $isRandom; 
 
 	if($self->check_randomize){
-		$isRandom = checkForRandomize($data)->{is_random};
+		$isRandom = $self->checkForRandomize($data)->{is_random};
 	} else {
-		$output = renderOnServer($self->login, $data);
+		$output = $self->renderOnServer($data);
+        
+        dd $output; 
 		$parse = from_json($output);
 		# print "$output\n";
 	}
 
 	if($parse->{errors} or $parse->{error}){
-		printResults("0\t $file has errors.");
+		printResults("0\t $self->file has errors.");
 		if($self->show_errors){
 			printResults(($parse->{errors} || "" ) . ($parse->{error} || ""));
 		}
 	} else {
-		printResults("1\t $file is ok.");
+		printResults("1\t $self->file is ok.");
 		if($self->check_randomize){
 			printResults("\trandom: ". ($isRandom || 0 ));
 		} 
@@ -199,15 +164,12 @@ sub checkFile {
 sub loginToServer {
 	my $self = shift; 
     
-    dd $self; 
-    
 	my $hostname = $self->login->{hostname};
 	my $user = $self->login->{user};
 	my $password = $self->login->{password};
 	my $courseName = $self->login->{course_name};
 	my $flags = "-s -c /tmp/dancer-cookies -X POST -d user=$user -d password=$password ";
     
-    dd qq!curl $flags $hostname/webwork3/courses/$courseName/login!;
 	return qx!curl $flags $hostname/webwork3/courses/$courseName/login!;
 }
 
@@ -217,6 +179,8 @@ sub renderOnServer {
 	my $courseName = $self->login->{course_name};
 	my $flags = "-s -b /tmp/dancer-cookies -X POST --data-urlencode 'source=$data' -d course_id=$courseName " . 
 					 (defined($seed) ? "-d seed=$seed" : "");
+                     
+    dd qq!curl $flags $hostname/webwork3/renderer!;
 	return qx!curl $flags $hostname/webwork3/renderer!;
 }
 
