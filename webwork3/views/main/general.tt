@@ -132,7 +132,14 @@
       <a href="#" onclick="return false;" class="mark-correct-btn btn btn-default" title="Mark this problem correct for all assigned users.">
         <i class="fa fa-check"></i></a>
     <%}%>
-    
+    <%if(flags && flags.solutionExists == 1){%>
+      <a href="#" onclick="return false;" class="solution-exists-btn btn btn-default" title="Show the solution">
+        <b>S</b></a>
+    <%}%>
+    <%if(flags && flags.hintExists == 1){%>
+      <a href="#" onclick="return false;" class="hint-exists-btn btn btn-default" title="Show the hint">
+        <b>H</b></a>
+    <%}%>
   <a href="#" onclick="return false;" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
   <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
   </div>

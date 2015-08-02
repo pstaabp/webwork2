@@ -78,13 +78,13 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
         render:function () {
             var self = this;
             var group_name; 
-            if(this.model.get('data') || this.state.get("displayMode")=="None"){
+            if(! this.state.get("hidden") && this.model.get('data') || this.state.get("displayMode")=="None"){
                 
                 if(this.state.get("displayMode")=="None"){
                     this.model.attributes.data="";
                 }
 
-                this.$el.html(this.template(_.extend({},this.model.attributes,this.state.attributes)));
+                this.$el.html(this.template(_.extend({},this.state.attributes,this.model.attributes)));
                 
                 this.$el.imagesLoaded(function() {
                     self.$el.removeAttr("style");
@@ -144,7 +144,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 if(!this.state.get("data_fetched")){
                     this.state.set("data_fetched",true);    
                     this.model.loadHTML({display_mode: this.state.get("display_mode"), success: function (data) {
-                        self.model.set("data",data.text);
+                        self.model.set({data: data.text, flags: data.flags});
                         self.model.renderData = data;
                         self.state.set("mlt_leader",self.model.get("mlt_leader"));
                         if(self.model.renderData.tags){ // if the tags were retrieved upon rendering. 
@@ -171,6 +171,10 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             "click .mlt-button": function () {this.state.set("show_mlt",!this.state.get("show_mlt"))},
             "click .path-button": function () {this.state.set("show_path",!this.state.get("show_path"))},
             "click .tags-button": function () {this.state.set("show_tags",!this.state.get("show_tags"))},
+            "click .hint-exists-btn": function () {this.state.set("show_hint",!this.state.get("show_hint"))},
+            "click .solution-exists-btn": function () {
+                this.model.set("show_solution",!this.model.get("show_solution"))
+            },
             "click .mark-correct-btn": "markCorrect",
             "keyup .prob-value,.max-attempts": function (evt){
                 if(evt.keyCode == 13){ $(evt.target).blur() }   

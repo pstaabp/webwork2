@@ -51,7 +51,9 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             }).on("change:display_mode",function(){
                 self.updateProblems();
                 self.renderProblems();
-            });
+            }).on("change:show_solution",function(){
+                console.log("hi");  
+            })
         },
         set: function(opts){
             var self = this; 
