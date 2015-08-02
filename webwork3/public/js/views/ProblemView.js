@@ -141,6 +141,9 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             } else {
                 this.state.set("rendered",false);
                 this.$el.html($("#problem-loading-template").html());
+                if(this.libraryView){
+                    this.model.set({show_comments: true},{silent: true});   
+                }
                 if(!this.state.get("data_fetched")){
                     this.state.set("data_fetched",true);    
                     this.model.loadHTML({display_mode: this.state.get("display_mode"), success: function (data) {

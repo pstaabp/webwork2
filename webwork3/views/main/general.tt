@@ -171,6 +171,9 @@
 </table>
 </div>
 <div><%=data%></div>
+<%if(flags && flags.comment){%>
+<%=flags.comment%>
+<%}%>
 </script>
 
 <script type="text/template" id="problem-loading-template">

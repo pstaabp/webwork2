@@ -82,9 +82,13 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             this.state.set(_(opts).pick("show_path","show_tags","show_solution","show_hints"))
             this.viewAttrs.type = opts.type || "set"; // what is this for?
             this.state.set(_(opts).pick("display_mode"));
-            if(this.state.get("display_mode")===""){
+            if(_.isEmpty(this.state.get("display_mode"))){
                 this.state.set("display_mode",this.settings.getSettingValue("pg{options}{displayMode}"));
-                this.libraryView.parent.state.set("display_mode",this.state.get("display_mode",{silent: true}));
+                if(this.libraryView){
+                    this.libraryView.parent.state.set("display_mode",this.state.get("display_mode",{silent: true}));
+                } else if(this.problem_set_view){
+                    this.problem_set_view.state.set("display_mode",this.state.get("display_mode",{silent: true}));   
+                }
             }
             return this; 
         },
@@ -137,10 +141,11 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                                                         viewAttrs: self.viewAttrs,
                                                         display_mode: self.state.get("display_mode") }));
             });
+            
+           
         },
         renderProblems: function () {
             var self = this;
-            var ul = this.$(".prob-list").empty(); 
             var ul = this.$(".prob-list").empty();
             if(this.problemViews.length == 0){
                 this.updateProblems();   
@@ -184,6 +189,14 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown", 
                     opts: {probFrom: start, probTo:end,total: totalProbs }}));
             }
+            
+            var num_problem_row_height = $(".num-problems").parent().outerHeight(true);
+            var tab_height = $(".set-details-tab").parent().outerHeight(true);
+            var navbar_height = $(".navbar-fixed-top").outerHeight(true);
+            var footer_height = $(".navbar-fixed-bottom").outerHeight(true);
+            this.$(".prob-list").height($(window).height()-num_problem_row_height-tab_height
+                                                -navbar_height-footer_height);
+            
         },
         events: {"click .undo-delete-button": "undoDelete",
             "change .display-mode-options": "changeDisplayMode",

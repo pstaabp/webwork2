@@ -13,7 +13,7 @@ function(Backbone, ProblemListView,util) {
             this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, 
                               showEditTool: false, problem_seed: 1, showRefreshTool: true, 
                               showViewTool: false, showHideTool: true, deletable: false, 
-                              showMaxAttempts: false, draggable: true, markCorrect: true};
+                              showMaxAttempts: false, draggable: true, markCorrect: false};
             _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
             ProblemListView.prototype.initialize.apply(this,[options]); 
         },

@@ -18,8 +18,9 @@ function (Backbone, ProblemListView, UserProblemList, ProblemList) {
             this.set({problem_set_view: this});
         },
         render: function () {
-          ProblemListView.prototype.render.apply(this);  
-          this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
+            ProblemListView.prototype.render.apply(this);  
+            this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
+
         },
         // this is a method that will mark the problem with id problem_id as correct (status=1) 
         //for all assigned users. 
