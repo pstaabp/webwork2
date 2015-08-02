@@ -13,6 +13,7 @@ use Data::Dump qw/dd/;
 
 use Models::Library::DBsubject;
 use Models::Library::ProblemAuthor;
+use Utils::LibraryUtils;
 
 
 #my @problem_author_fields = qw/institution lastname firstname email/;
@@ -300,8 +301,21 @@ sub toString {
   return $str;
 }
 
+####
+#
+#  This renders the problem and returns the result of the PG rendering.
+#
+####
 
+sub render {
+    my ($self, $ce) = @_; 
+    
+    
+    
+    
+    return render($ce,$renderParams);
 
+}
 
 1;
 

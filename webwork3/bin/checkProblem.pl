@@ -5,12 +5,12 @@ use warnings;
 
 use Moo;
 use MooX::Options;
-use MooX::Types::MooseLike::Base qw/Str/;
+use MooX::Types::MooseLike::Base qw/Str InstanceOf/;
 
 use JSON;
 use File::Slurp;
 use HTML::Entities;
-use Getopt::Long;
+use File::Find::Rule;
 use Data::Dump qw/dd dump/;
 use Regexp::Common; 
 use Carp::Always;
@@ -36,14 +36,15 @@ option login => (is => 'ro', json => 1, default => sub { return {hostname => 'ht
     course_name => 'test',
     user => 'profa',
     password =>  'profa'} });
-option file => (is => 'ro', format => 's', doc => 'Path to file to be checked (REQUIRED)', required => 1); 
-option output_raw => (is => 'ro', default => '', 
+option file => (is => 'ro', format => 's', doc => 'Path to file to be checked');
+option directory => (is => 'ro', format => 's', doc => 'Path to directory to check all problems.');
+option raw_output => (is => 'ro', default => '', 
     doc => 'shows the output (as JSON) from the renderer.');
 option show_in_browser => (is => 'ro', default => '',
     doc => 'opens the result in a browser.');
 
 has results => (is => 'rw', type=> Str);
-has problem => (is => 'rw', type=> [Models::Library::Problem]);
+has problem => (is => 'rw', isa => InstanceOf['Models::Library::Problem']);
 
 
 
@@ -66,15 +67,30 @@ sub run {
         die "You were not able to log in.  Please check the credentials.";
     }
     
-    self->problem(new Model::Library::Problem(path=> '');
+    #my $relPath = file($self->problem_path)->relative(dir($self->library_dir));
+    #$self->problem(Models::Library::Problem->new(path=>$relPath->stringify));
 
     open($FH, '>', $outputFile) or die "Could not open file '$outputFile' $!";	
 
+
+    #$self->problem->render;
     ## auto flush printing
     $| = 1; 
     
-    if($self->file){
-        $self->checkFile;
+    if($self->directory){
+        # find all the .pg files in @INC
+        my @files = File::Find::Rule->file()
+                              ->name( '*.pg' )
+                              ->in($self->directory);
+                              
+        for my $file (@files){
+            $self->checkFile($file);
+        }
+    
+    } elsif($self->file){
+        $self->checkFile($self->file);
+    } else {
+      die "You must either select a file or a directory for this script.";
     }
     
     print $FH $self->results;
@@ -88,8 +104,8 @@ sub run {
 
 
 sub checkFile {
-    my $self = shift;
-	my $file_source = read_file $self->file || die "Could not open file: " . $self->file . "\n"; 
+    my ($self,$filename) = @_;
+	my $file_source = read_file $filename || die "Could not open file: $filename";
 	my $data = encode_entities $file_source;
 	my $output;
 	my $parse; 
@@ -110,7 +126,7 @@ sub checkFile {
 			$self->printResults(($parse->{errors} || "" ) . ($parse->{error} || ""));
 		}
 	} else {
-		$self->printResults("1\t" . $self->file . " is ok.");
+		$self->printResults("\t$filename is ok.");
 		if($self->check_randomize){
 			$self->printResults("\trandom: ". ($isRandom || 0 ));
 		} 
@@ -129,8 +145,11 @@ sub checkFile {
 	$self->printResults("\n");
 
 	if($self->raw_output and $self->verbose){
-		$self->printResults(Dumper($parse));
+		$self->printResults(dump($parse));
 	}
+    if($self->show_in_browser){
+        $self->showInBrowser($parse);
+    }
 	return $parse;
 }
 
@@ -199,9 +218,8 @@ sub isAltTagMissing {
 }
 
 sub showInBrowser {
-		my $file_source = shift;
-		my $parse = checkFile($file_source);
-
+		my ($self,$parse) = @_;
+        
 		if($parse->{text}){
 			open(my $htmlFile, '>' , '/tmp/test.html') or die "Could not open /tmp/test.html"; 
 			print $htmlFile	<<XXX;
@@ -220,7 +238,7 @@ XXX
 <div style='border: 1px solid black; border-radius:5px'>
 <textarea rows=40 cols=120>
 XXX
-			my $output = read_file($file_source);
+			my $output = read_file($self->file);
 			#$output =~ s/\n/<br>/g;
 			print $htmlFile $output;
 			print $htmlFile <<XXX;
@@ -230,10 +248,7 @@ XXX
 </html>
 XXX
 			close $htmlFile;
-
 			print $parse->{text};
-# 
-
 			`open /tmp/test.html`; 
 
 	}
