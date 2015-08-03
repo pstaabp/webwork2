@@ -41,7 +41,8 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             // which include which tools are shown on a problemView
 
             this.state = new Backbone.Model(_.extend(options.viewAttrs,
-                        {tags_loaded: false, tags_shown: false, path_shown: false, data_fetched: false}));
+                        {tags_loaded: false, show_tags: false, show_path: false, show_mlt: false,
+                         data_fetched: false}));
                 
             this.state.on("change:show_tags",function(){
                     self.showTags(self.state.get("show_tags"));
@@ -78,7 +79,10 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
         render:function () {
             var self = this;
             var group_name; 
-            if(! this.state.get("hidden") && this.model.get('data') || this.state.get("displayMode")=="None"){
+            if(this.state.get("hidden")){
+                return this;
+            }
+            if(this.model.get('data') || this.state.get("displayMode")=="None"){
                 
                 if(this.state.get("displayMode")=="None"){
                     this.model.attributes.data="";
@@ -112,6 +116,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 }
                 this.showPath(this.state.get("show_path"));
                 this.showTags(this.state.get("show_tags"));
+                this.showMLT(this.state.get("show_mlt"));
                 this.stickit();
                 Backbone.Validation.bind(this,{
                     valid: function(view,attr){

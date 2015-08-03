@@ -34,7 +34,8 @@ function(Backbone, ProblemListView,util) {
                         return pv.model.get("morelt_id")==_model.get("morelt_id");})
             _(pvs).each(function(pv,i) { 
                 if(i>0) {
-                    pv.state.set("hidden", !_show);
+                    pv.state.set({hidden : !_show, show_mlt: _show});
+                    //util.changeClass({state: _show, els: pv.$el, remove_class: "hidden"});
                 }
                 if(i>0 && i<pvs.length-1){
                     util.changeClass({state: _show, els: pv.$el, 

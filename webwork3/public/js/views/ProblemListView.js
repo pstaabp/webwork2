@@ -97,19 +97,22 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             var self = this; 
             this.pages = [];
             var currentPage = []; 
+            var problems_added = 0; 
             //var probNumOnPage = 0; 
             this.problems.each(function(prob,i){
-                if(currentPage.length>=self.state.get("page_size") && ( prob.get("morelt_id") == 0 || 
-                            prob.get("morelt_id") != self.problems.at(i-1).get("morelt_id"))){
-                    self.pages.push(currentPage); 
-                    currentPage = [];
-                }
-
-                if(prob.get("mlt_leader") || prob.get("morelt_id")==0){
-                    currentPage.push({leader:true,num:i})   
+                
+                if(prob.get("morelt_id")==0 || prob.get("mlt_leader")){
+                    problems_added++;
+                    currentPage.push({leader:true,num:i})
                 } else {
                     currentPage.push({leader:false,num:i});
                 }
+                if(problems_added >=self.state.get("page_size")){
+                    self.pages.push(currentPage); 
+                    currentPage = [];
+                    problems_added = 0; 
+                }
+
             });
             self.pages.push(currentPage);
         },
@@ -160,6 +163,7 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
                         self.libraryView.sidebarChanged();
                     }
                 })
+                pv.delegateEvents();
             });
 
             if(this.viewAttrs.reorderable){

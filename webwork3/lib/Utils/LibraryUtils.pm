@@ -360,7 +360,7 @@ sub searchLibrary {
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
     
-    debug ($selectClause . $whereClause . $groupClause . ";");
+    #debug ($selectClause . $whereClause . $groupClause . ";");
 
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
     
