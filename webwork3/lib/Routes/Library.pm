@@ -13,7 +13,7 @@ use Dancer::Plugin::Database;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
-use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
+use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags getProblemTagsFromDB render/;
 use Utils::ProblemSets qw/record_results/;
 use Utils::Authentication qw/checkPermissions setCourseEnvironment/;
 use WeBWorK::DB::Utils qw(global2user);
@@ -161,23 +161,40 @@ get '/courses/:course_id/library/local' => sub {
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
 
 	my $libPath = $path . "/" . "Library";  # hack to get this to work.  Need to make this more robust.
-	#my $parentPath =  $path->parent;
+	
+    my @dirs = File::Find::Rule->directory()
+                                ->not_name("Pending")
+                                ->not_name("Library")
+                                ->in($path->stringify);
+                                
+    my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
+   
+	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($path)->stringify} }@files;
+	return \@allFiles;
 
-	my @files = ();
+};
 
-	$path->recurse( preorder=>1,callback=>sub {
-		my ($dir) = @_;
-		if ($dir =~ /^$libPath/){
-			return Path::Class::Entity::PRUNE(); # don't follow into the Library directory
-		} else {
-			my $relDir = $dir;
-			$relDir =~ s/^$path\/(.*)/$1/;
-			if(($dir =~ /.*\.pg$/) && not($dir =~ /Header/)){  ## ignore any file with Header in it. 
-				push(@files,$relDir);	
-			}
-		}
-	});
-	my @allFiles =  map { {source_file=>$_} }@files;
+#######
+#
+#  get '/library/pending'
+#
+#  return all the problems in the pending directory
+#
+####
+
+get '/courses/:course_id/library/pending' => sub {
+
+	debug "in /library/pending";
+
+	## still need to search for directory with single files and others with ignoreDirectives.
+
+	setCourseEnvironment(params->{course_id});
+    my $templateDir = vars->{ce}->{courseDirs}{templates};
+	my $pendingDir = dir($templateDir,"Pending")->stringify;
+                            
+    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($pendingDir);
+   
+	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($templateDir)->stringify} }@files;
 	return \@allFiles;
 
 };
@@ -368,13 +385,37 @@ get '/library/problems' => sub {
 #
 #  get '/Library/problems/:problem_id/tags'
 #
-#  This returns all of the tags from the DB for a problem
+#  This returns all of the tags from the DB for a problem.  Note: the course_id must be passed as a parameter
 #
 ## 
 
 get '/library/problems/:problem_id/tags' => sub {
 
-	return getProblemTags(params->{problem_id});
+    setCourseEnvironment(params->{course_id});
+    my $filepath = file(vars->{ce}->{courseDirs}->{templates}, params->{source_file});
+	return convertObjectToHash(getProblemTags($filepath->stringify));
+};
+
+
+###
+#
+#  This returns the taxonomy file for tagging in the library
+#
+###
+
+get '/library/taxonomy' => sub {
+    setCourseEnvironment("");
+    my $file = file(vars->{ce}->{webwork_htdocs_dir},"DATA","tagging-taxonomy.json")->stringify;
+    
+    my $json_text = do {
+        open(my $json_fh, "<:encoding(UTF-8)", $file)  or send_error("The file $file does not exist.",404);
+	    local $/;
+	    <$json_fh>
+	};
+    
+    debug to_dumper(from_json($json_text));
+    
+	return from_json($json_text);
 };
 
 ###
@@ -428,11 +469,13 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => param('problem_id')});
 		my $path_id = $problem_info->{path_id};
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
-		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
+		$renderParams->{problem}->{source_file} = file("Library" ,$path_header , $problem_info->{filename})->stringify;
 	} 
 
     my $rp = render(vars->{ce},$renderParams);
-    $rp->{tags} = getProblemTags(-1);  # lookup the tags using the source_file. 
+    my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
+    #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file. 
+    #$rp->{tags} = getProblemTagsFromDB(-1); 
 	return $rp;
 };
 

@@ -7,11 +7,12 @@ use Path::Class qw/file dir/;
 use Dancer ':syntax';
 use Dancer::Plugin::Database;
 use List::MoreUtils qw/distinct first_index indexes/;
+use WeBWorK::Utils::Tags; 
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
 use Utils::Convert qw/convertArrayOfObjectsToHash convertBooleans/;
 our @EXPORT    = ();
-our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render);
+our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render getProblemTagsFromDB);
 our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message 
 						student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name/;
 
@@ -423,8 +424,22 @@ sub sortByMLT {
     return \@sorted_problems;
 }
 
-
 sub getProblemTags {
+    my $file_path = shift;
+    my $tagObj = WeBWorK::Utils::Tags->new($file_path);
+    
+    return $tagObj;
+
+}
+
+
+###
+#
+#  Older version of the subroutine above. 
+#
+##  
+
+sub getProblemTagsFromDB {
 	my $fileID = shift;
 	if ($fileID < 0){  ## then the pgfile_id is not defined.  Use the source_file to look up the information. 
 

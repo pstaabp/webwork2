@@ -11,6 +11,7 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
         tabName: "Local Problems",
     	initialize: function (options){
             _(this).bindAll("buildMenu");
+            _(this).extend(_(options).pick("tabName"));
             LibraryView.prototype.initialize.apply(this,[options]);
             this.libBrowserType = options.libBrowserType;
             this.libraryProblemsView.problems.type = "localLibrary";
@@ -28,7 +29,7 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
             this.$(".library-tree-container").html($("#local-library-tree-template").html());
             //this.libraryProblemsView.reset();
             // the 
-            if(typeof(this.localProblems)==="undefined" || this.localProblems.size()== 0) {
+            if(typeof(this.localProblems)==="undefined") {
                 
                 this.$(".library-tree-container").html($("#loading-library-template").html());
                 this.localProblems = new ProblemList();

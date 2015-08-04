@@ -61,12 +61,14 @@ define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, 
         loadTags: function (opts) {
             var self = this;
             if(! this.get("tags")){
-                var fileID = (this.get("pgfile_id") || -1)
-                    , params = (fileID<0)? {source_file: this.get("source_file")} : {};
-                $.get(config.urlPrefix + "Library/problems/" + fileID +"/tags",params,function (data) {
-                    self.set(data);
-                    opts.success(data);
-                });
+                var fileID = (this.get("pgfile_id") || -1);
+                $.ajax({
+                    url: config.urlPrefix + "library/problems/" + fileID +"/tags",
+                    data: (fileID<0)? {course_id: config.courseSettings.course_id, source_file: this.get("source_file")} : {},
+                    success: function (data) {
+                        self.set(data);
+                        opts.success(data);
+                }});
             }
         },
         problemURL: function(){

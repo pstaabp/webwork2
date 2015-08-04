@@ -28,6 +28,7 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
                 localLibrary : new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "localLibrary"})),
                 setDefinition : new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "setDefinition"})),
                 search :  new LibrarySearchView(_.extend({},viewOptions,{libBrowserType: "search"})),
+                pending: new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "pending", tabName: "Pending"}))
             };
             options.views.setDefinition.tabName = "Set Defn. files";
             TabbedMainView.prototype.initialize.call(this,options);
@@ -35,6 +36,10 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
                 self.state.set("sidebar",sb.info.id);
             });
     	},
+        render: function (){
+            TabbedMainView.prototype.render.call(this);
+            this.$el.append("<div class='edit-tags-container'></div>");
+        },
         changeTab: function(options){
             TabbedMainView.prototype.changeTab.apply(this,[options]);
             if(this.sidebar){

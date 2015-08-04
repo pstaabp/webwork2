@@ -5,16 +5,17 @@
  **/
 
 
-define(['backbone', 'views/ProblemListView','apps/util'], 
-function(Backbone, ProblemListView,util) {
+define(['backbone', 'views/ProblemListView','apps/util','views/ModalView','config'], 
+function(Backbone, ProblemListView,util,ModalView,config) {
     var LibraryProblemsView = ProblemListView.extend({
         initialize: function (options) {
             _(this).bindAll("highlightCommonProblems");
-            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, 
+            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, showEditTags: true,
                               showEditTool: false, problem_seed: 1, showRefreshTool: true, 
                               showViewTool: false, showHideTool: true, deletable: false, 
                               showMaxAttempts: false, draggable: true, markCorrect: false};
             _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
+            
             ProblemListView.prototype.initialize.apply(this,[options]); 
         },
         render: function(){
@@ -75,6 +76,17 @@ function(Backbone, ProblemListView,util) {
             } 
             return this;
         }
+//        },
+//        editTags: function (model){
+//            var self = this; 
+//            $.ajax({
+//                url: config.urlPrefix + 'library/problems/0/tags',
+//                data: _.extend({course_id: config.courseSettings.course_id}, model.pick("source_file")),
+//                success: function(data) { 
+//                    self.editTagView.set({model: new ProblemTags(data)})
+//                            .setElement($(".edit-tags-container")).render();
+//                }});
+//        }
     });
 
     return LibraryProblemsView;

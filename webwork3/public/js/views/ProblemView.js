@@ -183,6 +183,9 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             "click .solution-exists-btn": function () {
                 this.model.set("show_solution",!this.model.get("show_solution"))
             },
+            "click .edit-tags-button": function () {
+                this.libraryView.libraryProblemsView.editTags(this.model);  
+            },
             "click .mark-correct-btn": "markCorrect",
             "keyup .prob-value,.max-attempts": function (evt){
                 if(evt.keyCode == 13){ $(evt.target).blur() }   
@@ -235,7 +238,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                         self.state.set('tags_loaded',true);
                     }});
             }
-            util.changeClass({els:this.$(".tag-row"),state: _show, remove_class: "hidden"});
+            util.changeClass({els:this.$(".loading-row"),state: _show, remove_class: "hidden"});
         },
         showHints: function(_show){
             this.model.set({show_hints: _show, data: ""});
@@ -248,6 +251,9 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             this.render();
         },
         showMLT: function(_show){
+            if(typeof(this.libraryView)=="undefined"){
+                return;
+            }
             this.$(".mlt-button").html(_show?"L":"M");
             this.libraryView.libraryProblemsView.showMLT(this.model,_show);
         },

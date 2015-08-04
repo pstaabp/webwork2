@@ -140,8 +140,11 @@
       <a href="#" onclick="return false;" class="hint-exists-btn btn btn-default" title="Show the hint">
         <b>H</b></a>
     <%}%>
+  <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-folder"></i></a>
   <a href="#" onclick="return false;" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
-  <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
+  <%if(showEditTags){ %>
+      <a href="#" onclick="return false;" class="edit-tags-button btn btn-default" title="Edit Tags"><i class="fa fa-thumb-tack"></i></a>
+    <%}%>
   </div>
 
   <div class="col-md-2 btn-group btn-group-sm">
