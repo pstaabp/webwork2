@@ -5,7 +5,7 @@ function (Backbone, ProblemListView, UserProblemList, ProblemList) {
         initialize: function (options) {
             this.viewAttrs = {reorderable: true, showPoints: true, showAddTool: false, showMaxAttempts: true,
                               showEditTool: false, problem_seed: 1, showRefreshTool: true,
-                              showViewTool: false, showHideTool: false, deletable: true, showEditTags: false,
+                              showViewTool: false, showHideTool: false, deletable: true,
                               draggable: false, show_undo: true, markCorrect: true};
             _(this).extend(_(options).pick("problemSet","eventDispatcher"));
             _(this).bindAll("reorder","deleteProblem");

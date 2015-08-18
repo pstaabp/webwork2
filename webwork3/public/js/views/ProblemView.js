@@ -1,5 +1,6 @@
-define(['backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'], 
-       function(Backbone, _,config,Problem,util){
+define(['backbone', 'underscore','config','models/Problem','views/ProblemTagView',
+            'apps/util','imagesloaded','knowl','bootstrap'], 
+       function(Backbone, _,config,Problem,ProblemTagView,util){
     //##The problem View
 
     //A view defined for the browser app for the webwork Problem model.
@@ -42,7 +43,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
 
             this.state = new Backbone.Model(_.extend(options.viewAttrs,
                         {tags_loaded: false, show_tags: false, show_path: false, show_mlt: false,
-                         data_fetched: false}));
+                         data_fetched: false, edit_tags: false}));
                 
             this.state.on("change:show_tags",function(){
                     self.showTags(self.state.get("show_tags"));
@@ -57,7 +58,7 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                 }
             });
             
-            this.state.set(_(options).pick("display_mode","hidden"));
+            this.state.set(_(options).pick("display_mode","hidden","edit_tags"));
                     
             this.model.on('change:value change:max_attempts', function () {
                 var isValid = self.model.isValid(_(self.model.changed).keys());
@@ -71,9 +72,6 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             });
 
             this.invBindings = util.invBindings(this.bindings);
-                
-            
-           this.invBindings = util.invBindings(this.bindings);
         },
 
         render:function () {
@@ -123,7 +121,8 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
                         view.$(self.invBindings[attr]).popover("hide").popover("destroy");
                     },
                     invalid: function(view,attr,error){
-                        view.$(self.invBindings[attr]).popover({title: "Error", content: error,container: view.$el}).popover("show");
+                        view.$(self.invBindings[attr]).popover({title: "Error", content: error,
+                                                                container: view.$el}).popover("show");
                     }
                 });
                 
@@ -231,14 +230,20 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
         },
         showTags: function (_show){
             var self = this;
-            if(_show && ! this.state.get("tags_loaded")){
+            if(_(this.model.get("tags")).isEmpty() && _show){
+                this.$(".loading-tag-spinner").removeClass("hidden");
                 this.model.loadTags({success: function (){ 
-                        self.$(".loading-row").addClass("hidden");
-                        self.$(".tag-row").removeClass("hidden");
-                        self.state.set('tags_loaded',true);
+                        self.$(".loading-tag-spinner").addClass("hidden");
+                        self.showTags(_show);
                     }});
             }
-            util.changeClass({els:this.$(".loading-row"),state: _show, remove_class: "hidden"});
+            if(_show && self.model.get("tags")) {
+                if(_.isUndefined(self.problemTagView)){
+                    self.problemTagView = new ProblemTagView({model: self.model.get("tags"), edit_tags: self.edit_tags});
+                }
+                self.problemTagView.setElement(self.$(".problem-tag-container")).render();
+            }
+            util.changeClass({els:this.$(".problem-tag-container"),state: _show, remove_class: "hidden"});
         },
         showHints: function(_show){
             this.model.set({show_hints: _show, data: ""});
@@ -251,11 +256,15 @@ define(['backbone', 'underscore','config','models/Problem','apps/util','imageslo
             this.render();
         },
         showMLT: function(_show){
-            if(typeof(this.libraryView)=="undefined"){
+            if(_.isUndefined(this.libraryView)){
                 return;
             }
-            this.$(".mlt-button").html(_show?"L":"M");
-            this.libraryView.libraryProblemsView.showMLT(this.model,_show);
+            if(this.libraryView.libBrowserType == "subjects"){
+                this.$(".mlt-button").html(_show?"L":"M");
+                this.libraryView.libraryProblemsView.showMLT(this.model,_show);
+            } else  {
+                this.libraryView.libraryProblemsView.showMLT(this.model, true);
+            }
         },
         toggleSeed: function () {
             this.$(".problem-seed").toggleClass("hidden");

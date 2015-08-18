@@ -28,7 +28,8 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
                 localLibrary : new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "localLibrary"})),
                 setDefinition : new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "setDefinition"})),
                 search :  new LibrarySearchView(_.extend({},viewOptions,{libBrowserType: "search"})),
-                pending: new LocalLibraryView(_.extend({},viewOptions,{libBrowserType: "pending", tabName: "Pending"}))
+                pending: new LocalLibraryView(_.extend({},
+                                       viewOptions,{libBrowserType: "pending", tabName: "Pending", editTags: true}))
             };
             options.views.setDefinition.tabName = "Set Defn. files";
             TabbedMainView.prototype.initialize.call(this,options);

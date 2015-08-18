@@ -17,7 +17,7 @@
 <div class="col-md-2">
 <select class="form-control textbook-section hidden input-sm"></select>
 </div>
-<button type="button" class="btn btn-default load-problems-button">Load</button>
+<button type="button" class="btn btn-default load-library-button">Load</button>
 <span class="textbook-message"></span>
 </div>
 </script>
@@ -33,10 +33,9 @@
 <script type="text/template" id="local-library-tree-template">
 <div class="row form-horizontal">
 <div class="col-md-4">Local Problem Directory:</div>
-<div class="col-md-4"><select class="local-library-tree-select form-control">
-<% _(menu).each(function(m){ print("<option>" + m + "</option>")}) %>
+<div class="col-md-4 library-tree-cont"><select class="local-library-tree-select form-control">
 </select></div>
-<button class="btn btn-default load-problems-button">Load</button>
+<button class="btn btn-default load-library-button">Load</button>
 </div>
 </script>
 
@@ -167,28 +166,28 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
 <script type="text/template" id="tag-editor-template">
 <table class="table table-bordered table-condensed">
 <tr>
-    <td class="header">Level</td><td><select class="form-control input-sm" id="level-attribute"></select></td>
-    <td class="header">Keywords</td><td><input class="form-control" type="text" id="keyword-attribute"></td>
+    <td class="header">Level</td><td><select class="form-control input-sm level-attribute"></select></td>
+    <td class="header">Keywords</td><td><input class="form-control keyword-attribute" type="text"></td>
 </tr>
 <tr>
-    <td class="header">DBsubject</td><td><select class="form-control input-sm" id="dbsubject-attribute"></select></td>
-    <td class="header">Institution</td><td><input class="form-control" type="text" id="institution-attribute"></td>
+    <td class="header">DBsubject</td><td><select class="form-control input-sm dbsubject-attribute"></select></td>
+    <td class="header">Institution</td><td><input class="form-control institution-attribute" type="text" ></td>
 </tr>
 <tr>
-    <td class="header">DBchapter</td><td><select class="form-control input-sm" id="dbchapter-attribute"></select></td>
-    <td class="header">Problem Author</td><td><input class="form-control" type="text" id="author-attribute"></td>
+    <td class="header">DBchapter</td><td><select class="form-control input-sm dbchapter-attribute"></select></td>
+    <td class="header">Problem Author</td><td><input class="form-control author-attribute" type="text"></td>
 </tr>
 <tr>
-    <td class="header">DBsection</td><td><select class="form-control input-sm" id="dbsection-attribute"></select></td>
+    <td class="header">DBsection</td><td><select class="form-control input-sm dbsection-attribute"></select></td>
     
-    <td class="header">MO</td><td><input type="checkbox" id="MO-attribute"></select></td>
+    <td class="header">MO</td><td><input type="checkbox" class="MO-attribute"></select></td>
 </tr>
 <tr>
-    <td class="header">MLT</td><td><input class="form-control" type="text" id="MLT-attribute"></td>
-    <td class="header">MLT-leader</td><td><select class="form-control input-sm" class="form-control" id="MLT-leader-attribute"></select></td>    
+    <td class="header">MLT</td><td><input class="form-control MLT-attribute" type="text" ></td>
+    <td class="header">MLT-leader</td><td><input type="checkbox" class="MLT-leader-attribute"></select></td>    
 </tr>
 <tr>
-    <td class="header">Static</td><td><input type="checkbox" id="static-attribute"></td>
+    <td class="header">Static</td><td><input type="checkbox" class="static-attribute"></td>
     <td class="header">Status</td><td class="status-attribute"></td>
 </tr>
 

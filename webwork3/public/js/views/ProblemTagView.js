@@ -1,10 +1,12 @@
-define(['backbone','models/ProblemTags'], 
-function(Backbone, ProblemTags) {
+define(['backbone','models/ProblemTags','config'], 
+function(Backbone, ProblemTags,config) {
     var ProblemTagView = Backbone.View.extend({
-        viewTemplate: "",
+        viewTemplate: $("#show-tags-template").html(),
         editTemplate: $("#tag-editor-template").html(),
         initialize: function(options){
+            var self = this; 
             _(this).bindAll("updateDBsubjects","updateDBchapters");
+            _(this).extend(_(options).pick("edit_tags")); 
         
             this.dbsubjects = [];
             this.dbchapters = [];
@@ -15,43 +17,49 @@ function(Backbone, ProblemTags) {
                            "change:DBchapter":this.updateDBchapters});
         },
         render: function(){
-            var self = this; 
-            if(typeof(this.taxonomy) == "undefined"){
+            var self = this;
+            if(this.edit_tags){
+                this.$el.html(this.editTemplate);
+            } else {
+                this.$el.html(this.viewTemplate);
+            }
+            if(_.isUndefined(config.taxonomy)){
                 $.ajax({ url: config.urlPrefix + "library/taxonomy", success: function(data){
-                    self.taxonomy = data;
+                    config.taxonomy = data;
                     var chapters = [];
-                    self.dbsubjects = _(self.taxonomy).map(function(subj) { return subj.name;});
+                    self.dbsubjects = _(config.taxonomy).map(function(subj) { return subj.name;});
                     self.updateDBsubjects();
                     self.updateDBchapters();
                     
                     self.stickit();
                 }}); 
             }
+            console.log(self.model.attributes);
             this.stickit();
             return this;
         },
         bindings: {
-            "#level-attribute": {observe: "Level", selectOptions: {collection: [1,2,3,4,5,6]}},
-            "#keyword-attribute": {observe: "keywords",
+            ".level-attribute": {observe: "Level", selectOptions: {collection: [1,2,3,4,5,6]}},
+            ".keyword-attribute": {observe: "keywords",
                                    onGet: function(val) {
                                         return val.join(",");  
                                    }},
-            "#author-attribute": "Author",
-            "#institution-attribute": "Institution",
-            "#dbsubject-attribute": {observe: "DBsubject", selectOptions: {collection: "this.dbsubjects"}},
-            "#dbchapter-attribute": {observe: "DBchapter", selectOptions: {collection: "this.dbchapters", 
+            ".author-attribute": "Author",
+            ".institution-attribute": "Institution",
+            ".dbsubject-attribute": {observe: "DBsubject", selectOptions: {collection: "this.dbsubjects"}},
+            ".dbchapter-attribute": {observe: "DBchapter", selectOptions: {collection: "this.dbchapters", 
                                                             defaultOption: {
                                                                   label: 'Select a Chapter...',  // I18N
                                                                   value: null
             }}},
-            "#dbsection-attribute": {observe: "DBsection", selectOptions: {collection: "this.dbsections",
+            ".dbsection-attribute": {observe: "DBsection", selectOptions: {collection: "this.dbsections",
                                                         defaultOption: {
                                                                   label: 'Select a Section...',  // I18N
                                                                   value: null
             }}},
-            "#MO-attribute": "MO",
-            "#MLT-attribute": "MLT",
-            "#MLT-leader-attribute": "MLTleader",
+            ".MO-attribute": "MO",
+            ".MLT-attribute": "MLT",
+            ".MLT-leader-attribute": "MLTleader",
         },
         set: function(opts){
             _(this).extend(_(opts).pick("model"));
@@ -59,13 +67,13 @@ function(Backbone, ProblemTags) {
         }, 
         updateDBsubjects: function () {
             if(this.model.get("DBsubject")){
-                var chapters = _(this.taxonomy).findWhere({name: this.model.get("DBsubject")}).subfields;
+                var chapters = _(config.taxonomy).findWhere({name: this.model.get("DBsubject")}).subfields;
                 this.dbchapters = _(chapters).map(function(ch) { return ch.name;});
             }
             this.stickit();
         },
         updateDBchapters: function () {
-            var chapters = _(this.taxonomy).findWhere({name: this.model.get("DBsubject")}).subfields;
+            var chapters = _(config.taxonomy).findWhere({name: this.model.get("DBsubject")}).subfields;
             if(_.isEmpty(this.model.get("DBchapter"))){
                this.dbsections = [];
             } else if(this.model.get("DBchapter")){

@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, config,util){
+define(['backbone'], function(Backbone){
     /**
      *
      * This stores the Problem Tags for a problem 
@@ -26,7 +26,5 @@ define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, 
             Language:"",
         }
     });
-
-    
     return ProblemTags;
 });

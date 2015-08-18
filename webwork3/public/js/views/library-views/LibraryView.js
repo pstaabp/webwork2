@@ -20,18 +20,20 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
     	initialize: function (options){
     		var self = this;
             _.bindAll(this,'addProblem','loadProblems','showProblems','changeDisplayMode','setTargetSet');
+            this.editTags = false; 
             _(this).extend(_(options).pick("parent","problemSets","libBrowserType","settings"
-                                            ,"eventDispatcher","messageTemplate"));
+                                            ,"eventDispatcher","messageTemplate","editTags"));
+            
             this.libraryProblemsView = new LibraryProblemsView({libraryView: this, 
                                                                 messageTemplate: this.messageTemplate,
                                                                 problemSets: this.problemSets, 
-                                                                settings: this.settings})
+                                                                settings: this.settings, editTags: this.editTags})
                 .on("page-changed",function(num){
                     self.tabState.set("page_num",num);
                 })
             TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
             
-            // when the libraryView is created, the problems haven't been  fetched. 
+            // when the libraryView is created, the problems haven't been fetched. 
             // This won't be in the tabState because we don't want those results saved.  
             this.problemsFetched = false; 
             this.on("goto-first-page",function() {
@@ -46,12 +48,12 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
             
     	},
     	render: function (){
-            var self = this, i;
-            var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
-            modes.push("None");
+            var self = this,i;
+            //var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
+            //modes.push("None");
 
     		this.$el.html($("#library-view-template").html());
-            if(this.libraryTreeView){
+            if(this.libraryTreeView && this.libraryTreeView.fields){
                 var _fields = {};
                 for(i=0;i<4;i++){
                     _fields["level"+i] = this.tabState.get("library_path")[i];
@@ -61,6 +63,9 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
                     self.libraryProblemsView.reset();
                     self.tabState.set("library_path",model.values());
                 });
+                
+            }
+            if(this.libraryTreeView){
                 this.libraryTreeView.setElement(this.$(".library-tree-container")).render();
             }
             this.libraryProblemsView.setElement(this.$(".problems-container"));
@@ -105,7 +110,7 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
             // I18N
             this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
-                    .renderProblems().highlightCommonProblems()
+                    .updateProblems().renderProblems().highlightCommonProblems()
                     .showProperty({show_path: this.parent.state.get("show_path")})
                     .showProperty({show_tags: this.parent.state.get("show_tags")})
             this.parent.state.on("change:show_path change:show_tags change:show_hints " + 
@@ -113,14 +118,18 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
                 self.libraryProblemsView.showProperty(_state.changed);
             })
         },
-    	loadProblems: function (){ 
+    	loadProblems: function (opts){ 
             var self = this; 
+            this.problemsFetched = false; 
             this.$(".load-library-button").button("loading"); 
             var _path;
-            if(this.libraryTreeView){
+            if(this.libraryTreeView && this.libraryTreeView.fields){
                 _path = this.libraryTreeView.fields.values();
             }
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
+            if(opts && opts.directory){
+                this.problemList.dir = opts.directory;    
+            }
             this.problemList.fetch({success: function(){
                 self.problemsFetched = true; 
                 self.showProblems();

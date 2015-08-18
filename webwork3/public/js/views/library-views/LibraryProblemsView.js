@@ -10,11 +10,11 @@ function(Backbone, ProblemListView,util,ModalView,config) {
     var LibraryProblemsView = ProblemListView.extend({
         initialize: function (options) {
             _(this).bindAll("highlightCommonProblems");
-            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, showEditTags: true,
+            this.viewAttrs = {reorderable: false, showPoints: false, showAddTool: true, 
                               showEditTool: false, problem_seed: 1, showRefreshTool: true, 
                               showViewTool: false, showHideTool: true, deletable: false, 
                               showMaxAttempts: false, draggable: true, markCorrect: false};
-            _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
+            _.extend(this,_(options).pick("problemSets","libraryView","settings","type","editTags"));
             
             ProblemListView.prototype.initialize.apply(this,[options]); 
         },
@@ -26,7 +26,7 @@ function(Backbone, ProblemListView,util,ModalView,config) {
             // not sure this is needed right now
             this.libraryView.libraryProblemsView.on("page-changed",this.highlightCommonProblems);
             this.highlightCommonProblems();
-            this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
+            //this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
             return this;
         },
         showMLT: function(_model,_show){
@@ -36,7 +36,6 @@ function(Backbone, ProblemListView,util,ModalView,config) {
             _(pvs).each(function(pv,i) { 
                 if(i>0) {
                     pv.state.set({hidden : !_show, show_mlt: _show});
-                    //util.changeClass({state: _show, els: pv.$el, remove_class: "hidden"});
                 }
                 if(i>0 && i<pvs.length-1){
                     util.changeClass({state: _show, els: pv.$el, 

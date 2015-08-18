@@ -12,6 +12,7 @@
 use Dancer::Plugin::Database;
 use Path::Class;
 use File::Find::Rule;
+use List::MoreUtils qw/distinct/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags getProblemTagsFromDB render/;
 use Utils::ProblemSets qw/record_results/;
@@ -168,6 +169,10 @@ get '/courses/:course_id/library/local' => sub {
                                 ->in($path->stringify);
                                 
     my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
+    
+    my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files); 
+    
+    debug to_dumper(\@parentDirectories); 
    
 	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($path)->stringify} }@files;
 	return \@allFiles;
@@ -189,16 +194,77 @@ get '/courses/:course_id/library/pending' => sub {
 	## still need to search for directory with single files and others with ignoreDirectives.
 
 	setCourseEnvironment(params->{course_id});
-    my $templateDir = vars->{ce}->{courseDirs}{templates};
-	my $pendingDir = dir($templateDir,"Pending")->stringify;
+	my $pendingDir = dir(vars->{ce}->{courseDirs}{templates},"Pending")->stringify;
                             
-    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($pendingDir);
-   
-	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($templateDir)->stringify} }@files;
-	return \@allFiles;
+#    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($pendingDir);
+#    
+#    my @parentDirectories = distinct (map { file($_)->stringify() } @files); 
+#    
+    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub { 
+        my ( $shortname, $path, $fullname ) = @_;
+        my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
+        return scalar(@pgfiles)>0;} )->in($pendingDir);  ## return all directories containing pg files.  
+        
+    my @info = ();
+    
+    for my $dir (@dirs){
+        my $fullname = dir($pendingDir,$dir)->stringify;
+        my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
+        if(scalar(@pgfiles)>0){
+            push(@info, {num_files => scalar(@pgfiles), path => $dir });
+        }
+    }
+    
+
+    return \@info; 
+};
+
+
+get '/courses/:course_id/local/testing' => sub {
+    
+    setCourseEnvironment(params->{course_id});
+    my $templateDir = vars->{ce}->{courseDirs}{templates} . "/Indiana";
+        
+    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub { 
+        my ( $shortname, $path, $fullname ) = @_;
+        my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
+        return scalar(@pgfiles)>0;} )->in($templateDir);  ## return all directories containing pg files.  
+    
+    return \@dirs; 
 
 };
 
+
+######
+#
+#  get '/courses/:course_id/library/problems/local/**'
+#
+#  get local problems in the directory defined in **
+#
+####
+
+get '/courses/:course_id/problems/local/**' => sub {
+
+    debug "in /courses/:course_id/problems/local/** ";
+    my ($courseID,$dirpath) = splat;
+    
+    setCourseEnvironment($courseID);
+
+    my @dirs = @$dirpath; 
+    my $selectedDir = dir(vars->{ce}->{courseDirs}{templates},dir(@dirs)->relative(dir("problems","local")));
+    
+    
+    my $localDir = dir(vars->{ce}->{courseDirs}{templates});
+    
+    debug $localDir->stringify;
+    
+    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($selectedDir->stringify);
+    my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
+    
+    return \@allFiles;
+
+
+};
 
 #######
 #
@@ -412,8 +478,6 @@ get '/library/taxonomy' => sub {
 	    local $/;
 	    <$json_fh>
 	};
-    
-    debug to_dumper(from_json($json_text));
     
 	return from_json($json_text);
 };

@@ -142,9 +142,6 @@
     <%}%>
   <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-folder"></i></a>
   <a href="#" onclick="return false;" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
-  <%if(showEditTags){ %>
-      <a href="#" onclick="return false;" class="edit-tags-button btn btn-default" title="Edit Tags"><i class="fa fa-thumb-tack"></i></a>
-    <%}%>
   </div>
 
   <div class="col-md-2 btn-group btn-group-sm">
@@ -152,27 +149,8 @@
     <i class="fa fa-bullseye fa-lg"></i></button>
   </div>
   </div>
-  <div class="problem-tags">
-  <table class="table table-condensed table-bordered"><tbody>
-<tr class="hidden path-row"><td>Problem Path:</td><td colspan="3" class="problem-path">
-<%if(source_file){ print(source_file);} %></td>
-<td>Seed:</td><td class="seed"><%if(problem_seed){ print(problem_seed);} %></td></tr>
-<tr class="loading-row hidden"><td colcol-md-="3">Loading Tags...<i class="fa fa-spinner fa-spin"></i></td></tr>
-<tr class="tag-row hidden"><td>Keyword:</td><td colspan="3" class="keyword-tag"></td>
-<td>Level:</td><td class="level-tag"></td></tr>
-<tr class="tag-row hidden"><td>Problem Author:</td><td class="problem-author-tag"></td>
-<td>Institution:</td><td class="institution-tag"></td>
-<td>More LT:</td><td class="mlt-tag"></td>
-</tr>
-<tr class="tag-row hidden"><td>DB Subject:</td><td class="DBsubject-tag"></td>
-<td>DB Chapter:</td><td class="DBchapter-tag"></td>
-<td>DB Section:</td><td class="DBsection-tag"></td></tr>
-<tr class="tag-row hidden"><td>Textbook Title:</td><td class="tb-title-tag"></td>
-<td>Textbook Chapter:</td><td class="tb-chapter-tag"></td>
-<td>Textbook Section:</td><td class="tb-section-tag"></td></tr>
-</tbody>
-</table>
-</div>
+  <div class="loading-tag-spinner hidden">Loading Tags...<i class="fa fa-spinner fa-spin"></i></div>
+  <div class="problem-tag-container hidden"></div>
 <div><%=data%></div>
 <%if(flags && flags.comment){%>
 <%=flags.comment%>
@@ -187,6 +165,34 @@
 <div class="messages-container">
 <ul class="messages-list no-bullets"></ul>
 </div>
+</script>
+
+<script type="text/template" id="show-tags-template">
+  <table class="table table-condensed table-bordered"><tbody>
+<!--<tr class="hidden path-row"><td>Problem Path:</td><td colspan="3" class="problem-path"></td>
+<td>Seed:</td><td class="seed"></td></tr>-->
+
+<tr>
+    <td>Keyword:</td><td class="keyword-attribute"></td>
+    <td>Level:</td><td class="level-attribute"></td>
+    <td>MLT leader:</td><td class="MLT-leader-attribute"></td>
+</tr>
+<tr>
+    <td>Problem Author:</td><td class="author-attribute"></td>
+    <td>Institution:</td><td class="institution-attribute"></td>
+    <td>MLT:</td><td class="mlt-attribute"></td>
+</tr>
+<tr>
+    <td>DB Subject:</td><td class="dbsubject-attribute"></td>
+    <td>DB Chapter:</td><td class="dbchapter-attribute"></td>
+    <td>DB Section:</td><td class="dbsection-attribute"></td>
+</tr>
+<tr>
+    <td>Textbook Title:</td><td class="tb-title-tag"></td>
+    <td>Textbook Chapter:</td><td class="tb-chapter-tag"></td>
+    <td>Textbook Section:</td><td class="tb-section-tag"></td></tr>
+</tbody>
+</table>
 </script>
 
 

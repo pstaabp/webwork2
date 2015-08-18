@@ -141,11 +141,11 @@ define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemLi
             _(this.pages[this.state.get("current_page")]).each(function(obj){
                 self.problemViews.push(new ProblemView({model: self.problems.at(obj.num), hidden: !obj.leader,
                                                         libraryView: self.libraryView, 
-                                                        viewAttrs: self.viewAttrs,
+                                                        viewAttrs: self.viewAttrs, edit_tags: self.editTags,
                                                         display_mode: self.state.get("display_mode") }));
             });
             
-           
+            return this; 
         },
         renderProblems: function () {
             var self = this;

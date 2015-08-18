@@ -51,9 +51,10 @@ define(['backbone', 'underscore','config','./Problem'], function(Backbone, _, co
 
                 return config.urlPrefix+_path; 
             } else if (this.type=="localLibrary"){
-                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/local";
+                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/local/problems";
             } else if (this.type=="pending"){
-                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/pending";
+                return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/problems/local/"
+                    + this.dir; 
             } else if (this.type=="setDefinition"){
                 return config.urlPrefix+"courses/" +config.courseSettings.course_id + "/library/setDefinition";
             }

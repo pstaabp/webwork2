@@ -5,56 +5,25 @@
 */ 
 
 
-define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config','models/Problem'], 
-function(Backbone, _, LibraryView,ProblemList,config,Problem){
+define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config',
+        'models/Problem','views/library-views/LibraryTreeView'], 
+function(Backbone, _, LibraryView,ProblemList,config,Problem,LibraryTreeView){
     var LocalLibraryView = LibraryView.extend({
         tabName: "Local Problems",
     	initialize: function (options){
-            _(this).bindAll("buildMenu");
             _(this).extend(_(options).pick("tabName"));
             LibraryView.prototype.initialize.apply(this,[options]);
             this.libBrowserType = options.libBrowserType;
             this.libraryProblemsView.problems.type = "localLibrary";
+            this.libraryTreeView = new LocalLibraryTreeView({libraryView: this});
             //this.settings = options.settings;
 
     	},
-        events: function(){
-            return _.extend({},LibraryView.prototype.events,{
-                "click .load-problems-button": "render"
-            });
-        },
-        render: function (){
-            var self = this; 
-            LibraryView.prototype.render.apply(this);
-            this.$(".library-tree-container").html($("#local-library-tree-template").html());
-            //this.libraryProblemsView.reset();
-            // the 
-            if(typeof(this.localProblems)==="undefined") {
-                
-                this.$(".library-tree-container").html($("#loading-library-template").html());
-                this.localProblems = new ProblemList();
-                this.localProblems.type = this.libBrowserType;
-                this.localProblems.fetch({success: self.buildMenu});
-            } else if (this.tabState.get("selected_dir")){
-                this.showProblems();
-                this.libraryProblemsView.renderProblems();
-            }
-            this.stickit(this.tabState,this.bindings);
-            return this;
-    	},
-        bindings: {
-            ".local-library-tree-select" : {observe: "selected_dir", selectOptions: {
-                collection: 'this.directories'   
-            }}
-        },
-        showProblems: function (){
+        /*showProblems: function (_dir){
             var self = this;
-            if(this.tabState.get("selected_dir") == "TOPDIR"){
-                this.tabState.set("selected_dir","");
-            }
+            this.tabState.set("selected_dir", _dir == "TOPDIR" ? "": _dir); 
             
-            this.problemList = new ProblemList();
-            this.localProblems.each(function(prob){
+            this.problemList.each(function(prob){
                 var comps = prob.get("source_file").split("/");
                 comps.pop();
                 var topDir = comps.join("/");
@@ -64,23 +33,48 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem){
             });
             LibraryView.prototype.showProblems.apply(this);
 
-        }, 
-        buildMenu: function () {
-            var self = this; 
-            this.directories = [];
-            this.localProblems.each(function(prob){
-                var comps = prob.get("source_file").split("/");
-                comps.pop();
-                self.directories.push(comps.join("/"));
-            })
-            this.directories = _(this.directories).unique(); 
-            var index = _(this.directories).indexOf("");
-            if (index >-1){
-                this.directories[index]= "TOPDIR";
-            }
-            this.render();
-        }
+        }*/
     });
+    
+    var LocalLibraryTreeView = LibraryTreeView.extend({
+        template: $("#local-library-tree-template").html(),
+        initialize: function(options){
+            var self = this; 
+            _(this).bindAll("render");
+            this.libraryView = options.libraryView || console.error("libraryView must be defined");  
+            this.model = new Backbone.Model({directory: ""}); 
+            this.model.on("change:directory",function(){
+                var obj = _(self.directories).findWhere({path: self.model.get("directory")});
+                self.$(".load-library-button").text("Load " + obj.num_files + " problems"); // I18N
+            });
+            this.directories = [];
+        },
+        render: function () {
+            self = this; 
+            if(_.isEmpty(this.directories)){
+                this.$el.html($("#library-tree-template").html());
+                var getDirectoryURL = config.urlPrefix + "courses/" + config.courseSettings.course_id + "/library/pending";
+                $.ajax({url: getDirectoryURL, success: function(data){
+                        self.directories = data; 
+                        self.render();
+                }}); 
+            } else {
+                this.$el.html($("#local-library-tree-template").html());
+            }
+            this.stickit(); 
+        },
+        bindings: {
+            ".local-library-tree-select" : {observe: "directory", selectOptions: {
+                collection: 'this.directories', labelPath: "path", valuePath: "path"  
+            }}
+        },
+        events: { 
+            "click .load-library-button": function () { 
+                this.libraryView.loadProblems({directory: "Pending/" +this.model.get("directory")});
+                this.libraryView.showProblems();
+            }
+        }
+    }); 
 
     return LocalLibraryView;
 });

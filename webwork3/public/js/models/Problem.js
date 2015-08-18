@@ -1,10 +1,12 @@
-define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, config,util){
+define(['backbone', 'underscore','models/ProblemTags','config','apps/util'], 
+   function(Backbone, _,ProblemTags, config,util){
     /**
      *
      * This defines a single webwork Problem (Global Problem)
      * 
      * @type {*}
      */
+    
     var Problem = Backbone.Model.extend({
         defaults:{  
             source_file:"",
@@ -20,7 +22,8 @@ define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, 
             show_hints: false,
             show_solution: false,
             showMeAnotherCount: 0,
-            showMeAnother: -1
+            showMeAnother: -1,
+            tags: null
         },
         integerFields: ["problem_id","value","max_attempts","problem_seed","showMeAnotherCount","showMeAnother"],
         validation: {
@@ -29,7 +32,7 @@ define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, 
             max_attempts: {pattern: /^(-1|\d*)$/, msg: "The value must be a whole number or -1 for unlimited attempts." }
         },
         parse: function(response){
-              return util.parseAsIntegers(response,this.integerFields);
+            return util.parseAsIntegers(response,this.integerFields);
         },
         idAttribute: "_id",
         url: function () {
@@ -64,9 +67,10 @@ define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, 
                 var fileID = (this.get("pgfile_id") || -1);
                 $.ajax({
                     url: config.urlPrefix + "library/problems/" + fileID +"/tags",
-                    data: (fileID<0)? {course_id: config.courseSettings.course_id, source_file: this.get("source_file")} : {},
+                    method: "GET",
+                    data: {course_id: config.courseSettings.course_id, source_file: this.get("source_file")},
                     success: function (data) {
-                        self.set(data);
+                        self.set("tags",new ProblemTags(data));
                         opts.success(data);
                 }});
             }
