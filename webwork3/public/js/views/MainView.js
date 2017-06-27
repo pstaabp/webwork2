@@ -49,7 +49,8 @@ define(['backbone'],function(Backbone){
 		additionalEvents: {},
 		originalEvents: {},
 		events : function() {
-	      	return _.extend({},this.originalEvents,this.additionalEvents);
+            var evts = _.isFunction(this.additionalEvents)? this.additionalEvents.call(this) : this.additionalEvents; 
+	      	return _.extend({},this.originalEvents,evts);
 	    },
 	    getDefaultState: function () {
 	    	console.error("getDefaultState() for " + this.info.name + " needs to be overridden");

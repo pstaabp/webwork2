@@ -447,7 +447,7 @@ sub body {
 		$r->maketext("Set Header"), 
 		$r->maketext("Hardcopy Header"), 
 		$r->maketext("Open Date"), 
-		$r->maketext("Due Date"), 
+		$r->maketext("Close Date"), 
 		$r->maketext("Answer Date"), 
 		$r->maketext("Visible"),
 		$r->maketext("Reduced Scoring Enabled") 
@@ -762,7 +762,7 @@ sub sort_form {
 				set_header 	=> $r->maketext("Set Header"),
 				hardcopy_header	=> $r->maketext("Hardcopy Header"),
 				open_date	=> $r->maketext("Open Date"),
-				due_date	=> $r->maketext("Due Date"),
+				due_date	=> $r->maketext("Close Date"),
 				answer_date	=> $r->maketext("Answer Date"),
 				visible	=> $r->maketext("Visibility"),
 			},
@@ -778,7 +778,7 @@ sub sort_form {
 				set_header 	=> $r->maketext("Set Header"),
 				hardcopy_header	=> $r->maketext("Hardcopy Header"),
 				open_date	=> $r->maketext("Open Date"),
-				due_date	=> $r->maketext("Due Date"),
+				due_date	=> $r->maketext("Close Date"),
 				answer_date	=> $r->maketext("Answer Date"),
 				visible	=> $r->maketext("Visibility"),
 			},
@@ -802,7 +802,7 @@ sub sort_handler {
 		set_header	=> "Set Header",
 		hardcopy_header	=> "Hardcopy Header",
 		open_date	=> "Open Date",
-		due_date	=> "Due Date",
+		due_date	=> "Close Date",
 		answer_date	=> "Answer Date",
 		visible	=> "Visibility",
 	);
@@ -1577,7 +1577,7 @@ sub byOpenDate      { my $result = eval{( $a->open_date || 0 )      <=> ( $b->op
 }
 sub byDueDate       { my $result = eval{( $a->due_date || 0 )     <=> ( $b->due_date || 0 )   };      
                       return $result unless $@;
-                      warn "Due date not correctly defined.";
+                      warn "Close date not correctly defined.";
                       return 0;
 }
 sub byAnswerDate    { my $result = eval{( $a->answer_date || 0)    <=> ( $b->answer_date || 0 )  };    
@@ -1798,7 +1798,7 @@ sub readSetDef {
 			$line =~ s|(#.*)||;                              ## don't read past comments
 			unless ($line =~ /\S/) {next;}                   ## skip blank lines
 			$line =~ s|\s*$||;                               ## trim trailing spaces
-			$line =~ m|^\s*(\w+)\s*=\s*(.*)|;
+			$line =~ m|^\s*(\w+)\s*=?\s*(.*)|;
 			
 			######################
 			# sanity check entries
@@ -1848,6 +1848,8 @@ sub readSetDef {
 				$relaxRestrictIP = ( $value ) ? $value : 'No';
 			} elsif ($item eq 'problemList') {
 				last;
+			} elsif ($item eq 'problemListV2') {
+			    die $self->r->maketext("Newer problem set def files must be imported using Hmwk Sets Editor2");
 			} else {
 				warn "readSetDef error, can't read the line: ||$line||";
 			}
@@ -1859,7 +1861,7 @@ sub readSetDef {
 		my ($time1, $time2, $time3) = map {  $self->parseDateTime($_);  }    ($openDate, $dueDate, $answerDate);
 	
 		unless ($time1 <= $time2 and $time2 <= $time3) {
-			warn "The open date: $openDate, due date: $dueDate, and answer date: $answerDate must be defined and in chronological order.";
+			warn "The open date: $openDate, close date: $dueDate, and answer date: $answerDate must be defined and in chronological order.";
 		}
 
 		# Check header file names

@@ -13,7 +13,7 @@ define(['backbone','underscore','moment','backbone-validation','stickit','jquery
     });
     
     var config = {
-        urlPrefix: "/webwork3/",
+        urlPrefix: "/webwork3/api/",
 
         // This is temporary to get the handshaking set up to dancer. 
         // in the future this should be taken care of with dancer
@@ -38,8 +38,10 @@ define(['backbone','underscore','moment','backbone-validation','stickit','jquery
                      ],
     
 
-        permissions : [{value: "-5", label: "guest"},{value: "0", label: "student"},{value: "2", label: "login proctor"}, 
-                        {value: "3", label: "T.A."},{value: "10", label: "professor"}, {value: "20", label: "administrator"}],
+        permissions : [{value: "-5", label: "guest"},{value: "0", label: "student"},{value: "2", label: "login proctor"},
+                       {value: "3", label: "grade proctor"},{value: "5", label: "T.A."},
+                       {value: "10", label: "professor"}, {value: "20", label: "administrator"},
+                       {value: "99999999", label: "nobody"}],
 
         enrollment_statuses: [
                     {value: "A", label: "Audit", abbrs: ["A","a","audit"]},
@@ -238,14 +240,17 @@ define(['backbone','underscore','moment','backbone-validation','stickit','jquery
         update: function($el, val, model, options){
             var popoverHTML = model.get("popupTemplate")(model.attributes);
             var _title = model.get("assign_type").replace("_"," ") + " Date";
-            $el.popover({title: _title.charAt(0).toUpperCase() + _title.slice(1), html: true, 
-                        content: popoverHTML, container: "body"});
             $el.on("shown.bs.popover",function(){
                 $("a.goto-problem-set-button[data-setname='"+model.get("set_id")+"']").off()
                     .on("click",function(evt){
                         $el.popover("hide");
                         model.get("eventDispatcher").trigger("show-problem-set",$(evt.target).data("setname"));
                 })
+            }).on("click",function(){
+              // this seems to be needed to get the popover to work, but it takes two clicks now to get working. 
+              // maybe a bug in bootstrap.js? 
+              $el.popover({title: _title.charAt(0).toUpperCase() + _title.slice(1), html: true, 
+                        content: popoverHTML, container: "body", trigger: "click"});
             });
             var info = "";
             switch (model.get("assign_type")){

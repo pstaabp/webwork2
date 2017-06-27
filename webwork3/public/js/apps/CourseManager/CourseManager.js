@@ -1,12 +1,15 @@
 /*  HomeworkManager.js:
    This is the base javascript code for the Homework Manager.  This sets up the View and ....
-  
+
 */
-define(['module','backbone','views/Sidebar', 'underscore','models/UserList','models/ProblemSetList','models/SettingList',  
-    'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList','views/WebPage', 'moment',
-    'config','apps/util','jquery-ui','bootstrap'], 
-function(module, Backbone, Sidebar, _, UserList, ProblemSetList, SettingList,MainViewList,
-    AssignmentDate,AssignmentDateList,WebPage,moment,config,util){
+define(['module','backbone','views/Sidebar', 'underscore','views/WebPage',
+    'models/UserList','models/ProblemSetList','models/SettingList',
+    'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList',
+    'models/User', 'moment',
+    'config','apps/util','jquery-ui','bootstrap'],
+function(module, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
+    SettingList,MainViewList,AssignmentDate,AssignmentDateList,User,
+    moment,config,util){
 var CourseManager = WebPage.extend({
     messageTemplate: _.template($("#course-manager-messages-template").html()),
     initialize: function(){
@@ -18,17 +21,18 @@ var CourseManager = WebPage.extend({
         this.session = (module.config().session)? module.config().session : {};
         this.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
         this.users = (module.config().users) ? new UserList(module.config().users) : null;
-        // We need to pass the standard date settings to the problemSets.  
+        this.user_info = (module.config().user_info) ? new User(module.config().user_info): null;
+        // We need to pass the standard date settings to the problemSets.
         var dateSettings = util.pluckDateSettings(this.settings);
-        this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true, 
+        this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true,
                 dateSettings: dateSettings}) : null;
 
         _.extend(config.courseSettings,{course_id: module.config().course_id,user: this.session.user});
-        if(this.session.user&&this.session.logged_in==1){
+        if(this.session.user_id&&this.session.logged_in==1){
             this.startManager();
         } else {
             this.requestLogin({success: function (data) {
-                    // save the new session key and reload the page.  
+                    // save the new session key and reload the page.
                     self.session.key = data.session_key;
                     window.location.reload();
                 }
@@ -70,7 +74,7 @@ var CourseManager = WebPage.extend({
             this.loginPane.$(".message").html(this.messageTemplate({type: "bad_password"}));
         }
     },
-    // wait for all of the data to get loaded in, close the login window, then start the Course Manager. 
+    // wait for all of the data to get loaded in, close the login window, then start the Course Manager.
     checkData: function(name) {
         this.data_loaded[name] = true;
         if(_(this.data_loaded).chain().values().every(_.identity).value()){
@@ -83,34 +87,34 @@ var CourseManager = WebPage.extend({
     startManager: function () {
         var self = this;
         this.navigationBar.setLoginName(this.session.user);
-         
+
         this.setMainViewList(new MainViewList({settings: this.settings, users: this.users,
                 problemSets: this.problemSets, eventDispatcher: this.eventDispatcher}));
-        
+
 
         // set up some of the main views with additional information.
-        
+
         this.mainViewList.getView("calendar").set({viewType: "instructor", calendarType: "month"})
             .on("calendar-change",self.updateCalendar);
 
         this.mainViewList.getView("problemSetsManager").set({assignmentDates: this.assignmentDateList});
-        this.mainViewList.getView("userSettings").set({user_id: this.session.user});
+        this.mainViewList.getView("userSettings").set({user_info: this.user_info});
         this.mainViewList.getSidebar("allMessages").set({messages: this.messagePane.messages});
         this.mainViewList.getSidebar("help").parent = this;
-        
+
         this.postInitialize();
-        
+
         // not sure why this is needed.
         //config.timezone = this.settings.find(function(v) { return v.get("var")==="timezone"}).get("value");
-                
+
         this.navigationBar.on({
             "stop-acting": this.stopActing,
         });
 
         this.users.on({"act_as_user": function(model){
             self.session.effectiveUser = model.get("user_id");
-            $.ajax({method: "POST", 
-                url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session", 
+            $.ajax({method: "POST",
+                url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session",
                 data: {effectiveUser: self.session.effectiveUser},
                 success: function () {
                     self.navigationBar.setActAsName(self.session.effectiveUser);
@@ -140,7 +144,7 @@ var CourseManager = WebPage.extend({
     },
     showProblemSetDetails: function(setName){
         if (this.objectDragging) return;
-        this.changeView("problemSetDetails",{set_id: setName});        
+        this.changeView("problemSetDetails",{set_id: setName});
         this.changeSidebar("problemSets",{});
         this.saveState();
     },
@@ -152,11 +156,11 @@ var CourseManager = WebPage.extend({
     stopActing: function (){
         var self = this;
         this.session.effectiveUser = this.session.user;
-        $.ajax({method: "POST", 
-            url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session", 
+        $.ajax({method: "POST",
+            url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session",
             data: {effectiveUser: self.session.effectiveUser},
             success: function () {
-                self.navigationBar.setActAsName("");                    
+                self.navigationBar.setActAsName("");
             }
         });
 
@@ -164,6 +168,6 @@ var CourseManager = WebPage.extend({
 
 });
 
-   
+
 var App = new CourseManager({el: $("div#mainDiv")});
 });

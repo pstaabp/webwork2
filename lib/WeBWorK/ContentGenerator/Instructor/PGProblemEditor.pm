@@ -490,44 +490,42 @@ sub body {
     # Construct reference row for PGproblemEditor.
 	#########################################################################
 	
-       my @PG_Editor_Reference_Links = (
-   		{label 		=>	'Problem Techniques'	,
-   		 url 		=>  'http://webwork.maa.org/wiki/Category:Problem_Techniques' 	,
+         my @PG_Editor_Reference_Links = (
+   		{label 		=>	$r->maketext('Problem Techniques')	,
+   		 url 		=>  $ce->{webworkURLs}{problemTechniquesHelpURL}, #'http://webwork.maa.org/wiki/Category:Problem_Techniques' 	,
    		 target     =>	'techniques_window'	,
    		 tooltip 	=>	'Snippets of PG code illustrating specific techniques'	,
    		},
-   		{label 		=>	'Math Objects'	,
-   		 url 		=>   'http://webwork.maa.org/wiki/Category:MathObjects'  	,
+   		{label 		=>	$r->maketext('Math Objects')	,
+   		 url 		=>   $ce->{webworkURLs}{MathObjectsHelpURL}, #'http://webwork.maa.org/wiki/Category:MathObjects'  	,
    		 target		=>	'math_objects'	,
    		 tooltip 	=>	'Wiki summary page for MathObjects'	,
    		},   		
-   		{label 		=>	'POD'	,
-   		 url 		=>  'http://webwork.maa.org/pod/pg_TRUNK/'  	,
+   		{label 		=>	$r->maketext('POD')	,
+   		 url 		=>  $ce->{webworkURLs}{PODHelpURL}, #'http://webwork.maa.org/pod/pg_TRUNK/'  	,
    		 target		=>	'pod_docs'	,
    		 tooltip 	=>	'Documentation from source code for PG modules and macro files. Often the most up-to-date information.'	,
    		},
-   		{label 		=>	'PGLab'	,
-   		 url 		=>  'http://hosted2.webwork.rochester.edu/webwork2/wikiExamples/MathObjectsLabs2/2/?login_practice_user=true'  	,
+   		{label 		=>	$r->maketext('PGLab')	,
+   		 url 		=>  $ce->{webworkURLs}{PGLabHelpURL}, #'http://hosted2.webwork.rochester.edu/webwork2/wikiExamples/MathObjectsLabs2/2/?login_practice_user=true'  	,
    		 target		=>	'PGLab'	,
    		 tooltip 	=>	'Test snippets of PG code in interactive lab.  Good way to learn PG language.'	,
    		},
-   		{label 		=>	'PGML'	,
-   		 url 		=>  'https://courses.webwork.maa.org/webwork2/cervone_course/PGML/1/?login_practice_user=true',
+   		{label 		=>	$r->maketext('PGML')	,
+   		 url 		=>  $ce->{webworkURLs}{PGMLHelpURL}, #'https://courses1.webwork.maa.org/webwork2/cervone_course/PGML/1/?login_practice_user=true',
    		 target		=>	'PGML'	,
    		 tooltip 	=>	'PG mark down syntax used to format WeBWorK questions. This interactive lab can help you to learn the techniques.'	,
    		},
-   		{label 		=>	'Author Info'	,
-   		 url 		=>  'http://webwork.maa.org/wiki/Category:Authors'  	,
+   		{label 		=>	$r->maketext('Author Info')	,
+   		 url 		=>  $ce->{webworkURLs}{AuthorHelpURL}, #'http://webwork.maa.org/wiki/Category:Authors'  	,
    		 target		=>	'author_info'	,
    		 tooltip 	=>	'Top level of author information on the wiki.'	,
    		},
-   		{label 		=>	'report bugs in this problem'	,
+   		{label 		=>	$r->maketext('Report Bugs in this Problem')	,
    		 url 		=>  $BUGZILLA  	,
    		 target		=>	'bug_report'	,
    		 tooltip 	=>	'Report bugs in a WeBWorK question/problem using this link. <br/> The very first time you do this you will need to register with an email address so that information on the bug fix can be reported back to you.'	,
-   		},
-   
-   
+   		}, 
    
    );
    my $PG_Editor_Reference_String = '';
@@ -1688,7 +1686,9 @@ sub save_as_form {  # calls the save_as_handler
 	
 	my $shortFilePath =  $editFilePath;
 	$shortFilePath   =~ s|^$templatesDir/||;
-	$shortFilePath   =  'local/'.$shortFilePath unless( $shortFilePath =~m|^local/|);  # suggest that modifications be saved to the "local" subdirectory
+	$shortFilePath   =  'local/'.$shortFilePath
+	  unless( $shortFilePath =~m|^local/| ||
+		  $shortFilePath =~m|^set$setID|);  # suggest that modifications be saved to the "local" subdirectory
 	$shortFilePath =~ s|^.*/|| if $shortFilePath =~ m|^/|;  # if it is still an absolute path don't suggest a file path to save to.
    
 
@@ -1889,7 +1889,7 @@ sub save_as_handler {
 
 	if ($saveMode eq 'new_independent_problem' ) {
 		$problemPage = $self->r->urlpath->newFromModule("WeBWorK::ContentGenerator::Instructor::PGProblemEditor",$r,
-			courseID => $courseName, setID => 'Undefined_Set', problemID => 'Undefined_Set'
+			courseID => $courseName, setID => 'Undefined_Set', problemID => 1
 		);
 		$new_file_type = 'source_path_for_problem_file';
 	} elsif ($saveMode eq 'rename') {

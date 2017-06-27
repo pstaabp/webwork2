@@ -92,11 +92,17 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         changeProblemSet: function (setName)
         {
             var self = this;
+            if(_.isUndefined(setName) || setName == ""){
+                this.views.propertiesView.setProblemSet();
+                return;
+            }
             this.state.set("set_id",setName);
         	this.problemSet = this.problemSets.findWhere({set_id: setName});
             _(this.views).chain().keys().each(function(view){
                 self.views[view].unstickit();
-                self.views[view].setProblemSet(self.problemSet);
+                if(! _.isUndefined(self.problemSet)){
+                    self.views[view].setProblemSet(self.problemSet);
+                }
             });
             this.views.problemsView.currentPage = 0; // make sure that the problems start on a new page. 
             this.loadProblems();
@@ -105,6 +111,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         loadProblems: function () {
             var self = this;
+            if(_.isUndefined(this.problemSet)){
+                return;
+            }
             if(this.problemSet.get("problems")){ // have the problems been fetched yet? 
                 this.views.problemsView.set({problems: this.problemSet.get("problems"),
                     problemSet: this.problemSet});
@@ -178,6 +187,10 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         render: function(){
             if(this.model){
+                if(this.model.get("assignment_type") == "jitar"){
+                    this.$el.html($("#assign-type-not-supported").html());
+                    return;
+                }
                 this.$el.html($("#set-properties-tab-template").html());
                 this.showTime(this.tabState.get("show_time"));
                 this.showCalendar(this.tabState.get("show_calendar"));
@@ -190,7 +203,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 // gets rid of the line break for showing the time in this view. 
                 $('span.time-span').children('br').attr("hidden",true)    
                 this.model.on("change:assignment_type",this.showHideGateway);
-            }   
+            } else {
+                this.$el.html("");   
+            }
 
             return this;
         },
@@ -210,6 +225,10 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             this.model.set({assigned_users: this.users.pluck("user_id")});
         },
         setProblemSet: function(_set) {
+            if(_.isUndefined(_set)){
+                this.model = undefined;
+                return;
+            }
             var self = this; 
             this.model = _set;
             this.tabState.set("set_id",this.model.get("set_id"));
@@ -248,7 +267,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             ".attempts-per-version": "attempts_per_version",
             ".time-interval": "time_interval",
             ".version-per-interval": "version_per_interval",
-            ".problem-random-order": "problem-randorder",
+            ".problem-random-order": "problem_randorder",
             ".problems-per-page": "problems_per_page",
             ".pg-password": "pg_password",
             // I18N
@@ -340,24 +359,29 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         tabName: "Set Headers",
         initialize: function(opts){
             TabView.prototype.initialize.apply(this,[opts]);
-            this.headerFiles = null;
-            this.setHeader = null;
+            this.headerFiles = void 0;
+            this.setHeader = void 0;
             
         },
         render: function(){
             var self = this; 
             var tmpl = _.template($("#set-headers-template").html());
+            if(this.model && this.model.get("assignment_type") == "jitar"){
+                    this.$el.html($("#assign-type-not-supported").html());
+                    return this;
+            }
             this.$el.html(tmpl(this.tabState.attributes));  
             if(this.headerFiles && this.setHeader){
                 this.showSetHeaders();
                 this.stickit();
-            } else {
+            } else if (_.isUndefined(this.headerFiles)){
                 $.get(config.urlPrefix +  "courses/" + config.courseSettings.course_id + "/headers", function( data ) {
                     self.headerFiles = _(data).map(function(f){ return {label: f, value: f};});
-                    self.headerFiles.unshift({label: "Select a Header File...", value: "defaultHeader"});
+                    self.headerFiles.unshift({label: "Use Default Header File", value: "defaultHeader"});  // I18N
                     self.render();
                 });
-                
+            } else if(_.isUndefined(this.setHeader)) {
+
                 this.setHeader = new SetHeader({set_id: this.model.get("set_id")});
                 this.setHeader.on("change", function(model){
                     model.save(model.changed,{success: function () { self.showSetHeaders();}});
@@ -377,6 +401,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 }).fetch({success: function (){
                     self.render();
                 }});
+                
             }
         },
         showSetHeaders: function (){
@@ -464,6 +489,11 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
         },
         render: function (){
             var self = this;
+            if(this.problemSetView.problemSet && this.problemSetView.problemSet.get("assignment_type") == "jitar"){
+                    this.$el.html($("#assign-type-not-supported").html());
+                    return;
+                }
+            
             this.problemSetView.setElement(this.$el);
             this.problemSetView.render();
             // disable the ability to drag problems when the set is open. 
@@ -499,6 +529,10 @@ var AssignUsersView = Backbone.View.extend({
             TabView.prototype.initialize.apply(this,[options]);
         },
         render: function() {
+            if(this.problemSet && this.problemSet.get("assignment_type") == "jitar"){
+                    this.$el.html($("#assign-type-not-supported").html());
+                    return;
+            }
             this.$el.html($("#assign-users-template").html());
             this.update();
             return this;
@@ -565,6 +599,12 @@ var AssignUsersView = Backbone.View.extend({
 
             this.model = options.problemSet ? new ProblemSet(options.problemSet.attributes): null;
             
+            if(options.problemSet){
+                options.problemSet.on("change",function(_model){
+                    self.model.set(_model.changed); 
+                });
+            }
+            
             _.extend(this,_(options).pick("users","settings","eventDispatcher"));
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:filter_string", function(){
@@ -576,6 +616,10 @@ var AssignUsersView = Backbone.View.extend({
             var self = this;
             if(! this.model){
                 return;
+            }
+            if(this.problemSet && this.problemSet.get("assignment_type") == "jitar"){
+                    this.$el.html($("#assign-type-not-supported").html());
+                    return;
             }
             this.tableSetup();
             this.$el.html($("#loading-usersets-template").html());
@@ -643,8 +687,10 @@ var AssignUsersView = Backbone.View.extend({
                 });
             }
             if(this.problemSet){
-                this.problemSet.on("change:assigned_users",function(_m){
+                this.problemSet.on("change",function(_m){
                     self.collection = new Backbone.Collection(); // reset the collection so data is refetched.
+                }).on("change",function(_model){
+                    self.model.set(_model.changed); 
                 });
             }
             

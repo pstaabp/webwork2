@@ -72,7 +72,7 @@ use warnings;
 use WeBWorK::CGI;
 use WeBWorK::File::Classlist;
 use WeBWorK::DB qw(check_user_id);
-use WeBWorK::Utils qw(readFile readDirectory cryptPassword);
+use WeBWorK::Utils qw(readFile readDirectory cryptPassword x);
 use constant HIDE_USERS_THRESHHOLD => 200;
 use constant EDIT_FORMS => [qw(saveEdit cancelEdit)];
 use constant PASSWORD_FORMS => [qw(savePassword cancelPassword)];
@@ -138,21 +138,9 @@ use constant  FIELD_PROPERTIES => {
 		access => "readwrite",
 	},
 	status => {
-		#type => "enumerable",
 		type => "status",
 		size => 4,
 		access => "readwrite",
-		#items => {
-		#	"C" => "Enrolled",
-		#	"D" => "Drop",
-		#	"A" => "Audit",
-		#},
-		#synonyms => {
-		#	qr/^[ce]/i => "C",
-		#	qr/^[dw]/i => "D",
-		#	qr/^a/i => "A",
-		#	"*" => "C",
-		#}
 	},
 	section => {
 		type => "text",
@@ -185,6 +173,9 @@ use constant  FIELD_PROPERTIES => {
 	    access => 'hidden',
 	},
 	useMathView => {
+	    access => 'hidden',
+        },
+        lis_source_did => {
 	    access => 'hidden',
 	},
 };
@@ -235,19 +226,6 @@ sub initialize {
 	# Check permissions
 	return unless $authz->hasPermissions($user, "access_instructor_tools");
 	
-	#if (defined($r->param('addStudent'))) {
-	#	my $newUser = $db->newUser;
-	#	my $newPermissionLevel = $db->newPermissionLevel;
-	#	my $newPassword = $db->newPassword;
-	#	$newUser->user_id($r->param('newUserID'));
-	#	$newPermissionLevel->user_id($r->param('newUserID'));
-	#	$newPassword->user_id($r->param('newUserID'));
-	#	$newUser->status('C');
-	#	$newPermissionLevel->permission(0);
-	#	$db->addUser($newUser);
-	#	$db->addPermissionLevel($newPermissionLevel);
-	#	$db->addPassword($newPassword);
-	#}
 }
 
 
@@ -1236,7 +1214,9 @@ sub saveEdit_handler {
 	my ($self, $genericParams, $actionParams, $tableParams) = @_;
 	my $r           = $self->r;
 	my $db          = $r->db;
-	
+	my $editorUser = $r->param('user');
+	my $editorUserPermission = $db->getPermissionLevel($editorUser)->permission;	
+
 	my @visibleUserIDs = @{ $self->{visibleUserIDs} };
 	foreach my $userID (@visibleUserIDs) {
 		my $User = $db->getUser($userID); # checked
@@ -1252,7 +1232,8 @@ sub saveEdit_handler {
 		
 		foreach my $field ($PermissionLevel->NONKEYFIELDS()) {
 			my $param = "permission.${userID}.${field}";
-			if (defined $tableParams->{$param}->[0]) {
+			if (defined $tableParams->{$param}->[0] &&
+			    $tableParams->{$param}->[0] <= $editorUserPermission) {
 				$PermissionLevel->$field($tableParams->{$param}->[0]);
 			}
 		}
@@ -1315,11 +1296,16 @@ sub savePassword_handler {
 		die $r->maketext("record for visible user [_1] not found", $userID) unless $User;
 		my $param = "user.${userID}.new_password";
 			if ((defined $tableParams->{$param}->[0]) and ($tableParams->{$param}->[0])) {
-				my $newP = $tableParams->{$param}->[0];
-				my $Password = eval {$db->getPassword($User->user_id)}; # checked	 	
-				my 	$cryptPassword = cryptPassword($newP);											 
-				$Password->password(cryptPassword($newP));
-				eval { $db->putPassword($Password) };				
+			  my $newP = $tableParams->{$param}->[0];
+			  my $Password = eval {$db->getPassword($User->user_id)}; # checked
+			  my 	$cryptPassword = cryptPassword($newP);											 				if (!defined($Password)) {
+			    $Password = $db->newPassword();
+			    $Password->user_id($userID);
+			    $Password->password(cryptPassword($newP));
+			    eval { $db->addPassword($Password) };		             		} else { 
+			      
+			      $Password->password(cryptPassword($newP));
+			      eval { $db->putPassword($Password) };		             		}
 			}
 	}
 	
@@ -1507,7 +1493,10 @@ sub exportUsersToCSV {
 sub fieldEditHTML {
 	my ($self, $fieldName, $value, $properties) = @_;
 	my $r = $self->r;
-	my $ce = $self->r->ce;
+	my $ce = $r->ce;
+	my $db = $r->db;
+	my $editorUser = $r->param('user');
+	my $editorUserPermission = $db->getPermissionLevel($editorUser)->permission;
 	my $size = $properties->{size};
 	my $type = $properties->{type};
 	my $access = $properties->{access};
@@ -1527,7 +1516,7 @@ sub fieldEditHTML {
 		if ($type eq "status") {
 			my $status_name = $ce->status_abbrev_to_name($value);
 			if (defined $status_name) {
-				$value = "$status_name";
+				$value = $r->maketext($status_name);
 			}
 		}
 		return $value;
@@ -1597,9 +1586,9 @@ sub fieldEditHTML {
 		my %roles = %{$ce->{userRoles}};
 		foreach my $role (sort {$roles{$a}<=>$roles{$b}} keys(%roles) ) {
 			my $val = $roles{$role};
-
+			next unless $val <= $editorUserPermission;
 			push(@values, $val);
-			$labels{$val} = $role;
+			$labels{$val} = $r->maketext($role);
 			$default = $val if ( $value eq $role );
 		}
 		
@@ -1651,7 +1640,11 @@ sub recordEditHTML {
 	my $userListURL = $self->systemLink($urlpath->new(type=>'instructor_user_list2', args=>{courseID => $courseName} )) . "&editMode=1&visible_users=" . $User->user_id;
 
 	my $imageURL = $ce->{webworkURLs}->{htdocs}."/images/edit.gif";
-        my $imageLink = CGI::a({href => $userListURL}, CGI::img({src=>$imageURL, border=>0, alt=>"Link to Edit Page for ".$User->user_id}));
+        my $imageLink = '';
+
+	if ($authz->hasPermissions($user, "modify_student_data")) {
+	  $imageLink = CGI::a({href => $userListURL}, CGI::img({src=>$imageURL, border=>0, alt=>"Link to Edit Page for ".$User->user_id}));
+	}
 	
 	my @tableCells;
 	
@@ -1763,7 +1756,8 @@ sub recordEditHTML {
 		my $fieldValue = $PermissionLevel->$field;
 		# get name out of permission level 
 		if ( $field eq 'permission' ) {
-			($fieldValue) = grep { $ce->{userRoles}->{$_} eq $fieldValue } ( keys ( %{$ce->{userRoles}} ) );
+		  ($fieldValue) = grep { $ce->{userRoles}->{$_} eq $fieldValue } ( keys ( %{$ce->{userRoles}} ) );
+		  $fieldValue = $r->maketext($fieldValue)
 		}
 		my %properties = %{ FIELD_PROPERTIES()->{$field} };
 		$properties{access} = 'readonly' unless $editMode;
@@ -1922,7 +1916,10 @@ sub output_JS{
 
 # Just tells template to output the stylesheet for Tabber
 sub output_tabber_CSS{
-	return "";
+  # capture names for maketext
+  x('Filter');
+  x('Sort');
+  return "";
 }
 
 #Tells template to output stylesheet for Jquery-UI

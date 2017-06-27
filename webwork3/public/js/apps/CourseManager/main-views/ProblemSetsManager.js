@@ -58,11 +58,12 @@ var ProblemSetsManager = MainView.extend({
         })
 
         // builds the "change:set_id ... " 
-        var changeableFields = _(this.problemSets.at(0).defaults).chain().keys().map(function(key){ 
+        var _set = new ProblemSet({}); 
+        var changeableFields = _(_set.defaults).chain().keys().map(function(key){ 
             return "change:" + key}).value().join(" ");
         
         this.problemSets.on(changeableFields,function(_set){
-            _set.save();
+            _set.save(_set.changed);
         }); 
         
         this.problemSets.on({
@@ -112,11 +113,12 @@ var ProblemSetsManager = MainView.extend({
         return this;
     },
     update: function (){
+        this.problemSetTable.updateTable();
         util.changeClass({state: this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}"), 
                             remove_class: "hidden",
                             els: this.$("td:has(input.enable-reduced-scoring),td.reduced-scoring-date," +
                                             "th.enable-reduced-scoring,th.reduced-scoring-date")})
-        this.problemSetTable.updateTable();
+        
         return this;
     },
     bindings: { 
@@ -239,7 +241,7 @@ var ProblemSetsManager = MainView.extend({
         this.problemSets.on({
             add: function (_set){
                 _set.save();
-                _set.problems.on("change:value change:max_attempts", function(prob){
+                _set.problems.on("change:value change:max_attempts change:source_file", function(prob){
                                 self.changeProblemValueEvent(prob,_set)})
                 _set._network={add: ""};
             },
@@ -339,7 +341,7 @@ var ProblemSetsManager = MainView.extend({
 
         this.problemSets.each(function(_set) {
             _set.get("problems")
-                .on("change:value change:max_attempts",function(prob){ self.changeProblemValueEvent(_set,prob);});
+                .on("change:value change:max_attempts change:source_file",function(prob){ self.changeProblemValueEvent(_set,prob);});
         });
     }, // setMessages
     changeProblemValueEvent: function (_set,prob){   

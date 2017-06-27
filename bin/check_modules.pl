@@ -2,8 +2,10 @@
 #
 use strict;
 use warnings;
+use version;
 
 my @applicationsList = qw(
+        curl
 	mkdir
 	mv
 	mysql
@@ -22,7 +24,7 @@ my @applicationsList = qw(
 
 my @apache1ModulesList = qw(
 	Apache
-	Apache::Constants 
+	Apache::Constants
 	Apache::Cookie
 	Apache::Log
 	Apache::Request
@@ -40,19 +42,26 @@ my @modulesList = qw(
 	Benchmark
 	Carp
 	CGI
-	Class:Accessor
-	Dancer
-	Dancer::Plugin::Database
+	Class::Accessor
+  Crypt::SSLeay
+	Dancer2
+  Dancer2::Plugin::Auth::Extensible
+	Dancer2::Plugin::Database
 	Data::Dumper
-    Data::Compare
-	Data::UUID 
+  Data::Dump
+  Data::Compare
+	Data::UUID
 	Date::Format
 	Date::Parse
 	DateTime
 	DBD::mysql
 	DBI
 	Digest::MD5
+  Digest::SHA
 	Email::Address
+  Email::Simple;
+  Email::Sender::Simple
+  Email::Sender::Transport::SMTP
 	Errno
 	Exception::Class
 	File::Copy
@@ -75,7 +84,7 @@ my @modulesList = qw(
 	JSON
 	Locale::Maketext::Lexicon
 	Locale::Maketext::Simple
-        LWP::Protocol::https
+  LWP::Protocol::https
 	Mail::Sender
 	MIME::Base64
 	Net::IP
@@ -90,7 +99,7 @@ my @modulesList = qw(
 	Pod::WSDL
 	Safe
 	Scalar::Util
-	SOAP::Lite 
+	SOAP::Lite
 	Socket
 	SQL::Abstract
 	String::ShellQuote
@@ -109,9 +118,12 @@ my @modulesList = qw(
 	YAML
 );
 
+my %moduleVersion = (
+    'LWP::Protocol::https' => 6.06
+);
+
 # modules used by disabled code
 #	RQP::Render (RQP)
-#	SOAP::Lite (PG::Remote)
 
 #main
 
@@ -140,7 +152,7 @@ sub check_apps {
 #	print "\$PATH=", shift @PATH, "\n";    # this throws away the first item -- usually /bin
         print "\$PATH=";
 	print join ("\n", map("      $_", @PATH)), "\n\n";
-	
+
 	foreach my $app (@applicationsList)  {
 		my $found = which($app);
 		if ($found) {
@@ -160,12 +172,14 @@ sub which {
 
 sub check_modules {
 	my @modulesList = @_;
-	
+
 	print "\nChecking your \@INC for modules required by WeBWorK...\n";
 	my @inc = @INC;
 	print "\@INC=";
 	print join ("\n", map("     $_", @inc)), "\n\n";
-	
+
+	no strict 'refs';
+
 	foreach my $module (@modulesList)  {
 		eval "use $module";
 		if ($@) {
@@ -177,6 +191,10 @@ sub check_modules {
 			} else {
 				print "** $module found, but failed to load: $@";
 			}
+		} elsif (defined($moduleVersion{$module}) &&
+			 version->parse(${$module.'::VERSION'}) <
+			 version->parse($moduleVersion{$module})) {
+		    print "** $module found, but not version $moduleVersion{$module} or better\n";
 		} else {
 			print "   $module found and loaded\n";
 		}
