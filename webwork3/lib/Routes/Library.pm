@@ -6,8 +6,6 @@
 
 package Routes::Library;
 
-#use strict;
-#use warnings;
 use Dancer2 appname => "Routes::Login";
 use Dancer2::Plugin::Database;
 use Data::Dump qw/dump/;
@@ -46,13 +44,14 @@ get '/Library/subjects' => sub {
 #
 ####
 
+get '/Library/subjects/:subject/chapters/:chapter/sections/:section/problems' => sub {
 
-get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => sub {
-
-	my ($subj,$chap,$sect) = splat;
-
-	return searchLibrary(database,{subject=>$subj,chapter=>$chap,section=>$sect});
+	return searchLibrary(database,{
+						subject=>route_parameters->{subject},
+			 			chapter=>route_parameters->{chapter},
+						section=>route_parameters->{section}});
 };
+
 
 
 ####
@@ -65,11 +64,11 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => s
 #
 ####
 
-get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
+get '/Library/subjects/:subject/chapters/:chapter/problems' => sub {
 
-	my ($subj,$chap) = splat;
-
-	return searchLibrary(database,{subject=>$subj,chapter=>$chap});
+	return searchLibrary(database,{
+						subject=>route_parameters->{subject},
+			 			chapter=>route_parameters->{chapter}});
 };
 
 
@@ -83,12 +82,8 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 #
 ####
 
-
-get qr{\/Library\/subjects\/(.+)\/problems} => sub {
-
-	my ($subj) = splat;
-
-	return searchLibrary(database,{subject=>$subj});
+get '/Library/subjects/:subject/problems' => sub {
+	return searchLibrary(database,{subject=>route_parameters->{subject}});
 };
 
 
@@ -112,8 +107,6 @@ get '/Library/directories' => sub {
 	    local $/;
 	    <$json_fh>
 	};
-
-
 
 	return decode_json $json_text;
 
@@ -267,7 +260,7 @@ get '/Library/textbooks' => sub {
 	    <$json_fh>
 	};
 
-	return $json_text;
+	return decode_json $json_text;
 
 };
 
@@ -281,8 +274,10 @@ get '/Library/textbooks' => sub {
 
 get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
 
-	return searchLibrary(database,{section_id=>params->{section_id},textbook_id=>params->{textbook_id},
-			chapter_id=>params->{chapter_id}});
+	return searchLibrary(database,{
+			section_id=>route_parameters->{section_id},
+			textbook_id=>route_parameters->{textbook_id},
+			chapter_id=>route_parameters->{chapter_id}});
 
 };
 
@@ -296,7 +291,9 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/p
 
 get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
-	return searchLibrary(database,{textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
+	return searchLibrary(database,{
+			textbook_id=>route_parameters->{textbook_id},
+			chapter_id=>route_parameters->{chapter_id}});
 
 };
 
@@ -310,7 +307,7 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
 get '/Library/textbooks/:textbook_id/problems' => sub {
 
-	return searchLibrary(database,{textbook_id=>params->{textbook_id}});
+	return searchLibrary(database,{textbook_id=>route_parameters->{textbook_id}});
 
 };
 
@@ -320,20 +317,24 @@ get '/Library/textbooks/:textbook_id/problems' => sub {
 #
 ####
 
-get '/textbooks/author/:author_name/title/:title/problems' => sub {
+get '/Library/textbooks/author/:author_name/title/:title/problems' => sub {
 
-	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title}});
+	return searchLibrary(database,{
+			textbook_author=>route_parameters->{author_name},
+			textbook_title=>route_parameters->{title}});
+};
+
+
+get '/Library/textbooks/author/:author_name/title/:title/chapter/:chapter/problems' => sub {
+
+	return searchLibrary(database,{
+			textbook_author=>route_parameters->{author_name},
+			textbook_title=>route_parameters->{title},
+			textbook_chapter=>route_parameters->{chapter}});
 
 };
 
-get '/textbooks/author/:author_name/title/:title/chapter/:chapter/problems' => sub {
-
-	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
-			textbook_chapter=>params->{chapter}});
-
-};
-
-get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:section/problems' => sub {
+get '/Library/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:section/problems' => sub {
 
 	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
 			textbook_chapter=>params->{chapter},textbook_section=>params->{section}});
@@ -353,11 +354,19 @@ get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:secti
 #
 # ###
 
-get '/library/problems' => sub {
+### TODO:
+#
+#  1. return an error if sent search params that are not valid.
+#  2. remove the case from the search params
+#
+### 
+
+post '/Library/problems' => sub {
 
 	my $searchParams = {};
 	for my $key (qw/keyword level author institution subject chapter section section_id textbook_id chapter_id/){
-		$searchParams->{$key} = params->{$key} if defined(params->{$key});
+		my $param = body_parameters->{$key} || query_parameters->{$key} || "";
+		$searchParams->{$key} = $param if $param;
 	}
 
 	return searchLibrary(database,$searchParams);
@@ -404,18 +413,6 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
 		},
 	};
-	#
-  # $renderParams->{displayMode} =
-	# $renderParams->{problemSeed} = ;
-	# $renderParams->{showHints} = 0;
-	# $renderParams->{showSolutions} = 0;
-	# $renderParams->{showAnswers} = 0;
-	#
-	# $renderParams->{user} = fake_user(vars->{db});
-	# $renderParams->{set} =  fake_set(vars->{db});
-	# $renderParams->{problem} = fake_problem(vars->{db});
-	# $renderParams->{problem}->{problem_seed} = query_parameters->{problem_seed} || 0;
-	# $renderParams->{problem}->{problem_id} = query_parameters->{problem_id} || 1;
 
 	# check to see if the problem_path is defined
 

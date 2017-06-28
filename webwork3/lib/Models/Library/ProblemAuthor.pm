@@ -1,9 +1,9 @@
 package Models::Library::ProblemAuthor;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Str);
+use Types::Standard qw(Str);
 
 use Models::Library::Schema;
-use namespace::clean;
+
 use Data::Dump qw/dd/;
 
 with 'DBIx::Mint::Table';

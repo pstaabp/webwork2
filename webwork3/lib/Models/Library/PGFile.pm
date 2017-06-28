@@ -1,8 +1,7 @@
 package Models::Library::PGFile;
 use Moo;
-use MooX::Types::MooseLike::Base qw(Int Str);
+use Types::Standard qw(Int Str);
 
-use namespace::clean;
 use Data::Dump qw/dd/;
 
 with 'DBIx::Mint::Table';
@@ -18,8 +17,8 @@ has MO => (is=>'rw',isa => Str);
 
 
 sub insertDB {
-    my $self = shift; 
-        
+    my $self = shift;
+
     my $info = {};
     $info->{DBsection_id} = $self->DBsection_id if $self->DBsection_id;
     $info->{author_id} = $self->author_id if $self->author_id;
@@ -29,12 +28,12 @@ sub insertDB {
     $info->{level} = $self->level if $self->level;
     $info->{static} = $self->static if $self->static;
     $info->{MO} = $self->MO if $self->MO;
-    
+
     my $pgfile = Models::Library::Textbook->find($info);
-    
-    # add it to the database unless it already exists. 
-    return $pgfile->{pgfile_id} ||  Models::Library::Textbook->insert($info);  
-    
+
+    # add it to the database unless it already exists.
+    return $pgfile->{pgfile_id} ||  Models::Library::Textbook->insert($info);
+
 }
 
 

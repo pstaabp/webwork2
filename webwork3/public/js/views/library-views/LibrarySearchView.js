@@ -1,11 +1,11 @@
 /*
 *  This is the a view of an interface to search the problem library
 *
-*  
-*/ 
+*
+*/
 
 
-define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config'], 
+define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config'],
 function(Backbone, _,LibraryView,ProblemList,config){
     var LibrarySearchView = LibraryView.extend({
         className: "lib-browser",
@@ -16,7 +16,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
     	},
         events: function(){
             return _.extend({},LibraryView.prototype.events,{
-                "click .search-button": "search",      
+                "click .search-button": "search",
                 "keyup .search-query": "checkForEnter"
             });
         },
@@ -41,7 +41,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
             });
             this.$(".search-button").button("loading");
 
-            $.get(config.urlPrefix + "library/problems", params, this.showResults);
+            $.post(config.urlPrefix + "Library/problems", params, this.showResults);
         },
         showResults: function (data) {
             this.$(".search-button").button("reset");
