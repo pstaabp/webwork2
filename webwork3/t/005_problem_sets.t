@@ -6,6 +6,7 @@ my $webwork_dir = "";
 my $pg_dir = "";
 
 BEGIN {
+  $ENV{PLACK_ENV}='testing';
   $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
   $webwork_dir = $ENV{WEBWORK_ROOT} || die "The environment variable WEBWORK_ROOT needs to be defined.";
   $pg_dir = $ENV{PG_ROOT};
@@ -46,9 +47,9 @@ subtest 'login to admin course and create a new course_zyx' => sub {
 
   my $res = $test->request($req);
   $jar->extract_cookies($res);
-  my $res_as_obj =  decode_json($res->content);
+  my $result_hash =  decode_json($res->content);
 
-  ok($res_as_obj->{logged_in}, '[POST /courses/admin/login] using query params successful');
+  ok($result_hash->{logged_in}, '[POST /courses/admin/login] using query params successful');
 
   ## check if new_course_xyz exists.
 
@@ -56,9 +57,9 @@ subtest 'login to admin course and create a new course_zyx' => sub {
   $jar->add_cookie_header($req);
   $res = $test->request($req);
 
-  $res_as_obj = decode_json($res->content);
+  $result_hash = decode_json($res->content);
     ok($res->is_success, '[GET /admin/courses/new_course_xyz] checked if course exists');
-  ok(! $res_as_obj->{course_exists}, 'The course new_course_xyz does not exist');
+  ok(! $result_hash->{course_exists}, 'The course new_course_xyz does not exist');
 
   my $params = {
     new_user_id=>"profa",
@@ -82,9 +83,9 @@ subtest 'Login to new course as profa' => sub {
   my $req =  POST "$url/courses/new_course_xyz/login?username=profa&password=profa";
   my $res = $test->request($req);
   $jar->extract_cookies($res);
-  my $res_as_obj =  decode_json($res->content);
+  my $result_hash =  decode_json($res->content);
 
-  ok($res_as_obj->{logged_in}, '[POST /courses/new_course_xyz/login] successfully logged in');
+  ok($result_hash->{logged_in}, '[POST /courses/new_course_xyz/login] successfully logged in');
 
 };
 
@@ -125,9 +126,9 @@ subtest 'Create a new problem set' => sub {
 
   my $res = $test->request($req);
 
-  my $res_as_obj = decode_json($res->content);
+  my $result_hash = decode_json($res->content);
 
-  cmp_deeply($res_as_obj,$set,"A set with id set1 has successfully been created.");
+  cmp_deeply($result_hash,$set,"A set with id set1 has successfully been created.");
 
 };
 
@@ -154,9 +155,9 @@ subtest 'update a problem set' => sub {
 
   my $res = $test->request($req);
 
-  my $res_as_obj = decode_json($res->content);
+  my $result_hash = decode_json($res->content);
 
-  cmp_deeply($res_as_obj,$updated_set,"A set with id set1 has successfully been updated.");
+  cmp_deeply($result_hash,$updated_set,"A set with id set1 has successfully been updated.");
 
   ###  populate the set with problems
 
@@ -209,7 +210,7 @@ subtest 'reorder problems' => sub {
   $jar->add_cookie_header($req);
   my $res = $test->request($req);
 
-  my $res_as_obj = decode_json($res->content);
+  my $result_hash = decode_json($res->content);
 
   for my $prob (@{$set->{problems}}){
     delete $prob->{_old_problem_id};
@@ -218,7 +219,7 @@ subtest 'reorder problems' => sub {
 
 
 
-  cmp_deeply($res_as_obj,$set,"A set with id set1 had the problems reordered successfully");
+  cmp_deeply($result_hash,$set,"A set with id set1 had the problems reordered successfully");
 
 };
 

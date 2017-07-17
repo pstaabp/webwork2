@@ -15,12 +15,12 @@ use WeBWorK::Utils::Tasks qw(fake_set fake_problem);
 use Utils::LibraryUtils qw/render/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash convertBooleans/;
 use Utils::ProblemSets qw/reorderProblems addGlobalProblems addUserSet addUserProblems deleteProblems createNewUserProblem
-                            renumber_problems updateProblems getGlobalSet putGlobalSet putUserSet getUserSet
+                            updateProblems getGlobalSet putGlobalSet putUserSet getUserSet
                             putUserProblem
                             @time_props @set_props @boolean_set_props @user_set_props @problem_props/;
 use WeBWorK::Utils qw/parseDateTime decodeAnswers/;
 use Array::Utils qw/array_minus/;
-use List::MoreUtils qw/first_value/;
+use List::MoreUtils qw/first_value first_index/;
 
 use Utils::CourseUtils qw/getCourseSettings/;
 use List::Util qw/first max/;
@@ -57,7 +57,7 @@ get '/courses/:course_id/sets/:set_id' => sub {
 
     # checkPermissions(10,session->{user});
 
-    my $globalSet = getGlobalSet(vars->{db},vars->{ce},params->{set_id});
+    my $globalSet = getGlobalSet(vars->{db},vars->{ce},route_parameters->{set_id});
 
     return convertObjectToHash($globalSet,\@boolean_set_props);
 };
@@ -76,78 +76,112 @@ get '/courses/:course_id/sets/:set_id' => sub {
 
 any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
 
-    debug 'in put or post /courses/:course_id/sets/:set_id';
+  debug 'in put or post /courses/:course_id/sets/:set_id';
 
-    # set all of the new parameters sent from the client
-    my %allparams = params;
+  my $set_id = route_parameters->{set_id};
+  # set all of the new parameters sent from the client
+  my $all_params = body_parameters->mixed;
+  if (defined($all_params->{problems})) {
+    $all_params->{problems} = [$all_params->{problems}] unless ref($all_params->{problems}) eq "ARRAY";
+  } else {
+    $all_params->{problems} = []
+  }
+  if (defined($all_params->{assigned_users})) {
+    $all_params->{assigned_users} = [$all_params->{assigned_users}] unless ref($all_params->{assigned_users}) eq "ARRAY";
+  } else {
+    $all_params->{assigned_users} = []
+  }
 
-    my $problems_from_client = params->{problems};
+  my $problems_from_client = $all_params->{problems};
 
-    if(request->is_post()){
-      send_error("The set name must only contain A-Za-z0-9_-.",403)
-        unless (params->{set_id} =~ /^[\w\_.-]+$/);
+  # debug dump $problems_from_client;
 
-      send_error("The set name: " . param('set_id'). " already exists.",404)
-        if (vars->{db}->existsGlobalSet(param('set_id')));
+  # for my $p (@$problems_from_client){
+  #   debug $p->{problem_id} . ":" . $p->{source_file};
+  # }
 
-      my $set = vars->{db}->newGlobalSet();
-      $set->{set_id} = params->{set_id};
-      vars->{db}->addGlobalSet($set);
-    } else {
-        send_error("The set name: " . param('set_id'). " does not exist.",404)
-          unless vars->{db}->existsGlobalSet(params->{set_id});
-    }
+  if(request->is_post()){  ## the set is new
+    send_error("The set name must only contain A-Za-z0-9_-.",403)
+      unless ($set_id =~ /^[\w\_.-]+$/);
 
-    putGlobalSet(vars->{db},vars->{ce},\%allparams);
+    send_error("The set name: $set_id already exists.",404)
+      if (vars->{db}->existsGlobalSet($set_id));
 
-    ##
-    #
-    #  Take care of the assigned users
-    #
-    ###
+    my $set = vars->{db}->newGlobalSet();
+    $set->{set_id} = $set_id;
+    vars->{db}->addGlobalSet($set);
+  } else {
+    send_error("The set name: $set_id does not exist.",404)
+    unless vars->{db}->existsGlobalSet(params->{set_id});
+  }
 
-    my @userNamesFromDB = vars->{db}->listSetUsers(params->{set_id});
-    my @usersToAdd = array_minus(@{params->{assigned_users}},@userNamesFromDB);
-    my @usersToDelete = array_minus(@userNamesFromDB,@{params->{assigned_users}});
+  putGlobalSet(vars->{db},vars->{ce},$all_params);
 
-    for my $user(@usersToAdd){
-        addUserSet(vars->{db},$user,params->{set_id});
-    }
-    for my $user (@usersToDelete){
-        vars->{db}->deleteUserSet($user,params->{set_id});
-    }
+  #  Take care of the assigned users
 
-    # handle the global problems.
+  my @userNamesFromDB = vars->{db}->listSetUsers($set_id);
+  my @usersToAdd = array_minus(@{$all_params->{assigned_users}},@userNamesFromDB);
+  my @usersToDelete = array_minus(@userNamesFromDB,@{$all_params->{assigned_users}});
 
-    my @problemsFromDB = vars->{db}->getAllGlobalProblems(params->{set_id});
+  for my $user(@usersToAdd){
+    addUserSet(vars->{db},$user,$set_id);
+  }
+  for my $user (@usersToDelete){
+    vars->{db}->deleteUserSet($user,$set_id);
+  }
 
-    if(params->{_reorder}){  # reorder the problems
-        debug "the problems are being reordered";
-        reorderProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users});
-    } elsif (scalar(@problemsFromDB) < scalar(@{params->{problems}})) { # problems have been added
-        addGlobalProblems(vars->{db},params->{set_id},params->{problems});
-        addUserProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users});
-    } elsif(params->{_delete_problem_id}) { # problems have been deleted.
-        deleteProblems(vars->{db},params->{set_id},params->{problems},params->{assigned_users},
-                params->{_delete_problem_id});
-    } else { # problem may have been updated
-        updateProblems(vars->{db},params->{set_id},params->{problems});
-    }
+  # handle the global and user problems.
 
-    my $returnSet = getGlobalSet(vars->{db},vars->{ce},params->{set_id});
+  my @problemsFromDB = vars->{db}->getAllGlobalProblems($set_id);
 
-    for my $set (@{$returnSet->{problems}}){
-        ## return the rendered data that was sent from the client.
-        my $set_from_client = first_value { $set->{source_file} eq $_->{source_file} &&
-                                    $set->{problem_id} eq $_->{problem_id} } @$problems_from_client;
-        $set->{data} = $set_from_client->{data} if defined($set_from_client);
-        $set->{problem_seed} = $set_from_client->{problem_seed} if defined($set_from_client->{problem_seed});
-    }
+  if($all_params->{_reorder}){  # reorder the problems
+    debug "the problems are being reordered";
+    reorderProblems(vars->{db},$set_id,$all_params->{problems},$all_params->{assigned_users});
+  } elsif (scalar(@problemsFromDB) < scalar(@{$all_params->{problems}})) { # problems have been added
+    addGlobalProblems(vars->{db},$set_id,$all_params->{problems});
+    addUserProblems(vars->{db},$set_id,$all_params->{problems},$all_params->{assigned_users});
+  } else { # problem may have been updated
+    updateProblems(vars->{db},$set_id,$all_params->{problems});
+  }
 
-    $returnSet->{pg_password} = $allparams{pg_password} if defined($allparams{pg_password});
+  my $returnSet = getGlobalSet(vars->{db},vars->{ce},$set_id);
+  $returnSet->{_delete_problem_id} = $all_params->{_delete_problem_id}
+    if defined ($all_params->{_delete_problem_id});  # this help the synching using Backbone.js
 
-    return convertObjectToHash($returnSet,\@boolean_set_props);
+  for my $prob1 (@{$returnSet->{problems}}){
+    ## return the rendered data that was sent from the client.
+    my $prob2 = first_value { $prob1->{source_file} eq $_->{source_file}} @$problems_from_client;
+    $prob1->{data} = $prob2->{data} if defined($prob2->{data});
+    $prob1->{problem_seed} = $prob2->{problem_seed} if defined($prob2->{problem_seed});
+  }
 
+  # debug dump $returnSet;
+
+  ## proctored gateway quiz password
+
+  $returnSet->{pg_password} = $all_params->{pg_password} if defined($all_params->{pg_password});
+
+  return convertObjectToHash($returnSet,\@boolean_set_props);
+
+};
+
+####
+#
+# Delete the problem :problem_id in set :set_id in course :course_id
+#
+###
+
+del '/courses/:course_id/sets/:set_id/problems/:problem_id' => require_role professor => sub {
+  my $set_id = route_parameters->{set_id};
+  my $problem_id = route_parameters->{problem_id};
+  send_error("The set: $set_id does not exist.",404) unless (vars->{db}->existsGlobalSet($set_id));
+
+  send_error("The problem: $problem_id does not exist in set: $set_id", 404)
+    unless vars->{db}->existsGlobalProblem($set_id,$problem_id);
+
+  my $prob = vars->{db}->getGlobalProblem($set_id,$problem_id);
+  vars->{db}->deleteGlobalProblem($set_id,$problem_id);
+  return convertObjectToHash($prob); 
 };
 
 
@@ -203,6 +237,8 @@ get '/courses/:course_id/sets/:set_id/users' => require_role professor => sub {
 };
 
 
+
+
 ###
 #
 #  Assign users to problem set *set_id* in course *course_id*
@@ -248,8 +284,6 @@ post '/courses/:course_id/sets/:set_id/users' => require_role professor => sub {
 ###
 #
 #  Remove users to problem set *set_id* in course *course_id*
-#
-#  permission > Student
 #
 #  The users are removed by setting the assigned_users parameter to a comma delimited list of user_id's.
 #
@@ -456,6 +490,37 @@ del '/courses/:course_id/users/:user_id/sets/:set_id' => require_role professor 
 
     return convertObjectToHash($userSet,\@boolean_set_props);
 };
+
+
+
+
+####
+#
+#  Get/update problem problem_id in set set_id for user user_id for course course_id
+#
+####
+
+get '/users/:user_id/courses/:course_id/sets/:set_id/problems/:problem_id' => require_role professor => sub {
+
+  my $problem = vars->{db}->getUserProblem(param('user_id'),param('set_id'),param('problem_id'));
+  return convertObjectToHash($problem);
+};
+
+put '/users/:user_id/courses/:course_id/sets/:set_id/problems/:problem_id' => require_role professor => sub {
+
+	my $problem = vars->{db}->getUserProblem(param('user_id'),param('set_id'),param('problem_id'));
+
+  for my $key (keys (%{$problem})){
+  	if(param($key)){
+		    $problem->{$key} = param($key);
+  	}
+  }
+
+    vars->{db}->putUserProblem($problem);
+
+    return convertObjectToHash($problem);
+};
+
 
 
 ######## CRUD for /courses/:course_id/sets/:set_id/users/:user_id

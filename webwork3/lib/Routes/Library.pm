@@ -399,19 +399,18 @@ get '/Library/problems/:problem_id/tags' => sub {
 
 any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
 
-	debug "in /renderer/courses/:course_id/problems/:problem_id";
+	#debug "in /renderer/courses/:course_id/problems/:problem_id";
 
 	my $renderParams = {
 		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
 			|| vars->{ce}->{pg}{options}{displayMode},
-		problemSeed => query_parameters->get('problemSeed') || body_parameters->get('problemSeed') || 1,
-		showHints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
-	  showSolutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
-		showAnswers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
-	  problem => {
-			problemSeed => query_parameters->get('problemSeed') || body_parameters->get('problemSeed') || 1,
+		show_hints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
+	  show_solutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
+		show_answers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
+		problem => {
+			problem_seed => query_parameters->get('problem_seed') || body_parameters->get('problem_seed') || 1,
 			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
-		},
+		}
 	};
 
 	# check to see if the problem_path is defined
