@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# This is the script formerly known as loadDB2, and then known as NPL-update.  
+# This is the script formerly known as loadDB2, and then known as NPL-update.
 
 # It is used to update
 # the database when it comes to the WeBWorK Open Problem Library (OPL).
@@ -9,7 +9,7 @@
 
 # In order for this script to work:
 #   1) The OPL downloaded to your machine (the .pg files)
-#   2) The environment variable WEBWORK_ROOT needs to be 
+#   2) The environment variable WEBWORK_ROOT needs to be
 #      correctly defined (as with other scripts here).
 #   3) Configuration for the OPL in localOverrides.conf needs to be
 #      done (basically just setting the path to the OPL files).
@@ -22,7 +22,7 @@ use Cwd;
 use DBI;
 
 
- #(maximum varchar length is 255 for mysql version < 5.0.3.  
+ #(maximum varchar length is 255 for mysql version < 5.0.3.
  #You can increase path length to  4096 for mysql > 5.0.3)
 
 BEGIN {
@@ -395,15 +395,15 @@ if(open(IN, "$libraryRoot/Textbooks")) {
 			# Textbook information, maybe new
 			my $type = $1;
 			if(defined($textinfo{$type})) { # signals new text
-				%textinfo = ( TitleText => undef, 
-							  EditionText =>undef, 
+				%textinfo = ( TitleText => undef,
+							  EditionText =>undef,
 							  AuthorText=> undef);
 				$textinfo{$type} = $2;
 				$bookid = undef;
 			} else {
 				$textinfo{$type} = $2;
-				if(defined($textinfo{TitleText}) and 
-				   defined($textinfo{AuthorText}) and 
+				if(defined($textinfo{TitleText}) and
+				   defined($textinfo{AuthorText}) and
 				   defined($textinfo{EditionText})) {
 					my $query = "SELECT textbook_id FROM `$tables{textbook}` WHERE title = \"$textinfo{TitleText}\" AND edition = \"$textinfo{EditionText}\" AND author=\"$textinfo{AuthorText}\"";
 					$bookid = $dbh->selectrow_array($query);
@@ -453,7 +453,7 @@ if(open(IN, "$libraryRoot/Taxonomy2")) {
 	print "Taxonomy file was not found in library $libraryRoot. If the path to the problem library doesn't seem
 	correct, make modifications in webwork2/conf/site.conf (\$problemLibrary{root}).  If that is correct then
 	updating from git should download the Taxonomy file.\n";
-} 
+}
 
 # Taxonomy is a subset of Taxonomy2, so we can use the same code either way
 if($canopenfile) {
@@ -832,7 +832,7 @@ sub pgfiles {
 					# pgfile_problem table associates pgfiles with textbook problems
 					for my $pgfile_id (@pgfile_ids) {
 						$query = "SELECT problem_id FROM `$tables{pgfile_problem}` WHERE problem_id = \"$problem_id\" AND pgfile_id = \"$pgfile_id\"";
-						my $pg_problem_id = $dbh->selectrow_array($query);  
+						my $pg_problem_id = $dbh->selectrow_array($query);
 						if (!defined($pg_problem_id)) {
 							$dbh->do("INSERT INTO `$tables{pgfile_problem}`
 						VALUES(
@@ -884,7 +884,7 @@ for my $chap (@{$dbchaps}) {
 }
 
 # Now run the script build-library-tree
-# This is used to create the file library-tree.json which can be used to 
+# This is used to create the file library-tree.json which can be used to
 # load in subject-chapter-section information for the OPL
 
 use strict;
@@ -892,7 +892,7 @@ use warnings;
 use JSON;
 
 
-my $tree;  # the library subject tree will be stored as arrays of objects. 
+my $tree;  # the library subject tree will be stored as arrays of objects.
 
 my $sth = $dbh->prepare("select * from OPL_DBsubject");
 $sth->execute;
@@ -905,58 +905,60 @@ while ( my @row = $sth->fetchrow_array ) {
   }
 
 
-my @subject_tree;  # array to store the individual library tree for each subject 
+### this is duplicated in the code below
 
-foreach my $i (0..$#subjects){
-
-	my $subject_row = $subjects[$i];
-	my $subject_name = $subject_names[$i];
-
-	my $sth = $dbh->prepare("select * from OPL_DBchapter where DBsubject_id = $subject_row;");
-	$sth->execute;
-
-	my @chapters = ();
-	my @chapter_names = ();
-	while ( my @row = $sth->fetchrow_array ) {
-		push(@chapters,$row[0]);
-		push(@chapter_names,$row[1]);
-	  }
-
-
-	my @chapter_tree; # array to store the individual library tree for each chapter
-
-	foreach my $j (0..$#chapters) {
-		my $chapter_row = $chapters[$j];
-		my $chapter_name = $chapter_names[$j];
-		my $sth = $dbh->prepare("SELECT * FROM `$tables{dbsection}` WHERE DBchapter_id=$chapter_row");
-		$sth->execute;
-
-		my @subfields = ();
-		while ( my @row = $sth->fetchrow_array ) {
-			my $section_name;
-			$section_name->{name} = $row[1];
-			my $clone = { %{ $section_name } };  # need to clone it before pushing into the @subfields array.
-		    push(@subfields,$clone);
-	    }
-
-		my $chapter_tree;
-		$chapter_tree->{name} = $chapter_name;
-		$chapter_tree->{subfields} = \@subfields;
-
-		my $clone = { %{ $chapter_tree } };  # need to clone it before pushing into the @chapter_tree array.
-		push(@chapter_tree,$clone);
-
-
-
-	}
-
-	my $subject_tree; 
-	$subject_tree->{name} = $subject_name;
-	$subject_tree->{subfields} = \@chapter_tree; 
-
-	my $clone = { % {$subject_tree}};
-	push (@subject_tree, $clone);
-}
+# my @subject_tree;  # array to store the individual library tree for each subject
+#
+# foreach my $i (0..$#subjects){
+#
+# 	my $subject_row = $subjects[$i];
+# 	my $subject_name = $subject_names[$i];
+#
+# 	my $sth = $dbh->prepare("select * from OPL_DBchapter where DBsubject_id = $subject_row;");
+# 	$sth->execute;
+#
+# 	my @chapters = ();
+# 	my @chapter_names = ();
+# 	while ( my @row = $sth->fetchrow_array ) {
+# 		push(@chapters,$row[0]);
+# 		push(@chapter_names,$row[1]);
+# 	  }
+#
+#
+# 	my @chapter_tree; # array to store the individual library tree for each chapter
+#
+# 	foreach my $j (0..$#chapters) {
+# 		my $chapter_row = $chapters[$j];
+# 		my $chapter_name = $chapter_names[$j];
+# 		my $sth = $dbh->prepare("SELECT * FROM `$tables{dbsection}` WHERE DBchapter_id=$chapter_row");
+# 		$sth->execute;
+#
+# 		my @subfields = ();
+# 		while ( my @row = $sth->fetchrow_array ) {
+# 			my $section_name;
+# 			$section_name->{name} = $row[1];
+# 			my $clone = { %{ $section_name } };  # need to clone it before pushing into the @subfields array.
+# 		    push(@subfields,$clone);
+# 	    }
+#
+# 		my $chapter_tree;
+# 		$chapter_tree->{name} = $chapter_name;
+# 		$chapter_tree->{subfields} = \@subfields;
+#
+# 		my $clone = { %{ $chapter_tree } };  # need to clone it before pushing into the @chapter_tree array.
+# 		push(@chapter_tree,$clone);
+#
+#
+#
+# 	}
+#
+# 	my $subject_tree;
+# 	$subject_tree->{name} = $subject_name;
+# 	$subject_tree->{subfields} = \@chapter_tree;
+#
+# 	my $clone = { % {$subject_tree}};
+# 	push (@subject_tree, $clone);
+# }
 
 build_library_directory_tree($ce);
 build_library_subject_tree($ce,$dbh);

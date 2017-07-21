@@ -8,24 +8,22 @@
 package Models::Library::Problem;
 use feature 'say';
 use Moo;
-use Types::Standard qw(ArrayRef InstanceOf);
+use Types::Standard qw(ArrayRef InstanceOf Str Int);
 
-use namespace::clean;
 use Digest::SHA1  qw/sha1_hex/;
 use Hash::MoreUtils qw/slice_def_map slice_def/;
 use Path::Class;
-use Data::Dump qw/dd/;
+use Data::Dump qw/dump dd/;
 
 use Models::Library::DBsubject;
 use Models::Library::ProblemAuthor;
 
 
-has path => (is => 'ro', required=>1);
-has id => (is=>'ro');
+has file_path => (is => 'ro', isa => Str, required=>1);
+has id => (is=>'ro', isa => Int, required => 1);
 has problem_author => (is=>'ro',isa => InstanceOf['Models::Library::ProblemAuthor']);
 has textbookProblems => (is=>'ro',isa => ArrayRef[InstanceOf['Models::Library::TextbookProblem']] );
 has DBinfo => (is => 'ro', isa => InstanceOf['Models::Library::DBinfo']);
-
 has date => (is=>'ro',default=>"");
 has mlt => (is=>'ro',default=>"");
 has mlt_leader => (is=>'ro',default=>"");
@@ -38,6 +36,66 @@ has statement => (is=> 'ro',default=>"");
 has solution => (is=> 'ro',default=>"");
 has isLink => (is=>'ro',default =>"");
 
+## this returns the number of documents in the database.
+
+sub count {
+    my $self = shift;
+
+    return "not yet implemented.";
+}
+
+## this returns a unique list of elements in the database
+
+sub unique_results {
+    my ($self,$info) = @_;
+    return "not yet implemented.";
+}
+
+sub find {
+    my ($self,$searchQuery) = @_;
+    warn dump $searchQuery;
+    my %searchfields = (DBsubject=>'subj.name',
+                        DBchapter=>'ch.name',
+                        DBsection=>'me.name',
+                        lastname=>'author.lastname',
+                        firstname=>'author.firstname',
+                        institution=>'author.institution',
+                        level=>'pg.level',
+                        keyword=>'kw.keyword');
+    my %searchhash = slice_def_map($searchQuery,%searchfields);
+    warn dump %searchhash;
+
+    DBIx::Mint->connect('dbi:mysql:dbname=webwork', 'webworkWrite', 'password', {
+        AutoCommit     => 1,
+        RaiseError     => 1,
+    });
+
+    say "in find()";
+    my $rs = DBIx::Mint::ResultSet->new(table => 'OPL_DBsection')
+        ->inner_join(['OPL_DBchapter', 'ch'], { 'me.DBchapter_id' => 'ch.DBchapter_id' })
+        ->inner_join(['OPL_DBsubject', 'subj'], {'ch.DBsubject_id' => 'subj.DBsubject_id'})
+        ->inner_join(['OPL_pgfile','pg'],{'me.DBsection_id' => 'pg.DBsection_id'})
+        ->inner_join(['OPL_pgfile_keyword','pgkw'],{'pg.pgfile_id' => 'pgkw.pgfile_id'})
+        ->inner_join(['OPL_keyword','kw'],{'kw.keyword_id' => 'pgkw.keyword_id'})
+        ->inner_join(['OPL_author','author'],{'pg.author_id' => 'author.author_id'})
+        ->inner_join(['OPL_path','path'],{'pg.path_id'=>'path.path_id'});
+
+    $rs->set_target_class( 'Model::Library::Problem');
+    $rs = $rs->select('pg.pgfile_id|id','subj.name|DBsubject','ch.name|DBchapter','me.name|DBsection','pg.author_id',
+                            'pg.level','path.path','pg.filename')->search(\%searchhash);
+
+    my @problems = $rs->all;
+
+    @problems = map {
+      my $params = $_;
+      $params->{file_path} = $params->{path}."/".$params->{filename};
+      $self->new($params);
+    } @problems;
+
+    #warn dump \@problems;
+
+    return \@problems;
+}
 
 ## this method inserts the LibraryProblem to the database
 
@@ -47,17 +105,9 @@ sub insert {
     my $DBsection_id = $self->DBinfo->insert;
     my $author_id = $self->problem_author->insertAuthor;
 
-
-
     my $path_info = {};
     my $path_obj = file($self->path);
     $path_info->{path} = $path_obj->parent->stringify if $self->path; # get the directory of the pgfile.
-    #$path_info->{machine} = $self->machine if $self->machine;
-    #$path_info->{user} = $self->user if $self->user;
-
-    #dd $path_info;
-    #dd length($path_info->{path});
-
 
     my $path = Models::Library::Path->find($path_info);
     my $path_id = $path->{path_id} || Models::Library::Path->insert($path_info);
@@ -101,69 +151,6 @@ sub insert {
         Models::Library::PGFileKeyword->insert({keyword_id => $keyword_id,pgfile_id=> $pgfile_id}) unless $pgkw;
     }
 
-}
-
-
-## this returns the number of documents in the database.
-
-sub count {
-    my $self = shift;
-    if($DATABASE->{type} eq 'MYSQL'){
-        return "not yet implemented.";
-    } elsif($DATABASE->{type} eq 'MONGO'){
-        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
-        return $db->get_collection('problems')->count;
-
-    }
-}
-
-## this returns a unique list of elements in the database
-
-sub unique_results {
-    my ($self,$info) = @_;
-    if($DATABASE->{type} eq 'MYSQL'){
-        return "not yet implemented.";
-    } elsif($DATABASE->{type} eq 'MONGO'){
-        my $db = $DATABASE->{MONGOclient}->get_database($DATABASE->{dbname});
-        my $obj = $db->run_command([ distinct => "problems", key => $info ]);
-        return sort { lc($a) cmp lc($b) } @{$obj->{values}};
-
-    }
-
-
-}
-
-sub find {
-    my ($self,$searchQuery) = @_;
-    my %searchfields = (DBsubject=>'subj.name',
-                        DBchapter=>'ch.name',
-                        DBsection=>'me.name',
-                        lastname=>'author.lastname',
-                        firstname=>'author.firstname',
-                        institution=>'author.institution',
-                        level=>'pg.level',
-                        keyword=>'kw.keyword');
-    my %searchhash = slice_def_map($searchQuery,%searchfields);
-    dd %searchhash;
-
-    say "in find()";
-    my $dbrs = DBIx::Mint::ResultSet->new(table => 'OPL_DBsection')
-        ->inner_join(['OPL_DBchapter',   'ch'], { 'me.DBchapter_id' => 'ch.DBchapter_id' })
-        ->inner_join(['OPL_DBsubject', 'subj'], {'ch.DBsubject_id' => 'subj.DBsubject_id'})
-        ->inner_join(['OPL_pgfile','pg'],{'me.DBsection_id' => 'pg.DBsection_id'})
-        ->inner_join(['OPL_pgfile_keyword','pgkw'],{'pg.pgfile_id' => 'pgkw.pgfile_id'})
-        ->inner_join(['OPL_keyword','kw'],{'kw.keyword_id' => 'pgkw.keyword_id'})
-        ->inner_join(['OPL_author','author'],{'pg.author_id' => 'author.author_id'});
-
-    $dbrs = $dbrs->select('pg.pgfile_id','subj.name|DBsubject','ch.name|DBchapter','me.name|DBsection','pg.author_id',
-                            'pg.level');
-
-    say "here";
-    $dbrs = $dbrs->search(\%searchhash);
-    say "and here";
-    my @all_records = $dbrs->all;
-    say "now here";
-    dd @all_records;
 }
 
 

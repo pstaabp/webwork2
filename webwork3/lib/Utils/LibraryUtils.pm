@@ -8,10 +8,16 @@ use Path::Class qw/file dir/;
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
+
+use Models::Library::PGFileInfo;
+use Hash::MoreUtils qw/slice_def_map/;
+use DBIx::Mint;
+
 use Data::Dump qw/dump/;
 
+
 our @EXPORT    = ();
-our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render render2);
+our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render search);
 our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message
 						student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name/;
 
@@ -107,6 +113,72 @@ sub get_section_problems {
 
 	return \@problems;
 }
+
+####
+#
+# This is a newer version of search that using dbix::mint and models
+#
+#  Pass in a hash reference with the following:
+#   DBsubject
+#   DBchapter
+#   DBsection
+#   lastname  (author's last name)
+#   firstname (author's first name)
+#   institution (author's institution)
+#   level
+#   keyword
+#   title (textbook title)
+###
+
+sub search {
+    my ($searchQuery) = @_;
+    warn dump $searchQuery;
+    my %searchfields = (DBsubject=>'subj.name',
+                        DBchapter=>'ch.name',
+                        DBsection=>'me.name',
+                        lastname=>'author.lastname',
+                        firstname=>'author.firstname',
+                        institution=>'author.institution',
+                        level=>'pg.level',
+                        keyword=>'kw.keyword',
+												title => 'text.title');
+    my %searchhash = slice_def_map($searchQuery,%searchfields);
+    warn dump %searchhash;
+
+    DBIx::Mint->connect('dbi:mysql:dbname=webwork', 'webworkWrite', 'password', {
+        AutoCommit     => 1,
+        RaiseError     => 1,
+    });
+
+    warn "in PGFileInfo.find()";
+    my $rs = DBIx::Mint::ResultSet->new(table => 'OPL_DBsection')
+        ->inner_join(['OPL_DBchapter', 'dbch'], { 'me.DBchapter_id' => 'dbch.DBchapter_id' })
+        ->inner_join(['OPL_DBsubject', 'dbsubj'], {'dbch.DBsubject_id' => 'dbsubj.DBsubject_id'})
+        ->inner_join(['OPL_pgfile','pg'],{'me.DBsection_id' => 'pg.DBsection_id'})
+        ->inner_join(['OPL_pgfile_keyword','pgkw'],{'pg.pgfile_id' => 'pgkw.pgfile_id'})
+        ->inner_join(['OPL_keyword','kw'],{'kw.keyword_id' => 'pgkw.keyword_id'})
+        ->inner_join(['OPL_author','author'],{'pg.author_id' => 'author.author_id'})
+        ->inner_join(['OPL_path','path'],{'pg.path_id'=>'path.path_id'})
+				->inner_join(['OPL_pgfile_problem', 'pgprob'], { 'pgprob.pgfile_id'=>'pg.pgfile_id' })
+				->inner_join(['OPL_problem','prob'],{'prob.problem_id' => 'pgprob.problem_id'})
+				->inner_join(['OPL_section','sect'],{'sect.section_id' => 'prob.section_id'})
+				->inner_join(['OPL_chapter','ch'],{'ch.chapter_id' => 'sect.chapter_id'})
+				->inner_join(['OPL_textbook','text'],{'text.textbook_id' => 'ch.textbook_id'});
+
+    #$rs->set_target_class( 'Model::Library::ProblemInfo');
+    $rs = $rs->select('pg.pgfile_id','path.path','pg.filename')->search(\%searchhash);
+
+    my @problems = $rs->all;
+
+    @problems = map {
+      my $params = $_;
+      $params->{source_file} = "Library/" . $params->{path}."/".$params->{filename};
+      Models::Library::PGFileInfo->new($params);
+    } @problems;
+
+    return \@problems;
+}
+
 
 ## search the library
 #
@@ -305,6 +377,7 @@ sub getProblemTags {
 				  textbook_title=> $results->[8], textbook_chapter=>$results->[9], textbook_section=>$results->[10]};
 
 }
+
 
 
 ## This is for searching the disk for directories containing pg files.

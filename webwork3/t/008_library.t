@@ -235,12 +235,12 @@ subtest 'Find problems on other search criteria' => sub {
   $jar->add_cookie_header($req);
   $res = $test->request($req);
   ok($res->is_success,"[POST /Library/problems] with author:Holt");
-  my $problems =  decode_json($res->content);
+  $problems =  decode_json($res->content);
   ok(ref($problems) eq "ARRAY",'The problems are returned in an array');
-  my $num_problems = scalar(@{$problems});
+  $num_problems = scalar(@{$problems});
   ok($num_problems > 0, "The library has $num_problems problems with author:Holt");
 
-  ## do more testing on general search. 
+  ## do more testing on general search.
 
 
 };

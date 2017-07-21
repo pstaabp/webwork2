@@ -12,7 +12,7 @@ use Data::Dump qw/dump/;
 use Path::Class;
 use File::Find::Rule;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
-use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render render2/;
+use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
 use Utils::ProblemSets qw/record_results/;
 use HTML::Entities qw/decode_entities/;
 use WeBWorK::DB::Utils qw(global2user);
@@ -46,10 +46,11 @@ get '/Library/subjects' => sub {
 
 get '/Library/subjects/:subject/chapters/:chapter/sections/:section/problems' => sub {
 
-	return searchLibrary(database,{
-						subject=>route_parameters->{subject},
-			 			chapter=>route_parameters->{chapter},
-						section=>route_parameters->{section}});
+	#return searchLibrary(database,{
+	return Models::Library::PGFileInfo->find({
+						DBsubject=>route_parameters->{subject},
+			 			DBchapter=>route_parameters->{chapter},
+						DBsection=>route_parameters->{section}});
 };
 
 
@@ -65,10 +66,13 @@ get '/Library/subjects/:subject/chapters/:chapter/sections/:section/problems' =>
 ####
 
 get '/Library/subjects/:subject/chapters/:chapter/problems' => sub {
-
-	return searchLibrary(database,{
-						subject=>route_parameters->{subject},
-			 			chapter=>route_parameters->{chapter}});
+	return Models::Library::PGFileInfo->find({
+		DBsubject=>route_parameters->{subject},
+		DBchapter=>route_parameters->{chapter},
+	});
+	# return searchLibrary(database,{
+	# 					subject=>route_parameters->{subject},
+	# 		 			chapter=>route_parameters->{chapter}});
 };
 
 
@@ -83,7 +87,11 @@ get '/Library/subjects/:subject/chapters/:chapter/problems' => sub {
 ####
 
 get '/Library/subjects/:subject/problems' => sub {
-	return searchLibrary(database,{subject=>route_parameters->{subject}});
+	#return searchLibrary(database,{subject=>route_parameters->{subject}});
+	return Models::Library::PGFileInfo->find({
+		DBsubject=>route_parameters->{subject}
+	});
+	#return convertArrayOfObjectsToHash(searchLibraryWithModels(database,{DBsubject=>route_parameters->{subject}}));
 };
 
 
@@ -359,7 +367,7 @@ get '/Library/textbooks/author/:author_name/title/:title/chapter/:chapter/sectio
 #  1. return an error if sent search params that are not valid.
 #  2. remove the case from the search params
 #
-### 
+###
 
 post '/Library/problems' => sub {
 

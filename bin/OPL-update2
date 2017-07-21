@@ -1,0 +1,109 @@
+#!/usr/bin/env perl
+
+# This is an update of the OPL-update script.
+
+#  all of the functionality is in OPLUtils.pm and there are processing options.
+
+# It is used to update
+# the database when it comes to the WeBWorK Open Problem Library (OPL).
+# This should be run after doing a git clone or pull for the OPL
+# files.
+
+# In order for this script to work:
+#   1) The OPL downloaded to your machine (the .pg files)
+#   2) The environment variable WEBWORK_ROOT needs to be
+#      correctly defined (as with other scripts here).
+#   3) Configuration for the OPL in localOverrides.conf needs to be
+#      done (basically just setting the path to the OPL files).
+
+use warnings;
+use strict;
+use feature 'say';
+
+BEGIN {
+        die "WEBWORK_ROOT not found in environment.\n"
+                unless exists $ENV{WEBWORK_ROOT};
+	# Unused variable, but define it to avoid an error message.
+	$WeBWorK::Constants::WEBWORK_DIRECTORY = '';
+}
+
+use lib "$ENV{WEBWORK_ROOT}/lib";
+use lib "$ENV{WEBWORK_ROOT}/bin";
+use WeBWorK::CourseEnvironment;
+use WeBWorK::Utils::Tags;
+use OPLUtils qw/build_library_directory_tree build_library_subject_tree build_library_textbook_tree/;
+
+use Data::Dump qw/dd/;
+
+
+$WeBWorK::Constants::VERBOSE = '';
+
+{
+  package OPLOptions;
+  use strict;
+  use warnings;
+  use Moo;
+  use MooX::Options;
+
+  option 'verbose' => (is => 'ro', short => 'v',
+      doc => 'This turns on verbose mode.');
+  option 'rebuild_db' => (is => 'ro', short => 'r',
+      doc => 'This rebuilds the entire OPL database.');
+  option 'rebuild_dir_tree' => (is => 'ro', short => 'd',
+      doc => 'This rebuilds the directory tree file needed for webwork 3.');
+  option 'rebuild_subj_tree' => (is => 'ro', short => 's',
+      doc => 'This rebuilds the subject tree file needed for webwork 3.');
+  option 'rebuild_textbook_tree' => (is => 'ro', short => 't',
+    doc => 'This rebuilds the textbook tree file needed for webwork 3.');
+  option 'rebuild_all' => (is => 'ro', short => 'a',
+    doc => 'This rebuilds the entire OPL database as well as all files needed for webwork 3.');
+
+  1;
+}
+
+ #(maximum varchar length is 255 for mysql version < 5.0.3.
+ #You can increase path length to  4096 for mysql > 5.0.3)
+
+my $opt = OPLOptions->new_with_options();
+
+$WeBWorK::Constants::VERBOSE = $opt->verbose;
+
+
+if($WeBWorK::Constants::VERBOSE){
+  say "verbose mode is on.";
+}
+
+
+
+my $taxo={};
+my $ce = new WeBWorK::CourseEnvironment({webwork_dir=>$ENV{WEBWORK_ROOT}});
+
+
+# the remaining rebuilds use DBIx::Mint to connect.
+
+
+
+DBIx::Mint->connect($ce->{problemLibrary_db}->{dbsource},
+                    $ce->{problemLibrary_db}->{user},
+                    $ce->{problemLibrary_db}->{passwd},{
+                          AutoCommit     => 1,
+                          RaiseError     => 1});
+
+
+if ($opt->rebuild_dir_tree){
+  say "Rebuilding the Directory Tree File" if $WeBWorK::Constants::VERBOSE;
+  build_library_directory_tree($ce);
+}
+
+if($opt->rebuild_subj_tree){
+  say "Rebuilding the Subject Tree File" if $WeBWorK::Constants::VERBOSE;
+  build_library_subject_tree($ce);
+}
+
+if($opt->rebuild_textbook_tree){
+  say "Rebuilding the Subject Tree File" if $WeBWorK::Constants::VERBOSE;
+  build_library_textbook_tree($ce);
+}
+
+
+1;
