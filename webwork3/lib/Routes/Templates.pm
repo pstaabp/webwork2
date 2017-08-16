@@ -295,6 +295,8 @@ get '/courses/:course_id/pgeditor' => sub {
 sub setCourseEnvironment {
 	my ($course_id) = @_;
 
+  debug "in setCourseEnvironment";
+
 	session course_id => $course_id if defined($course_id);
 
 	send_error("The course has not been defined.  You may need to authenticate again",401)
