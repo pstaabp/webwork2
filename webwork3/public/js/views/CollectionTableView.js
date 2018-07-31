@@ -532,7 +532,7 @@ define(['jquery','backbone', 'underscore', 'config', 'stickit'], function ($,Bac
               } else if(col.display) {
                 self.$el.append($("<td>").text(col.display(self.model.get(col.key),self.model)));
               } else if (col.stickit_options && col.stickit_options.selectOptions){
-                var select = $("<select>").addClass("input-sm form-control").addClass(col.classname);
+                var select = $("<select>").addClass("custom-select custom-select-sm").addClass(col.classname);
                 self.$el.append($("<td>").append(select));
               } else {
                 self.$el.append($("<td>").addClass(col.classname));

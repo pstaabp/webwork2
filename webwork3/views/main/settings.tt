@@ -3,7 +3,7 @@
 <script type="text/template" id="settings-template">
 <ul class="nav nav-tabs settings-tabs">
   <% _(categories).each(function(cat,i){
-    print("<li><a href='#setting-tab"+i+"' data-toggle='tab'>"+cat+"</a></li>");
+    print("<li class='nav-item'><a class='nav-link' href='#setting-tab"+i+"' data-toggle='tab'>"+cat+"</a></li>");
   });%>
 </ul>
 
@@ -31,14 +31,14 @@
       <button class="close">&times;</button>
       <span class="doc2"></span></div>
     <%}%>
-  
+
   </td>
   <td class="col2"><%=prop_html%></td>
 </script>
 
 <script type="text/template" id="settings-help-template">
 <h4>Settings Help</h4>
-<p>The Settings for WeBWorK are divided into categories and each is in a tab.  To change the desired setting, simply change the 
+<p>The Settings for WeBWorK are divided into categories and each is in a tab.  To change the desired setting, simply change the
 value using the textbox, popup menu or checkbox.  Changes are made immediately.  You do not need to save the settings with clicking a "save" button.  </p>
 </script>
 

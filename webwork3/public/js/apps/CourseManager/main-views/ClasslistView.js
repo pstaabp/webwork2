@@ -110,7 +110,7 @@ function(Backbone,$,_,MainView,UserList,User,config,CollectionTableView,
       },
       render: function(){
         this.$el.html($("#classlist-manager-template").html());
-        this.userTable.render().$el.addClass("table table-bordered table-condensed");
+        this.userTable.render().$el.addClass("table table-bordered  table-sm");
         this.$(".users-table-container").append(this.userTable.el);
         // set up some styling
         this.userTable.$(".paginator-row td").css("text-align","center");

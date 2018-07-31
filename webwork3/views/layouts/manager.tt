@@ -37,22 +37,23 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="nav nav-pills">
-      <li class="nav-item">
+      <li class="nav-item" id="navigation-buttons">
         <div class="btn-group">
           <button class="back-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-left"></i></button>
           <button class="forward-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-right"></i></button>
         </div>
       </li>
-      <li class="nav-item">
-        <span class="mx-3 navbar-text main-view-name"></span>
-      </li>
       <li class="nav-item dropdown">
-        <a class="mx-3 nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="mx-3 nav-link dropdown-toggle btn btn-primary" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Menu
         </a>
         <div class="dropdown-menu manager-menu" aria-labelledby="navbarDropdown">
         </div>
       </li>
+      <li class="nav-item">
+        <span class="mx-3 navbar-text main-view-name"></span>
+      </li>
+
       <li class="nav-item">
         <span class="alert border" id="short-message">
         </span>

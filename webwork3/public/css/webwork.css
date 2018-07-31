@@ -20,7 +20,11 @@ body {  /* needed for the navigation bars top and bottom*/
 
 .manager-menu span, .manager-menu i {margin-right: 10px;}
 
-.manager-menu span.wwlogo {font-size: 110%;
+#navigation-buttons {
+  margin-top: 5px;
+}
+
+#ww2logo {font-size: 110%;
 	border: 2px solid black;
 	border-radius: 5px;
 	padding: 1px;
@@ -38,7 +42,7 @@ body {  /* needed for the navigation bars top and bottom*/
 }
 
 #wwlogo {
-  height: 50px
+  height: 40px
 }
 
 #sidebar-container {

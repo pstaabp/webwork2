@@ -193,7 +193,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
     changeView: function (_id,state){
         if(_id){
             // destroy any popovers on the view
-            $('[data-toggle="popover"]').popover("destroy")
+            $('[data-toggle="popover"]').popover("dispose")
             if(this.currentView){
                 this.currentView.remove();
             }

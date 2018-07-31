@@ -140,7 +140,7 @@ var CourseManager = WebPage.extend({
         // Add a link to WW2 via the main menu.  This should be in a template
         this.navigationBar.$(".manager-menu").append("<div class='dropdown-divider'></div>")
               .append("<a class='dropdown-item' href='/webwork2/"
-                    +config.courseSettings.course_id+"''><span class='wwlogo'>W</span>WeBWorK2</a>");
+                    +config.courseSettings.course_id+"''><span id='ww2logo'>W</span>WeBWorK2</a>");
         this.delegateEvents();
 
 

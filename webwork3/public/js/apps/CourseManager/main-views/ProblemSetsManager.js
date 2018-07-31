@@ -30,7 +30,7 @@ var ProblemSetsManager = MainView.extend({
 
         this.problemSetTable = new CollectionTableView({columnInfo: this.cols, collection: this.problemSets,
                 classes: "problem-set-manager-table", row_id_field: "set_id",
-                table_classes: "problem-set-manager-table table table-bordered table-condensed",
+                table_classes: "problem-set-manager-table table table-bordered  table-sm",
                 paginator: {page_size: this.state.get("page_size"), button_class: "btn btn-default",
                                 row_class: "btn-group"}});
 

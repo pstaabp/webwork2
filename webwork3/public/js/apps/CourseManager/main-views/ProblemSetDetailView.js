@@ -719,7 +719,7 @@ var AssignUsersView = Backbone.View.extend({
                                             paginator: {showPaginator: false},
                                             tablename: ".users-table", page_size: -1,
                                             row_id_field: "user_id",
-                                            table_classes: "table table-bordered table-condensed"}));
+                                            table_classes: "table table-bordered  table-sm"}));
                 // The following is needed to make sure that the reduced-scoring date shows up in the student overrides table.
                 this.userSetTable.collection.each(function(model) { model.show_reduced_scoring = true;});
                 this.userSetTable.render();
