@@ -6,28 +6,23 @@
 
 package Routes::Library;
 
-use strict;
-use warnings;
-use Dancer ':syntax';
-use Dancer::Plugin::Database;
-use Dancer::FileUtils qw/read_file_content /;
+#use strict;
+#use warnings;
+use Dancer2 appname => "Routes::Login";
+use Dancer2::Plugin::Database;
+use Data::Dump qw/dump/;
 use Path::Class;
 use File::Find::Rule;
 use File::Slurp;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
-use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render/;
+use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render render2/;
 use Utils::ProblemSets qw/record_results/;
-use Routes::Authentication qw/checkPermissions setCourseEnvironment/;
+use HTML::Entities qw/decode_entities/;
 use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
 use WeBWorK::Constants;
-
-# use constant MY_PROBLEMS => '  My Problems  ';
-# use constant MAIN_PROBLEMS => '  Unclassified Problems  ';
-# use constant fakeSetName => "Undefined_Set";
-# use constant fakeUserName => "Undefined_User";
-
+use Data::Dump qw/dd/;
 
 get '/Library/subjects' => sub {
 
@@ -38,8 +33,7 @@ get '/Library/subjects' => sub {
 	    local $/;
 	    <$json_fh>
 	};
-
-	return $json_text;
+	return decode_json($json_text);
 
 };
 
@@ -58,7 +52,7 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => s
 
 	my ($subj,$chap,$sect) = splat;
 
-	return searchLibrary({subject=>$subj,chapter=>$chap,section=>$sect});
+	return searchLibrary(database,{subject=>$subj,chapter=>$chap,section=>$sect});
 };
 
 
@@ -76,13 +70,13 @@ get qr{\/Library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 
 	my ($subj,$chap) = splat;
 
-	return searchLibrary({subject=>$subj,chapter=>$chap});
+	return searchLibrary(database,{subject=>$subj,chapter=>$chap});
 };
 
 
 ####
 #
-#  get all problems with subject *subject_id* 
+#  get all problems with subject *subject_id*
 #
 #   returns a array of problem paths? (global problem_id's)?
 #
@@ -95,7 +89,7 @@ get qr{\/Library\/subjects\/(.+)\/problems} => sub {
 
 	my ($subj) = splat;
 
-	return searchLibrary({subject=>$subj});
+	return searchLibrary(database,{subject=>$subj});
 };
 
 
@@ -120,11 +114,11 @@ get '/Library/directories' => sub {
 	    <$json_fh>
 	};
 
-	
 
-	return $json_text;
 
-}; 
+	return decode_json $json_text;
+
+};
 
 #######
 #
@@ -139,7 +133,6 @@ get '/Library/directories/**' => sub {
 	## pstaab: trying to figure out the best way to pass the course_id.  It needs to be passed in as a parameter for this
 	##         to work.
 
-	setCourseEnvironment(params->{course_id});
 	my ($dirs) = splat;
 	my @dirs =  shift @{$dirs};# strip the "OpenProblemLibrary" from the path
 	my $path = vars->{ce}->{courseDirs}{templates} ."/Library/". join("/",@$dirs);
@@ -164,7 +157,6 @@ get '/courses/:course_id/Library/local' => sub {
 
 	## still need to search for directory with single files and others with ignoreDirectives.
 
-	setCourseEnvironment(params->{course_id});
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
 
@@ -180,8 +172,8 @@ get '/courses/:course_id/Library/local' => sub {
 		} else {
 			my $relDir = $dir;
 			$relDir =~ s/^$path\/(.*)/$1/;
-			if(($dir =~ /.*\.pg$/) && not($dir =~ /Header/)){  ## ignore any file with Header in it. 
-				push(@files,$relDir);	
+			if(($dir =~ /.*\.pg$/) && not($dir =~ /Header/)){  ## ignore any file with Header in it.
+				push(@files,$relDir);
 			}
 		}
 	});
@@ -205,7 +197,7 @@ get '/courses/:course_id/Library/setDefinition' => sub {
 
 	## still need to search for directory with single files and others with ignoreDirectives.
 
-	setCourseEnvironment(params->{course_id});
+
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
 
@@ -221,8 +213,8 @@ get '/courses/:course_id/Library/setDefinition' => sub {
 		} else {
 			my $relDir = $dir;
 			$relDir =~ s/^$path\/(.*)/$1/;
-			if($dir =~ m|/set[^/]*\.def$|) {  
-				push(@setDefnFiles,$relDir);	
+			if($dir =~ m|/set[^/]*\.def$|) {
+				push(@setDefnFiles,$relDir);
 			}
 		}
 	});
@@ -290,7 +282,7 @@ get '/Library/textbooks' => sub {
 
 get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
 
-	return searchLibrary({section_id=>params->{section_id},textbook_id=>params->{textbook_id},
+	return searchLibrary(database,{section_id=>params->{section_id},textbook_id=>params->{textbook_id},
 			chapter_id=>params->{chapter_id}});
 
 };
@@ -305,7 +297,7 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/p
 
 get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
-	return searchLibrary({textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
+	return searchLibrary(database,{textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
 
 };
 
@@ -319,7 +311,7 @@ get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
 get '/Library/textbooks/:textbook_id/problems' => sub {
 
-	return searchLibrary({textbook_id=>params->{textbook_id}});
+	return searchLibrary(database,{textbook_id=>params->{textbook_id}});
 
 };
 
@@ -331,20 +323,20 @@ get '/Library/textbooks/:textbook_id/problems' => sub {
 
 get '/textbooks/author/:author_name/title/:title/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title}});
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title}});
 
 };
 
 get '/textbooks/author/:author_name/title/:title/chapter/:chapter/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title},
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
 			textbook_chapter=>params->{chapter}});
 
 };
 
 get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:section/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title},
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
 			textbook_chapter=>params->{chapter},textbook_section=>params->{section}});
 
 };
@@ -359,7 +351,7 @@ get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:secti
 #  search the library.  Any of the problem metadata can be called as a parameter to this
 #
 #  return an array of problems that fit the criteria
-#  
+#
 # ###
 
 get '/library/problems' => sub {
@@ -369,7 +361,7 @@ get '/library/problems' => sub {
 		$searchParams->{$key} = params->{$key} if defined(params->{$key});
 	}
 
-	return searchLibrary($searchParams);
+	return searchLibrary(database,$searchParams);
 
 };
 
@@ -379,7 +371,7 @@ get '/library/problems' => sub {
 #
 #  This returns all of the tags from the DB for a problem
 #
-## 
+##
 
 get '/Library/problems/:problem_id/tags' => sub {
 
@@ -389,32 +381,41 @@ get '/Library/problems/:problem_id/tags' => sub {
 ###
 #
 # Problem render.  Given information about the problem (problem_id, set_id, course_id, or path) return the
-# HTML for the problem. 
+# HTML for the problem.
 #
-#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF) 
+#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF)
 #
 #  The intention of this route is for rendering a particular problem (i.e. for the library browser)
 #
 ###
 
 any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
-	
-	setCourseEnvironment(params->{course_id});
 
-	my $renderParams = {};
-	
-	
-    $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
-	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1; 
-	$renderParams->{showHints} = 0;
-	$renderParams->{showSolutions} = 0;
-	$renderParams->{showAnswers} = 0;
+	#debug "in /renderer/courses/:course_id/problems/:problem_id";
 
-	$renderParams->{user} = fake_user(vars->{db});
-	$renderParams->{set} =  fake_set(vars->{db});
-	$renderParams->{problem} = fake_problem(vars->{db});
-	$renderParams->{problem}->{problem_seed} = params->{problem_seed} || 0;
-	$renderParams->{problem}->{problem_id} = params->{problem_id} || 1;
+	my $renderParams = {
+		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
+			|| vars->{ce}->{pg}{options}{displayMode},
+		show_hints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
+	  show_solutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
+		show_answers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
+		problem => {
+			problem_seed => query_parameters->get('problem_seed') || body_parameters->get('problem_seed') || 1,
+			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
+		}
+	};
+	#
+  # $renderParams->{displayMode} =
+	# $renderParams->{problemSeed} = ;
+	# $renderParams->{showHints} = 0;
+	# $renderParams->{showSolutions} = 0;
+	# $renderParams->{showAnswers} = 0;
+	#
+	# $renderParams->{user} = fake_user(vars->{db});
+	# $renderParams->{set} =  fake_set(vars->{db});
+	# $renderParams->{problem} = fake_problem(vars->{db});
+	# $renderParams->{problem}->{problem_seed} = query_parameters->{problem_seed} || 0;
+	# $renderParams->{problem}->{problem_id} = query_parameters->{problem_id} || 1;
 
 	# check to see if the problem_path is defined
 
@@ -423,11 +424,11 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 	} elsif (defined(params->{problem_path})){
 		$renderParams->{problem}->{source_file} = "Library/" . params->{problem_path};
 	} elsif (defined(params->{source_file})){
-		$renderParams->{problem}->{source_file} = params->{source_file};
-	} elsif ((params->{problem_id} =~ /^\d+$/) && (params->{problem_id} > 0)){  
+		$renderParams->{problem}->{source_file} = query_parameters->{source_file};
+	} elsif ((params->{problem_id} =~ /^\d+$/) && (query_parameters->{problem_id} > 0)){
 			# try to look up the problem_id in the global database;
 
-		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => param('problem_id')});
+		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => route_parameters->{problem_id}});
 		my $path_id = $problem_info->{path_id};
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
 		$renderParams->{problem}->{source_file} = "Library/" . $path_header . "/" . $problem_info->{filename};
@@ -435,59 +436,59 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		return {error=>"Bad parameters sent to renderer."};
 	}
 
-	return render($renderParams);
+	return render(vars->{ce},vars->{db},$renderParams);
 
 };
 
 ###
 #
-# Problem render.  Given information about the problem (problem_id, set_id, course_id, or path) return the
-# HTML for the problem. 
+# Problem render for a UserProblem.  Given information about the problem (problem_id, set_id, course_id, or path) return the
+# HTML for the problem.
 #
-#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF) 
+#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF)
 #
-#  If the request is a post, then it is assumed that the answers are submitted to be recorded.  
+#  If the request is a post, then it is assumed that the answers are submitted to be recorded.
 #
 ###
 
-any ['get', 'post'] => '/renderer/courses/:course_id/sets/:set_id/problems/:problem_id' => sub {
+any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id/problems/:problem_id' => sub {
 
 	send_error("The set " . params->{set_id} . " does not exist.",404) unless vars->{db}->existsGlobalSet(params->{set_id});
 
-	send_error("The problem with id " . params->{problem_id} . " does not exist in set " . params->{set_id},404) 
+	send_error("The problem with id " . params->{problem_id} . " does not exist in set " . params->{set_id},404)
 		unless vars->{db}->existsGlobalProblem(params->{set_id},params->{problem_id});
+
+	send_error("The user " . params->{user_id} . " is not assigned to the set " . params->{set_id} . ".")
+		unless vars->{db}->existsUserProblem(params->{user_id},params->{set_id},params->{problem_id});
 
 
 	my $renderParams = {};
 
-    $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
-    
+  $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
+
     ### The user is not a professor
-    
-    checkPermissions(0,session->{user});
 
-    if(session->{permission} < 10){  ### check that the user belongs to the course and set. 
+  if(session->{permission} < 10){  ### check that the user belongs to the course and set.
 
-    	send_error("You are a student and must be assigned to the set " . params->{set_id},404)
-    		unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
+  	send_error("You are a student and must be assigned to the set " . params->{set_id},404)
+  		unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
 
-    	# these should vary depending on number of attempts or due_date or ???
-    	$renderParams->{showHints} = 0;
-    	$renderParams->{showSolutions} = 0;
-    	$renderParams->{showAnswers} = 0; 
+  	# these should vary depending on number of attempts or due_date or ???
+  	$renderParams->{showHints} = 0;
+  	$renderParams->{showSolutions} = 0;
+  	$renderParams->{showAnswers} = 0;
 
-    } else { 
-		$renderParams->{showHints} = defined(param('show_hints'))? param('show_hints') : 0;
-		$renderParams->{showSolutions} = defined(param('show_solutions'))? param('show_solutions') : 0;
-		$renderParams->{showAnswers} = defined(param('show_answers'))? param('show_answers') : 0;
-    }	
+  } else {
+		$renderParams->{showHints} = defined(param('show_hints'))? int(param('show_hints')) : 0;
+		$renderParams->{showSolutions} = defined(param('show_solutions'))? int(param('show_solutions')) : 0;
+		$renderParams->{showAnswers} = defined(param('show_answers'))? int(param('show_answers')) : 0;
+  }
 
-	$renderParams->{problem} = vars->{db}->getMergedProblem(params->{effectiveUser}|| session->{user},
-															params->{set_id},params->{problem_id});
-	$renderParams->{user} = vars->{db}->getUser(params->{effectiveUser}|| session->{user});
-	$renderParams->{set} = vars->{db}->getUserSet(params->{effectiveUser}|| session->{user},params->{set_id});		
+	$renderParams->{problem} = vars->{db}->getMergedProblem(params->{user_id},params->{set_id},params->{problem_id});
+	$renderParams->{user} = vars->{db}->getUser(params->{user_id});
+	$renderParams->{set} = vars->{db}->getMergedSet(params->{user_id},params->{set_id});
 
-	my $results = render($renderParams);
+	my $results = render(vars->{ce},vars->{db},$renderParams);
 
 
 	## if it was a post request, then we record the the results in the log file and in the past_answer database
@@ -531,6 +532,37 @@ put '/library/fullproblem' => sub {
 
 };
 
+###
+#  This is a generic path that renders a problem if the source is passed to it.
+#
+#  Note: this is mainly for testing and for scripts to renderer a number of a problems in a directory.
+#
+###
+
+
+post '/renderer' => sub {
+
+	my $source = decode_entities params->{source} if defined(params->{source});
+
+	my $problem = fake_problem(vars->{db});
+	$problem->{problem_seed} = params->{seed} || 1;
+	$problem->{problem_id} = 1;
+	$problem->{source_file} = params->{source_file} || "this_is_a_fake_path";
+
+    my $renderParams = {
+		displayMode=>"MathJax",
+		showHints=>0,
+		showSolutions=>0,
+		showAnswers=>0,
+		problemSeed=>1,
+		user => fake_user(vars->{db}),
+		set => fake_set(vars->{db}),
+		problem => $problem,
+		source => defined($source)?\$source: undef
+	};
+
+	return render(vars->{ce},vars->{db},$renderParams);
+};
+
+
 1;
-
-

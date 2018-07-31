@@ -1,9 +1,9 @@
-/* This View provides the super class for any Settings in WebWork.  The list of Settings should be included by 
-    setting the "settings" field and providing it an array of WeBWorKProperty models. 
+/* This View provides the super class for any Settings in WebWork.  The list of Settings should be included by
+    setting the "settings" field and providing it an array of WeBWorKProperty models.
     */
 
-define(['backbone', 'underscore','config'], 
-function(Backbone, _,config){
+define(['jquery','backbone', 'underscore','config'],
+function($,Backbone, _,config){
     var WWSettingsView = Backbone.View.extend({
 
         initialize: function (options) {
@@ -19,34 +19,32 @@ function(Backbone, _,config){
         },
         render: function ()
         {
-            var self = this; 
+            var self = this;
             this.$el.html($("#settings-table-template").html());
             var table = this.$(".settings-table tbody");
             _(this.settings).each(function(setting){
-                var opts, propHTML; 
+                var opts, propHTML;
                 switch(setting.get("type")){
+                    case "timezone":
                     case "text":
-                    case "number": 
-                        propHTML = "<input class='property'>";
+                    case "number":
+                        propHTML = "<input class='form-control property'>";
                         opts = [];
                         break;
                     case "boolean":
-                        //opts = [{label: "true", value: true}, {label: "false", value: false}];
-                        //opts = ["true","false"];
-                        //"<select class='select-list TF-boolean-select'></select>";
-                        propHTML = "<input type='checkbox' class='true-false'>";
+                        propHTML = "<div class='form-check'><input type='checkbox' class='true-false form-check-input'></div>";
                         break;
                     case "checkboxlist":
-                        propHTML = "<select multiple='multiple' class='select-list'></select>";
+                        propHTML = "<select multiple='multiple' class='select-list custom-select'></select>";
                         var labels = setting.get("labels");
-                        opts = _(setting.get('values')).map(function(opt){ 
-                            return {label: labels? labels[opt] : opt, value: opt}; } );                        
+                        opts = _(setting.get('values')).map(function(opt){
+                            return {label: labels? labels[opt] : opt, value: opt}; } );
                         break;
-                    case "popuplist": 
-                        propHTML = "<select class='select-list'></select>";
+                    case "popuplist":
+                        propHTML = "<select class='select-list custom-select'></select>";
                         var labels = setting.get("labels");
-                        opts = _(setting.get('values')).map(function(opt){ 
-                            return {label: labels? labels[opt] : opt, value: opt}; } );                        
+                        opts = _(setting.get('values')).map(function(opt){
+                            return {label: labels? labels[opt] : opt, value: opt}; } );
                         break;
                     case "permission":
                         propHTML = "<select class='select-list'></select>";
@@ -56,8 +54,9 @@ function(Backbone, _,config){
                 var options = {model: setting, theOptions: opts,rowTemplate: self.rowTemplate,
                                                                     prop_html: propHTML};
                 switch(setting.get("type")){
+                    case "timezone":
                     case "text":
-                    case "number": 
+                    case "number":
                         table.append(new TextSettingView(options).render().el);
                         break;
                     case "boolean":
@@ -80,7 +79,7 @@ function(Backbone, _,config){
         tagName: "tr",
         initialize: function(options){
             this.templateOptions = _.pick(options,"prop_html");
-            this.rowTemplate = options.rowTemplate; 
+            this.rowTemplate = options.rowTemplate;
             _.extend(this.templateOptions,this.model.attributes);
             _.extend(this.bindings,options.bindings);
         },
@@ -90,7 +89,7 @@ function(Backbone, _,config){
             this.stickit();
             return this;
         },
-        bindings: { 
+        bindings: {
             ".doc" : { observe: 'doc',  updateMethod: 'html'},
             ".doc2": { observe: "doc2", updateMethod: "html"}
         },
@@ -100,7 +99,7 @@ function(Backbone, _,config){
         },
         events: function () {
             return _.extend({},this.childEvents,this.additionalEvents);
-        },  
+        },
         toggleHelp: function(){
             if(this.helpPane.css("display")==="none"){
                 this.openHelp();

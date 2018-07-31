@@ -1,11 +1,11 @@
 /*
-*  This is the a view of a library (subject, directories, or local) typically within a LibraryBrowser view. 
+*  This is the a view of a library (subject, directories, or local) typically within a LibraryBrowser view.
 *
-*  
-*/ 
+*
+*/
 
-define(['backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
-function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
+define(['jquery','backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList',''],
+function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
     var LibraryView = TabView.extend({
         className: "library-view",
     	initialize: function (options){
@@ -25,15 +25,15 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
             })
 
     	},
-    	events: {   
+    	events: {
             "change .target-set": "resetDisplayModes"
-        }, 
+        },
     	render: function (){
             var self = this, i;
             var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
             modes.push("None");
 
-    		this.$el.html(_.template($("#library-view-template").html(), 
+    		this.$el.html(_.template($("#library-view-template").html(),
                     {displayModes: modes, sets: this.problemSets.pluck("set_id")}));
             if(this.libraryTreeView){
                 var _fields = {};
@@ -60,7 +60,7 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
         changeDisplayMode:function(evt){
             this.libraryProblemsView.changeDisplayMode(evt);
         },
-        resetDisplayModes: function(){  // needed if there no target set was selected. 
+        resetDisplayModes: function(){  // needed if there no target set was selected.
             this.$('.target-set').css('background-color','white');
             this.$('.target-set').popover("hide");
         },
@@ -80,13 +80,13 @@ function(Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
         showProblems: function () {
             this.tabState.set("rendered",true);
             // I18N
-            this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
+            this.$(".load-library-button").bootstrapBtn("reset").text("Load " + this.problemList.length + " problems");
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
                     .updatePaginator().gotoPage(this.tabState.get("page_num")).highlightCommonProblems()
                     .showPath(this.tabState.get("show_path")).showTags(this.tabState.get("show_tags"));
         },
-    	loadProblems: function (){   
-            this.$(".load-library-button").button("loading"); 	
+    	loadProblems: function (){
+            this.$(".load-library-button").bootstrapBtn("loading");
             var _path = this.libraryTreeView.fields.values();
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             this.problemList.fetch({success: this.showProblems});

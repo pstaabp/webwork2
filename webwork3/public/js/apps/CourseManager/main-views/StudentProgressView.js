@@ -1,7 +1,7 @@
 //  This is the main view for the Student Progress Page.
 
-define(['backbone', 'underscore','views/MainView','config','views/CollectionTableView','models/UserSetList'], 
-function(Backbone, _,MainView,config,CollectionTableView,UserSetList){
+define(['jquery','backbone', 'underscore','views/MainView','config','views/CollectionTableView','models/UserSetList'],
+function($,Backbone, _,MainView,config,CollectionTableView,UserSetList){
 var StudentProgressView = MainView.extend({
 	initialize: function (options){
 		var self = this;
@@ -9,8 +9,11 @@ var StudentProgressView = MainView.extend({
 		MainView.prototype.initialize.call(this,options);
 		this.tableSetup();
 		this.state.on({
-			"change:type": this.changeDisplay, 
-			"change:set_id change:user_id": this.buildTable,
+			"change:type": this.changeDisplay,
+			"change:user_id": self.buildTable,
+            "change:set_id": self.buildTable
+		}).on("change:user_id",function(m){
+			console.log(m.changed);
 		})
 
 	},
@@ -21,15 +24,15 @@ var StudentProgressView = MainView.extend({
 		if(this.collection){
 			this.changeDisplay();
 			var rowID = this.row_id_field === "users" ? "user_id" : "set_id";
-			this.progressTable = new CollectionTableView({columnInfo: this.cols, collection: this.collection, 
+			this.progressTable = new CollectionTableView({columnInfo: this.cols, collection: this.collection,
 						row_id_field: rowID,
 	                    paginator: {page_size: 10, button_class: "btn btn-default", row_class: "btn-group"}}).render();
 			this.progressTable.on("page-changed",function(num){
 	        			self.state.set({page_num: num});
 	        			self.showHideColumns();
-	        		}).gotoPage(this.state.get("page_num")).$el.addClass("table table-bordered table-condensed")
+	        		}).gotoPage(this.state.get("page_num")).$el.addClass("table table-bordered  table-sm")
 			this.$el.append(this.progressTable.el);
-	
+
 	        // set up some styling
 	        this.progressTable.$(".paginator-row td").css("text-align","center");
 	        this.progressTable.$(".paginator-page").addClass("btn");
@@ -42,15 +45,15 @@ var StudentProgressView = MainView.extend({
 	},
 	bindings: {
 		".progress-type": {observe: "type", selectOptions: {collection: ["sets","users"]}},
-		".progress-student-select": {observe: "user_id", selectOptions: { 
+		".progress-student-select": {observe: "user_id", selectOptions: {
 			collection: function () {
 				return this.users.pluck("user_id");
-			}, 
+			},
 			defaultOption: {value: null, label: "Select User..."}}},
-		".progress-set-select": {observe: "set_id", selectOptions: { 
+		".progress-set-select": {observe: "set_id", selectOptions: {
 			collection: function () {
 				return this.problemSets.pluck("set_id");
-			}, 
+			},
 			defaultOption: {value: null, label: "Select Set..."}}}
 	},
 	getDefaultState: function () {
@@ -86,21 +89,21 @@ var StudentProgressView = MainView.extend({
 		var self = this;
 		if (this.state.get("type")==="users"){
 			var _user = this.users.findWhere({user_id: this.state.get("user_id")});
-			if(! _user){ 
+			if(! _user){
 				this.collection = new UserSetList([],{type: "sets"});
 				this.render();
 			} else {
 				(this.collection = new UserSetList([],{user: _user.get("user_id"), type: "sets", loadProblems: true}))
-				.fetch({success: function(data){self.render();}});	
+				.fetch({success: function(data){self.render();}});
 			}
 		} else if (this.state.get("type")==="sets"){
 			var _set = this.problemSets.findWhere({set_id: this.state.get("set_id")});
-			if(! _set){ 
+			if(! _set){
 				this.collection = new UserSetList([],{type: "users"});
 				this.render();
 			} else {
 				(this.collection = new UserSetList([],{problemSet: _set, type: "users",loadProblems: true}))
-					.fetch({success: function (data){self.render();}});	
+					.fetch({success: function (data){self.render();}});
 			}
 		}
 	},
@@ -112,13 +115,13 @@ var StudentProgressView = MainView.extend({
         this.cols = [
             {name: "Login Name", key: "user_id", classname: "login-name", datatype: "string"},
             {name: "Set Name", key: "set_id", classname: "set-id", datatype:"string"},
-            {name: "Score", key: "score", classname: "score", datatype: "real", 
-            	value: function(model){ 
+            {name: "Score", key: "score", classname: "score", datatype: "real",
+            	value: function(model){
             		return _(model.get("problems").pluck("status")
         		 			.map(function(s) { return s===""?0:parseFloat(s);})).reduce(function(p,q) {return p+q;},0);
-            	}, 
+            	},
             	display: function(val,model){
-            		var total = _(model.get("problems").pluck("value")).reduce(function(p,q) { return parseFloat(p)+parseFloat(q);},0); 
+            		var total = _(model.get("problems").pluck("value")).reduce(function(p,q) { return parseFloat(p)+parseFloat(q);},0);
             		return val + "/" + total;
             	}
             },
@@ -129,7 +132,7 @@ var StudentProgressView = MainView.extend({
            //  			$el.html("");
            //  			return;
            //  		}
-        			// var total = _(model.get("problems").pluck("value")).reduce(function(p,q) { return parseFloat(p)+parseFloat(q);}); 
+        			// var total = _(model.get("problems").pluck("value")).reduce(function(p,q) { return parseFloat(p)+parseFloat(q);});
            //  		$el.html(config.displayFloat(status,2) + "/" + total);
            //  	}
            //  }},

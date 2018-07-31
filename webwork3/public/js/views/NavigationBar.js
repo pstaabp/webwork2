@@ -1,22 +1,46 @@
-define(['backbone'], function(Backbone){
+define(['jquery','backbone','underscore','views/MessageListView'],
+  function($,Backbone,_,MessageListView){
+
 	var NavigationBar = Backbone.View.extend({
+    template: $("#menu-bar-template").html(),
+    initialize: function(opts){
+      var self = this;
+      _(this).extend(_(opts).pick("eventDispatcher"));
+      this.messagePane = new MessageListView();
+      this.eventDispatcher.on("add-message",function(msg){
+        if(self.eventDispatcher){
+          self.messagePane.addMessage(msg);
+        }
+      });
+    },
 		render: function (){
-			_(this).extend(Backbone.Events);
-			this.$el.html($("#menu-bar-template").html());
+			this.$el.html(this.template);
+      this.messagePane.render();
 			return this;
 		},
 		events: {
-			"click .manager-menu a.link": function(evt){this.trigger("change-view",$(evt.target).data("id"))},
+			"click .manager-menu a.dropdown-item": function(evt){
+                // if the icon is clicked on, then need to select the parent.
+                var id= $(evt.target).data("id");
+                if(typeof(id)==="undefined"){
+                    id = $(evt.target).parent().data("id");
+                }
+                this.eventDispatcher.trigger("change-view",id)
+            },
 			"click .main-help-button": function(evt){
-				this.trigger("show-help")},
-			"click .logout-link": function(evt){ this.trigger("logout")},
-			"click .stop-acting-link": function(evt){ this.trigger("stop-acting")},
-			"click .forward-button": function(){ this.trigger("forward-page")},
-			"click .back-button": function(){ this.trigger("back-page")},
+        this.eventDispatcher.trigger("show-help")},
+			"click .logout-link": function(evt){
+        this.eventDispatcher.trigger("logout")},
+			"click .stop-acting-link": function(evt){
+        this.eventDispatcher.trigger("stop-acting")},
+			"click .forward-button": function(){
+        this.eventDispatcher.trigger("forward-page")},
+			"click .back-button": function(){
+        this.eventDispatcher.trigger("back-page")},
 		},
 		setPaneName: function(name){
 			this.$(".main-view-name").text(name);
-		}, 
+		},
 		setLoginName: function(name){
 			this.$(".logged-in-as").text(name);
 		},
@@ -31,6 +55,6 @@ define(['backbone'], function(Backbone){
 		}
 	});
 
-	return NavigationBar; 
+	return NavigationBar;
 
 });

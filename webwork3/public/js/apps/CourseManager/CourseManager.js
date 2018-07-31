@@ -1,12 +1,21 @@
 /*  HomeworkManager.js:
    This is the base javascript code for the Homework Manager.  This sets up the View and ....
-  
+
 */
-define(['module','backbone','views/Sidebar', 'underscore','models/UserList','models/ProblemSetList','models/SettingList',  
-    'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList','views/WebPage', 'moment',
-    'config','apps/util','jquery-ui','bootstrap'], 
-function(module, Backbone, Sidebar, _, UserList, ProblemSetList, SettingList,MainViewList,
-    AssignmentDate,AssignmentDateList,WebPage,moment,config,util){
+// require(["popper.js"], function(popper) {
+//     window.Popper = popper;
+//     console.log(popper);
+//     require(["bootstrap"]);
+// });
+
+define(['module','jquery','backbone','views/Sidebar', 'underscore','views/WebPage',
+    'models/UserList','models/ProblemSetList','models/SettingList',
+    'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList',
+    'models/User', 'moment','config','apps/util','bootstrap','apps/bs-button'],
+function(module,$, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
+    SettingList,MainViewList,AssignmentDate,AssignmentDateList,User,
+    moment,config,util){
+      console.log("in CourseManager");
 var CourseManager = WebPage.extend({
     messageTemplate: _.template($("#course-manager-messages-template").html()),
     initialize: function(){
@@ -18,17 +27,18 @@ var CourseManager = WebPage.extend({
         this.session = (module.config().session)? module.config().session : {};
         this.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
         this.users = (module.config().users) ? new UserList(module.config().users) : null;
-        // We need to pass the standard date settings to the problemSets.  
+        this.user_info = (module.config().user_info) ? new User(module.config().user_info): null;
+        // We need to pass the standard date settings to the problemSets.
         var dateSettings = util.pluckDateSettings(this.settings);
-        this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true, 
+        this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true,
                 dateSettings: dateSettings}) : null;
 
         _.extend(config.courseSettings,{course_id: module.config().course_id,user: this.session.user});
-        if(this.session.user&&this.session.logged_in==1){
+        if(this.session.user_id&&this.session.logged_in==1){
             this.startManager();
         } else {
             this.requestLogin({success: function (data) {
-                    // save the new session key and reload the page.  
+                    // save the new session key and reload the page.
                     self.session.key = data.session_key;
                     window.location.reload();
                 }
@@ -70,7 +80,7 @@ var CourseManager = WebPage.extend({
             this.loginPane.$(".message").html(this.messageTemplate({type: "bad_password"}));
         }
     },
-    // wait for all of the data to get loaded in, close the login window, then start the Course Manager. 
+    // wait for all of the data to get loaded in, close the login window, then start the Course Manager.
     checkData: function(name) {
         this.data_loaded[name] = true;
         if(_(this.data_loaded).chain().values().every(_.identity).value()){
@@ -83,46 +93,35 @@ var CourseManager = WebPage.extend({
     startManager: function () {
         var self = this;
         this.navigationBar.setLoginName(this.session.user);
-        
-        // put all of the dates in the problem sets in a better data structure for calendar rendering.
-        this.buildAssignmentDates();
-        this.setMainViewList(new MainViewList({settings: this.settings, users: this.users, 
-                problemSets: this.problemSets, eventDispatcher: this.eventDispatcher}));
-        
+
+        this.setMainViewList(new MainViewList({settings: this.settings, users: this.users,
+                problemSets: this.problemSets, eventDispatcher: this.eventDispatcher,
+                session: this.session}));
+
 
         // set up some of the main views with additional information.
-        
-        this.mainViewList.getView("calendar")
-            .set({assignmentDates: this.assignmentDateList, viewType: "instructor", calendarType: "month"})
+
+        this.mainViewList.getView("calendar").set({viewType: "instructor", calendarType: "month"})
             .on("calendar-change",self.updateCalendar);
 
         this.mainViewList.getView("problemSetsManager").set({assignmentDates: this.assignmentDateList});
-        this.mainViewList.getSidebar("allMessages").set({messages: this.messagePane.messages});
+        this.mainViewList.getView("userSettings").set({user_info: this.user_info});
+        this.mainViewList.getSidebar("allMessages").set({messages: this.navigationBar.messagePane.messages});
         this.mainViewList.getSidebar("help").parent = this;
-        
+
         this.postInitialize();
-        
-        // can't we just pull this from the settings when needed.  Why do we need another variable. 
-        config.timezone = this.settings.find(function(v) { return v.get("var")==="timezone"}).get("value");
-    
-        // this will automatically save (sync) any change made to a problem set.
-        this.problemSets.on("change",function(_set){
-            _set.save();
-        })        
 
-        // The following is useful in many different views, so is defined here. 
-        // It adjusts dates to ensure that they aren't illegal.
+        // not sure why this is needed.
+        //config.timezone = this.settings.find(function(v) { return v.get("var")==="timezone"}).get("value");
 
-        this.problemSets.on("change:due_date change:reduced_scoring_date change:open_date change:answer_date",this.setDates);
-                
         this.navigationBar.on({
             "stop-acting": this.stopActing,
         });
 
         this.users.on({"act_as_user": function(model){
             self.session.effectiveUser = model.get("user_id");
-            $.ajax({method: "POST", 
-                url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session", 
+            $.ajax({method: "POST",
+                url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session",
                 data: {effectiveUser: self.session.effectiveUser},
                 success: function () {
                     self.navigationBar.setActAsName(self.session.effectiveUser);
@@ -138,21 +137,21 @@ var CourseManager = WebPage.extend({
         }});
 
 
-        // Add a link to WW2 via the main menu.
-
-        this.navigationBar.$(".manager-menu").append("<li class='ww2-link'>"+
-            "<a href='/webwork2/"+config.courseSettings.course_id+"''><span class='wwlogo'>W</span>WeBWorK2</a></li>");
+        // Add a link to WW2 via the main menu.  This should be in a template
+        this.navigationBar.$(".manager-menu").append("<div class='dropdown-divider'></div>")
+              .append("<a class='dropdown-item' href='/webwork2/"
+                    +config.courseSettings.course_id+"''><span id='ww2logo'>W</span>WeBWorK2</a>");
         this.delegateEvents();
 
 
     },
     // move this to WebPage.js  (need to deal with the parent-child events)
     events: {
-        "click .sidebar-menu a.link": "changeSidebar"
+        "click .sidebar-menu a.sidebar-menu-item": "changeSidebar"
     },
     showProblemSetDetails: function(setName){
         if (this.objectDragging) return;
-        this.changeView("problemSetDetails",{set_id: setName});        
+        this.changeView("problemSetDetails",{set_id: setName});
         this.changeSidebar("problemSets",{});
         this.saveState();
     },
@@ -164,35 +163,18 @@ var CourseManager = WebPage.extend({
     stopActing: function (){
         var self = this;
         this.session.effectiveUser = this.session.user;
-        $.ajax({method: "POST", 
-            url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session", 
+        $.ajax({method: "POST",
+            url: config.urlPrefix+"courses/"+config.courseSettings.course_id+"/session",
             data: {effectiveUser: self.session.effectiveUser},
             success: function () {
-                self.navigationBar.setActAsName("");                    
+                self.navigationBar.setActAsName("");
             }
         });
 
-    },
-    // This travels through all of the assignments and determines the days that assignment dates fall
-    buildAssignmentDates: function () {
-        var self = this;
-        this.assignmentDateList = new AssignmentDateList();
-        this.problemSets.each(function(_set){
-            self.assignmentDateList.add(new AssignmentDate({type: "open", problemSet: _set,
-                    date: moment.unix(_set.get("open_date")).format("YYYY-MM-DD")}));
-            self.assignmentDateList.add(new AssignmentDate({type: "due", problemSet: _set,
-                    date: moment.unix(_set.get("due_date")).format("YYYY-MM-DD")}));
-            self.assignmentDateList.add(new AssignmentDate({type: "answer", problemSet: _set,
-                    date: moment.unix(_set.get("answer_date")).format("YYYY-MM-DD")}));
-            if(parseInt(_set.get("reduced_scoring_date"))>0) {
-                self.assignmentDateList.add(new AssignmentDate({type: "reduced-scoring", problemSet: _set,
-                    date: moment.unix(_set.get("reduced_scoring_date")).format("YYYY-MM-DD")}) );
-            }
-        });
     }
 
 });
 
-   
+
 var App = new CourseManager({el: $("div#mainDiv")});
 });

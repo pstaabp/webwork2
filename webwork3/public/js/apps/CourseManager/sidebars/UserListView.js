@@ -1,6 +1,6 @@
 
 define(['backbone','views/Sidebar','stickit'], function(Backbone,Sidebar){
-    
+
 	var UserListView = Sidebar.extend({
 		template: _.template($("#user-template").html()),
 		initialize: function(options) {
@@ -26,7 +26,7 @@ define(['backbone','views/Sidebar','stickit'], function(Backbone,Sidebar){
 
 	var UserListRowView = Backbone.View.extend({
 		tagName: "button",
-		className: "btn btn-default user-button",
+		className: "btn btn-outline-dark user-button",
 		initialize: function(options){
 			this.template = options.rowTemplate;
 		},
