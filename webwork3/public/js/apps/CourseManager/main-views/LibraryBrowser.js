@@ -5,13 +5,13 @@
 */
 
 
-define(['backbone', 'underscore','views/TabbedMainView',
+define(['jquery','backbone', 'underscore','views/TabbedMainView',
         'views/library-views/LibrarySubjectView','views/library-views/LibraryDirectoryView',
         'views/library-views/LibrarySearchView','views/library-views/LocalLibraryView',
         'views/library-views/LibraryTextbookView','models/ProblemSet',
         'models/User','moment','config','apps/util'],
-function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, LibrarySearchView,LocalLibraryView,
-    LibraryTextbookView,ProblemSet,User,moment,config,util){
+function($,Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, LibrarySearchView,
+    LocalLibraryView,LibraryTextbookView,ProblemSet,User,moment,config,util){
     var LibraryBrowser = TabbedMainView.extend({
         messageTemplate: _.template($("#library-messages-template").html()),
     	initialize: function (options){

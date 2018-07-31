@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'config', 'apps/util'], function(Backbone, _, config,util){
+define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Backbone, _, config,util){
     /**
      *
      * This defines a single webwork Problem (Global Problem)

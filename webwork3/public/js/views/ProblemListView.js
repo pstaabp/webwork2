@@ -1,5 +1,5 @@
-define(['backbone', 'underscore', 'views/ProblemView','config','models/ProblemList'],
-    function(Backbone, _, ProblemView,config,ProblemList){
+define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/ProblemList'],
+    function($,Backbone, _, ProblemView,config,ProblemList){
 
     /******
       *

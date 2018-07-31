@@ -16,21 +16,21 @@ main_view_paths.unshift("module","backbone");
 </script>
 
 <script type="text/javascript" src="/webwork2_files/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script data-main="[% top_dir %]/js/apps/CourseManager/CourseManager" src="/webwork3/js/bower_components/requirejs/require.js">
+<script data-main="[% top_dir %]/js/apps/CourseManager/CourseManager" src="/webwork3/node_modules/requirejs/require.js">
 </script>
 
 <div id="mainDiv" class="container">
-  <div class="row" id="main-row">
-    <div class="col-md-9" id="main-view">
+  <div class="row">
+    <div class="col-9" id="main-view">
     </div>
-    <div class="col-md-3 well" id="sidebar-container">
+    <div class="col-3 border-secondary bg-light" id="sidebar-container">
       <div class="dropdown sidebar-menu">
         <h3 class="dropdown-toggle" data-toggle="dropdown">
           <span class="sidebar-name"></span>
           <span class="caret"></span>
         </h3>
-        <ul class="dropdown-menu" role="menu">
-        </ul>
+        <div class="dropdown-menu" role="menu">
+        </div>
     </div>
     <div class="sidebar-content">
     </div>
@@ -40,8 +40,8 @@ main_view_paths.unshift("module","backbone");
 
 <script type="text/template" id="open-close-view-template">
 <span class="pull-right">
-  <button class="btn btn-default btn-sm open-view-button hidden"><i class="fa fa-chevron-left"></i></button>
-  <button class="btn btn-default btn-sm close-view-button"><i class="fa fa-chevron-right"></i></button>
+  <button class="btn  btn-outline-dark btn-sm open-view-button hidden"><i class="fa fa-chevron-left"></i></button>
+  <button class="btn  btn-outline-dark btn-sm close-view-button"><i class="fa fa-chevron-right"></i></button>
   </span>
 </script>
 
@@ -59,7 +59,7 @@ main_view_paths.unshift("module","backbone");
      <ul>
       <li>To close the help, click the X in the upper right.  To reopen Help, click the "Help" button on the top bar. </li>
       <li>To open a homework set, click on the Problem Set name in the list on the right. </li>
-      <li>There is a message bar at the top next to the <button class="btn btn-sm btn-default"><i class="fa fa-comment-o"></i></button> button. Click on that button and you will toggle detailed messages that Webwork tells you.</li>
+      <li>There is a message bar at the top next to the <button class="btn btn-sm  btn-outline-dark"><i class="fa fa-comment-o"></i></button> button. Click on that button and you will toggle detailed messages that Webwork tells you.</li>
     </ul>
     <li>Calendar:
      <ul>
@@ -84,9 +84,9 @@ main_view_paths.unshift("module","backbone");
             <li>Problems:
               <ul>
                 <li>The problems will load dynamically.  You can view the tags on all problems with the "View Tags" button.</li>
-                <li>To reorder problems, click the <button class="btn btn-default btn-sm"><i class="fa fa-resize-vertical"></i></button> and drag to a new position in the list. </li>
-                <li>To remove a problem, click the <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button> button. You can undo the delete by clicking the "Undo Delete button". </li>
-                <li>To view a problem with a new random seed, click the <button class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button> button.</li>
+                <li>To reorder problems, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-resize-vertical"></i></button> and drag to a new position in the list. </li>
+                <li>To remove a problem, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-trash-o"></i></button> button. You can undo the delete by clicking the "Undo Delete button". </li>
+                <li>To view a problem with a new random seed, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-refresh"></i></button> button.</li>
                 <li>To change the value (or weight) of a problem, type in a new value and it will be updated automatically.</li>
               </ul>
             </li>
@@ -116,7 +116,7 @@ main_view_paths.unshift("module","backbone");
         <li>The Library Browser is used to browse or search the library and add problems to sets.</li>
         <li>You can view problems by subject/chapter/section, as directories, in textbooks, local problems, within set defintion files and searching.</li>
         <li>Within a problem you have many of the same options as viewing a problem set (see above).</li>
-        <li>To add a problem to a set, click and hold the <button class="btn btn-default"><i class="fa fa-move"></i></button>
+        <li>To add a problem to a set, click and hold the <button class="btn  btn-outline-dark"><i class="fa fa-move"></i></button>
         button and drag the problem on top of the problem set on the left. </li>
         <li>Addiitonal, you can add a problem to a set by selecting the target set, then clicking the + button. </li>
         <li>There is additional help on searching by clicking the Help button next to the search button</li>
@@ -126,7 +126,7 @@ main_view_paths.unshift("module","backbone");
       <ul>
         <li>This view shows details of all of the problem sets.  You can change the dates, visibility and reduced credit for each set here by clicking or change the appropriate item. </li>
         <li>To add a new set, click the "Add Problem Set" button at the top of the page. </li>
-        <li>To delete a set click the <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button> button. </li>
+        <li>To delete a set click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-trash-o"></i></button> button. </li>
         <li>If there are more that 10 sets, you can view the remainder by click the forward page button at the bottom. </li>
         <li>You can sort by any aspect of the sets, by clicking the header column. </li>
       </ul>

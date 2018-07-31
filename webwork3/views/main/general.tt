@@ -1,15 +1,17 @@
 <!-- templates for the Backbone.Stickit handlers -->
 
 <script type="text/template" id="time-popover-template">
-<div><input class='wwtime' value='<%=time%>'><br>
-<button class='btn btn-default save-time-button'>Save</button>
-<button class='btn btn-default cancel-time-button'>Cancel</button>
+<div>
+  <input class='wwtime' value='<%=time%>'><br>
+  <button class='btn  btn-outline-dark save-time-button'>Save</button>
+  <button class='btn  btn-outline-dark cancel-time-button'>Cancel</button>
 </div>
 </script>
 
 <script type="text/template" id="edit-date-time-template">
 <input class='wwdate' size='12' value='<%=date%>'><span class='open-time-editor'><i class='fa fa-clock-o'></i></span>
 </script>
+
 <script type="text/template" id="edit-date-time2-template">
 <input class='wwdate' size='12' value='<%=date%>'><span class='time-span'><br>&nbsp;at&nbsp;</span><span style="inline-block" class="wwtime" contenteditable="true"></span>
 </script>
@@ -17,7 +19,7 @@
 <!-- Some general templates that are used throughout the WW3 interface -->
 
 <script type="text/template" id="delete-button-template">
-<button class="btn btn-default btn-sm"><i class='fa fa-trash-o'></i></button>
+<button class="btn  btn-outline-dark btn-sm"><i class='fa fa-trash-o'></i></button>
 </script>
 
 <script type="text/template" id="checkbox-template">
@@ -44,7 +46,7 @@
         <%if(buttons){
           print(buttons)
         } else {%>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn  btn-outline-dark" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary action-button"><%=action_button_text%></button>
         <%}%>
       </div>
@@ -58,11 +60,11 @@
 <!-- template for building the main menu and option pane menu -->
 
 <script type="text/template" id="main-menu-item-template">
-<li><a href="#" onclick="return false;" class="link" data-id="<%=id%>">
+<a href="#" onclick="return false;" class="sidebar-menu-item dropdown-item" data-id="<%=id%>">
 <%if(typeof(icon)!=="undefined"){%>
 <i class="<%=icon%>"></i>
 <%}%>
-<%=name%></a></li>
+<%=name%></a>
 </script>
 
 
@@ -74,8 +76,8 @@
   <div class="col-md-8 num-problems"></div>
   <%if(show_undo||false) {%>
   <div class="pull-right btn-group">
-    <button class="btn btn-default renumber-button btn-sm">Renumber Problems</button>
-    <button class="btn btn-default undo-delete-button btn-sm disabled">Undo Delete Problem</button></div>
+    <button class="btn  btn-outline-dark renumber-button btn-sm">Renumber Problems</button>
+    <button class="btn  btn-outline-dark undo-delete-button btn-sm disabled">Undo Delete Problem</button></div>
   <%}%>
 </div>
 <div class="prob-list-container">
@@ -90,12 +92,12 @@
 <script type="text/template" id="problem-template">
 <div class="loading btn-sm">Problem Loading...<i class="fa fa-spinner fa-spin"></i></div>
 <div class="handle row">
-  <%if(reorderable){%><div class="col-md-1 pull-right"><a class="reorder-handle btn btn-sm btn-default" href="#"><i class="fa fa-arrows-v"></i></a></div><%}%>
+  <%if(reorderable){%><div class="col-md-1 pull-right"><a class="reorder-handle btn btn-sm btn-outline-dark" href="#"><i class="fa fa-arrows-v"></i></a></div><%}%>
   <%if(draggable){%>
-    <div class="col-md-1 pull-right"> <a class="drag-handle btn btn-default btn-sm" href="#"><i class="fa fa-arrows"></i></a></div>
+    <div class="col-1 pull-right"> <a class="drag-handle btn btn-outline-dark btn-sm" href="#"><i class="fa fa-arrows"></i></a></div>
   <%}%>
   <%if(showPoints || showMaxAttempts){%>
-  <div class="col-md-5 form-horizontal">
+  <div class="col-5 form-horizontal">
       <span class="problem-id"></span>
       <%if(showPoints){%>
       <label class="control-label">Value:
@@ -108,36 +110,36 @@
     </div>
   <%}%>
 
-  <div class="col-md-4 btn-group btn-group-sm">
-  <%if(showAddTool){%><a class="btn btn-default add-problem" href="#" title="add to target set">
+  <div class="col-4 btn-group btn-group-sm">
+  <%if(showAddTool){%><a class="btn btn-outline-dark add-problem" href="#" title="add to target set">
     <i class="fa fa-plus"></i></a><%}%>
-  <%if(showEditTool){%><a onclick="return false;" class="btn btn-default" target="WW_editor" href="#" title="edit">
+  <%if(showEditTool){%><a onclick="return false;" class="btn  btn-outline-dark" target="WW_editor" href="#" title="edit">
       <i class="fa fa-pencil"></i></a><%}%>
     <%if(showRefreshTool){%>
-      <a onclick="return false;" href="#"  class="btn btn-default refresh-problem" title="randomize">
+      <a onclick="return false;" href="#"  class="btn  btn-outline-dark refresh-problem" title="randomize">
       <i class="fa fa-refresh"></i></a>
     <%}%>
-    <%if(showViewTool){%><a onclick="return false;" class="btn btn-default" target="WW_view" href='#' title="view problem">
+    <%if(showViewTool){%><a onclick="return false;" class="btn btn-outline-dark" target="WW_view" href='#' title="view problem">
       <i class="fa fa-eye"></i></a><%}%>
     <%if(showHideTool){%>
-      <a href="#" onclick="return false;" class="btn btn-default hide-problem link" title="hide problem">
+      <a href="#" onclick="return false;" class="btn btn-outline-dark hide-problem link" title="hide problem">
       <i class="fa fa-times"></i></a>
     <%}%>
     <%if(deletable){ %>
-      <a href="#" onclick="return false;" class="remove-problem btn btn-default" title="delete problem">
+      <a href="#" onclick="return false;" class="remove-problem btn btn-outline-dark" title="delete problem">
         <i class="fa fa-trash-o"></i></a>
     <%}%>
     <%if(markCorrect){ %>
-      <a href="#" onclick="return false;" class="mark-correct-btn btn btn-default" title="Mark this problem correct for all assigned users.">
+      <a href="#" onclick="return false;" class="mark-correct-btn  btn btn-outline-dark" title="Mark this problem correct for all assigned users.">
         <i class="fa fa-check"></i></a>
     <%}%>
 
-  <a href="#" onclick="return false;" class="btn btn-default tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
-  <a href="#" onclick="return false;" class="btn btn-default path-button" title="show/hide path"><i class="fa fa-file"></i></a>
+  <a href="#" onclick="return false;" class="btn btn-small btn-outline-dark tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
+  <a href="#" onclick="return false;" class="btn btn-small btn-outline-dark path-button" title="show/hide path"><i class="fa fa-file"></i></a>
   </div>
 
   <div class="col-md-2 btn-group btn-group-sm">
-  <button class="btn btn-sm btn-success highlight-problem hidden" title="This problem is in the target set.">
+  <button class="btn btn-success highlight-problem hidden" title="This problem is in the target set.">
     <i class="fa fa-bullseye fa-lg"></i></button>
   </div>
   </div>

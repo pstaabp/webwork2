@@ -1,5 +1,5 @@
-define(['backbone', 'underscore','config','apps/util','views/ModalView'],
-function(Backbone, _, config,util,ModalView){
+define(['jquery','backbone', 'underscore','config','apps/util','views/ModalView'],
+function($,Backbone, _, config,util,ModalView){
 
   var ChangePasswordView = ModalView.extend({
     initialize: function(opts) {

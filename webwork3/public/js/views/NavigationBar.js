@@ -1,5 +1,5 @@
-define(['backbone','underscore','views/MessageListView'],
-  function(Backbone,_,MessageListView){
+define(['jquery','backbone','underscore','views/MessageListView'],
+  function($,Backbone,_,MessageListView){
 
 	var NavigationBar = Backbone.View.extend({
     template: $("#menu-bar-template").html(),
@@ -19,7 +19,7 @@ define(['backbone','underscore','views/MessageListView'],
 			return this;
 		},
 		events: {
-			"click .manager-menu a.link": function(evt){
+			"click .manager-menu a.dropdown-item": function(evt){
                 // if the icon is clicked on, then need to select the parent.
                 var id= $(evt.target).data("id");
                 if(typeof(id)==="undefined"){

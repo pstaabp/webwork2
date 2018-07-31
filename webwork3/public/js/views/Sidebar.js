@@ -1,4 +1,4 @@
-define(['backbone'],function(Backbone){
+define(['backbone','jquery'],function(Backbone,$){
 	var Sidebar = Backbone.View.extend({
 		initialize: function(options){
 			var self = this;

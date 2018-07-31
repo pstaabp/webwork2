@@ -4,9 +4,9 @@
   */
 
 
-define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView',
-        'models/AssignmentDate','models/AssignmentDateList','config','apps/util'],
-    function(Backbone, _, moment,MainView, CalendarView,AssignmentDate,AssignmentDateList,config,util) {
+define(['jquery','backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView',
+        'models/AssignmentDate','models/AssignmentDateList','config','apps/util','jquery-ui/widgets/droppable'],
+    function($,Backbone, _, moment,MainView, CalendarView,AssignmentDate,AssignmentDateList,config,util,droppable) {
 
     var AssignmentCalendar = CalendarView.extend({
         template: this.$("#calendar-date-bar").html(),
@@ -168,7 +168,7 @@ define(['backbone', 'underscore', 'moment','views/MainView', 'views/CalendarView
 
             // show/hide the sets according to those selected in the "Date Types" dropdown.
             _(keys).each(function(key){
-                util.changeClass({state: model.get(key), remove_class: "hidden", els: this.$(".assign." + obj[key]) });
+                util.changeClass({state: model.get(key), remove_class: "hidden", els: self.$(".assign." + obj[key]) });
             });
 
 

@@ -13,7 +13,7 @@ my $webwork_dir = "";
 my $pg_dir = "";
 
 BEGIN {
-  #$ENV{PLACK_ENV}='testing';
+  $ENV{PLACK_ENV}='testing';
   $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
   $webwork_dir = $ENV{WEBWORK_ROOT} || die "The environment variable WEBWORK_ROOT needs to be defined.";
   $pg_dir = $ENV{PG_ROOT};
@@ -339,15 +339,15 @@ subtest 'reorder from odd config' => sub {
   }
 
   $set->{problems} = \@probs;
-  $set->{_reorder} = JSON::true; 
+  $set->{_reorder} = JSON::true;
 
-  my $req = HTTP::Request->new(
+  $req = HTTP::Request->new(
       "PUT","$url/courses/new_course_xyz/sets/set1",
       HTTP::Headers->new('Content-Type' => 'application/json'),
       encode_json($set)
       );
   $jar->add_cookie_header($req);
-  my $res = $test->request($req);
+  $res = $test->request($req);
 
   $result_hash = decode_json($res->content);
 
@@ -409,6 +409,7 @@ sub get_multiple_users {
     $user->{showOldAnswers} = JSON::false;
     $user->{status} = "";
     $user->{useMathView} = JSON::false;
+    $user->{useWirisEditor} = JSON::false;
 
     push(@users,$user);
   }

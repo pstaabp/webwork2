@@ -1,4 +1,4 @@
-define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
+define(['backbone','jquery','views/Sidebar', 'config'],function(Backbone,$,Sidebar,config){
 	var LibraryOptionsView = Sidebar.extend({
     initialize: function(options){
         Sidebar.prototype.initialize.apply(this,[options]);
@@ -6,7 +6,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
         _(this).bindAll("addProblemSet");
         this.problemSets = options.problemSets;
         this.problemSets.on({
-            add: this.addProblemSet, sync: function(_set){               
+            add: this.addProblemSet, sync: function(_set){
                 self.$(".select-target-option").val(_set.get("set_id"));
                 self.state.set({new_problem_set: "",target_set: _set.get("set_id")});
                 self.trigger("change-target-set",self.state.get("target_set"));
@@ -16,7 +16,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
                 self.state.set({target_set: ""});
                 self.trigger("change-target-set","");
             }
-        }); 
+        });
         this.settings = options.settings;
 
         this.state.set({display_option: this.settings.getSettingValue("pg{options}{displayMode}"),
@@ -43,11 +43,11 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
         this.stickit(this.state,this.bindings);
         if(this.state.get("target_set")){
             this.$(".goto-problem-set-button").removeAttr("disabled");
-            this.trigger("change-target-set",this.state.get("target_set"));  
+            this.trigger("change-target-set",this.state.get("target_set"));
         }
 
         return this;
-    }, 
+    },
     bindings: {".problem-display-option": {observe: "display_option", selectOptions: {
             collection: function () {
                 var modes = this.settings.getSettingValue("pg{displayModes}").slice();
@@ -78,7 +78,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
                 this.$(".goto-problem-set-button").removeAttr("disabled")
             }
         },
-        "click .add-problem-set-button": function () { 
+        "click .add-problem-set-button": function () {
             var msg;
             if(msg = this.state.validate()){
                 this.$(".add-problem-set-option").popover({title: "Error", content: msg.new_problem_set, placement: "bottom"})

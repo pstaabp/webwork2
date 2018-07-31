@@ -2,14 +2,20 @@
    This is the base javascript code for the Homework Manager.  This sets up the View and ....
 
 */
-define(['module','backbone','views/Sidebar', 'underscore','views/WebPage',
+// require(["popper.js"], function(popper) {
+//     window.Popper = popper;
+//     console.log(popper);
+//     require(["bootstrap"]);
+// });
+
+define(['module','jquery','backbone','views/Sidebar', 'underscore','views/WebPage',
     'models/UserList','models/ProblemSetList','models/SettingList',
     'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList',
-    'models/User', 'moment',
-    'config','apps/util','jquery-ui','bootstrap'],
-function(module, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
+    'models/User', 'moment','config','apps/util','bootstrap','apps/bs-button'],
+function(module,$, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
     SettingList,MainViewList,AssignmentDate,AssignmentDateList,User,
     moment,config,util){
+      console.log("in CourseManager");
 var CourseManager = WebPage.extend({
     messageTemplate: _.template($("#course-manager-messages-template").html()),
     initialize: function(){
@@ -131,17 +137,17 @@ var CourseManager = WebPage.extend({
         }});
 
 
-        // Add a link to WW2 via the main menu.
-
-        this.navigationBar.$(".manager-menu").append("<li class='ww2-link'>"+
-            "<a href='/webwork2/"+config.courseSettings.course_id+"''><span class='wwlogo'>W</span>WeBWorK2</a></li>");
+        // Add a link to WW2 via the main menu.  This should be in a template
+        this.navigationBar.$(".manager-menu").append("<div class='dropdown-divider'></div>")
+              .append("<a class='dropdown-item' href='/webwork2/"
+                    +config.courseSettings.course_id+"''><span class='wwlogo'>W</span>WeBWorK2</a>");
         this.delegateEvents();
 
 
     },
     // move this to WebPage.js  (need to deal with the parent-child events)
     events: {
-        "click .sidebar-menu a.link": "changeSidebar"
+        "click .sidebar-menu a.sidebar-menu-item": "changeSidebar"
     },
     showProblemSetDetails: function(setName){
         if (this.objectDragging) return;

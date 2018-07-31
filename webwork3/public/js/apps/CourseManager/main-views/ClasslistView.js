@@ -3,11 +3,11 @@ This is the base javascript code for the UserList3.pm (Classlist Manager).  This
 
 */
 
-define(['backbone','views/MainView','models/UserList','models/User','config','views/CollectionTableView',
+define(['backbone','jquery','underscore','views/MainView','models/UserList','models/User','config','views/CollectionTableView',
 'models/ProblemSetList','views/ModalView',
-'views/ChangePasswordView','views/EmailStudentsView','config','apps/util','moment','bootstrap','jquery-csv'],
-function(Backbone,MainView,UserList,User,config,CollectionTableView,
-  ProblemSetList,ModalView,ChangePasswordView,EmailStudentsView,config,util,moment){
+'views/ChangePasswordView','views/EmailStudentsView','config','apps/util','moment','jquery-ui/widgets/dialog','bootstrap','jquery-csv'],
+function(Backbone,$,_,MainView,UserList,User,config,CollectionTableView,
+  ProblemSetList,ModalView,ChangePasswordView,EmailStudentsView,config,util,moment,dialog){
     var ClasslistView = MainView.extend({
       msgTemplate: _.template($("#classlist-messages").html()),
       initialize: function (options) {

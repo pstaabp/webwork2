@@ -1,5 +1,5 @@
-define(['backbone','views/MainView','views/AssignmentCalendar','moment'],
-    function(Backbone,MainView,AssignmentCalendar,moment){
+define(['jquery','backbone','views/MainView','views/AssignmentCalendar','moment'],
+    function($,Backbone,MainView,AssignmentCalendar,moment){
 var CourseCalendar = MainView.extend({
     initialize: function (options) {
         var self = this;
@@ -15,7 +15,7 @@ var CourseCalendar = MainView.extend({
             self.state.set(self.calendar.state.changed);
         });
     },
-    render: function(){      
+    render: function(){
       this.calendar.setElement(this.$el).render();
       // set up the calendar to scroll correctly
       var navbarHeight = $(".navbar-fixed-top").outerHeight(true);

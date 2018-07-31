@@ -5,8 +5,8 @@
  *     calendarType: "month" or "week"  to display a full month or week (which is two weeks)
  */
 
-define(['backbone', 'underscore','views/MainView', 'moment','jquery-truncate','bootstrap'],
-    function(Backbone, _,MainView, moment) {
+define(['backbone','jquery', 'underscore','views/MainView', 'moment','bootstrap'], //'jquery-truncate','bootstrap'],
+    function(Backbone, $, _,MainView, moment) {
 
     var CalendarView = Backbone.View.extend({
         className: "calendar",

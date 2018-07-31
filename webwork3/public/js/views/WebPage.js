@@ -1,6 +1,6 @@
-define(['backbone','views/MessageListView','views/ModalView','config',
+define(['jquery','backbone','views/MessageListView','views/ModalView','config',
           'views/NavigationBar','views/Sidebar','apps/util'],
-function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util){
+function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util){
 	var WebPage = Backbone.View.extend({
     tagName: "div",
     className: "webwork-container",
@@ -53,14 +53,9 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util){
 
         this.eventDispatcher.on({
             "change-view": function(id,state) {
-              var sidebar;
-
               self.changeView(id,state || self.mainViewList.getView(id).getDefaultState());
-              if(!_.isUndefined(state) && !_.isUndefined(state.sidebar)){
-                sidebar = state.sidebar;
-              } else {
-                sidebar = self.mainViewList.getView(id).info.default_sidebar;
-              }
+              var sidebar = (!_.isUndefined(state) && !_.isUndefined(state.sidebar))? state.sidebar
+                              : self.mainViewList.getView(id).info.default_sidebar;
               self.changeSidebar(sidebar,{is_open: true});
               self.currentView.sidebar = self.currentSidebar;
               self.saveState();
@@ -90,7 +85,7 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util){
     },
     render: function () {
     	var self = this;
-        this.navigationBar.setElement($(".navbar-fixed-top")).render();
+        this.navigationBar.setElement($(".navbar.fixed-top")).render();
         this.loginPane.setElement($(".login-container"));
     },
     closeLogin: function () {
@@ -180,12 +175,12 @@ function(Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util){
         // set the side pane options for the main view
 
         var menuItemTemplate = _.template($("#main-menu-item-template").html());
-        var ul = this.$(".sidebar-menu .dropdown-menu").empty();
+        var menu = this.$(".sidebar-menu .dropdown-menu").empty();
         _(this.mainViewList.getOtherSidebars(this.currentView.info.id)).each(function(_id){
-            ul.append(menuItemTemplate({id: _id, name: self.mainViewList.getSidebar(_id).info.name}));
+            menu.append(menuItemTemplate({id: _id, name: self.mainViewList.getSidebar(_id).info.name}));
         });
         _(this.mainViewList.getCommonSidebars()).each(function(_id){
-            ul.append(menuItemTemplate({id: _id, name: self.mainViewList.getSidebar(_id).info.name}));
+            menu.append(menuItemTemplate({id: _id, name: self.mainViewList.getSidebar(_id).info.name}));
         });
         this.currentView.sidebar = this.currentSidebar;
 

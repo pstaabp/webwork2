@@ -1,4 +1,4 @@
-define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
+define(['backbone','jquery','views/Sidebar', 'config'],function(Backbone,$,Sidebar,config){
 	var AllMesagesSidebar = Sidebar.extend({
 		initialize: function(options){
 			Sidebar.prototype.initialize.apply(this,[options]);

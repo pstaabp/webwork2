@@ -4,8 +4,8 @@
 **/
 
 
-define(['backbone','underscore','views/MainView'],
-function(Backbone, _,MainView){
+define(['jquery','backbone','underscore','views/MainView'],
+function($,Backbone, _,MainView){
   var TabbedMainView = MainView.extend({
     initialize: function (options){
       _(this).bindAll("changeTab");
@@ -21,11 +21,11 @@ function(Backbone, _,MainView){
         this.$el.empty();
       }
       // Build up the bootstrap tab system.
-      var tabs = $("<ul>").addClass("nav nav-tabs").attr("role","tablist");
+      var tabs = $("<div>").addClass("nav nav-tabs").attr("role","tablist");
       var tabContent = $("<div>").addClass("tab-content");
       _(this.tabNames).each(function(name,i){
-        tabs.append($("<li>").append($("<a>").attr("href","#tab"+i).attr("role","tab").attr("data-toggle","tab")
-        .attr("data-tabname",name).text(self.views[name].tabName)));
+        tabs.append($("<a>").addClass("nav-item nav-link").attr("href","#tab"+i).attr("role","tab").attr("data-toggle","tab")
+          .attr("data-tabname",name).text(self.views[name].tabName));
         tabContent.append($("<div>").addClass("tab-pane").attr("id","tab"+i));
       })
       if(this.tabs){

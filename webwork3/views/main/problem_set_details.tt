@@ -3,7 +3,7 @@
 
 <script type="text/template" id="HW-detail-template">
 <div class="row">
-  <div class="col-md-2 header-set-name">
+  <div class="col-2 header-set-name">
     <select class="problem-set-name form-control"></select>
   </div>
 <div class="set-details-tab">
@@ -23,10 +23,10 @@
     <tbody>
       <tr><th>Assigned Users</th><th></th><th>Unassigned Users</th></tr>
       <tr><td rowspan="2"><select size="20" class="form-control assigned-user-list" multiple="multiple"></select></td>
-         <td><button class="btn btn-default unassign-users-btn">Unassign <i class="fa fa-chevron-right">
+         <td><button class="btn btn-outline-dark unassign-users-btn">Unassign <i class="fa fa-chevron-right">
             </i></button></td>
          <td rowspan="2"><select size="20" class="form-control unassigned-user-list" multiple="multiple"></select></td></tr>
-         <tr><td align='right'><button class="btn btn-default assign-users-btn"><i class="fa fa-chevron-left"></i>Assign</button>
+         <tr><td align='right'><button class="btn btn-outline-dark assign-users-btn"><i class="fa fa-chevron-left"></i>Assign</button>
          </td></tr>
     </tbody>
   </table>
@@ -99,7 +99,7 @@
   <td class="edit-datetime reduced-scoring-date"></td>
   <td class="edit-datetime due-date"></td>
   <td class="edit-datetime answer-date"></td>
-<td> <button class="btn btn-default save-changes">Save Changes</button></td>
+<td> <button class="btn btn-outline-dark save-changes">Save Changes</button></td>
 </tr>
 </table>
 </div>
@@ -110,7 +110,7 @@
     <label class="sr-only" for="ca-search-box">Filter</label>
     <input type="text" id="ca-search-box" class="form-control filter-text" placeholder="Filter">
     <span class="input-group-btn">
-      <button class="btn btn-default clear-filter-button" type="button"><i class="fa fa-times"></i></button>
+      <button class="btn  btn-outline-dark clear-filter-button" type="button"><i class="fa fa-times"></i></button>
     </span>
   </div>
   <div class="checkbox">
@@ -149,16 +149,16 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
   </div>
   <div class="form-group">
     <div class="btn-group">
-      <button class="btn btn-default show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
-      <button class="btn btn-default show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
+      <button class="btn  btn-outline-dark show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
+      <button class="btn  btn-outline-dark show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
 
     </div>
   </div>
   <div class="form-group">
-  <button class="btn btn-default undo-delete-button disabled">Undo Problem Delete</button>
+  <button class="btn  btn-outline-dark undo-delete-button disabled">Undo Problem Delete</button>
   </div>
   <div class="form-group">
-  <select class="btn btn-default form-control" id="add-prob-group"></select>
+  <select class="btn  btn-outline-dark form-control" id="add-prob-group"></select>
   </div>
 
 
@@ -169,11 +169,11 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
 <script type="text/template" id="set-properties-tab-template">
 <table class="table" style="table-layout:fixed">
 <tbody>
-<tr><td class="header col-md-5">Set Name</td><td class="set-name col-md-3"></td>
+<tr><td class="header">Set Name</td><td class="set-name"></td>
   <!--<td><label type="checkbox">Show Time <input type="checkbox" class="show-time-toggle"></label></td>-->
   <td><div class="btn-group btn-group-sm" role="group">
-      <button type="button" class="btn btn-default show-time-toggle" data-hide-text="Hide Time">Show Time</button>
-      <button type="button" class="btn btn-default show-calendar-toggle" data-hide-text="Hide Calendar">Show Calendar</button>
+      <button type="button" class="btn btn-outline-dark show-time-toggle" data-hide-text="Hide Time">Show Time</button>
+      <button type="button" class="btn btn-outline-dark show-calendar-toggle" data-hide-text="Hide Calendar">Show Calendar</button>
       </div></td>
     </tr>
 <tr class="hideable"><td class="header">Open Date</td><td class="open-date edit-datetime"></td></tr>
@@ -189,7 +189,7 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
 <tr><td class="header">Set Type</td><td><select id='set-type' class='form-control input-sm'></select></tr>
 <tr><td class="header">Number of Problems in Set</td><td class="num-problems"></td></tr>
 <tr><td class="header">Users Assigned</td><td class="users-assigned"></td>
-<td><button class="assign-all-users btn btn-default">Assign to All Users</td></tr>
+<td><button class="assign-all-users btn btn-outline-dark">Assign to All Users</td></tr>
 <tr class="gateway-row pg-row"><td class="header" style="color: darkblue; font-style:italic">
         Proctored Gateway/Quiz parameters</td><td></td></tr>
 <tr class="gateway-row pg-row"><td colspan="2">
@@ -269,44 +269,32 @@ The results will be dispayed below.  To search for section 2 type "section:2" or
 <script type="text/template" id="set-headers-template">
 <h4>Set Headers and Description for <%=set_id%></h4>
 
-<div class="form-horizontal">
+<div>
   <div class="form-group">
-    <label class="col-md-3 control-label">Set Description</label>
-    <div class="col-md-9"><textarea rows="5" style="width: 100%" style="form-control" id="set-description"></textarea></div>
+    <label class="control-label" for="set-description">Set Description</label>
+    <textarea rows="5" style="width: 100%" style="form-control" id="set-description"></textarea>
   </div>
-</div>
-
- <div class="row">
-  <div class="form-horizontal">
-      <div class="form-group">
-          <label class="col-md-3 control-label" for="set-header">Set Header</label>
-          <div class="col-md-6"><select id="set-header" class="form-control col-md-3"></select></div>
-          </div>
+  <div class="form-row">
+    <div class="form-group col-6">
+      <label class="control-label" for="set-header">Set Header</label>
+      <select id="set-header" class="form-control"></select>
     </div>
-  </div>
-  <div class="row">
-  <div class="form-horizontal">
-      <div class="form-group">
-          <label class="col-md-3 control-label" for="hardcopy-header">Hardcopy Header</label>
-          <div class="col-md-6"><select id="hardcopy-header" class="form-control col-md-3"></select></div>
-          </div>
+    <div class="form-group col-6">
+      <label class="control-label" for="hardcopy-header">Hardcopy Header</label>
+      <select id="hardcopy-header" class="form-control"></select></div>
     </div>
   </div>
 </div>
-  <div class="btn-group view-options" data-toggle="buttons">
+  <div class="btn-group view-options btn-group-toggle" data-toggle="buttons" role="group" aria-label="Change View/Edit Options">
     <label class="btn btn-primary active">
       <input type="radio" name="options" id="view-header-button" autocomplete="off" checked>View Set Header
     </label>
     <label class="btn btn-primary">
       <input type="radio" name="options" id="edit-header-button" autocomplete="off">Edit Set Header
     </label>
-    <!--<label class="btn btn-primary">
-      <input type="radio" name="options" id="view-hardcopy-button" autocomplete="off">View Hardcopy Header
-    </label> -->
     <label class="btn btn-primary">
       <input type="radio" name="options" id="edit-hardcopy-button" autocomplete="off">Edit HardCopy Header
     </label>
-
   </div>
   <div class="header-output"></div>
 </script>
@@ -324,9 +312,9 @@ The results will be dispayed below.  To search for section 2 type "section:2" or
 <h4>Problems</h4>
   <ul>
     <li>The problems will load dynamically.  You can view the tags on all problems with the "View Tags" button.</li>
-    <li>To reorder problems, click the <button class="btn btn-default btn-sm"><i class="fa fa-arrows-v"></i></button> and drag to a new position in the list. </li>
-    <li>To remove a problem, click the <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button> button. You can undo the delete by clicking the "Undo Delete button". </li>
-    <li>To view a problem with a new random seed, click the <button class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button> button.</li>
+    <li>To reorder problems, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-arrows-v"></i></button> and drag to a new position in the list. </li>
+    <li>To remove a problem, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-trash-o"></i></button> button. You can undo the delete by clicking the "Undo Delete button". </li>
+    <li>To view a problem with a new random seed, click the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-refresh"></i></button> button.</li>
     <li>To change the value (or weight) of a problem, type in a new value and it will be updated automatically.</li>
   </ul>
 </script>

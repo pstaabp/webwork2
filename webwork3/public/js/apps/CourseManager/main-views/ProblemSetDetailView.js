@@ -8,14 +8,15 @@
  **/
 
 
-define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView',
+define(['jquery','backbone','underscore','views/TabbedMainView','views/MainView', 'views/TabView',
         'views/ProblemSetView', 'models/ProblemList','views/CollectionTableView','models/ProblemSet',
         'models/UserSetList','sidebars/ProblemListOptionsSidebar','views/AssignmentCalendar',
         'models/ProblemSetList','models/SetHeader','models/Problem','models/User',
-        'apps/util','config','moment','bootstrap'],
-    function(Backbone, _,TabbedMainView,MainView,TabView,ProblemSetView,ProblemList,
+        'apps/util','config','moment','jquery-ui/widgets/sortable',
+        'jquery-ui/widgets/datepicker','bootstrap'],
+    function($,Backbone, _,TabbedMainView,MainView,TabView,ProblemSetView,ProblemList,
           CollectionTableView,ProblemSet,UserSetList,ProblemListOptionsSidebar,
-          AssignmentCalendar,ProblemSetList,SetHeader,Problem,User,util,config,moment){
+          AssignmentCalendar,ProblemSetList,SetHeader,Problem,User,util,config,moment,sortable,datepicker){
 	var ProblemSetDetailsView = TabbedMainView.extend({
         className: "set-detail-view",
         messageTemplate: _.template($("#problem-sets-manager-messages-template").html()),
@@ -208,7 +209,8 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 this.showHideReducedScoringDate();
                 this.stickit();
                 // gets rid of the line break for showing the time in this view.
-                $('span.time-span').children('br').attr("hidden",true)
+                $('span.time-span').children('br').attr("hidden",true);
+
                 this.model.on("change:assignment_type",this.showHideGateway);
             } else {
                 this.$el.html("");
@@ -385,14 +387,14 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
             util.changeClass({state: _show, remove_class: "edit-datetime", add_class: "edit-datetime-showtime",
                                 els: this.$(".open-date,.due-date,.reduced-scoring-date,.answer-date")});
             // change the button text
-            this.$(".show-time-toggle").button(_show?"hide":"reset");
+            this.$(".show-time-toggle").text(_show?"Hide Time":"Show Time");
 
         },
         showCalendar: function(_show){
             var self = this;
             this.tabState.set("show_calendar",_show);
             // change the button text
-            this.$(".show-calendar-toggle").button(_show?"hide":"reset");
+            this.$(".show-calendar-toggle").text(_show?"Hide Calendar":"Show Calendar");
             util.changeClass({state: this.tabState.get("show_calendar"), add_class: "hidden",els: this.$(".hideable")});
             util.changeClass({state: this.tabState.get("show_calendar"), remove_class: "hidden", els: this.$(".calendar-row")});
             this.showHideReducedScoringDate();
@@ -445,6 +447,7 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                     return this;
             }
             this.$el.html(tmpl(this.tabState.attributes));
+
             if(this.headerFiles && this.setHeader){
                 this.showSetHeaders();
                 this.stickit();
@@ -467,9 +470,9 @@ define(['backbone','underscore','views/TabbedMainView','views/MainView', 'views/
                 }).on("sync",function(){
                     switch(self.editing){
                         case "setheader":
-                            $("#view-header-button").parent().button("toggle"); break;
+                            $("#view-header-button").parent().bootstrapBtn("toggle"); break;
                         case "hardcopyheader":
-                            $("#view-hardcopy-button").parent().button("toggle"); break;
+                            $("#view-hardcopy-button").parent().bootstrapBtn("toggle"); break;
                     }
                     self.editing = "";
                 }).fetch({success: function (){

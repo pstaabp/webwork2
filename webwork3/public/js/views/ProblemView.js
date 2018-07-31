@@ -1,5 +1,5 @@
-define(['backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'],
-       function(Backbone, _,config,Problem,util){
+define(['jquery','backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'],
+       function($,Backbone, _,config,Problem,util){
     //##The problem View
 
     //A view defined for the browser app for the webwork Problem model.

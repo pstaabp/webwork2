@@ -40,7 +40,7 @@ These values can be separate from the visible items in the table.
 
 */
 
-define(['backbone', 'underscore', 'config', 'stickit'], function (Backbone, _, config) {
+define(['jquery','backbone', 'underscore', 'config', 'stickit'], function ($,Backbone, _, config) {
   var CollectionTableView = Backbone.View.extend({
     tagName: "table",
     initialize: function (options) {

@@ -252,7 +252,8 @@ sub get_one_user {
     section        => "",
     showOldAnswers => JSON::false,
     status         => "",
-    useMathView    => JSON::false
+    useMathView    => JSON::false,
+    useWirisEditor => JSON::false
   };
 }
 
@@ -278,6 +279,7 @@ sub get_multiple_users {
     $user->{showOldAnswers} = JSON::false;
     $user->{status} = "";
     $user->{useMathView} = JSON::false;
+    $user->{useWirisEditor} = JSON::false;
 
     push(@users,$user);
   }

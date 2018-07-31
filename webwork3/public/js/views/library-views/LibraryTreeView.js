@@ -7,8 +7,8 @@
 *
 */
 
-define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-validation'],
-    function(Backbone, _,LibraryTree){
+define(['jquery','backbone', 'underscore','models/LibraryTree','stickit','backbone-validation'],
+    function($,Backbone, _,LibraryTree){
 
     var LibraryTreeView = Backbone.View.extend({
     	initialize: function (options){
@@ -22,7 +22,7 @@ define(['backbone', 'underscore','models/LibraryTree','stickit','backbone-valida
             this.libraryLevel=[[],[],[],[]];
             this.bindings = {};
             for(var i = 0; i<4;i++) {
-                this.bindings[".library-level-"+i+ " select"]= {observe: "level"+i,
+                this.bindings[".library-level-"+i]= {observe: "level"+i,
                     selectOptions: {collection: function (view,opts) {
                         return self.libraryLevel[opts.observe.split("level")[1]||""]},
                     defaultOption: {label: options.topLevelNames[i], value: ""}}};

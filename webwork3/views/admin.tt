@@ -49,7 +49,7 @@
       Welcome <span class="logged-in-as">[% user_id %]</span>
       <span class="act-as-user"></span>
     </p><li>
-      <li><button class="btn btn-default btn-sm navbar-btn logout-button" data-toggle="dropdown">
+      <li><button class="btn  btn-outline-dark btn-sm navbar-btn logout-button" data-toggle="dropdown">
         <span class="glyphicon glyphicon-log-out"></span></button>
         <ul class="dropdown-menu" role="menu">
           <li><a class="logout-link" href="[% top_dir %]/courses/admin/logout"  onclick="return false">Logout</a></li>

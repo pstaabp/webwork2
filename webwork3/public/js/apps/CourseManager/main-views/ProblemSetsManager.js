@@ -3,9 +3,9 @@
  *
  */
 
-define(['backbone', 'underscore','views/MainView', 'views/CollectionTableView','config','apps/util',
+define(['jquery','backbone', 'underscore','views/MainView', 'views/CollectionTableView','config','apps/util',
     'views/ModalView','models/ProblemSet','models/AssignmentDate','moment'],
-function(Backbone, _,MainView,CollectionTableView,config,util,ModalView,ProblemSet,AssignmentDate,moment){
+function($,Backbone, _,MainView,CollectionTableView,config,util,ModalView,ProblemSet,AssignmentDate,moment){
 
 
 var ProblemSetsManager = MainView.extend({

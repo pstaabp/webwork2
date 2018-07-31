@@ -1,14 +1,14 @@
-define(['backbone', 'views/ProblemListView','config'], 
-    function(Backbone, ProblemListView,config) {
+define(['jquery','backbone', 'views/ProblemListView','config'],
+    function($,Backbone, ProblemListView,config) {
     	var LibraryProblemsView = ProblemListView.extend({
     		initialize: function (options) {
                 _(this).bindAll("highlightCommonProblems");
 	            this.viewAttrs = {
-                    reorderable: false, showPoints: false, showAddTool: true, showEditTool: true, 
-                    problem_seed: 1, showMaxAttempts: false, showRefreshTool: true, showViewTool: true, 
+                    reorderable: false, showPoints: false, showAddTool: true, showEditTool: true,
+                    problem_seed: 1, showMaxAttempts: false, showRefreshTool: true, showViewTool: true,
                     showHideTool: true, deletable: false, draggable: true, markCorrect: false};
                 _.extend(this,_(options).pick("problemSets","libraryView","settings","type"));
-                ProblemListView.prototype.initialize.apply(this,[options]); 
+                ProblemListView.prototype.initialize.apply(this,[options]);
     		},
             render: function(){
                 this.libraryView.libraryProblemsView.set({current_page: this.libraryView.tabState.get("page_num")});
@@ -20,7 +20,7 @@ define(['backbone', 'views/ProblemListView','config'],
             },
             highlightCommonProblems: function () {
                 var self = this;
-                if(this.libraryView.targetSet){ 
+                if(this.libraryView.targetSet){
                     var pathsInTargetSet = this.libraryView.problemSets.findWhere({set_id: this.libraryView.targetSet})
                         .problems.pluck("source_file");
                     var pathsInLibrary = this.problems.pluck("source_file");

@@ -28,7 +28,7 @@
 <select class="form-control textbook-title input-sm">
  <option>Select Textbook</option>
  <%_(textbooks).each(function(book,i){
-    print("<option data-id='" + book.textbook_id + "' value='"+ i + "'>" + book.author + ": " 
+    print("<option data-id='" + book.textbook_id + "' value='"+ i + "'>" + book.author + ": "
         + book.title + "(" + book.edition + "e) </option>");
  }) %>
 </select>
@@ -39,22 +39,21 @@
 <div class="col-md-2">
 <select class="form-control textbook-section hidden input-sm"></select>
 </div>
-<button type="button" class="btn btn-default load-problems-button">Load</button>
+<button type="button" class="btn  btn-outline-dark load-problems-button">Load</button>
 <span class="textbook-message"></span>
 </div>
 </script>
 
 <script type="text/template" id="library-textbook-sections-template">
 <option>Select <%=type%></option>
-<% _(sections).each(function(sect,i) { print("<option data-id='" 
+<% _(sections).each(function(sect,i) { print("<option data-id='"
     + (type=='Section'?sect.section_id:sect.chapter_id) + "' value='"+ i + "' "+
     "data-numprobs='"+ sect.num_probs+"'>" + sect.number + ": "+ sect.name + "</option>");});
 %>
 </script>
 
 <script type="text/template" id="library-view-template">
-<div class="row">
-<div class="library-tree-container col-md-9"></div></div>
+<div class="library-tree-container"></div>
 <div class="problems-container">
 </div>
 </script>
@@ -65,7 +64,7 @@
 <div class="col-md-4"><select class="local-library-tree-select form-control">
 <% _(menu).each(function(m){ print("<option>" + m + "</option>")}) %>
 </select></div>
-<button class="btn btn-default load-problems-button">Load</button>
+<button class="btn  btn-outline-dark load-problems-button">Load</button>
 </div>
 </script>
 
@@ -74,7 +73,7 @@
   <div class="panel panel-default">
     <div id="collapseOne" class="panel-collapse collapse">
       <div class="panel-body">
-        <p>To search the library, type in the search string in pairs separated by a colon (:).  
+        <p>To search the library, type in the search string in pairs separated by a colon (:).
           For example, "keyword:quadratic" will search the library for the single keyword "quadratic" whereas a search
           "keyword:quadratic and author:rogness" will result in problems that contain both the keyword quadratic and the problem
             author of Rogness. </p>
@@ -96,8 +95,8 @@
 </div>
 <div class="row form-horizontal">
   <div class="col-md-5"><input type="text" class="form-control search-query" placeholder="Enter search terms"></div>
-  <button class="search-button btn btn-default" type="button" data-loading-text="Loading Problems..." >Search</button>
-  <button class="search-help-button btn btn-default" type="button" data-toggle="collapse" data-target="#collapseOne">Help</button>
+  <button class="search-button btn  btn-outline-dark" type="button" data-loading-text="Loading Problems..." >Search</button>
+  <button class="search-help-button btn  btn-outline-dark" type="button" data-toggle="collapse" data-target="#collapseOne">Help</button>
   <span class="num-problems"></span>
 </div>
 <div class="problems-container">
@@ -114,7 +113,14 @@
 
 
 <script type="text/template" id="library-select-template">
-<div class="form-horizontal">
+  <div class="form-row">
+    <div class="col"><select class="custom-select custom-select-sm library-level-0"></select></div>
+    <div class="col"><select class="custom-select custom-select-sm library-level-1 hidden"></select></div>
+    <div class="col"><select class="custom-select custom-select-sm library-level-2 hidden"></select></div>
+    <div class="col"><select class="custom-select custom-select-sm library-level-3 hidden"></select></div>
+    <div class="col"><button class="btn btn-sm btn-outline-dark load-library-button" data-loading-text="Loading Problems...">Load</button></div>
+  </div>
+<!-- <div class="form-horizontal">
   <div class="col-md-3 library-level-0">
     <select class="form-control input-sm"></select>
   </div>
@@ -129,9 +135,9 @@
   </div>
 
   <div class="col-md-3">
-    <button class="btn btn-default load-library-button" data-loading-text="Loading Problems...">Load</button>
+    <button class="btn  btn-outline-dark load-library-button" data-loading-text="Loading Problems...">Load</button>
   </div>
-</div>
+</div> -->
 </script>
 
 <script type="text/template" id="loading-library-template">
@@ -163,21 +169,21 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
       <div class="input-group">
         <input id="add-problem-set-option" class="add-problem-set-option form-control" placeholder="Set Name">
         <span class="input-group-btn">
-            <button class="btn btn-default add-problem-set-button">Add</button>
+            <button class="btn  btn-outline-dark add-problem-set-button">Add</button>
         </span>
     </div>
 </td></tr>
   <tr><td>
   <div class="center-block">
   <div class="btn-group">
-    <button class="btn btn-default show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
-    <button class="btn btn-default show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
+    <button class="btn  btn-outline-dark show-hide-tags-button" data-hide-text="Hide Tags">Show Tags</button>
+    <button class="btn  btn-outline-dark show-hide-path-button" data-hide-text="Hide Path">Show Path</button>
   </div>
 </div>
 </td></tr>
 
 <tr><td>
-    <button class="btn btn-default goto-problem-set-button" disabled>View Target Problem Set</button
+    <button class="btn  btn-outline-dark goto-problem-set-button" disabled>View Target Problem Set</button
 
 </div>
 </td>
@@ -203,11 +209,10 @@ Loading Library...<i class='fa fa-spinner fa-spin'></i>
     <li>The Library Browser is used to browse or search the library and add problems to sets.</li>
     <li>You can view problems by subject/chapter/section, as directories, in textbooks, local problems, within set defintion files and searching.</li>
     <li>Within a problem you have many of the same options as viewing a problem set (see above).</li>
-    <li>To add a problem to a set, click and hold the <button class="btn btn-default btn-sm"><i class="fa fa-arrows"></i></button> 
+    <li>To add a problem to a set, click and hold the <button class="btn  btn-outline-dark btn-sm"><i class="fa fa-arrows"></i></button>
     button and drag the problem on top of the problem set on the left. </li>
     <li>Addiitonal, you can add a problem to a set by selecting the target set, then clicking the + button. </li>
     <li>There is additional help on searching by clicking the Help button next to the search button</li>
   </ul>
 
 </script>
-

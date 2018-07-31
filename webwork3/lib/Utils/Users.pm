@@ -8,8 +8,8 @@ use WeBWorK::Utils qw/cryptPassword/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash convertBooleans/;
 
 our @user_props = qw/first_name last_name student_id user_id email_address permission status
-                    section recitation comment displayMode showOldAnswers useMathView/;
-our @boolean_user_props = qw/showOldAnswers useMathView/;
+                    section recitation comment displayMode showOldAnswers useMathView useWirisEditor/;
+our @boolean_user_props = qw/showOldAnswers useMathView useWirisEditor/;
 
 
 our @EXPORT    = ();

@@ -1,11 +1,11 @@
 body {  /* needed for the navigation bars top and bottom*/
-    padding-top: 70px;
+    padding-top: 90px;
     padding-bottom: 35px;
 }
 
 #navigation-menu { width: 250px;}
 
-.main-view-name {font-size: 125%; color: #000000 !important; font-weight: 300;}
+.main-view-name {font-size: 125%;  font-weight: 300;}
 
 
 .breadcrumb {padding: 2px 15px ;}
@@ -30,6 +30,22 @@ body {  /* needed for the navigation bars top and bottom*/
     margin-left: 10px;
     margin-right: 10px;
     width: 300px
+}
+
+#top-navbar {
+  padding: 0.1rem 1rem;
+  background: rgb(0,53,103)
+}
+
+#wwlogo {
+  height: 50px
+}
+
+#sidebar-container {
+  border-width: 2px;
+  border-style: solid;
+  padding-top: 5px;
+  border-radius: .75rem!important;
 }
 
 
@@ -60,7 +76,7 @@ body {  /* needed for the navigation bars top and bottom*/
 
 /* styling for the message box */
 
-#short-message {margin-top: 5px; padding:5px; display: none; border-radius:5px; width: 300px; height: 40px;
+#short-message {margin-top: 5px; padding:5px; display: none; border-radius:5px; width: 400px; height: 40px;
 }
 
 .message-time {

@@ -4,7 +4,8 @@
  **/
 
 
-define(['backbone','underscore','moment','backbone-validation','stickit','jquery-ui'], function(Backbone,_,moment){
+define(['jquery','backbone','underscore','moment','backbone-validation','stickit'],
+  function($,Backbone,_,moment){ // jquery-ui removed. 
 
     $(document).ajaxError(function (e, xhr, options, error) {
         if(xhr.status==503){

@@ -41,7 +41,7 @@
       Welcome, [% user %]
       </li>
       
-      <li><button class="btn btn-default navbar-btn" id="logout-button">Logout<i class='fa fa-sign-out'></i></button>
+      <li><button class="btn  btn-outline-dark navbar-btn" id="logout-button">Logout<i class='fa fa-sign-out'></i></button>
       </li>
       </ul>
     </div><!-- /.navbar-collapse -->

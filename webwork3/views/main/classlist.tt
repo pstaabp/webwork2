@@ -7,7 +7,7 @@
         <div class="input-group">
           <input type="text" class="form-control filter-text" placeholder="Filter">
           <span class="input-group-btn">
-            <button class="btn btn-default clear-filter-button" type="button"><i class="fa fa-times"></i></button>
+            <button class="btn  btn-outline-dark clear-filter-button" type="button"><i class="fa fa-times"></i></button>
           </span>
         </div><!-- /input-group -->
       </div><!-- /.col-md-4 -->
@@ -15,7 +15,7 @@
 
     <div class="col-md-5 btn-group btn-sm">
     <div class="btn-group">
-      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Action on Selected
         <span class="caret"></span>
       </button>
@@ -26,7 +26,7 @@
       </ul>
     </div>
       <div class="btn-group">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
           Import/Export Users
           <span class="caret"></span>
         </button>
@@ -38,7 +38,7 @@
         </ul>
         </div>
         <div class="btn-group">
-      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Show Rows
         <span class="caret"></span>
       </button>
@@ -154,10 +154,10 @@
 </script>
 
 <script type="text/template" id="import-file-buttons">
-  <button class="import-help-button btn btn-default">Help</button>
-  <button class="reload-file btn btn-default disabled">Reload File</button>
-  <button class="cancel-button btn btn-default">Cancel</button>
-  <button class="btn btn-default disabled import-students-button">Import Students</button>
+  <button class="import-help-button btn  btn-outline-dark">Help</button>
+  <button class="reload-file btn  btn-outline-dark disabled">Reload File</button>
+  <button class="cancel-button btn  btn-outline-dark">Cancel</button>
+  <button class="btn  btn-outline-dark disabled import-students-button">Import Students</button>
 </script>
 
 <script type="text/template" id="export-to-file-template">
@@ -198,8 +198,8 @@
     <div class="message-pane alert"></div>
 </script>
 <script type="text/template" id="manual-import-buttons">
-    <button class="btn btn-default add-more-button">Save Student and Add Another</button>
-    <button class="btn btn-default cancel-import-button" data-dismiss="modal">Cancel Import</button>
+    <button class="btn  btn-outline-dark add-more-button">Save Student and Add Another</button>
+    <button class="btn  btn-outline-dark cancel-import-button" data-dismiss="modal">Cancel Import</button>
     <button class="btn btn-primary action-button">Save Student and Assign Sets</button>
     <button class="btn btn-primary save-button hidden">Save Students</button>
 </script>
@@ -229,7 +229,7 @@
 </table>
 </script>
 <script type="text/template" id="change-user-password-buttons">
-    <button class="btn btn-default cancel-import-button" data-dismiss="modal">Cancel Change</button>
+    <button class="btn  btn-outline-dark cancel-import-button" data-dismiss="modal">Cancel Change</button>
     <button class="btn btn-primary action-button">Save Changes</button>
 </script>
 
