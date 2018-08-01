@@ -16,7 +16,7 @@ main_view_paths.unshift("module","backbone");
 </script>
 
 <script type="text/javascript" src="/webwork2_files/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script data-main="[% top_dir %]/js/apps/CourseManager/CourseManager" src="/webwork3/node_modules/requirejs/require.js">
+<script data-main="[% top_dir %]/js/apps/CourseManager/CourseManager" src="/webwork3/modules/requirejs/require.js">
 </script>
 
 <div id="mainDiv" class="container">

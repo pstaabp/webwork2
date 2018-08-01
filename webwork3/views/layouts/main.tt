@@ -2,8 +2,8 @@
 <html>
 <head>
   <title>WeBWorK 3</title>
-  <link rel="stylesheet" href="[% top_dir %]/node_modules/bootstrap/dist/css/bootstrap.min.css" type="test/css">
-  <link rel='stylesheet' href='[% top_dir %]/node_modules/font-awesome/css/font-awesome.min.css' type='text/css' media='screen'>
+  <link rel="stylesheet" href="[% top_dir %]/modules/bootstrap/dist/css/bootstrap.min.css" type="test/css">
+  <link rel='stylesheet' href='[% top_dir %]/modules/font-awesome/css/font-awesome.min.css' type='text/css' media='screen'>
   <link rel='stylesheet' href='[% top_dir %]/css/webwork.css' type='text/css' media='screen'>
   <!-- <script src="[% top_dir %]/js/bower_components/jquery/dist/jquery.min.js"></script>
   <script src="[% top_dir %]/js/bower_components/bootstrap/dist/js/bootstrap.min.js"></script> -->
