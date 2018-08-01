@@ -4,22 +4,22 @@
 
 var require = {
     paths: {
-        "backbone":             "/webwork3/node_modules/backbone/backbone", // backbone.stickit requires a lower-case "b"
-        "backbone-validation":  "/webwork3/node_modules/backbone-validation/dist/backbone-validation",
-        "underscore":           "/webwork3/node_modules/underscore/underscore",
-        "jquery-ui":            "/webwork3/node_modules/jquery-ui/ui",
-        "jquery":               "/webwork3/node_modules/jquery/dist/jquery",
-        "bootstrap":            "/webwork3/node_modules/bootstrap/dist/js/bootstrap.bundle",
-        "moment":               "/webwork3/node_modules/moment/moment",
-        "stickit":              "/webwork3/node_modules/backbone.stickit/backbone.stickit",
-        "imagesloaded":         "/webwork3/node_modules/imagesloaded/imagesloaded",
-        //"jquery-truncate":      "/webwork3/node_modules/jquery-truncate/jquery.truncate",
-        "blob":                 "/webwork3/node_modules/blob/Blob",
-        "file-saver":           "/webwork3/node_modules/file-saver/FileSaver",
-        "ev-emitter/ev-emitter":           "/webwork3/node_modules/ev-emitter/ev-emitter", // NEEDED in this form by imagesloaded
+        "backbone":             "/webwork3/modules/backbone/backbone", // backbone.stickit requires a lower-case "b"
+        "backbone-validation":  "/webwork3/modules/backbone-validation/dist/backbone-validation",
+        "underscore":           "/webwork3/modules/underscore/underscore",
+        "jquery-ui":            "/webwork3/modules/jquery-ui/ui",
+        "jquery":               "/webwork3/modules/jquery/dist/jquery",
+        "bootstrap":            "/webwork3/modules/bootstrap/dist/js/bootstrap.bundle",
+        "moment":               "/webwork3/modules/moment/moment",
+        "stickit":              "/webwork3/modules/backbone.stickit/backbone.stickit",
+        "imagesloaded":         "/webwork3/modules/imagesloaded/imagesloaded",
+        //"jquery-truncate":      "/webwork3/modules/jquery-truncate/jquery.truncate",
+        "blob":                 "/webwork3/modules/blob/Blob",
+        "file-saver":           "/webwork3/modules/file-saver/FileSaver",
+        "ev-emitter/ev-emitter":           "/webwork3/modules/ev-emitter/ev-emitter", // NEEDED in this form by imagesloaded
         "knowl":                "/webwork2_files/js/vendor/other/knowl",
         "Base64":               "/webwork2_files/js/apps/Base64/Base64",
-        "jquery-csv":           "/webwork3/node_modules/jquery-csv/src/jquery.csv",
+        "jquery-csv":           "/webwork3/modules/jquery-csv/src/jquery.csv",
         "views":                "/webwork3/js/views",
         "models":               "/webwork3/js/models",
         "apps":                 "/webwork3/js/apps",
