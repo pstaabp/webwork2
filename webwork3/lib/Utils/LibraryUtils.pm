@@ -8,7 +8,7 @@ use Path::Class qw/file dir/;
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
-use Data::Dump qw/dump/;
+use Data::Dump qw/dd dump/;
 
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render render2);
@@ -28,12 +28,12 @@ my %ignoredir = (
 
 sub render {
 
-	debug "in general render sub";
+	dd "in LibraryUtils::render";
 
 	my $renderParams = shift;
 
-	my @anskeys = split(";",params->{answer_fields} || ""); 
-	
+	my @anskeys = split(";",params->{answer_fields} || "");
+
 	$renderParams->{formFields}= {};
 	for my $key (@anskeys){
 		$renderParams->{formFields}->{$key} = params->{$key};
@@ -52,7 +52,7 @@ sub render {
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
 	};
 
-	debug $renderParams->{problem}->{pgSource};
+	dd $renderParams->{problem}->{pgSource};
 	if($renderParams->{problem}->{pgSource}){
 		my $source = $renderParams->{problem}->{pgSource};
 		$translationOptions->{r_source} = \$source;
@@ -80,7 +80,7 @@ sub render {
     }
     my $answers = {};
 
-    # extract the important parts of the answer, but don't send the correct_ans if not requested. 
+    # extract the important parts of the answer, but don't send the correct_ans if not requested.
 
     for my $key (@anskeys){
     	for my $field (qw(preview_latex_string done original_student_ans preview_text_string ans_message student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name)) {
@@ -89,10 +89,10 @@ sub render {
 	    	}
 	    }
     }
-    
+
     my $flags = {};
 
-    ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for 
+    ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for
     ## passing out to the client since it is a perl code snippet.
 
     for my $key (keys(%{$pg->{flags}})){
@@ -105,7 +105,7 @@ sub render {
 		header_text 				=> $pg->{head_text},
 		answers 					=> $answers,
 		errors         				=> $pg->{errors},
-		warnings	   				=> $pg->{warnings}, 
+		warnings	   				=> $pg->{warnings},
 		problem_result 				=> $pg->{result},
 		problem_state				=> $pg->{state},
 		flags						=> $flags,
@@ -533,7 +533,7 @@ sub munge_pg_file_path {
 #
 ##
 
-sub render {
+sub render2 {
 
   my ($ce,$db,$renderParams) = @_;
 
@@ -644,10 +644,6 @@ my $pg = new WeBWorK::PG(
 	delete $out->{flags}->{PROBLEM_GRADER_TO_USE};
 
 	return $out;
-
-	return {text => $out->{text}};
-
-	#return {text => $out->{text}};
 }
 
 ###

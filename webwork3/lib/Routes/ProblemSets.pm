@@ -181,7 +181,7 @@ del '/courses/:course_id/sets/:set_id/problems/:problem_id' => require_role prof
 
   my $prob = vars->{db}->getGlobalProblem($set_id,$problem_id);
   vars->{db}->deleteGlobalProblem($set_id,$problem_id);
-  return convertObjectToHash($prob); 
+  return convertObjectToHash($prob);
 };
 
 
@@ -1214,6 +1214,18 @@ any ['get', 'put'] => '/courses/:course_id/sets/:set_id/setheader' => sub {
             set_header_content=>$headerContent, hardcopy_header_content=>$hardcopyHeaderContent,
             set_header_html=>$setHeaderHTML, hardcopy_header_html=>$hardcopyHeaderHTML
         };
+};
+
+#####
+#
+#  Retrieve a blank problem from the template:
+#
+#####
+
+get '/courses/:course_id/blank_problem' => sub {
+  my $blankProbPath = vars->{ce}->{webworkFiles}->{screenSnippets}->{blankProblem};
+  my $blankProbSource = read_file_content($blankProbPath);
+  return {raw_source => $blankProbSource};
 };
 
 

@@ -1,22 +1,25 @@
 
 <script type="text/template" id="standard-editor-template">
+  <div class="form-group row">
+    <label for="problem-path" class="col-sm-2 col-form-label">Problem Path</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control disabled" id="problem-path" placeholder="Undefined">
+    </div>
+  </div>
 
    <ul class="nav nav-tabs" id="standard-editor-tabs">
-      <li class="active"><a href="#std-editor-tab" data-toggle="tab">Problem Editor</a></li>
-      <li><a href="#std-viewer-tab" data-toggle="tab">Problem Viewer</a></li>
+      <li class="nav-item"><a class="nav-link active" href="#select-problem-tab" data-toggle="tab">Select Problem</a></li>
+      <li class="nav-item"><a class="nav-link" href="#std-editor-tab" data-toggle="tab">Problem Editor</a></li>
+      <li class="nav-item"><a class="nav-link disabled" href="#std-viewer-tab" data-toggle="tab">Problem Viewer</a></li>
    </ul>
 
    <div class="tab-content">
-     <div class="tab-pane active" id="std-editor-tab">
-     <div class="row">
-        <div class="col-md-4 info-bar">
-          Loading Problem... <i class="fa fa-spinner fa-spin"></i> 
-        </div>
+     <div class="tab-pane active" id="select-problem-tab">
+       <button id="new-problem" class="btn btn-outline-dark">Select New Problem From Template</button>
      </div>
-     <div class="row">
-     <div class="col-md-12">
-     <textarea class="form-control problem-source" rows="20"></textarea>
-     </div>
+     <div class="tab-pane" id="std-editor-tab">
+     <textarea class="form-control problem-source" readonly rows="20"></textarea>
+     <div class="alert alert-danger border border-danger" style="display: none" id="editor-message"></div>
      </div>
      </div>
 
@@ -29,32 +32,32 @@
  </script>
 
 <script type="text/template" id="editor-sidepane-template">
-<form role="form">
-  <div class="row">
+<div role="form">
     <div class="form-group">
       <label for="problem-display-option">Display Options</label>
-      <div class="col-md-8">
         <select id="problem-display-option" class="problem-display-option form-control"></select>
-      </div>
     </div>
+  <div class="form-group">
+      <button class="btn btn-outline-dark" id="save-as-button">Save a Copy As...</button>
   </div>
-  <div class="row">
+  <div id="save-as-options" class="d-none">
     <div class="form-group">
-      <label for="problem-save-option">Save Options</label>
-      <div class="col-md-8">
-        <select id="problem-save-option" class="problem-save-option form-control"></select>
-      </div>
+      <label for="directory-select">Directory</label>
+      <select class="form-control" id="directory-select"></select>
     </div>
-  </div>
-  <div class="row">
+    <div class="form-group d-none">
+      <label for="new-directory">New Directory:</label>
+      <input class="form-control" id="new-directory" size="35">
+    </div>
     <div class="form-group">
       <label for="problem-filename">Filename:</label>
-      <div class="col-md-12">
-        <input class="form-control problem-filename" id="problem-filename" size="35" disabled="disabled">
-      </div>
+      <input class="form-control" id="problem-filename">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-outline-primary" id="create-copy-button">Create a Copy</button>
     </div>
   </div>
-  <div class="row">
+  <!-- <div class="row">
     <div class="form-group">
       <button class="btn btn-default save-as-button" disabled>Save As</button>
     </div>
@@ -72,9 +75,9 @@
       </div>
     </div>
 
-  </div>
+  </div> -->
 
-  </form>
+</div>
 </script>
 
 
@@ -89,10 +92,10 @@
       <li><a href="#code-tab" data-toggle="tab">Problem Code</a></li>
       <li><a href="#viewer-tab" data-toggle="tab">Problem Viewer</a></li>
    </ul>
-    
+
    <div class="tab-content">
      <div class="tab-pane active" id="editor-tab">
-        <div class="row">    
+        <div class="row">
           	<div class="col-md-4">
               <div class="group">
                <div class="form-group">
@@ -102,11 +105,11 @@
                <div class="form-group">
                   <label for="pgedit-pd">Problem Description: </label>
                   <textarea id="pgedit-pd" class="form-control problem-description" rows="5"></textarea>
-               </div>  
+               </div>
                <div class="form-group">
                   <label for="pgedit-pso">Problem Solution:</label>
                   <textarea id="pgedit-pso" class="form-control problem-solution" rows="5"></textarea>
-               </div>  
+               </div>
               </div>
             </div>
             <div class="col-md-4">
@@ -115,8 +118,8 @@
                 <div class="controls"  id="library-subjects"></div>
                 <div class="form-horizontal">
                   <div class="form-group">
-                    <label class="col-md-3 control-label" for="problem-keywords">Keywords:</label>   
-                    <div class="col-md-8">      
+                    <label class="col-md-3 control-label" for="problem-keywords">Keywords:</label>
+                    <div class="col-md-8">
                      <input id="problem-keywords" class="form-control" type="text" placeholder="Keywords">
                     </div>
                   </div>
@@ -129,11 +132,11 @@
                     <label class="col-md-3 control-label" for="answer-type-select">Type:</label>
                     <div class="col-md-8">
                       <select class="input-sm answer-type form-control" id="answer-type-select">
-                      </select> 
+                      </select>
                      </div>
                    </div>
                   </div>
-               
+
               <div class="form-group">
                   <div id="answerArea">
                   </div>
@@ -145,14 +148,14 @@
               <div class="group form-horizontal">
                 <div class="group-header">Problem Author Information</div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="problem-author">Author:</label>   
-                  <div class="col-md-8">      
+                  <label class="col-md-3 control-label" for="problem-author">Author:</label>
+                  <div class="col-md-8">
                    <input id="problem-author" class="form-control problem-author" type="text" placeholder="Author's Name">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="problem-institution">Institution:</label>   
-                  <div class="col-md-8">      
+                  <label class="col-md-3 control-label" for="problem-institution">Institution:</label>
+                  <div class="col-md-8">
                    <input id="problem-institution" class="form-control institution" type="text" placeholder="Author's Institution">
                   </div>
                 </div>
@@ -160,25 +163,25 @@
               <div class="group form-horizontal">
                 <div class="group-header">Textbook Information</div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="problem-textbook-title">Title:</label>   
-                  <div class="col-md-8">      
+                  <label class="col-md-3 control-label" for="problem-textbook-title">Title:</label>
+                  <div class="col-md-8">
                    <input id="problem-textbook-title" class="form-control text-title" type="text" placeholder="Textbook Title">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="problem-textbook-edition">Edition:</label>   
-                  <div class="col-md-8">      
+                  <label class="col-md-3 control-label" for="problem-textbook-edition">Edition:</label>
+                  <div class="col-md-8">
                    <input id="problem-textbook-edition" class="form-control text-edition" type="text" placeholder="Textbook Edition">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="problem-textbook-author">Author:</label>   
-                  <div class="col-md-8">      
+                  <label class="col-md-3 control-label" for="problem-textbook-author">Author:</label>
+                  <div class="col-md-8">
                    <input id="problem-textbook-author" class="form-control text-author" type="text" placeholder="Textbook Author">
                   </div>
                 </div>
 
-                
+
                </div>
                               <div class="btn-group">
                  <button class="btn btn-default build-script-button">Build Script</button>
@@ -189,14 +192,14 @@
 
          </div>
       </div>
-      
+
       <div class="tab-pane" id="viewer-tab"><p>Here&apos;s where the problem will appear.</p>
          <ul class='problemList no-bullets'>
          </ul>
       </div>
       <div class="tab-pane" id="code-tab"><h4>Code for the Problem</h4>
          <pre id="problem-code"></pre>
-      </div> 
+      </div>
    </div>
 </div>
 </script>
@@ -204,9 +207,9 @@
 
 <script type="text/template" id="help-text">
 <h3>Help for the Simple PG Editor</h3>
-   <p> Please add some help text. 
+   <p> Please add some help text.
 </p>
-    
+
 </script>
 
 
@@ -236,7 +239,7 @@ DOCUMENT();        # This should be the first executable line in the problem.
 loadMacros(
    "PGstandard.pl",     # Standard macros for PG language
    "PGcourse.pl",
-   "contextInequalities.pl", 
+   "contextInequalities.pl",
    "MathObjects.pl",
    "PGchoicemacros.pl",
    "parserNumberWithUnits.pl",
@@ -259,7 +262,7 @@ $showPartialCorrectAnswers = 1;
 
 ##############################################################
 #
-#  Text 
+#  Text
 #
 #
 
@@ -296,8 +299,8 @@ ENDDOCUMENT();
 <script id="number-option-template" type="text/template">
   <div class="form-horizontal">
    <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="answer form-control" type="text" placeholder="Numerical Answer">
          </div>
    </div>
@@ -336,8 +339,8 @@ ENDDOCUMENT();
 <script id="string-option-template" type="text/template">
   <div class="form-horizontal">
    <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer as a string">
          </div>
    </div>
@@ -350,7 +353,7 @@ ENDDOCUMENT();
 
       $answer = Compute("<%=answer%>");
 
-      
+
 </script>
 <script id="string-option-pg-text" type="text/template">
    Context()->texStrings;
@@ -373,18 +376,18 @@ ENDDOCUMENT();
 <script id="formula-option-template" type="text/template">
   <div class="form-horizontal">
    <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-      <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+      <div class="col-md-8">
         <input id="Answer-input" class="answer form-control" type="text" placeholder="Formula">
       </div>
     </div>
     <div class="form-group">
-      <label class="col-md-3 control-label">Variables:</label>   
-      <div class="col-md-8">      
+      <label class="col-md-3 control-label">Variables:</label>
+      <div class="col-md-8">
         <input id="variables-input" class="variables form-control" type="text" placeholder="variables">
       </div>
     </div>
-   
+
     <div class="checkbox col-sm-offset-4">
       <label>
         <input type="checkbox" class="require-units answer-option">
@@ -423,8 +426,8 @@ ENDDOCUMENT();
 <script id="interval-option-template" type="text/template">
   <div class="form-horizontal">
     <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="answer form-control" type="text" placeholder="Interval or Inequality">
          </div>
     </div>
@@ -472,8 +475,8 @@ ENDDOCUMENT();
 <script id="list-option-template" type="text/template">
   <div class="form-horizontal">
    <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="answer form-control" type="text" placeholder="comma separated list">
          </div>
    </div>
@@ -505,20 +508,20 @@ ENDDOCUMENT();
 <script id="multiple-choice-option-template" type="text/template">
   <div class="form-horizontal">
     <div class="form-group">
-      <label class="col-md-3 control-label">Answer:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer">
          </div>
     </div>
     <div class="form-group">
-      <label class="col-md-3 control-label">Extra:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Extra:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="extra-choice form-control" type="text" placeholder="Extra Choice">
          </div>
     </div>
     <div class="form-group">
-      <label class="col-md-3 control-label">Last:</label>   
-          <div class="col-md-8">      
+      <label class="col-md-3 control-label">Last:</label>
+          <div class="col-md-8">
            <input id="Answer-input" class="last-choice form-control" type="text" placeholder="Last Choice">
          </div>
     </div>
@@ -533,20 +536,20 @@ ENDDOCUMENT();
 
 <script id="multiple-choice-option-template" type="text/template">
 <div class="form-group">
-      <div class="controls">          
+      <div class="controls">
          <input id="Answer-input" type="text" placeholder="Answer">
       </div>
    </div>
    <div class="form-group">
-      <div class="controls">          
+      <div class="controls">
          <input id="ExtraMultipleChoice-input" class="answer-option" type="text" placeholder="Extra Multiple Choice">
       </div>
    </div>
    <div class="form-group">
-      <div class="controls">          
+      <div class="controls">
          <input id="LastChoice-input" class="answer-option" type="text" placeholder="Last Choice">
       </div>
-   </div>   
+   </div>
    <div class="form-group">
       <div class="controls">
       <label class="checkbox">
@@ -563,7 +566,7 @@ ENDDOCUMENT();
 
       <% if(use_last_choice) {print('$mc->makeLast("'+ last_choice +'"); ')} %>
 </script>
-         
+
 <script id="multiple-choice-option-pg-text" type="text/template">
    Context()->texStrings;
    BEGIN_TEXT
@@ -586,13 +589,13 @@ ENDDOCUMENT();
       <div class="controls">
          <input type="text" class="input" id="ProblemAuthor-input" placeholder="Problem Author">
       </div>
-   </div>  
+   </div>
 
    <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="Institution-input" placeholder="Author Institution">
       </div>
-   </div>  
+   </div>
 </script>
 
 <script type="text/template" id="textbook-info-template">
@@ -601,22 +604,22 @@ ENDDOCUMENT();
       <div class="controls">
          <input type="text" class="input" id="TextTitle1-input" placeholder="Text Title">
       </div>
-   </div>  
+   </div>
    <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextEdition1-input" placeholder="Text Edition">
       </div>
-   </div>  
+   </div>
    <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextAuthor1-input" placeholder="Text Author">
       </div>
-   </div>  
+   </div>
    <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextSection1-input" placeholder="Text Section">
       </div>
-   </div>  
+   </div>
    <div class="form-group">
       <div class="controls">
          <input type="text" class="input" id="TextProblem1-input" placeholder="Text Problem Number">

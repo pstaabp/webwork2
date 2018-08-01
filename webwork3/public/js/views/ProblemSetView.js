@@ -1,6 +1,6 @@
-define(['backbone', 'views/ProblemListView', 'models/UserProblemList', 'models/ProblemList',
+define(['jquery','backbone', 'views/ProblemListView', 'models/UserProblemList', 'models/ProblemList',
         'moment','apps/util'],
-function (Backbone, ProblemListView, UserProblemList, ProblemList, moment,util) {
+function ($,Backbone, ProblemListView, UserProblemList, ProblemList, moment,util) {
     var ProblemSetView = ProblemListView.extend({
         viewName: "Problems",
         initialize: function (options) {

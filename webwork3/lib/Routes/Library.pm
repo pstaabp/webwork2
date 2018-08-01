@@ -391,7 +391,7 @@ get '/Library/problems/:problem_id/tags' => sub {
 
 any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
 
-	#debug "in /renderer/courses/:course_id/problems/:problem_id";
+	debug "in /renderer/courses/:course_id/problems/:problem_id";
 
 	my $renderParams = {
 		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
@@ -404,18 +404,6 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
 		}
 	};
-	#
-  # $renderParams->{displayMode} =
-	# $renderParams->{problemSeed} = ;
-	# $renderParams->{showHints} = 0;
-	# $renderParams->{showSolutions} = 0;
-	# $renderParams->{showAnswers} = 0;
-	#
-	# $renderParams->{user} = fake_user(vars->{db});
-	# $renderParams->{set} =  fake_set(vars->{db});
-	# $renderParams->{problem} = fake_problem(vars->{db});
-	# $renderParams->{problem}->{problem_seed} = query_parameters->{problem_seed} || 0;
-	# $renderParams->{problem}->{problem_id} = query_parameters->{problem_id} || 1;
 
 	# check to see if the problem_path is defined
 
@@ -427,7 +415,6 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		$renderParams->{problem}->{source_file} = query_parameters->{source_file};
 	} elsif ((params->{problem_id} =~ /^\d+$/) && (query_parameters->{problem_id} > 0)){
 			# try to look up the problem_id in the global database;
-
 		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => route_parameters->{problem_id}});
 		my $path_id = $problem_info->{path_id};
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
@@ -503,28 +490,57 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
 ####
 #
-#  get put the PG source of a problem
+#  render a problem given source code:
+#
+####
+
+any ['put','get','post'] => '/library/renderpgproblem' => sub {
+
+	my $renderParams = {
+		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
+			|| vars->{ce}->{pg}{options}{displayMode},
+		show_hints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
+	  show_solutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
+		show_answers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
+		problem => {
+			problem_seed => query_parameters->get('problem_seed') || body_parameters->get('problem_seed') || 1,
+			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
+		}
+	};
+
+	return render2(vars->{ce},vars->{db},$renderParams);
+
+};
+
+
+
+
+####
+#
+#  get put the PG source of a problem in the library.
 #
 ####
 
 get '/library/fullproblem' => sub {
-	setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+	Routes::Login::setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
 
-	my $fullpath = vars->{ce}->{courseDirs}{templates} . "/" . params->{path};
+	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
 	my $problemSource = read_file_content($fullpath);
 	send_error("The problem with path " + params->{path} + " does not exist.",403) unless defined($problemSource);
 
 	return {problem_source=>$problemSource};
 };
 
+### not sure what this is for.
+
 put '/library/fullproblem' => sub {
-	setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+	Routes::Login::setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
 
 	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
 
 	# test to make sure that it is not writing to the OPL
 
-	# test permissions 
+	# test permissions
 
 	my $test = write_file($fullpath,params->{problem_source});
 
@@ -564,5 +580,40 @@ post '/renderer' => sub {
 	return render(vars->{ce},vars->{db},$renderParams);
 };
 
+####
+#
+# get an array of directories in the templates Directory
+#
+###
+
+sub find_dirs {
+    my $dir         = shift;
+		my @dirs = ();
+		my @subdirs = ();
+
+    opendir my $dh, $dir or die qq{Unable to open directory "$dir": $!};
+    while ( my $node = readdir $dh ) {
+        next if $node eq '.' or $node eq '..' or $node eq 'Library' or $node eq 'tmpEdit';
+        my $abs_path = path($dir,$node);
+				if (-d $abs_path) {
+					@subdirs = find_dirs($abs_path);
+					push(@dirs,$abs_path);
+					push(@dirs,@subdirs) if scalar(@subdirs) >0;
+				}
+   }
+
+	 debug dump @dirs;
+
+	 return @dirs;
+}
+
+
+get '/courses/:course_id/pgproblems/directories' => sub {
+
+	my @dirs = find_dirs(vars->{ce}->{courseDirs}{templates});
+	my @rel_dirs = map { $_ =~ /.*\/templates\/(.*)/;} @dirs;  # make these relative paths.
+
+	return {dirs => \@rel_dirs};
+};
 
 1;
