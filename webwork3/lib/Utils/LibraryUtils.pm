@@ -26,7 +26,7 @@ my %ignoredir = (
 #
 ###
 
-sub render {
+sub render2 {
 
 	dd "in LibraryUtils::render";
 
@@ -533,12 +533,14 @@ sub munge_pg_file_path {
 #
 ##
 
-sub render2 {
+sub render {
 
-  my ($ce,$db,$renderParams) = @_;
+  my ($ce,$db,$renderParams,$debug) = @_;  # if debug is passed in, one can use the following:
+
+	#&$debug(dump $renderParams);
 
   my $form_data = {
-  	displayMode => 'MathJax',
+  	displayMode => $renderParams->{displayMode} || $ce->{pg}{options}{displayMode},
   	outputformat => 'standard',
   	problemSeed => $renderParams->{problem}->{problem_seed} || 1,
   };
@@ -582,7 +584,7 @@ sub render2 {
 	$set->set_id('this set') unless $set->set_id();
 	$problem->problem_id('1') unless $problem->problem_id();
 
-    if (ref $renderParams->{source}) { #in this case the actual source is passed
+    if (ref $renderParams->{pgSource}) { #in this case the actual source is passed
 			$problem->source_file('');
 			$translationOptions->{r_source} = $renderParams->{source};
 	} else {

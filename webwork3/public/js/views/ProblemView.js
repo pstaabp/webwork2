@@ -52,12 +52,17 @@ define(['jquery','backbone', 'underscore','config','models/Problem','apps/util',
 
             this.model.on('change:value change:max_attempts change:source_file', function () {
                 var isValid = self.model.isValid(_(self.model.changed).keys());
-                if(isValid){
+                if(isValid && self.problem_set_view){
                     self.problem_set_view.model.trigger("change:problems",self.problem_set_view.model,self.model);
-            }}).on('change:source_file', function(){
-                self.model.set("data","");
-                self.render();
-            });
+             }});
+
+             // the following is messing with the problem editor.  This may need to be
+             // updated.
+             
+            //.on('change:source_file', function(){
+            //     self.model.set("data","");
+            //     self.render();
+            // });
            this.invBindings = util.invBindings(this.bindings);
         },
 

@@ -1216,6 +1216,122 @@ any ['get', 'put'] => '/courses/:course_id/sets/:set_id/setheader' => sub {
         };
 };
 
+
+####
+#
+#  problem editor functions
+#
+####
+
+get '/courses/:course_id/problemeditor' => sub {  # get a blank problem
+
+  my $source_file = query_parameters->get('source_file') || body_parameters->get('source_file');
+  my $blankProbPath = vars->{ce}->{webworkFiles}->{screenSnippets}->{blankProblem};
+  my $blankProbSource = read_file_content($blankProbPath);
+
+  # mimic a Problem object:
+
+  return {_id => int(rand(100000)), # make a probably unique id
+    source_file => "_blank",
+    pgsource => $blankProbSource
+  };
+};
+
+# post '/courses/:course_id/problemeditor' => sub {  # fetch a problem from the template directory if it exists.
+#
+#   my $source_file = query_parameters->get('source_file') || body_parameters->get('source_file');
+#
+#   my $abs_path = path(vars->{ce}->{courseDirs}{templates},$source_file);
+#
+#   debug $abs_path;
+#
+#   send_error("The problem $abs_path doesn't exist.",403) unless (-e $abs_path);
+#
+#   my $problem_source = read_file_content($abs_path);
+#
+#   my $renderParams = {
+# 		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
+# 			|| vars->{ce}->{pg}{options}{displayMode},
+# 		show_hints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
+# 	  show_solutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
+# 		show_answers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
+# 		problem => {
+# 			problem_seed => query_parameters->get('problem_seed') || body_parameters->get('problem_seed') || 1,
+# 			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1,
+#       source_file => $source_file
+# 		}
+# 	};
+#
+#   my $result = render(vars->{ce},vars->{db},$renderParams,\&debug);
+#
+#   return {_id => int(rand(100000)), # make a probably unique id
+#     source_file => $source_file,
+#     pgsource => $problem_source,
+#     data => $result->{text}
+#   };
+# };
+
+## save the given problem source (data attribute) in the path (source_file)
+
+any ['put','post'] => '/courses/:course_id/problemeditor' => sub {
+
+  my $problem = body_parameters->as_hashref;
+
+  debug dump $problem;
+
+  my $save_file =  body_parameters->get("save_file");
+
+	my $renderParams = {
+		displayMode =>  body_parameters->get('displayMode') || vars->{ce}->{pg}{options}{displayMode},
+		show_hints => body_parameters->get('showHints') || 0,
+	  show_solutions => body_parameters->get('showSolutions') || 0,
+		show_answers => body_parameters->get('showAnswers') || 0,
+		problem => {
+			problem_seed => body_parameters->get('problem_seed') || 1,
+			problem_id => body_parameters->get('problem_id') || 1,
+      pgSource => body_parameters->get('pgsource') || ""
+		}
+	};
+
+  my $filename = body_parameters->get('source_file') || "";
+
+  if ($filename =~ m/\[TOP\]\//){
+    $filename =~ s/\[TOP\]\///;
+  }
+  my $abs_path = path(vars->{ce}->{courseDirs}{templates},$filename);
+
+
+  if (-e $abs_path && $save_file){
+    send_error("The problem $abs_path already exists.",403) if (-e $abs_path) ;
+  }
+
+  debug request->is_post;
+
+  if (request->is_post){ ## read a file from the
+    debug "in is_post";
+    $renderParams->{problem}->{pgSource} = read_file_content($abs_path);
+    $problem->{pgsource} = $renderParams->{problem}->{pgSource};
+    $problem->{_id} = int(rand(100000)), # make a probably unique id
+  } else {
+    open(my $fh, '>', $abs_path) or die "Could not open file '$abs_path' $!";
+    print $fh $renderParams->{problem}->{pgSource};
+    close $fh;
+  }
+
+
+
+  $renderParams->{problem}->{source_file} = $filename;
+
+  my $result = render(vars->{ce},vars->{db},$renderParams,\&debug);
+
+  $problem->{source_file} = $renderParams->{problem}->{source_file};
+  $problem->{data} = $result->{text};
+
+  return $problem;
+};
+
+
+
 #####
 #
 #  Retrieve a blank problem from the template:

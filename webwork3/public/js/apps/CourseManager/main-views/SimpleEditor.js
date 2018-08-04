@@ -1,12 +1,12 @@
 /*  SimpleEditor.js:
    This is the base javascript code for the SimplePGEditor.  This sets up the View and ....
-  
+
 */
 
 
-define(['module','backbone','underscore','views/MainView','views/library-views/LibraryTreeView','models/PGProblem',
-    'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'], 
-function(module,Backbone, _,MainView,LibraryTreeView,PGProblem,Problem,ProblemList,ProblemView,
+define(['module','backbone','underscore','views/MainView','views/library-views/LibraryTreeView',
+    'models/Problem','models/ProblemList','views/ProblemView','config','moment','apps/util', 'bootstrap'],
+function(module,Backbone, _,MainView,LibraryTreeView,Problem,ProblemList,ProblemView,
             config,moment,util){
 var SimpleEditorView = Backbone.View.extend({
     initialize: function(options) {
@@ -32,20 +32,22 @@ var SimpleEditorView = Backbone.View.extend({
                     .popover({content: error,placement: "top"}).popover("show");
             }
         });
-               
+
     },
     render: function (){
         this.$el.html($("#simple-editor-template").html());
         this.updateFields();
-        this.libraryTreeView = new LibraryTreeView({el: this.$("#library-subjects"), parent: this, 
-                type: "subjects", orientation: "vertical"}); 
+        this.libraryTreeView = new LibraryTreeView({el: this.$("#library-subjects"), parent: this,
+                type: "subjects", orientation: "vertical"});
         this.libraryTreeView.render();
         this.stickit();
+
         return this;
     },
     events: {"click .build-script-button": "buildScript",
         "change .answer-type": "changeAnswerType",
-        "click .save-file-button": "saveFile"},
+        "click .save-file-button": "saveFile"
+    },
     bindings: { ".problem-statement": {observe: "statement", events: ['blur']},
         ".problem-description": {observe: "description", events: ['blur']},
         ".problem-solution": {observe: "solution", events: ['blur']},
@@ -98,12 +100,12 @@ var SimpleEditorView = Backbone.View.extend({
             case "Multiple Choice":
                 this.answerView = (new MultipleChoiceAnswerView({el: $("#answerArea")})).render();
                 break;
-            
+
         }
-    },        
+    },
     saveFile: function(){
         var self = this;
-        if(!this.buildScript()){ // build the script and check for errors. 
+        if(!this.buildScript()){ // build the script and check for errors.
             return;
         }
 
@@ -116,7 +118,7 @@ var SimpleEditorView = Backbone.View.extend({
             });
 
     },
-    buildScript: function (){       
+    buildScript: function (){
         // check that everything should be filled in
         if(!this.model.isValid(true)){
             return false;
@@ -131,7 +133,7 @@ console.log("in buildscript");
         _.extend(fields,this.model.attributes);
         this.model.set("pgSource",pgTemplate(fields));
         $("#problem-code").text(this.model.get("pgSource"));
-      
+
         return true;
     }
 });
@@ -139,8 +141,8 @@ console.log("in buildscript");
 var ShowProblemView = Backbone.View.extend({
     initialize: function(options) {
       _.bindAll(this,'render');
-      this.collection = new ProblemList();  // this is done as a hack b/c Problem View assumes that all problems 
-                                            // are in a ProblemList. 
+      this.collection = new ProblemList();  // this is done as a hack b/c Problem View assumes that all problems
+                                            // are in a ProblemList.
       this.collection.add(this.model);
       problemViewAttrs = {reorderable: false, showPoints: false, showAddTool: false, showEditTool: false,
                 showRefreshTool: false, showViewTool: false, showHideTool: false, deletable: false, draggable: false,
@@ -165,7 +167,7 @@ var AnswerChoiceView = Backbone.View.extend({
         return this.pgSetupTemplate(opts? _.extend(opts,this.model.attributes): this.model.attributes);
     },
     getStatementText: function(opts){
-        return this.pgTextTemplate(_.extend(opts,this.model.attributes));  
+        return this.pgTextTemplate(_.extend(opts,this.model.attributes));
     },
     getAnswerText: function (){
         return this.pgAnswerTemplate(this.model.attributes);
@@ -174,7 +176,7 @@ var AnswerChoiceView = Backbone.View.extend({
 
 var NumberAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#number-option-template").html();    
+        this.viewTemplate = $("#number-option-template").html();
         this.pgSetupTemplate = _.template($("#number-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#number-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#number-option-pg-answer").html());
@@ -191,7 +193,7 @@ var NumberAnswerView = AnswerChoiceView.extend({
 
 var StringAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#string-option-template").html();    
+        this.viewTemplate = $("#string-option-template").html();
         this.pgSetupTemplate = _.template($("#string-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#string-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#string-option-pg-answer").html());
@@ -203,7 +205,7 @@ var StringAnswerView = AnswerChoiceView.extend({
 
 var FormulaAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#formula-option-template").html();    
+        this.viewTemplate = $("#formula-option-template").html();
         this.pgSetupTemplate = _.template($("#formula-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#formula-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#formula-option-pg-answer").html());
@@ -216,7 +218,7 @@ var FormulaAnswerView = AnswerChoiceView.extend({
 
 var IntervalAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#interval-option-template").html();    
+        this.viewTemplate = $("#interval-option-template").html();
         this.pgSetupTemplate = _.template($("#interval-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#interval-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#interval-option-pg-answer").html());
@@ -229,7 +231,7 @@ var IntervalAnswerView = AnswerChoiceView.extend({
 
 var ListAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#list-option-template").html();    
+        this.viewTemplate = $("#list-option-template").html();
         this.pgSetupTemplate = _.template($("#list-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#list-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#list-option-pg-answer").html());
@@ -241,7 +243,7 @@ var ListAnswerView = AnswerChoiceView.extend({
 
 var MultipleChoiceAnswerView = AnswerChoiceView.extend({
     initialize: function () {
-        this.viewTemplate = $("#multiple-choice-option-template").html();    
+        this.viewTemplate = $("#multiple-choice-option-template").html();
         this.pgSetupTemplate = _.template($("#multiple-choice-option-pg-setup").html());
         this.pgTextTemplate = _.template($("#multiple-choice-option-pg-text").html());
         this.pgAnswerTemplate = _.template($("#multiple-choice-option-pg-answer").html());

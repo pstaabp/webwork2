@@ -4,6 +4,7 @@
 <title>WeBWorK 3</title>
 <link rel='stylesheet' href='[% top_dir %]/modules/jquery-ui/themes/base/all.css' type='text/css' media='screen'>
 <link rel="stylesheet" href="[% top_dir %]/modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="[% top_dir %]/modules/codemirror/lib/codemirror.css" type="text/css">
 <link rel='stylesheet' href='[% top_dir %]/modules/font-awesome/css/font-awesome.min.css' type='text/css' media='screen'>
 <link rel='stylesheet' type="text/css" href="[% top_dir %]/css/course-manager.css">
 </head>

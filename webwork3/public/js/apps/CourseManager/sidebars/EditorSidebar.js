@@ -42,31 +42,33 @@ define(['jquery','backbone','views/Sidebar', 'config','apps/util'],function($,Ba
             },
             defaultOption: {label: "Select Target...", value: null}
         }},
-				"#directory-select": {observe: "directory", selectOptions: {
-					collection: function () { return _(this.course_directories).union(["New Directory"]);},
-					defaultOption: {label: "Select Directory...", value: null}
-				}}
+		"#directory-select": {observe: "directory", selectOptions: {
+			collection: function () { return _(["[TOP]"]).chain()
+                            .union(this.course_directories)
+                            .union(["New Directory"]).value();},
+			defaultOption: {label: "Select Directory...", value: null}
+		}}
     },
     events: {
         "change .problem-display-option": function (evt) { this.trigger("change-display-mode", evt);},
 				"click #save-as-button": "saveAsOptions",
 				"click #create-copy-button": "createCopy"
     },
-		saveAsOptions: function (){
-			var self = this;
-			$.ajax({
-					url: config.urlPrefix+"courses/" + config.courseSettings.course_id+"/pgproblems/directories",
-					type: "GET",
-					success: function (data) {
-						self.course_directories = data.dirs;
-						self.stickit(self.editorOptions,self.bindings);
-					}
-			});
-			this.$("#save-as-options").removeClass("d-none").addClass("d-block");
-		},
-		createCopy: function(){
-			console.log(this.model.get("directory")+"/"+this.model.get("filename"));
-		},
+	saveAsOptions: function (){
+		var self = this;
+		$.ajax({
+				url: config.urlPrefix+"courses/" + config.courseSettings.course_id+"/pgproblems/directories",
+				type: "GET",
+				success: function (data) {
+					self.course_directories = data.dirs;
+					self.stickit(self.editorOptions,self.bindings);
+				}
+		});
+		this.$("#save-as-options").removeClass("d-none").addClass("d-block");
+	},
+	createCopy: function(){
+        this.eventDispatcher.trigger("update-path",this.editorOptions)
+	},
     getOptions: function(){
         return this.model.attributes;
     }

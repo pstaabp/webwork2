@@ -7,8 +7,9 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
      */
     var Problem = Backbone.Model.extend({
         defaults:{
-            source_file:"",
-            data: "",
+            source_file:"",  // the path to the problem in the courses/templates directory
+            pgsource: "", 
+            data: "",  // the HTML source of the problem.
             problem_id: 0,
             value: 1,
             max_attempts: -1,
@@ -16,7 +17,22 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
             flags: "",
             problem_seed: 1,
             showMeAnotherCount: 0,
-            showMeAnother: -1
+            showMeAnother: -1,
+            editable: false,
+            // the following are useful tags for the library
+            date: "",
+            problem_author: "",
+            institution: "",
+            textbook_title: "",
+            textbook_author: "",
+            textbook_edition: "",
+            textbook_section: "",
+            textbook_problem_number: "",
+            db_subject: "",
+            db_chapter: "",
+            db_section: "",
+            keywords: [],
+            answer_type: "",
         },
         integerFields: ["problem_id","value","max_attempts","problem_seed","showMeAnotherCount"],
         validation: {
@@ -30,6 +46,9 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
         idAttribute: "_id",
         url: function () {
             // need to determine if this is a problem in a problem set or a problem from a library browser
+            if(typeof(this.collection) === "undefined") { // handle problems in the editor
+              return config.urlPrefix + "courses/" + config.courseSettings.course_id + "/problemeditor";
+            }
             if(typeof(this.collection.problemSet)!=="undefined") { // the problem comes from a problem set
                 return config.urlPrefix + "courses/" + config.courseSettings.course_id + "/sets/"
                 + this.collection.problemSet.get("set_id") + "/problems/" + this.get("problem_id");
@@ -37,7 +56,7 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
                 return config.urlPrefix + "courses/" + config.courseSettings.course_id
                     + "/users/" + this.collection.user_id
                     + "/sets/" + this.collection.set_id + "/problems/" + this.get("problem_id");
-            } else {
+            } else {  // a new problem aka blank
                 return config.urlPrefix;
             }
 
@@ -105,7 +124,10 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
                     dataType: "json",
                 data: answers,
                 success: _success});
-        }
+        },
+        isLibraryProblem: function(){
+            return /Library\//.test(this.get("source_file"));  // just tests if the path starts with Library.  Maybe make this a field instead.
+          },
     });
 
     return Problem;

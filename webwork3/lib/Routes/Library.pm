@@ -451,7 +451,8 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
 	my $renderParams = {};
 
-  $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
+  $renderParams->{displayMode} = query_parameters->get('displayMode') || body_parameters->get('displayMode')
+      || vars->{ce}->{pg}{options}{displayMode};
 
     ### The user is not a professor
 
@@ -477,7 +478,6 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
 	my $results = render(vars->{ce},vars->{db},$renderParams);
 
-
 	## if it was a post request, then we record the the results in the log file and in the past_answer database
 	if(request->is_post){
 		$results->{recorded_msg} = record_results($renderParams,$results);
@@ -485,30 +485,6 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
 	return $results;
 
-
-};
-
-####
-#
-#  render a problem given source code:
-#
-####
-
-any ['put','get','post'] => '/library/renderpgproblem' => sub {
-
-	my $renderParams = {
-		displayMode => query_parameters->get('displayMode') || body_parameters->get('displayMode')
-			|| vars->{ce}->{pg}{options}{displayMode},
-		show_hints => query_parameters->get('showHints') || body_parameters->get('showHints') || 0,
-	  show_solutions => query_parameters->get('showSolutions') || body_parameters->get('showSolutions') || 0,
-		show_answers => query_parameters->get('showAnswers') || body_parameters->get('showAnswers') || 0,
-		problem => {
-			problem_seed => query_parameters->get('problem_seed') || body_parameters->get('problem_seed') || 1,
-			problem_id => query_parameters->get('problem_id') || body_parameters->get('problem_id') || 1
-		}
-	};
-
-	return render2(vars->{ce},vars->{db},$renderParams);
 
 };
 
@@ -601,12 +577,16 @@ sub find_dirs {
 					push(@dirs,@subdirs) if scalar(@subdirs) >0;
 				}
    }
-
-	 debug dump @dirs;
+   closedir $dh;
 
 	 return @dirs;
 }
 
+###
+#
+# return an array of directories in the local templates directory
+#
+###
 
 get '/courses/:course_id/pgproblems/directories' => sub {
 
@@ -614,6 +594,27 @@ get '/courses/:course_id/pgproblems/directories' => sub {
 	my @rel_dirs = map { $_ =~ /.*\/templates\/(.*)/;} @dirs;  # make these relative paths.
 
 	return {dirs => \@rel_dirs};
+};
+
+###
+#
+# return an array of files in a given local templates directory
+#
+###
+
+get '/courses/:course_id/pgproblems/files' => sub {
+  my $dir = query_parameters->get('directory');
+
+  my $abs_dir = path(vars->{ce}->{courseDirs}{templates},$dir);
+  $abs_dir =~ s/\[TOP\]//;
+
+  send_error("The directory $dir does not exist",404) unless -d $abs_dir;
+
+  opendir my $dh, $abs_dir or die qq{Unable to open directory "$abs_dir": $!};
+  my @files = grep { my $ab_path = path($abs_dir,$_); -f $ab_path && $ab_path =~ m/\.pg$/} readdir($dh);
+  closedir $dh;
+
+  return {files => \@files};
 };
 
 1;

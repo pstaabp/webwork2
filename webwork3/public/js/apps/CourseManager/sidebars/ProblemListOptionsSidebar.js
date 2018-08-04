@@ -1,9 +1,10 @@
-define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
+define(['jquery','backbone','views/Sidebar', 'config'],
+    function($,Backbone,Sidebar,config){
 	var ProblemListOptionsSidebar = Sidebar.extend({
     initialize: function(options){
         var self = this;
         Sidebar.prototype.initialize.apply(this,[options]);
-        this.problemSets = options.problemSets; 
+        this.problemSets = options.problemSets;
         this.settings = options.settings;
         this.state.set({display_option: this.settings.getSettingValue("pg{options}{displayMode}"),
             show_path: false, show_tags: false, problem_group: null},{silent: true})
@@ -24,7 +25,7 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
         this.$el.html($("#problem-list-options-template").html());
         this.stickit(this.state,this.bindings);
         this.stopListening();
-        var problems = this.mainView.views.problemsView.problemSetView.deletedProblems; 
+        var problems = this.mainView.views.problemsView.problemSetView.deletedProblems;
         if(problems.length >0) {
             this.$(".undo-delete-button").removeAttr("disabled");
         }
@@ -34,10 +35,10 @@ define(['backbone','views/Sidebar', 'config'],function(Backbone,Sidebar,config){
             if(problems.length == 0 ){
                  this.$(".undo-delete-button").attr("disabled","disabled");
             }
-        }); 
+        });
 
         return this;
-    }, 
+    },
     bindings: {".problem-display-option": {observe: "display_option", selectOptions: {
             collection: function () {
                 var modes = this.settings.getSettingValue("pg{displayModes}").slice(); // make a copy of the pg{displayModes}

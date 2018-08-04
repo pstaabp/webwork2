@@ -16,7 +16,7 @@ var require = {
         //"jquery-truncate":      "/webwork3/modules/jquery-truncate/jquery.truncate",
         "blob":                 "/webwork3/modules/blob/Blob",
         "file-saver":           "/webwork3/modules/file-saver/FileSaver",
-        "ev-emitter/ev-emitter":           "/webwork3/modules/ev-emitter/ev-emitter", // NEEDED in this form by imagesloaded
+        "ev-emitter/ev-emitter":"/webwork3/modules/ev-emitter/ev-emitter", // NEEDED in this form by imagesloaded
         "knowl":                "/webwork2_files/js/vendor/other/knowl",
         "Base64":               "/webwork2_files/js/apps/Base64/Base64",
         "jquery-csv":           "/webwork3/modules/jquery-csv/src/jquery.csv",
@@ -25,6 +25,12 @@ var require = {
         "apps":                 "/webwork3/js/apps",
         "config":               "/webwork3/js/apps/config"
     },
+    packages: [
+         {
+            name: "codemirror",
+            location: "/webwork3/modules/codemirror",
+            main: "lib/codemirror"
+    }],
     //urlArgs: "bust=" +  (new Date()).getTime(),
     waitSeconds: 10,
     shim: {
