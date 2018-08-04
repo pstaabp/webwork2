@@ -8,9 +8,12 @@
   </div>
 
    <ul class="nav nav-tabs" id="standard-editor-tabs">
-      <li class="nav-item"><a class="nav-link active" href="#select-problem-tab" data-toggle="tab">Select Problem</a></li>
-      <li class="nav-item"><a class="nav-link" href="#edit-problem-tab" data-toggle="tab">Problem Editor</a></li>
-      <li class="nav-item"><a class="nav-link disabled" href="#view-problem-tab" data-toggle="tab">Problem Viewer</a></li>
+      <li class="nav-item">
+        <a class="nav-link active" href="#select-problem-tab" data-toggle="tab">Select Problem</a></li>
+      <li class="nav-item">
+        <a class="nav-link" href="#edit-problem-tab" data-toggle="tab">Problem Editor</a></li>
+      <li class="nav-item">
+        <a class="nav-link" href="#view-problem-tab" data-toggle="tab">Problem Viewer</a></li>
    </ul>
 
    <div class="tab-content">
@@ -36,7 +39,7 @@
       </div>
     </div>
     <div class="form-group row">
-      <label for="local-file-directory" class="col-4">Get current Problem:</label>
+      <label for="local-file-directory" class="col-4">Get a Problem from a Set:</label>
       <div class="col-3">
         <select class="form-control" id="problem-set"></select>
       </div>

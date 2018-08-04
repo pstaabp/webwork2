@@ -14,8 +14,8 @@ var EditorView = MainView.extend({
             : new StandardEditor(opts);
     },
     render: function(){
-      
-      this.$el.html(this.editor.render().el);
+      this.$el.html("");
+      this.$el.append(this.editor.render().el);
       MainView.prototype.render.apply(this);
       return this;
     },

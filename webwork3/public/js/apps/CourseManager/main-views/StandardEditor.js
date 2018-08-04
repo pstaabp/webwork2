@@ -13,34 +13,31 @@ define(['jquery','module','backbone','underscore','models/Problem',
   ,'bootstrap','codemirror/mode/perl/perl'],
 function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util,CodeMirror){
   var StandardEditor = Backbone.View.extend({
-    template: $("#standard-editor-template").html(),
     initialize: function(options) {
       var self = this;
       _(this).bindAll("saveProblem","fetchProblemFile","saveAndRenderProblem");
       this.model = new Problem();
-      this.parent = options.parent;
+      _(this).extend(_(options).pick("parent","problemSets"));
       this.parent.eventDispatcher.on("update-path",this.saveProblem);
       this.tabs = {
-        select_problem_tab: new SelectProblemTab({parent: this}),
+        select_problem_tab: new SelectProblemTab({parent: this, problemSets: this.problemSets}),
         edit_problem_tab: new EditProblemTab({parent: this}),
         view_problem_tab: new ViewProblemTab({parent: this})
       }
       this.model.on("change:source_file", this.fetchProblemFile)
-          .on("change:editable", function () {
-            util.changeClass({els: self.$("a[href='#edit-problem-tab']"),
-              state: self.model.get("editable"),
-              remove_class: "disabled"});})
-          .on("change:pgsource",this.saveAndRenderProblem);
+        .on("change:pgsource",this.saveAndRenderProblem);
     },
     render: function (){
-    	this.$el.html(this.template);
+      this.$el.html($("#standard-editor-template").html());
+      var currentTab = this.parent.state.get("tabName") || "#select-problem-tab";
 
+      // this.tabs[currentTab.replace("#","").replace(/-/g,"_")]
+      //   .setElement(this.$(currentTab)).render();
       this.tabs.select_problem_tab.setElement(this.$("#select-problem-tab")).render();
       this.tabs.edit_problem_tab.setElement(this.$("#edit-problem-tab")).render();
       this.tabs.view_problem_tab.setElement(this.$("#view-problem-tab")).render();
-      if(this.parent.state.get("tabName")){
-        this.showTab(this.parent.state.get("tabName"));
-      }
+      this.showTab(currentTab);
+
       this.stickit();
       util.changeClass({state: this.model.get("editable"),
         els: $("a[href='#view-problem-tab']"), remove_class: "disabled"});
@@ -51,6 +48,11 @@ function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util
     },
     showTab: function(tab_name){
       this.$('#standard-editor-tabs a[href="'+tab_name+'"]').tab('show');
+
+      // there's a bug in the bootstrap tab which the following lines fix:
+      this.$(".tab-pane").removeClass("active")
+      this.$(tab_name).addClass("active")
+
     },
     saveProblem: function(opt) {
       var self = this;
@@ -76,29 +78,14 @@ function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util
       delete this.model._id; // this is to make the problem new to the server.
       this.model.save({source_file: _model.get("source_file")},{
         success: function(){
-          self.model.set({ editable: !self.model.isLibraryProblem()});
-          self.render();
           self.showTab("#edit-problem-tab");
         }
       })
     },
-    // loadProblem: function () {
-    //     this.$(".info-bar").html("<span class='path'></span>");
-    //     this.stickit();
-    //     // if it's a library problem, disable the editor
-    //     if(this.model.get("editable")){
-    //       this.$(".problem-source").removeAttr("disabled");
-    //     } else {
-    //       this.$(".problem-source").attr("disabled","disabled");
-    //     }
-    //     if(this.parent.optionPane){
-    //         this.parent.optionPane.setProblem(this.model);
-    //     }
-    // },
     events: {
-        "show.bs.tab a[href='#view-problem-tab']": "showViewer",
-        "show.bs.tab": function (evt) {
-          this.parent.setState({tabName: $(evt.target).attr("href")});}
+      "shown.bs.tab a[href='#view-problem-tab']": "showViewer",
+      "shown.bs.tab a[data-toggle='tab']": function (evt) {
+        this.parent.setState({tabName: $(evt.target).attr("href")});}
     },
     editNewProblem: function(){
       var self = this;
@@ -108,23 +95,23 @@ function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util
           self.showTab("#edit-problem-tab");
           self.tabs.edit_problem_tab.render();
           self.stickit();
-
         }});
     }
 });
 
 var SelectProblemTab = Backbone.View.extend({
-  template : $("#editor-select-problem-template").html(),
   initialize: function(options) {
-    _(this).extend(_(options).pick("parent"));
-    _(this).bindAll("updateFiles","selectFile");
+    _(this).extend(_(options).pick("parent","problemSets"));
+    _(this).bindAll("updateFiles","selectFile","updateProblemSet","selectProblem");
     this.selectOptions = new Backbone.Model();
     this.selectOptions.on("change:directory",this.updateFiles);
     this.selectOptions.on("change:file",this.selectFile);
+    this.selectOptions.on("change:problem-set",this.updateProblemSet);
+    this.selectOptions.on("change:problem-number",this.selectProblem);
   },
   render: function(){
     var self = this;
-    this.$el.html(this.template);
+    this.$el.html($("#editor-select-problem-template").html());
     if(typeof(this.course_directories)=="undefined"){
       $.ajax({ // load the load directories.
           url: config.urlPrefix+"courses/" + config.courseSettings.course_id+"/pgproblems/directories",
@@ -135,7 +122,8 @@ var SelectProblemTab = Backbone.View.extend({
           }
         });
       }
-      return this;
+    self.stickit(self.selectOptions,self.bindings);
+    return this;
   },
   bindings: {
     "#local-file-directory": {
@@ -151,6 +139,21 @@ var SelectProblemTab = Backbone.View.extend({
                             },
 			defaultOption: {label: "Select File...", value: null}
 		}},
+    "#problem-set": {
+      observe: "problem-set", selectOptions: {
+        collection: function () { return this.problemSets.pluck("set_id")},
+        defaultOption: {label: "Select Problem Set...", value: null}
+      }
+    },
+    "#problem-number": {
+      observe: "problem-number", selectOptions: {
+        collection: function () {
+          var set = this.problemSets.find({set_id: this.selectOptions.get("problem-set")});
+          return (typeof set === "undefined")? []: set.problems.pluck("problem_id");
+        },
+        defaultOption: {label: "Select Problem Number...", value: null}
+      }
+    },
 
   },
   events: {
@@ -170,8 +173,15 @@ var SelectProblemTab = Backbone.View.extend({
   },
   selectFile: function (){
     this.parent.model.set({source_file: this.selectOptions.get("directory")+"/" +this.selectOptions.get("file")});
+  },
+  updateProblemSet: function(){
+    this.stickit(this.selectOptions,this.bindings);
+  },
+  selectProblem: function(){
+    var set = this.problemSets.find({set_id: this.selectOptions.get("problem-set")});
+    var problem = set.problems.find({problem_id: this.selectOptions.get("problem-number")});
+    this.parent.model.set(problem.pick("source_file"));
   }
-
 });
 
 var EditProblemTab = Backbone.View.extend({
@@ -182,31 +192,37 @@ var EditProblemTab = Backbone.View.extend({
     _(this).extend(_(options).pick("parent"));
     this.parent.model.on("change:pgsource",this.rerenderProblem);
     this.parent.model.on("change:editable",function(){
-      self.editor.options.readOnly = ! self.parent.model.get("editable");
+      if(self.editor){
+        self.editor.options.readOnly = ! self.parent.model.get("editable");
+      }
     })
   },
   render: function(){
-      this.$el.html(this.template);
-      if(this.parent.model){
-        this.stickit(this.parent.model,this.bindings);
-      }
-      var textArea = this.$("#problem-source")
-      if(textArea){
-        this.editor = CodeMirror.fromTextArea(textArea[0],
-            {mode: "perl",lineNumbers: true});
-        this.editor.options.readOnly = ! this.parent.model.get("editable");
-        this.editor.setValue(this.parent.model.get("pgsource"));
-        this.editor.on("blur",this.updateInfo);
-      }
-      return this;
+    var self = this;
+    this.$el.html(this.template);
+    if(this.parent.model){
+      this.stickit(this.parent.model,this.bindings);
+    }
+    var textArea = this.$("#problem-source")
+    if(textArea){
+      this.editor = CodeMirror.fromTextArea(textArea[0],
+          {mode: "perl",lineNumbers: true});
+      this.editor.options.readOnly = ! this.parent.model.get("editable");
+      this.editor.setValue(this.parent.model.get("pgsource"));
+      this.editor.on("blur",this.updateInfo);
+      _.delay(function(){self.editor.refresh();},100);
+    }
+    return this;
   },
   updateInfo: function(evt){
     this.parent.model.set({pgsource: this.editor.getValue()});
   },
   rerenderProblem: function(_model){
     var self = this;
-    this.$("#problem-source").text(_model.get("pgsource"));
-    this.editor.refresh();
+    if(this.editor){
+      this.editor.setValue(_model.get("pgsource"))
+      _.delay(function(){self.editor.refresh();},100);
+    }
   },
   bindings: {
     "#editor-message": {

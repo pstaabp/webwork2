@@ -1295,11 +1295,9 @@ any ['put','post'] => '/courses/:course_id/problemeditor' => sub {
 
   my $filename = body_parameters->get('source_file') || "";
 
-  if ($filename =~ m/\[TOP\]\//){
-    $filename =~ s/\[TOP\]\///;
-  }
-  my $abs_path = path(vars->{ce}->{courseDirs}{templates},$filename);
+  $filename =~ s/\[TOP\]\///;  # strip out the [TOP] directory.
 
+  my $abs_path = path(vars->{ce}->{courseDirs}{templates},$filename);
 
   if (-e $abs_path && $save_file){
     send_error("The problem $abs_path already exists.",403) if (-e $abs_path) ;
@@ -1307,17 +1305,18 @@ any ['put','post'] => '/courses/:course_id/problemeditor' => sub {
 
   debug request->is_post;
 
-  if (request->is_post){ ## read a file from the
+  if (request->is_post){ ## read a file from the templates directory
     debug "in is_post";
     $renderParams->{problem}->{pgSource} = read_file_content($abs_path);
     $problem->{pgsource} = $renderParams->{problem}->{pgSource};
-    $problem->{_id} = int(rand(100000)), # make a probably unique id
+    $problem->{_id} = $filename;
   } else {
     open(my $fh, '>', $abs_path) or die "Could not open file '$abs_path' $!";
     print $fh $renderParams->{problem}->{pgSource};
     close $fh;
   }
 
+  $problem->{editable} = ($filename =~ m/Library/)?JSON::false:JSON::true;
 
 
   $renderParams->{problem}->{source_file} = $filename;
@@ -1326,6 +1325,8 @@ any ['put','post'] => '/courses/:course_id/problemeditor' => sub {
 
   $problem->{source_file} = $renderParams->{problem}->{source_file};
   $problem->{data} = $result->{text};
+
+  debug dump $problem;
 
   return $problem;
 };
