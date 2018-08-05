@@ -18,38 +18,38 @@ define(['jquery','backbone', 'views/ProblemListView','config'],
                 this.$(".prob-list-container").height($(window).height()-((this.maxPages==1) ? 200: 250));
                 return this;
             },
-            highlightCommonProblems: function () {
-                var self = this;
-                if(this.libraryView.targetSet){
-                    var pathsInTargetSet = this.libraryView.problemSets.findWhere({set_id: this.libraryView.targetSet})
-                        .problems.pluck("source_file");
-                    var pathsInLibrary = this.problems.pluck("source_file");
-                    var pathsInCommon = _.intersection(pathsInLibrary,pathsInTargetSet);
-                    if(this.problemViews){
-                        _(this.pageRange).each(function(i){
-                            var pv = self.problemViews[i];
-                            if(pv.rendered){
-                                pv.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
-                            } else {
-                                pv.model.once("rendered", function(v) {
-                                    pv.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
-                                });
-                            }
-                        });
-                    }
-                }
-                if(i>0 && i<pvs.length-1){
-                    util.changeClass({state: _show, els: pv.$el,
-                                    add_class: "mlt-middle", remove_class: "problem"});
-                }
-            });
-            util.changeClass({state: _show, els: pvs[0].$el,
-                                add_class: "mlt-top", remove_class: "problem"});
-            util.changeClass({state:  _show, els: pvs[pvs.length-1].$el,
-                                add_class: "mlt-bottom", remove_class: "problem"});
-            this.highlightCommonProblems();
-
-        },
+        //     highlightCommonProblems: function () {
+        //         var self = this;
+        //         if(this.libraryView.targetSet){
+        //             var pathsInTargetSet = this.libraryView.problemSets.findWhere({set_id: this.libraryView.targetSet})
+        //                 .problems.pluck("source_file");
+        //             var pathsInLibrary = this.problems.pluck("source_file");
+        //             var pathsInCommon = _.intersection(pathsInLibrary,pathsInTargetSet);
+        //             if(this.problemViews){
+        //                 _(this.pageRange).each(function(i){
+        //                     var pv = self.problemViews[i];
+        //                     if(pv.rendered){
+        //                         pv.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
+        //                     } else {
+        //                         pv.model.once("rendered", function(v) {
+        //                             pv.highlight(_(pathsInCommon).contains(pathsInLibrary[i]));
+        //                         });
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //         if(i>0 && i<pvs.length-1){
+        //             util.changeClass({state: _show, els: pv.$el,
+        //                             add_class: "mlt-middle", remove_class: "problem"});
+        //         }
+        //     }
+        //     util.changeClass({state: _show, els: pvs[0].$el,
+        //                         add_class: "mlt-top", remove_class: "problem"});
+        //     util.changeClass({state:  _show, els: pvs[pvs.length-1].$el,
+        //                         add_class: "mlt-bottom", remove_class: "problem"});
+        //     this.highlightCommonProblems();
+        //
+        // },
         highlightCommonProblems: function () {
             var self = this;
             if(this.libraryView.parent.state.get("target_set_id") && this.pages){

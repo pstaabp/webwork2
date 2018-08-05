@@ -1,4 +1,5 @@
-define(['backbone','jquery','views/Sidebar', 'config'],function(Backbone,$,Sidebar,config){
+define(['backbone','jquery','views/Sidebar', 'config'],
+function(Backbone,$,Sidebar,config){
 	var LibraryOptionsView = Sidebar.extend({
     initialize: function(options){
         Sidebar.prototype.initialize.apply(this,[options]);
@@ -65,16 +66,16 @@ define(['backbone','jquery','views/Sidebar', 'config'],function(Backbone,$,Sideb
         }},
         ".add-problem-set-option": "new_problem_set",
         "#show-hide-tags-button": {observe: "show_tags", update: function($el, val, model, options){
-            if(val){$el.button("hide")} else { $el.button("reset");}
+            if(val){$el.bootstrapBtn("hide")} else { $el.bootstrapBtn("reset");}
         }},
         "#show-hide-path-button": {observe: "show_path", update: function($el, val, model, options){
-            if(val){$el.button("hide")} else { $el.button("reset");}
+            if(val){$el.bootstrapBtn("hide")} else { $el.bootstrapBtn("reset");}
         }},
         "#show-hide-hints-button": {observe: "show_hints", update: function($el, val, model, options){
-            if(val){$el.button("hide")} else { $el.button("reset");}
+            if(val){$el.bootstrapBtn("hide")} else { $el.bootstrapBtn("reset");}
         }},
         "#show-hide-solutions-button": {observe: "show_solution", update: function($el, val, model, options){
-            if(val){$el.button("hide")} else { $el.button("reset");}
+            if(val){$el.bootstrapBtn("hide")} else { $el.bootstrapBtn("reset");}
         }}
     },
     events: {

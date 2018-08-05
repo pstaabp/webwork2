@@ -4,8 +4,9 @@
 *
 */
 
-define(['jquery','backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList',''],
-function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
+define(['jquery','backbone', 'underscore','config','views/TabView',
+    'views/library-views/LibraryProblemsView','models/ProblemList','apps/util'],
+function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList,util){
     var LibraryView = TabView.extend({
         className: "library-view",
     	initialize: function (options){
@@ -40,8 +41,8 @@ function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
     	},
     	render: function (){
             var self = this,i;
-            //var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
-            //modes.push("None");
+            var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
+            modes.push("None");
 
     		this.$el.html(_.template($("#library-view-template").html(),
                     {displayModes: modes, sets: this.problemSets.pluck("set_id")}));
@@ -113,7 +114,7 @@ function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
     	loadProblems: function (opts){
             var self = this;
             this.problemsFetched = false;
-            this.$(".load-library-button").button("loading");
+            this.$(".load-library-button").bootstrapBtn("loading");
             var _path;
             if(this.libraryTreeView && this.libraryTreeView.fields){
                 _path = this.libraryTreeView.fields.values();

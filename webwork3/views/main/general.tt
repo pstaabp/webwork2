@@ -219,6 +219,10 @@
 </table>
 </script>
 
+<script type="text/template" id="long-message-template">
+<div class="message-time"><%=time%></div>
+<div><%=text%>
+</script>
 
 <script type="text/template" id="general-messages">
 <%

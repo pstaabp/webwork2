@@ -172,9 +172,9 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/
                                                 placeholder: "sortable-placeholder",axis: "y",
                                                 stop: this.reorder});
             }
-<<<<<<< HEAD
+
             this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
-=======
+
             // check if all of the problems are rendered.  When they are, trigger an event
             //
             // I think this needs work.  It appears that MathJax fires lots of "Math End" signals,
@@ -195,9 +195,8 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/
                       });
                 }
             })
-            this.showPath(this.show_path);
-            this.showTags(this.show_tags);
->>>>>>> ww3-feature/editor
+//            this.showPath(this.show_path);
+        //    this.showTags(this.show_tags);
             this.updatePaginator();
             this.updateNumProblems();
             return this;
@@ -208,27 +207,26 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/
             this.set({problems: new ProblemList()}).render();
         },
         updateNumProblems: function () {
-<<<<<<< HEAD
-            var numPerPage = _(this.pages).map(function(page){
-               return  _(page).reduce(function(num,obj){ return num + parseInt(obj.leader?1:0);},0); });
-            var totalProbs = _(numPerPage).reduce(function(num,page) { return num+page;},0);
-            if (totalProbs>0){
-                var start = 1,i;
-                for(i=0;i<this.state.get("current_page"); i++)
-                    start += numPerPage[i];
-                end = start-1+numPerPage[this.state.get("current_page")];
-                this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
-                    opts: {probFrom: start, probTo:end,total: totalProbs }}));
-            }
+// <<<<<<< HEAD
+//             var numPerPage = _(this.pages).map(function(page){
+//                return  _(page).reduce(function(num,obj){ return num + parseInt(obj.leader?1:0);},0); });
+//             var totalProbs = _(numPerPage).reduce(function(num,page) { return num+page;},0);
+//             if (totalProbs>0){
+//                 var start = 1,i;
+//                 for(i=0;i<this.state.get("current_page"); i++)
+//                     start += numPerPage[i];
+//                 end = start-1+numPerPage[this.state.get("current_page")];
+//                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
+//                     opts: {probFrom: start, probTo:end,total: totalProbs }}));
+//             }
+//
+//             var num_problem_row_height = $(".num-problems").parent().outerHeight(true);
+//             var tab_height = $(".set-details-tab").parent().outerHeight(true);
+//             var navbar_height = $(".navbar-fixed-top").outerHeight(true);
+//             var footer_height = $(".navbar-fixed-bottom").outerHeight(true);
+//             this.$(".prob-list").height($(window).height()-num_problem_row_height-tab_height
+//                                                 -navbar_height-footer_height);
 
-            var num_problem_row_height = $(".num-problems").parent().outerHeight(true);
-            var tab_height = $(".set-details-tab").parent().outerHeight(true);
-            var navbar_height = $(".navbar-fixed-top").outerHeight(true);
-            var footer_height = $(".navbar-fixed-bottom").outerHeight(true);
-            this.$(".prob-list").height($(window).height()-num_problem_row_height-tab_height
-                                                -navbar_height-footer_height);
-
-=======
             if (this.problems.size()>0){
                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
                     opts: {probFrom: (this.pageRange[0]+1), probTo:(_(this.pageRange).last() + 1),
@@ -251,7 +249,6 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/
                                                         page_stop:stop,num_pages:this.maxPages}));
             }
             return this;
->>>>>>> ww3-feature/editor
         },
         events: {
             "change .display-mode-options": "changeDisplayMode",
@@ -291,35 +288,34 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView','config','models/
          },
         lastPage: function() {this.state.set("current_page",this.pages.length-1);},
         gotoPage: function(arg){
-<<<<<<< HEAD
-            var page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
-            this.state.set("current_page",page);
-            return this;
-        },
-        updatePaginator: function() {
-            // render the paginator
-            if(! this.pages) { return this;}
-            var start =0,
-                stop = this.pages.length;
-            if(this.pages.length>8){
-                start = (this.state.get("current_page")-4 <0)?0:this.state.get("current_page")-4;
-                stop = start+8<this.pages.length?start+8 : this.pages.length;
-            }
-            if(this.pages.length>1){
-                var tmpl = _.template($("#paginator-template").html());
-                this.$(".problem-paginator").html(tmpl({current_page: this.state.get("current_page"),
-                                                        page_start:start,
-                                                        page_stop:stop,
-                                                        num_pages:this.pages.length}));
-            }
-=======
+
+        //     var page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
+        //     this.state.set("current_page",page);
+        //     return this;
+        // },
+        // updatePaginator: function() {
+        //     // render the paginator
+        //     if(! this.pages) { return this;}
+        //     var start =0,
+        //         stop = this.pages.length;
+        //     if(this.pages.length>8){
+        //         start = (this.state.get("current_page")-4 <0)?0:this.state.get("current_page")-4;
+        //         stop = start+8<this.pages.length?start+8 : this.pages.length;
+        //     }
+        //     if(this.pages.length>1){
+        //         var tmpl = _.template($("#paginator-template").html());
+        //         this.$(".problem-paginator").html(tmpl({current_page: this.state.get("current_page"),
+        //                                                 page_start:start,
+        //                                                 page_stop:stop,
+        //                                                 num_pages:this.pages.length}));
+        //     }
+
             this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
             this.pageRange = this.page_size >0 ? _.range(this.currentPage*this.page_size,
                 (this.currentPage+1)*this.page_size>this.problems.size()? this.problems.size():(this.currentPage+1)*this.page_size)
                     : _.range(this.problems.length);
             this.updatePaginator();
             this.renderProblems();
->>>>>>> ww3-feature/editor
             this.$(".problem-paginator button").removeClass("current-page");
             this.$(".problem-paginator button[data-page='" +
                     this.state.get("current_page") + "']").addClass("current-page");
