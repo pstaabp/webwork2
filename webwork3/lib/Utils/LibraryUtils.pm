@@ -5,6 +5,8 @@ package Utils::LibraryUtils;
 use base qw(Exporter);
 use Path::Class qw/file dir/;
 
+use List::MoreUtils qw/distinct first_index indexes/;
+use WeBWorK::Utils::Tags; 
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
