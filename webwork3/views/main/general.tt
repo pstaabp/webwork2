@@ -113,7 +113,7 @@
   <div class="col-4 btn-group btn-group-sm">
   <%if(showAddTool){%><a class="btn btn-outline-dark add-problem" href="#" title="add to target set">
     <i class="fa fa-plus"></i></a><%}%>
-  <%if(showEditTool){%><a onclick="return false;" class="btn  btn-outline-dark" target="WW_editor" href="#" title="edit">
+  <%if(showEditTool){%><a onclick="return false;" class="btn btn-outline-dark edit-button" href="#" title="edit">
       <i class="fa fa-pencil"></i></a><%}%>
     <%if(showRefreshTool){%>
       <a onclick="return false;" href="#"  class="btn  btn-outline-dark refresh-problem" title="randomize">

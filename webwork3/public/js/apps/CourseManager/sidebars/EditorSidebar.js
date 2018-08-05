@@ -47,7 +47,13 @@ define(['jquery','backbone','views/Sidebar', 'config','apps/util'],function($,Ba
                             .union(this.course_directories)
                             .union(["New Directory"]).value();},
 			defaultOption: {label: "Select Directory...", value: null}
-		}}
+		}},
+        "#add-to-problem-set": {observe: "problem_set",selectOptions: {
+            collection: function(){
+                return this.problemSets.pluck("set_id");
+            },
+            defaultOption: {label: "Select a Problem Set"}
+        }}
     },
     events: {
         "change .problem-display-option": function (evt) { this.trigger("change-display-mode", evt);},

@@ -30,6 +30,9 @@ function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util
     render: function (){
       this.$el.html($("#standard-editor-template").html());
       var currentTab = this.parent.state.get("tabName") || "#select-problem-tab";
+      if(this.model.get("source_file")==""){
+        currentTab = "#select-problem-tab";
+      }
 
       // this.tabs[currentTab.replace("#","").replace(/-/g,"_")]
       //   .setElement(this.$(currentTab)).render();
@@ -37,6 +40,9 @@ function($,module,Backbone, _,Problem,ProblemList,ProblemView,config,moment,util
       this.tabs.edit_problem_tab.setElement(this.$("#edit-problem-tab")).render();
       this.tabs.view_problem_tab.setElement(this.$("#view-problem-tab")).render();
       this.showTab(currentTab);
+      if(this.parent.state.get("source_file")){
+        this.model.set(this.parent.state.pick("source_file"));
+      }
 
       this.stickit();
       util.changeClass({state: this.model.get("editable"),

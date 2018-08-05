@@ -58,7 +58,7 @@ define(['jquery','backbone', 'underscore','config','models/Problem','apps/util',
 
              // the following is messing with the problem editor.  This may need to be
              // updated.
-             
+
             //.on('change:source_file', function(){
             //     self.model.set("data","");
             //     self.render();
@@ -160,6 +160,15 @@ define(['jquery','backbone', 'underscore','config','models/Problem','apps/util',
                 if($(evt.target).val()==-1){
                     //I18N
                     $(evt.target).val("unlimited");
+                }
+            },
+            "click .edit-button": function(evt){
+                var ed  = this.libraryView && this.libraryView.eventDispatcher;
+                if (typeof ed === "undefined"){
+                    ed = this.problem_set_view && this.problem_set_view.eventDispatcher;
+                }
+                if (ed){
+                    ed.trigger("edit-problem", this.model);
                 }
             }
         },

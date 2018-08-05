@@ -19,45 +19,50 @@ function(module,$, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
 var CourseManager = WebPage.extend({
     messageTemplate: _.template($("#course-manager-messages-template").html()),
     initialize: function(){
-        WebPage.prototype.initialize.apply(this,{el: this.el});
-        _(this).bindAll("showProblemSetDetails","changeViewAndSidebar","stopActing","logout");
+      WebPage.prototype.initialize.apply(this,{el: this.el});
+      _(this).bindAll("showProblemSetDetails","changeViewAndSidebar","stopActing","logout");
 	    var self = this;
 
-        this.render();
-        this.session = (module.config().session)? module.config().session : {};
-        this.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
-        this.users = (module.config().users) ? new UserList(module.config().users) : null;
-        this.user_info = (module.config().user_info) ? new User(module.config().user_info): null;
-        // We need to pass the standard date settings to the problemSets.
-        var dateSettings = util.pluckDateSettings(this.settings);
-        this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true,
-                dateSettings: dateSettings}) : null;
+      this.render();
+      this.session = (module.config().session)? module.config().session : {};
+      this.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
+      this.users = (module.config().users) ? new UserList(module.config().users) : null;
+      this.user_info = (module.config().user_info) ? new User(module.config().user_info): null;
+      // We need to pass the standard date settings to the problemSets.
+      var dateSettings = util.pluckDateSettings(this.settings);
+      this.problemSets = (module.config().sets) ? new ProblemSetList(module.config().sets,{parse: true,
+              dateSettings: dateSettings}) : null;
 
-        _.extend(config.courseSettings,{course_id: module.config().course_id,user: this.session.user});
-        if(this.session.user_id&&this.session.logged_in==1){
-            this.startManager();
-        } else {
-            this.requestLogin({success: function (data) {
-                    // save the new session key and reload the page.
-                    self.session.key = data.session_key;
-                    window.location.reload();
-                }
-            });
+      _.extend(config.courseSettings,{course_id: module.config().course_id,user: this.session.user});
+      if(this.session.user_id&&this.session.logged_in==1){
+          this.startManager();
+      } else {
+          this.requestLogin({success: function (data) {
+                  // save the new session key and reload the page.
+                  self.session.key = data.session_key;
+                  window.location.reload();
+              }
+          });
+      }
+
+      $(document).ajaxError(function (e, xhr, options, error) {
+          if(xhr.status==419){
+              self.requestLogin({success: function(){
+                  self.loginPane.close();
+              }});
+          }
+      });
+
+      // This is the way that general messages are handled in the app
+
+      this.eventDispatcher.on({
+        "show-problem-set": this.showProblemSetDetails,
+        "edit-problem": function(_model){
+            console.log("it's time to edit.")
+            self.changeView("problemEditor",_model.pick("source_file"));
+            self.changeSidebar(self.mainViewList.getDefaultSidebar("problemEditor"),{is_open: true});
         }
-
-        $(document).ajaxError(function (e, xhr, options, error) {
-            if(xhr.status==419){
-                self.requestLogin({success: function(){
-                    self.loginPane.close();
-                }});
-            }
-        });
-
-        // This is the way that general messages are handled in the app
-
-        this.eventDispatcher.on({
-                "show-problem-set": this.showProblemSetDetails
-        });
+      });
 
 
     },
