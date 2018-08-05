@@ -4,23 +4,25 @@
 #
 ##
 
-#package Routes::Library;
+package Routes::Library;
 
 #use strict;
 #use warnings;
-#use Dancer ':syntax';
-use Dancer::Plugin::Database;
+use Dancer2 appname => "Routes::Login";
+use Dancer2::Plugin::Database;
+use Data::Dump qw/dump/;
 use Path::Class;
 use File::Find::Rule;
-use List::MoreUtils qw/distinct/;
+use File::Slurp;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
-use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags getProblemTagsFromDB render/;
+use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render render2/;
 use Utils::ProblemSets qw/record_results/;
-use Utils::Authentication qw/checkPermissions setCourseEnvironment/;
+use HTML::Entities qw/decode_entities/;
 use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
 use WeBWorK::Constants;
+use Data::Dump qw/dd/;
 
 get '/library/subjects' => sub {
 
@@ -31,8 +33,7 @@ get '/library/subjects' => sub {
 	    local $/;
 	    <$json_fh>
 	};
-
-	return $json_text;
+	return decode_json($json_text);
 
 };
 
@@ -51,7 +52,7 @@ get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => s
 
 	my ($subj,$chap,$sect) = splat;
 
-	return searchLibrary({subject=>$subj,chapter=>$chap,section=>$sect});
+	return searchLibrary(database,{subject=>$subj,chapter=>$chap,section=>$sect});
 };
 
 
@@ -69,13 +70,13 @@ get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 
 	my ($subj,$chap) = splat;
 
-	return searchLibrary({subject=>$subj,chapter=>$chap});
+	return searchLibrary(database,{subject=>$subj,chapter=>$chap});
 };
 
 
 ####
 #
-#  get all problems with subject *subject_id* 
+#  get all problems with subject *subject_id*
 #
 #   returns a array of problem paths? (global problem_id's)?
 #
@@ -88,7 +89,7 @@ get qr{\/library\/subjects\/(.+)\/problems} => sub {
 
 	my ($subj) = splat;
 
-	return searchLibrary({subject=>$subj});
+	return searchLibrary(database,{subject=>$subj});
 };
 
 
@@ -113,11 +114,11 @@ get '/library/directories' => sub {
 	    <$json_fh>
 	};
 
-	
 
-	return $json_text;
 
-}; 
+	return decode_json $json_text;
+
+};
 
 #######
 #
@@ -132,7 +133,6 @@ get '/library/directories/**' => sub {
 	## pstaab: trying to figure out the best way to pass the course_id.  It needs to be passed in as a parameter for this
 	##         to work.
 
-	setCourseEnvironment(params->{course_id});
 	my ($dirs) = splat;
 	my @dirs =  shift @{$dirs};# strip the "OpenProblemLibrary" from the path
 	my $path = vars->{ce}->{courseDirs}{templates} ."/Library/". join("/",@$dirs);
@@ -157,23 +157,22 @@ get '/courses/:course_id/library/local' => sub {
 
 	## still need to search for directory with single files and others with ignoreDirectives.
 
-	setCourseEnvironment(params->{course_id});
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
 
 	my $libPath = $path . "/" . "Library";  # hack to get this to work.  Need to make this more robust.
-	
+
     my @dirs = File::Find::Rule->directory()
                                 ->not_name("Pending")
                                 ->not_name("Library")
                                 ->in($path->stringify);
-                                
+
     my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
-    
-    my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files); 
-    
-    debug to_dumper(\@parentDirectories); 
-   
+
+    my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files);
+
+    debug to_dumper(\@parentDirectories);
+
 	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($path)->stringify} }@files;
 	return \@allFiles;
 
@@ -195,18 +194,18 @@ get '/courses/:course_id/library/pending' => sub {
 
 	setCourseEnvironment(params->{course_id});
 	my $pendingDir = dir(vars->{ce}->{courseDirs}{templates},"Pending")->stringify;
-                            
+
 #    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($pendingDir);
-#    
-#    my @parentDirectories = distinct (map { file($_)->stringify() } @files); 
-#    
-    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub { 
+#
+#    my @parentDirectories = distinct (map { file($_)->stringify() } @files);
+#
+    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub {
         my ( $shortname, $path, $fullname ) = @_;
         my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
-        return scalar(@pgfiles)>0;} )->in($pendingDir);  ## return all directories containing pg files.  
-        
+        return scalar(@pgfiles)>0;} )->in($pendingDir);  ## return all directories containing pg files.
+
     my @info = ();
-    
+
     for my $dir (@dirs){
         my $fullname = dir($pendingDir,$dir)->stringify;
         my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
@@ -214,23 +213,23 @@ get '/courses/:course_id/library/pending' => sub {
             push(@info, {num_files => scalar(@pgfiles), path => $dir });
         }
     }
-    
 
-    return \@info; 
+
+    return \@info;
 };
 
 
 get '/courses/:course_id/local/testing' => sub {
-    
+
     setCourseEnvironment(params->{course_id});
     my $templateDir = vars->{ce}->{courseDirs}{templates} . "/Indiana";
-        
-    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub { 
+
+    my @dirs = File::Find::Rule->extras({follow => 1})->relative->directory->exec( sub {
         my ( $shortname, $path, $fullname ) = @_;
         my @pgfiles = File::Find::Rule->extras({follow => 1})->file()->name("*.pg")->in($fullname);
-        return scalar(@pgfiles)>0;} )->in($templateDir);  ## return all directories containing pg files.  
-    
-    return \@dirs; 
+        return scalar(@pgfiles)>0;} )->in($templateDir);  ## return all directories containing pg files.
+
+    return \@dirs;
 
 };
 
@@ -247,20 +246,20 @@ get '/courses/:course_id/problems/local/**' => sub {
 
     debug "in /courses/:course_id/problems/local/** ";
     my ($courseID,$dirpath) = splat;
-    
+
     setCourseEnvironment($courseID);
 
-    my @dirs = @$dirpath; 
+    my @dirs = @$dirpath;
     my $selectedDir = dir(vars->{ce}->{courseDirs}{templates},dir(@dirs)->relative(dir("problems","local")));
-    
-    
+
+
     my $localDir = dir(vars->{ce}->{courseDirs}{templates});
-    
+
     debug $localDir->stringify;
-    
+
     my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($selectedDir->stringify);
     my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
-    
+
     return \@allFiles;
 
 
@@ -280,7 +279,7 @@ get '/courses/:course_id/library/setDefinition' => sub {
 
 	## still need to search for directory with single files and others with ignoreDirectives.
 
-	setCourseEnvironment(params->{course_id});
+
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
 
@@ -296,8 +295,8 @@ get '/courses/:course_id/library/setDefinition' => sub {
 		} else {
 			my $relDir = $dir;
 			$relDir =~ s/^$path\/(.*)/$1/;
-			if($dir =~ m|/set[^/]*\.def$|) {  
-				push(@setDefnFiles,$relDir);	
+			if($dir =~ m|/set[^/]*\.def$|) {
+				push(@setDefnFiles,$relDir);
 			}
 		}
 	});
@@ -364,7 +363,7 @@ get '/library/textbooks' => sub {
 
 get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
 
-	return searchLibrary({section_id=>params->{section_id},textbook_id=>params->{textbook_id},
+	return searchLibrary(database,{section_id=>params->{section_id},textbook_id=>params->{textbook_id},
 			chapter_id=>params->{chapter_id}});
 
 };
@@ -379,7 +378,7 @@ get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/p
 
 get '/library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
-	return searchLibrary({textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
+	return searchLibrary(database,{textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
 
 };
 
@@ -393,7 +392,7 @@ get '/library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
 get '/library/textbooks/:textbook_id/problems' => sub {
 
-	return searchLibrary({textbook_id=>params->{textbook_id}});
+	return searchLibrary(database,{textbook_id=>params->{textbook_id}});
 
 };
 
@@ -405,20 +404,20 @@ get '/library/textbooks/:textbook_id/problems' => sub {
 
 get '/textbooks/author/:author_name/title/:title/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title}});
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title}});
 
 };
 
 get '/textbooks/author/:author_name/title/:title/chapter/:chapter/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title},
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
 			textbook_chapter=>params->{chapter}});
 
 };
 
 get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:section/problems' => sub {
 
-	return searchLibrary({textbook_author=>params->{author_name},textbook_title=>params->{title},
+	return searchLibrary(database,{textbook_author=>params->{author_name},textbook_title=>params->{title},
 			textbook_chapter=>params->{chapter},textbook_section=>params->{section}});
 
 };
@@ -433,7 +432,7 @@ get '/textbooks/author/:author_name/title/:title/chapter/:chapter/section/:secti
 #  search the library.  Any of the problem metadata can be called as a parameter to this
 #
 #  return an array of problems that fit the criteria
-#  
+#
 # ###
 
 get '/library/problems' => sub {
@@ -443,7 +442,7 @@ get '/library/problems' => sub {
 		$searchParams->{$key} = params->{$key} if defined(params->{$key});
 	}
 
-	return searchLibrary($searchParams);
+	return searchLibrary(database,$searchParams);
 
 };
 
@@ -453,7 +452,7 @@ get '/library/problems' => sub {
 #
 #  This returns all of the tags from the DB for a problem.  Note: the course_id must be passed as a parameter
 #
-## 
+##
 
 get '/library/problems/:problem_id/tags' => sub {
 
@@ -472,85 +471,84 @@ get '/library/problems/:problem_id/tags' => sub {
 get '/library/taxonomy' => sub {
     setCourseEnvironment("");
     my $file = file(vars->{ce}->{webwork_htdocs_dir},"DATA","tagging-taxonomy.json")->stringify;
-    
+
     my $json_text = do {
         open(my $json_fh, "<:encoding(UTF-8)", $file)  or send_error("The file $file does not exist.",404);
 	    local $/;
 	    <$json_fh>
 	};
-    
+
 	return from_json($json_text);
 };
 
 ###
 #
 # Problem render.  Given information about the problem (problem_id, set_id, course_id, or path) return the
-# HTML for the problem. 
+# HTML for the problem.
 #
-#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF) 
+#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF)
 #
 #  The intention of this route is for rendering a particular problem (i.e. for the library browser)
 #
 ###
 
 any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
-	
-	setCourseEnvironment(params->{course_id});
 
 	my $renderParams = {};
-    	
+
     $renderParams->{displayMode} = params->{displayMode} || vars->{ce}->{pg}{options}{displayMode};
-	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1; 
+	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1;
 	$renderParams->{showHints} = params->{show_hints} eq 'true' ? 1 :  0;
 	$renderParams->{showSolutions} = params->{show_solution} eq 'true' ? 1 : 0;
 	$renderParams->{showAnswers} = 0;
-    
+
 	$renderParams->{user} = fake_user(vars->{db});
 	$renderParams->{set} =  fake_set(vars->{db});
 	$renderParams->{problem} = fake_problem(vars->{db});
 	$renderParams->{problem}->{problem_seed} = params->{problem_seed} || 0;
 	$renderParams->{problem}->{problem_id} = params->{problem_id} || 1;
-    
+
 	# check to see if the problem_path is defined
 
-	if (defined(params->{problem_path})){
+	if (defined(params->{pgSource})){
+		$renderParams->{problem}->{pgSource} = params->{pgSource};
+	} elsif (defined(params->{problem_path})){
 		$renderParams->{problem}->{source_file} = "Library/" . params->{problem_path};
-	} elsif (defined(params->{source_file})){  # this is generally a library problem 
+	} elsif (defined(params->{source_file})){  # this is generally a library problem
 		$renderParams->{problem}->{source_file} = params->{source_file};
-        # get the pgfile_id # 
-        my $file = file(params->{source_file}); 
+        # get the pgfile_id #
+        my $file = file(params->{source_file});
         my $path = $file->dir->stringify;
-        $path =~ s/Library\///; 
+        $path =~ s/Library\///;
         my $pathdb = database->quick_select('OPL_path',{path=>$path});
-        my $path_id = $pathdb->{path_id} if $pathdb; 
+        my $path_id = $pathdb->{path_id} if $pathdb;
         my $pgfile = database->quick_select('OPL_pgfile',{path_id => $path_id, filename=> $file->basename});
-        my $pgfile_id = 0;  # needed for a fix.  Why doesn't a pgfile have an id? 
+        my $pgfile_id = 0;  # needed for a fix.  Why doesn't a pgfile have an id?
         $pgfile_id = $pgfile->{pgfile_id} if $pgfile;
-        $renderParams->{problem}->{problem_id} = $pgfile_id; 
-	} elsif ((params->{problem_id} =~ /^\d+$/) && (params->{problem_id} > 0)){  
+        $renderParams->{problem}->{problem_id} = $pgfile_id;
+	} elsif ((params->{problem_id} =~ /^\d+$/) && (params->{problem_id} > 0)){
 			# try to look up the problem_id in the global database;
-
-		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => param('problem_id')});
+		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => route_parameters->{problem_id}});
 		my $path_id = $problem_info->{path_id};
 		my $path_header = database->quick_select('OPL_path',{path_id=>$path_id})->{path};
 		$renderParams->{problem}->{source_file} = file("Library" ,$path_header , $problem_info->{filename})->stringify;
-	} 
+	}
 
     my $rp = render(vars->{ce},$renderParams);
     my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
-    #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file. 
-    #$rp->{tags} = getProblemTagsFromDB(-1); 
+    #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
+    #$rp->{tags} = getProblemTagsFromDB(-1);
 	return $rp;
 };
 
 ###
 #
 # Problem render for a UserProblem.  Given information about the problem (problem_id, set_id, course_id, or path) return the
-# HTML for the problem. 
+# HTML for the problem.
 #
-#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF) 
+#  The displayMode parameter will determine the exact HTML code that is returned (images, MathJax, plain, PDF)
 #
-#  If the request is a post, then it is assumed that the answers are submitted to be recorded.  
+#  If the request is a post, then it is assumed that the answers are submitted to be recorded.
 #
 ###
 
@@ -558,43 +556,41 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
 	send_error("The set " . params->{set_id} . " does not exist.",404) unless vars->{db}->existsGlobalSet(params->{set_id});
 
-	send_error("The problem with id " . params->{problem_id} . " does not exist in set " . params->{set_id},404) 
+	send_error("The problem with id " . params->{problem_id} . " does not exist in set " . params->{set_id},404)
 		unless vars->{db}->existsGlobalProblem(params->{set_id},params->{problem_id});
 
-	send_error("The user " . params->{user_id} . " is not assigned to the set " . params->{set_id} . ".") 
+	send_error("The user " . params->{user_id} . " is not assigned to the set " . params->{set_id} . ".")
 		unless vars->{db}->existsUserProblem(params->{user_id},params->{set_id},params->{problem_id});
 
 
 	my $renderParams = {};
 
-    $renderParams->{displayMode} = param('displayMode') || vars->{ce}->{pg}{options}{displayMode};
-    
+  $renderParams->{displayMode} = query_parameters->get('displayMode') || body_parameters->get('displayMode')
+      || vars->{ce}->{pg}{options}{displayMode};
+
     ### The user is not a professor
-    
-    checkPermissions(0,session->{user});
 
-    if(session->{permission} < 10){  ### check that the user belongs to the course and set. 
+  if(session->{permission} < 10){  ### check that the user belongs to the course and set.
 
-    	send_error("You are a student and must be assigned to the set " . params->{set_id},404)
-    		unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
+  	send_error("You are a student and must be assigned to the set " . params->{set_id},404)
+  		unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
 
-    	# these should vary depending on number of attempts or due_date or ???
-    	$renderParams->{showHints} = 0;
-    	$renderParams->{showSolutions} = 0;
-    	$renderParams->{showAnswers} = 0; 
+  	# these should vary depending on number of attempts or due_date or ???
+  	$renderParams->{showHints} = 0;
+  	$renderParams->{showSolutions} = 0;
+  	$renderParams->{showAnswers} = 0;
 
-    } else { 
+  } else {
 		$renderParams->{showHints} = defined(param('show_hints'))? int(param('show_hints')) : 0;
 		$renderParams->{showSolutions} = defined(param('show_solutions'))? int(param('show_solutions')) : 0;
 		$renderParams->{showAnswers} = defined(param('show_answers'))? int(param('show_answers')) : 0;
-    }	
+  }
 
 	$renderParams->{problem} = vars->{db}->getMergedProblem(params->{user_id},params->{set_id},params->{problem_id});
 	$renderParams->{user} = vars->{db}->getUser(params->{user_id});
-	$renderParams->{set} = vars->{db}->getMergedSet(params->{user_id},params->{set_id});		
+	$renderParams->{set} = vars->{db}->getMergedSet(params->{user_id},params->{set_id});
 
-	my $results = render($renderParams);
-
+	my $results = render(vars->{ce},vars->{db},$renderParams);
 
 	## if it was a post request, then we record the the results in the log file and in the past_answer database
 	if(request->is_post){
@@ -607,6 +603,132 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 };
 
 
+
+
+####
+#
+#  get put the PG source of a problem in the library.
+#
+####
+
+get '/library/fullproblem' => sub {
+	Routes::Login::setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+
+	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
+	my $problemSource = read_file_content($fullpath);
+	send_error("The problem with path " + params->{path} + " does not exist.",403) unless defined($problemSource);
+
+	return {problem_source=>$problemSource};
+};
+
+### not sure what this is for.
+
+put '/library/fullproblem' => sub {
+	Routes::Login::setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+
+	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
+
+	# test to make sure that it is not writing to the OPL
+
+	# test permissions
+
+	my $test = write_file($fullpath,params->{problem_source});
+
+	debug $test;
+
+};
+
+###
+#  This is a generic path that renders a problem if the source is passed to it.
+#
+#  Note: this is mainly for testing and for scripts to renderer a number of a problems in a directory.
+#
+###
+
+
+post '/renderer' => sub {
+
+	my $source = decode_entities params->{source} if defined(params->{source});
+
+	my $problem = fake_problem(vars->{db});
+	$problem->{problem_seed} = params->{seed} || 1;
+	$problem->{problem_id} = 1;
+	$problem->{source_file} = params->{source_file} || "this_is_a_fake_path";
+
+    my $renderParams = {
+		displayMode=>"MathJax",
+		showHints=>0,
+		showSolutions=>0,
+		showAnswers=>0,
+		problemSeed=>1,
+		user => fake_user(vars->{db}),
+		set => fake_set(vars->{db}),
+		problem => $problem,
+		source => defined($source)?\$source: undef
+	};
+
+	return render(vars->{ce},vars->{db},$renderParams);
+};
+
+####
+#
+# get an array of directories in the templates Directory
+#
+###
+
+sub find_dirs {
+    my $dir         = shift;
+		my @dirs = ();
+		my @subdirs = ();
+
+    opendir my $dh, $dir or die qq{Unable to open directory "$dir": $!};
+    while ( my $node = readdir $dh ) {
+        next if $node eq '.' or $node eq '..' or $node eq 'Library' or $node eq 'tmpEdit';
+        my $abs_path = path($dir,$node);
+				if (-d $abs_path) {
+					@subdirs = find_dirs($abs_path);
+					push(@dirs,$abs_path);
+					push(@dirs,@subdirs) if scalar(@subdirs) >0;
+				}
+   }
+   closedir $dh;
+
+	 return @dirs;
+}
+
+###
+#
+# return an array of directories in the local templates directory
+#
+###
+
+get '/courses/:course_id/pgproblems/directories' => sub {
+
+	my @dirs = find_dirs(vars->{ce}->{courseDirs}{templates});
+	my @rel_dirs = map { $_ =~ /.*\/templates\/(.*)/;} @dirs;  # make these relative paths.
+
+	return {dirs => \@rel_dirs};
+};
+
+###
+#
+# return an array of files in a given local templates directory
+#
+###
+
+get '/courses/:course_id/pgproblems/files' => sub {
+  my $dir = query_parameters->get('directory');
+
+  my $abs_dir = path(vars->{ce}->{courseDirs}{templates},$dir);
+  $abs_dir =~ s/\[TOP\]//;
+
+  send_error("The directory $dir does not exist",404) unless -d $abs_dir;
+
+  opendir my $dh, $abs_dir or die qq{Unable to open directory "$abs_dir": $!};
+  my @files = grep { my $ab_path = path($abs_dir,$_); -f $ab_path && $ab_path =~ m/\.pg$/} readdir($dh);
+  closedir $dh;
+
+  return {files => \@files};
+};
+
 1;
-
-

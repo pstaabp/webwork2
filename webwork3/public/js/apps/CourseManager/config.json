@@ -41,6 +41,14 @@
 		"id": "problemSetsManager"
 	},
 	{
+		"name": "Problem Editor",
+		"path": "main-views/EditorView",
+        "icon": "fa fa-pencil fa-lg",
+		"default_sidebar": "editorOptions",
+		"other_sidebars" : ["editorOptions"],
+        "id": "problemEditor"
+	},
+	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",
 		"icon": "fa fa-bar-chart-o fa-lg",
@@ -92,6 +100,11 @@
 		"name": "Problem List Options",
 		"path": "sidebars/ProblemListOptionsSidebar",
 		"id": "problemListOptions"
+	},
+	{
+		"name": "Editor Options",
+		"path": "sidebars/EditorSidebar",
+        "id": "editorOptions"
 	},
 	{
 		"name": "Help",

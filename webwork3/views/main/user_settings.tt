@@ -1,34 +1,98 @@
 <script type="text/template" id="user-settings-template">
- <table class="table">
+ <table class="table table-sm">
 <tbody>
-<tr><td class="header">User Name</td><td id="user-id"></td><td class="error-cell"></td></tr>
-<tr><td class="header">Email</td><td><input type="text" id="email" class="form-control"></td>
-  <td class="error-cell"></td></tr>
-<tr><td class="header">Password</td>
-  <td><button class="btn btn-default" id="change-password-button" data-hide-text="Hide Password">Change Password</button></td>
-  <td class="error-cell"></td></tr>
-<tr class="password-row hidden"><td>Old Password</td>
-    <td><input type="password" id="old-password" class="form-control"></td>
-  <td class="error-cell"></td></tr>
-<tr class="password-row hidden"><td>New Password</td>
-    <td><input type="password" id="new-password" class="form-control"></td>
-  <td class="error-cell"></td></tr>
-<tr class="password-row hidden">
-  <td>Confirm New Password</td><td><input type="password" id="confirm-password" class="form-control"></td>
-  <td class="error-cell"></td></tr>
-<tr class="password-row hidden"><td></td>
-    <td><button id="submit-password-button" class="btn btn-primary">Submit New Password</button></td>
-    <td class="error-cell"></td></tr>
-<tr><td class="header">Display Equations Using</td>
-<td class="col-md-2"><select id="display-option" class="form-control input-medium"></select></td><td class="error-cell"></td></tr>
-<tr><td class="header">Show Saved Answers?</td>
-<td><input type="checkbox" id='save-old-answers'></td></tr>
-<tr><td class="header">Show Equation Editor?</td>
-<td><input type="checkbox" id='equation-editor'></td></tr>
-
-<tr><td class="col-md-6">WeBWorK3 saves your history as you navigate the different views/pages.  You may need to reset this if odd behavior occurs. </td><td><button id="reset-history-button" class="btn btn-default">Reset History</button></td></tr>
-</tbody>
+  <tr>
+    <td>
+      <div class="form-group row">
+        <label for="name" class="header col-4 col-form-label">Name</label><div class="col-8">
+            <input type="text" readonly class="form-control-plaintext" id="name">
+          </div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="form-group row">
+        <label for="user-id" class="header col-4 col-form-label">User Name</label><div class="col-8">
+          <input type="text" readonly class="form-control-plaintext" id="user-id">
+        </div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="form-group row">
+        <label for="email" class="header col-4 col-form-label">Email</label><div class="col-8">
+          <input type="text" class="form-control" id="email" placeholder="Email">
+        </div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="form-group row">
+        <label for="change-password-button" class="header col-4 col-form-label">Password</label><div class="col-8">
+          <button class="btn btn-outline-dark" id="change-password-button" data-hide-text="Hide Password">Change Password</button>
+        </div>
+      </div>
+    </td>
+  </tr>
+  <tr class="password-row hidden"><td>
+    <div class="form-group row">
+      <label for="old-password" class="header col-4 col-form-label">Old Password</label><div class="col-8">
+        <input type="password" class="form-control" id="old-password" placeholder="Password">
+      </div>
+    </div>
+  </td></tr>
+  <tr class="password-row hidden"><td>
+    <div class="form-group row">
+      <label for="email" class="header col-4 col-form-label">New Password</label><div class="col-8">
+        <input type="password" class="form-control" id="new-password" placeholder="New Password">
+      </div>
+    </div>
+  </td></tr>
+  <tr class="password-row hidden"><td>
+    <div class="form-group row">
+      <label for="confirm-password" class="header col-4 col-form-label">Conform New Password</label><div class="col-8">
+        <input type="password" class="form-control" id="confirm-password" placeholder="Confirm New Password">
+      </div>
+    </div>
+  </td></tr>
+  <tr class="password-row hidden"><td>
+    <div class="form-group row">
+      <label for="confirm-password" class="header col-4 col-form-label"></label><div class="col-8">
+        <button id="submit-password-button" class="btn btn-outline-dark">Submit New Password</button>
+      </div>
+    </div>
+  </td></tr>
+  <tr><td>
+    <div class="form-group row">
+      <label for="display-option" class="header col-4 col-form-label">Display Equations Using</label><div class="col-4">
+        <select id="display-option" class="form-control input-medium"></select></td>
+      </div>
+    </div>
+  </td><td class="error-cell"></tr>
+  <tr><td>
+    <div class="form-group row">
+      <label for="save-old-answers" class="header col-4 form-check-label">Show Saved Answers?</label><div class="col-8">
+        <input type="checkbox" id='save-old-answers'>
+      </div>
+    </div>
+  </td></tr>
+  <tr><td>
+    <div class="form-group row">
+      <label for="save-old-answers" class="header col-4 form-check-label">Show Equation Editor?</label><div class="col-8">
+        <input type="checkbox" id='equation-editor'>
+      </div>
+    </div>
+  </td></tr>
+  <tr><td>
+    WeBWorK3 saves your history as you navigate the different views/pages.  You may need to reset this if odd behavior occurs.
+    <button id="reset-history-button" class="btn btn-outline-dark">Reset History</button>
+  </td></tr>
 </table>
+<table>
+
 </script>
 
 <script type="text/template" id="user-settings-help-template">

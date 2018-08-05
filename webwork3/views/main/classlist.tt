@@ -7,15 +7,15 @@
         <div class="input-group">
           <input type="text" class="form-control filter-text" placeholder="Filter">
           <span class="input-group-btn">
-            <button class="btn btn-default clear-filter-button" type="button"><i class="fa fa-times"></i></button>
+            <button class="btn  btn-outline-dark clear-filter-button" type="button"><i class="fa fa-times"></i></button>
           </span>
         </div><!-- /input-group -->
       </div><!-- /.col-md-4 -->
     <div class="col-md-3 num-users"></div>
-    
+
     <div class="col-md-5 btn-group btn-sm">
     <div class="btn-group">
-      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Action on Selected
         <span class="caret"></span>
       </button>
@@ -26,7 +26,7 @@
       </ul>
     </div>
       <div class="btn-group">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
           Import/Export Users
           <span class="caret"></span>
         </button>
@@ -38,7 +38,7 @@
         </ul>
         </div>
         <div class="btn-group">
-      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Show Rows
         <span class="caret"></span>
       </button>
@@ -51,7 +51,7 @@
       </ul>
     </div>
     </div>
-        
+
 </div>
 <div class="users-table-container table-responsive"></div>
 <div class="modal-container"></div>
@@ -87,22 +87,38 @@
           <li>Click the <em>Import Students</em> button.  This will add the selected students to this class.</li>
         </ol>
       </li>
-        
+
     </ol>
     </div>
   </div> <!-- div.help-pane -->
-  <div class="form-inline">  
-    <div class="col-md-4">
-      <label for="files">Select file:</label><input class="btn" type="file" id="files" name="files" />
+  <div class="form-inline row">
+    <div class="form-group col-sm-5">
+      <label for="files">File:</label>
+      <input class="btn form-control" type="file" id="files" name="files">
     </div>
-    <div class="col-md-4">
-        <div class="checkbox">
-            <label>Use First Row for Headers<input type="checkbox" id="useFirst"></input></label>
+    <div class="form-group col-sm-3">
+      <label class="checkbox-inline" for="use-first">
+        <input class="file-input-to-disable" type="checkbox" id="use-first" disabled="disabled">
+      Use First Row for Headers</label>
+    </div>
+    <div class="col-sm-2">
+      <select class="file-input-to-disable form-control input-sm" id="create-email" disabled="disabled">
+        <option value="none">Don't create Email/Login</option>
+        <option value="create_email">Create Email from Login Name</option>
+        <option value="create_login">Create Login Name from Email</option>
+      </select>
+    </div>
+  </div>
+  <div class="row form-horizontal hidden">
+    <div class="form-group">
+      <label for="createEmail" class="col-sm-4 control-label">Email Suffix (e.g. @gmail.com)</label>
+      <div class="col-sm-7">
+        <input type="email" class="form-control file-input-to-disable disabled" id="email-suffix" placeholder="Email">
       </div>
-    </div>
-  </div>        
-        
-  <div id="studentTable"></div></p>
+      </div>
+  </div>
+  <div id="studentTable"></div>
+  </div>
 </script>
 
 <script type="text/template" id="imported-from-file-table">
@@ -138,10 +154,10 @@
 </script>
 
 <script type="text/template" id="import-file-buttons">
-  <button class="import-help-button btn btn-default">Help</button>
-  <button class="reload-file btn btn-default disabled">Reload File</button>
-  <button class="cancel-button btn btn-default">Cancel</button>
-  <button class="btn btn-default disabled import-students-button">Import Students</button>
+  <button class="import-help-button btn  btn-outline-dark">Help</button>
+  <button class="reload-file btn  btn-outline-dark disabled">Reload File</button>
+  <button class="cancel-button btn  btn-outline-dark">Cancel</button>
+  <button class="btn  btn-outline-dark disabled import-students-button">Import Students</button>
 </script>
 
 <script type="text/template" id="export-to-file-template">
@@ -182,50 +198,77 @@
     <div class="message-pane alert"></div>
 </script>
 <script type="text/template" id="manual-import-buttons">
-    <button class="btn btn-default add-more-button">Save Student and Add Another</button>
-    <button class="btn btn-default cancel-import-button" data-dismiss="modal">Cancel Import</button>
-    <button class="btn btn-primary action-button">Save Student and Close</button>
+    <button class="btn  btn-outline-dark add-more-button">Save Student and Add Another</button>
+    <button class="btn  btn-outline-dark cancel-import-button" data-dismiss="modal">Cancel Import</button>
+    <button class="btn btn-primary action-button">Save Student and Assign Sets</button>
+    <button class="btn btn-primary save-button hidden">Save Students</button>
 </script>
 <script type="text/template" id="close-button-template">
 <button class="btn btn-primary cancel-import-button" data-dismiss="modal">Close</button>
 </script>
 
-<script type="text/template" id="passwordDialogText">
+<script type="text/template" id="assign-to-users-template">
+<h3>Assign problem sets</h3>
+<p>Assign problem sets to the following users: <%= user_ids.join(", ")%></p>
+<div class="row">
+<div class="col-sm-3">
+  <select class="form-control" multiple="true" size="10" id="assign-to-users-select"></select>
+</div>
+</div>
+</script>
+
+<!-- Password Change templates -->
+
+<script type="text/template" id="change-user-password-template">
     Change the password of the users below:
-    <table id="userPassTable">
+    <table id="user-password-table" class="table">
     <thead>
     <tr><th>First Name</th><th>Last Name </th><th> Login Name </th> <th> New Password </th> </tr>
-    <tbody> 
+    <tbody>
 </tbody>
 </table>
 </script>
+<script type="text/template" id="change-user-password-buttons">
+    <button class="btn  btn-outline-dark cancel-import-button" data-dismiss="modal">Cancel Change</button>
+    <button class="btn btn-primary action-button">Save Changes</button>
+</script>
+
+<script type="text/template" id="change-password-row-template">
+  <td class="first-name"></td><td class="last-name"></td><td class="user-id"></td>
+  <td><input type='text' class='new-password form-control'></input></td>
+</script>
+
 
 <script type="text/template" id="emailStudentTemplate">
     Send email to the following students:  (Note: this is not currently functional.) <br/>
     <span id="emailStudentList"></span><br/>
     <textarea id="emailText" cols="40" rows="10"></textarea>
-    
+
 </script>
 
-<script type="text/template" id="change-password-row-template">
-  <td class="first-name"></td><td class="last-name"></td><td class="user-id"></td>
-  <td><input type='text' size='10' class='new-password'></input></td>
-</script>
+
 
 <script type="text/template" id="classlist-messages">
 <%
 var messages = {
 	    user_saved: function(opt){ return "User " + opt.username + " saved.";},
-    user_saved_details: function(opt){return "The value of " + opt.key + " in the user " 
+    user_saved_details: function(opt){return "The value of " + opt.key + " in the user "
       + opt.username + " has changed from " + opt.oldValue + " to " + opt.newValue + ".";},
     user_added: function(opt){ return "User " + opt.username + " was added.";},
     user_added_details: function(opt){ return "A user with login name " + opt.username + " was added to the course.";},
     user_removed: function(opt){ return "User " + opt.username + " was removed.";},
     user_removed_details: function(opt){ return "The user with login name " + opt.username + " was removed from the course.";},
     csv_file_needed: function() { return "You must upload a csv or lst (classlist) file."},
-    man_user_added: function(opt){ return "The users with login names " + opt.users.join(", ") + " will be added "
-    "to the course when you close this dialog."},
-    user_already_exists: function (opt) { return "The user with login name " + opt.user_id + " is already enrolled in the course."}
+    man_user_added: function(opt){ return "The users with login names " + opt.users.join(", ") + " will be added " +
+      "to the course when you close this dialog."},
+    user_already_exists: function (opt) { return "The user(s) with login name(s): " + opt.users.join(", ")
+        + " is/are already enrolled in the course.  If you import these users, they will be skipped."},
+    unique_header: function() { return "Each column header must be unique."},
+    required_headers: function(opt) { return "There must be the following fields imported: " + opt.headers.join(", ")},
+    duplicate_headers: function(opt) { return "You have the following headers listed more than once: " + opt.headers.join(", ")},
+    input_error: function(opt) { return "The property " + opt.prop + " with value " + opt.val + " has the following error:"
+          + opt.msg;},
+    short_pass: function () { return "The new password should not be less than 6 characters";}
 };
 print(messages[type](typeof(opts)=="undefined"?{}:opts));
 %>
@@ -235,11 +278,11 @@ print(messages[type](typeof(opts)=="undefined"?{}:opts));
 <h4>Classlist Manager Help</h4>
    <p>The Classlist Manager allows you to edit student information as well as perform actions
 (delete, email, act as user) on individuals or a group of students.  Here is a list of features and helpful hints:
-   
+
    <ul>
-   <li>The students are displayed in pages (default of 10, but this can be changed under "Settings").  To sort by a column, 
+   <li>The students are displayed in pages (default of 10, but this can be changed under "Settings").  To sort by a column,
    click on the column header and the results will be displayed in ascending order.  Click again, and the results will be
-   shown in descending order.  
+   shown in descending order.
    <li> To edit a student&apos;s information (name, email, section, recitation,
    comment or permission),click on the appropriate property to change and retype or select the correct information. The changes will be saved and you will receive a message in the navigation bar.  Note: the columns <em>Login Name</em> and <em>Assigned Sets</em> cannot be changed. </li>
    <li> There are a number of actions (email, change password, delete user, act as user) that you can perform:  To perform an action on an individual student, click on the "select" popup list in the <em>Action</em> column. </li>
@@ -255,4 +298,3 @@ all rows in the table.  </li>
 
 </p>
 </script>
-

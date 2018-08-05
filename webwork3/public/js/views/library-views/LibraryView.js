@@ -1,59 +1,51 @@
 /*
-*  This is the a view of a library (subject, directories, or local) typically within a LibraryBrowser view. 
-*
-*  This contains the basic functionality of each of the types of library views.  
-*
-*  There are two other views contained in this one: 
-*        1) LibraryTreeView which displays a series of select options to each library type
-*        2) LibraryProblemsView which displays the problems after they have been selected.  
+*  This is the a view of a library (subject, directories, or local) typically within a LibraryBrowser view.
 *
 *
-*
-*  It is intended for this to be extended (subclasses).  The methods in here handle most of the 
-*  basic library functions.  
-*/ 
+*/
 
-define(['backbone', 'underscore','apps/util','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList'], 
-function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
+define(['jquery','backbone', 'underscore','config','views/TabView','views/library-views/LibraryProblemsView','models/ProblemList',''],
+function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList){
     var LibraryView = TabView.extend({
         className: "library-view",
     	initialize: function (options){
     		var self = this;
             _.bindAll(this,'addProblem','loadProblems','showProblems','changeDisplayMode','setTargetSet');
-            this.editTags = false; 
+            this.editTags = false;
             _(this).extend(_(options).pick("parent","problemSets","libBrowserType","settings"
                                             ,"eventDispatcher","messageTemplate","editTags"));
-            
-            this.libraryProblemsView = new LibraryProblemsView({libraryView: this, 
+
+            this.libraryProblemsView = new LibraryProblemsView({libraryView: this,
                                                                 messageTemplate: this.messageTemplate,
-                                                                problemSets: this.problemSets, 
+                                                                problemSets: this.problemSets,
                                                                 settings: this.settings, editTags: this.editTags})
                 .on("page-changed",function(num){
                     self.tabState.set("page_num",num);
                 })
             TabView.prototype.initialize.apply(this,[options]); // call the TabView constructor
-            
-            // when the libraryView is created, the problems haven't been fetched. 
-            // This won't be in the tabState because we don't want those results saved.  
-            this.problemsFetched = false; 
+
+            // when the libraryView is created, the problems haven't been fetched.
+            // This won't be in the tabState because we don't want those results saved.
+            this.problemsFetched = false;
             this.on("goto-first-page",function() {
                 self.tabState.set("page_num",0);
-                this.libraryProblemsView.gotoPage(0); 
+                this.libraryProblemsView.gotoPage(0);
             })
             this.problemSets.each(function(_set){
                 _set.on("change", function(_set){
                     self.libraryProblemsView.highlightCommonProblems()
                 });
-            }); 
-            
+            });
+
     	},
     	render: function (){
             var self = this,i;
             //var modes = this.settings.getSettingValue("pg{displayModes}").slice(0); // slice makes a copy of the array.
             //modes.push("None");
 
-    		this.$el.html($("#library-view-template").html());
-            if(this.libraryTreeView && this.libraryTreeView.fields){
+    		this.$el.html(_.template($("#library-view-template").html(),
+                    {displayModes: modes, sets: this.problemSets.pluck("set_id")}));
+            if(this.libraryTreeView){
                 var _fields = {};
                 for(i=0;i<4;i++){
                     _fields["level"+i] = this.tabState.get("library_path")[i];
@@ -63,7 +55,7 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
                     self.libraryProblemsView.reset();
                     self.tabState.set("library_path",model.values());
                 });
-                
+
             }
             if(this.libraryTreeView){
                 this.libraryTreeView.setElement(this.$(".library-tree-container")).render();
@@ -85,7 +77,7 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
             this.libraryProblemsView.state.set("display_mode",this.parent.state.get("display_mode"));
             //this.libraryProblemsView.changeDisplayMode(
         },
-        resetDisplayModes: function(){  // needed if there no target set was selected. 
+        resetDisplayModes: function(){  // needed if there no target set was selected.
             this.$('.target-set').css('background-color','white');
             this.$('.target-set').popover("hide");
         },
@@ -108,36 +100,36 @@ function(Backbone, _,util,TabView,LibraryProblemsView, ProblemList){
             var self = this;
             this.tabState.set("rendered",true);
             // I18N
-            this.$(".load-library-button").button("reset").text("Load " + this.problemList.length + " problems");  
+            this.$(".load-library-button").bootstrapBtn("reset").text("Load " + this.problemList.length + " problems");
             this.libraryProblemsView.set({problems: this.problemList, type:this.libBrowserType})
                     .updateProblems().renderProblems().highlightCommonProblems()
                     .showProperty({show_path: this.parent.state.get("show_path")})
                     .showProperty({show_tags: this.parent.state.get("show_tags")})
-            this.parent.state.on("change:show_path change:show_tags change:show_hints " + 
+            this.parent.state.on("change:show_path change:show_tags change:show_hints " +
                                     "change:show_solution",function(_state){
                 self.libraryProblemsView.showProperty(_state.changed);
             })
         },
-    	loadProblems: function (opts){ 
-            var self = this; 
-            this.problemsFetched = false; 
-            this.$(".load-library-button").button("loading"); 
+    	loadProblems: function (opts){
+            var self = this;
+            this.problemsFetched = false;
+            this.$(".load-library-button").button("loading");
             var _path;
             if(this.libraryTreeView && this.libraryTreeView.fields){
                 _path = this.libraryTreeView.fields.values();
             }
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             if(opts && opts.directory){
-                this.problemList.dir = opts.directory;    
+                this.problemList.dir = opts.directory;
             }
             this.problemList.fetch({success: function(){
-                self.problemsFetched = true; 
+                self.problemsFetched = true;
                 self.showProblems();
             }});
     	},
         sidebarChanged: function(){
             // disable problem dragging unless the sidebar is problem set
-            util.changeClass({state: this.parent.state.get("sidebar")=="problemSets", 
+            util.changeClass({state: this.parent.state.get("sidebar")=="problemSets",
                                 els: this.$(".drag-handle"), remove_class: "disabled"});
         }
     });

@@ -29,7 +29,7 @@ use warnings;
 use WeBWorK::CGI;
 use WeBWorK::Debug;
 use WeBWorK::ContentGenerator::Grades;
-use WeBWorK::Utils qw(wwRound);
+use WeBWorK::Utils qw(jitar_id_to_seq jitar_problem_adjusted_status wwRound);
 #use WeBWorK::Utils qw(readDirectory list2hash max sortByName);
 use WeBWorK::Utils::SortRecords qw/sortRecords/;
 use WeBWorK::Utils::Grades qw/list_set_versions/;
@@ -78,13 +78,13 @@ sub title {
 	return "" unless $authz->hasPermissions($user, "access_instructor_tools");
 	
 	my $type                = $self->{type};
-	my $string              = $r->maketext("Student Progress for")." ".$self->{ce}->{courseName}." ";
+	my $string = '';
 	if ($type eq 'student') {
-		$string             .= $r->maketext("student")." ".$self->{studentName};
+	  $string = $r->maketext("Student Progress for [_1] student [_2]", $self->{ce}->{courseName}, $self->{studentName});
 	} elsif ($type eq 'set' ) {
-		$string             .= $r->maketext("set")." ".$self->{setName};
-		$string             .= ".&nbsp;&nbsp;&nbsp; ".$r->maketext("Due")." ". $self->formatDateTime($self->{set_due_date});
+	  $string = $r->maketext("Student Progress for [_1] set [_2]. Closes [_3]", $self->{ce}->{courseName}, $self->{setName}, $self->formatDateTime($self->{set_due_date}));
 	}
+
 	return $string;
 }
 sub siblings {
@@ -106,7 +106,7 @@ sub siblings {
 	                                        courseID => $courseID);
 	
 	print CGI::start_div({class=>"info-box", id=>"fisheye"});
-	print CGI::h2("Student Progress");
+	print CGI::h2($r->maketext("Student Progress"));
 	#print CGI::start_ul({class=>"LinksMenu"});
 	#print CGI::start_li();
 	#print CGI::span({style=>"font-size:larger"}, CGI::a({href=>$self->systemLink($stats)}, 'Statistics'));
@@ -274,7 +274,6 @@ sub displaySets {
 	my $user             = $r->param('user');
 	my $GlobalSet        = $self->{setRecord};
 	my $root             = $ce->{webworkURLs}->{root};
-	
 	my $setStatsPage     = $urlpath->newFromModule($urlpath->module, $r, courseID=>$courseName,statType=>'sets',setID=>$setName);
 	my $primary_sort_method_name = $r->param('primary_sort');
 	my $secondary_sort_method_name = $r->param('secondary_sort'); 
@@ -580,8 +579,8 @@ sub displaySets {
 # 					$longStatus 	= 'X';
 # 				}
 # 			
-# 				$string     .= threeSpaceFill($longStatus);
-# 				$twoString  .= threeSpaceFill($num_incorrect);
+# 				$string     .= fourSpaceFill($longStatus);
+# 				$twoString  .= fourSpaceFill($num_incorrect);
 # 
 # 				$total      += $probValue;
 # 				$totalRight += round_score($status*$probValue) 
@@ -614,10 +613,9 @@ sub displaySets {
 						$testTime = $timeLimit if ( $testTime > $timeLimit );
 						$testTime = sprintf("%3.1f min", $testTime);
 					} elsif ( time() - $userSet->open_date() < $userSet->version_time_limit() ) {
-						$testTime = 'still open';
+						$testTime = $r->maketext('still open');
 					} else {
-						$testTime = 'time limit ' .
-							'exceeded';
+						$testTime = $r->maketext('time limit exceeded');
 					}
 				} else {
 					$dateOfTest = '???';
@@ -751,7 +749,21 @@ sub displaySets {
 	my $problem_header = '';
 	# DBFIXME sort in database
 	my @list_problems = sort {$a<=> $b } $db->listGlobalProblems($setName );
-	$problem_header = '<pre>'.join("", map {&threeSpaceFill($_)}  @list_problems  ).'</pre>';
+
+	# for a jitar set we only get the top level problems
+	if($GlobalSet->assignment_type eq 'jitar') {
+	    my @topLevelProblems; 
+	    
+	    foreach my $id (@list_problems) {
+		my @seq = jitar_id_to_seq($id);
+		push @topLevelProblems, $seq[0] if ($#seq == 0);
+	    }
+	    
+	    @list_problems = @topLevelProblems;
+	}	    
+
+
+	$problem_header = '<pre>'.join("", map {&fourSpaceFill($_)}  @list_problems  ).'</pre>';
 
 # changes for gateways/versioned sets here.  in this case we allow instructors
 # to modify the appearance of output, which we do with a form.  so paste in the
@@ -763,35 +775,32 @@ sub displaySets {
 				       'action' => $self->systemLink($urlpath,authen=>0),'name' => 'StudentProgress'});
 		print $self->hidden_authen_fields();
 		   print CGI::start_div();		   
-			print	  CGI::h4("Display options: Show ");	
+			print	  CGI::h4($r->maketext("Display options: Show"));	
 			print   CGI::start_div({'class'=>'metabox-prefs'});	   
 			print     CGI::hidden(-name=>'returning', -value=>'1'),
 			     CGI::checkbox(-name=>'show_best_only', -value=>'1', 
 					   -checked=>$showBestOnly, 
-					   -label=>'only best scores'),
-#			     CGI::checkbox(-name=>'show_index', -value=>'1', 
-#					   -checked=>$showColumns{'index'},
-#					   -label=>' success indicator; '),
+					   -label=>$r->maketext('only best scores')),
 			     CGI::checkbox(-name=>'show_date', -value=>'1', 
 					   -checked=>$showColumns{'date'},
-					   -label=>'test date'),
+					   -label=>$r->maketext('test date')),
 			     CGI::checkbox(-name=>'show_testtime', -value=>'1', 
 					   -checked=>$showColumns{'testtime'},
-					   -label=>'test time'),
+					   -label=>$r->maketext('test time')),
 			     CGI::checkbox(-name=>'show_problems', -value=>'1', 
 					   -checked=>$showColumns{'problems'},
-					   -label=>'problems'),
+					   -label=>$r->maketext('problems')),
 			     CGI::checkbox(-name=>'show_section', -value=>'1', 
 					   -checked=>$showColumns{'section'}, 
-					   -label=>'section #'),
+					   -label=>$r->maketext('section #')),
 			     CGI::checkbox(-name=>'show_recitation', -value=>'1', 
 					   -checked=>$showColumns{'recit'},
-					   -label=>'recitation #'),
+					   -label=>$r->maketext('recitation #')),
 			     CGI::checkbox(-name=>'show_login', -value=>'1', 
 					   -checked=>$showColumns{'login'}, 
-					   -label=>'login'), CGI::br();
+					   -label=>$r->maketext('login')), CGI::br();
 			print CGI::end_div();		    
-			print CGI::submit(-value=>'Update Display');	
+			print CGI::submit(-value=>$r->maketext('Update Display'));	
 		print CGI::end_div();
 		print CGI::end_form();
 	  print CGI::end_div();
@@ -801,11 +810,7 @@ sub displaySets {
 	print
 #		CGI::br(),
 		CGI::br(),
-		CGI::p({},$r->maketext('A period (.) indicates a problem has not been attempted, a &quot;C&quot; indicates a problem has been answered 100% correctly, and a number from 0 to 99 indicates the percentage of partial credit earned. The number on the second line gives the number of incorrect attempts.'),
-#		'The success indicator,' ,CGI::i('Ind'),', for each student is calculated as',
-#		CGI::br(),
-#		'100*(totalNumberOfCorrectProblems / totalNumberOfProblems)^2 / (AvgNumberOfAttemptsPerProblem)',CGI::br(),
-#		'or 0 if there are no attempts.'
+		CGI::p({},$r->maketext('A period (.) indicates a problem has not been attempted, and a number from 0 to 100 indicates the grade earned. The number on the second line gives the number of incorrect attempts.'),
 		),
 		CGI::br(),
 		$r->maketext("Click on a student's name to see the student's version of the homework set. Click heading to sort table."),
@@ -826,7 +831,7 @@ sub displaySets {
 	    print
 		CGI::start_table({-class=>"progress-table", -border=>5,style=>'font-size:smaller'}),
 		CGI::Tr(CGI::td(  {-align=>'left'},
-			['Name'.CGI::br().CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'first_name', %past_sort_methods})},$r->maketext('First')).
+			[$r->maketext('Name').CGI::br().CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'first_name', %past_sort_methods})},$r->maketext('First')).
 			   '&nbsp;&nbsp;&nbsp;'.CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'last_name', %past_sort_methods })},$r->maketext('Last')).CGI::br().
 			   CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'email_address', %past_sort_methods })},'Email'),
 			CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'score', %past_sort_methods})},$r->maketext("Score")),
@@ -855,21 +860,21 @@ sub displaySets {
 		);
 		my %params = (%past_sort_methods, %display_options);
 	    my @columnHdrs = ();
-	    push( @columnHdrs, 'Name'.CGI::br().CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'first_name', %params})},$r->maketext('First')).
+	    push( @columnHdrs, $r->maketext('Name').CGI::br().CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'first_name', %params})},$r->maketext('First')).
 		  '&nbsp;&nbsp;&nbsp;'.CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'last_name', %params })},$r->maketext('Last')) );
-	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'score', %params})},'Score') );
+	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'score', %params})},$r->maketext('Score')) );
 	    push( @columnHdrs, $r->maketext('Out Of') );
-	    push( @columnHdrs, 'Date' ) if ( $showColumns{ 'date' } );
-	    push( @columnHdrs, 'TestTime' ) if ( $showColumns{ 'testtime' } );
+	    push( @columnHdrs, $r->maketext('Date') ) if ( $showColumns{ 'date' } );
+	    push( @columnHdrs, $r->maketext('Test Time') ) if ( $showColumns{ 'testtime' } );
 #	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'index', %params})},'Ind') )
 #		if ( $showColumns{ 'index' } );
 	    push( @columnHdrs, $r->maketext("Problems").CGI::br().$problem_header )
 		if ( $showColumns{ 'problems' } );
-	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'section', %params})},'Section') )
+	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'section', %params})},$r->maketext('Section')) )
 		if ( $showColumns{ 'section' } );
-	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'recitation', %params})},'Recitation') )
+	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'recitation', %params})},$r->maketext('Recitation')) )
 		if ( $showColumns{ 'recit' } );
-	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'user_id', %params})},'Login Name') )
+	    push( @columnHdrs, CGI::a({"href"=>$self->systemLink($setStatsPage,params=>{primary_sort=>'user_id', %params})},$r->maketext('Login Name')) )
 		if ( $showColumns{ 'login' } );
 
 	    print CGI::start_table({-class=>"progress-table", -border=>5,style=>'font-size:smaller'}),
@@ -947,7 +952,7 @@ sub displaySets {
 				my @cols = ( CGI::td( $fullName ),
 					     CGI::td( $rec->{score} ),
 					     CGI::td({colspan=>$numCol},
-						     CGI::em($self->nbsp("No tests taken."))) );
+						     CGI::em($self->nbsp($r->maketext("No tests taken.")))) );
 				push(@cols, 
 				     CGI::td($self->nbsp($rec->{section})))
 					if ( $showColumns{'section'} );
@@ -1042,11 +1047,18 @@ sub grade_set {
 		}
 		
 		
+	# for jitar sets we only use the top level problems
+	if ($set->assignment_type && $set->assignment_type eq 'jitar') {
+	    my @topLevelProblems;
+	    foreach my $problem (@problemRecords) {
+		my @seq = jitar_id_to_seq($problem->problem_id);
+		push @topLevelProblems, $problem if ($#seq == 0);
+	    }
+	    
+	    @problemRecords = @topLevelProblems;
+	}
 		
-		
-		
-		
-		debug("End collecting problems for set $setName");
+	debug("End collecting problems for set $setName");
 
 	####################
 	# Resort records
@@ -1088,12 +1100,17 @@ sub grade_set {
 				next;
 			}
 			
-		    $status           = $problemRecord->status || 0;
+			$status           = $problemRecord->status || 0;
+
+			if ($set->assignment_type eq 'jitar') {
+			    $status = jitar_problem_adjusted_status($problemRecord,$db);
+			}
+
 			my $attempted     = $problemRecord->attempted;
 			my $num_correct   = $problemRecord->num_correct || 0;
 			my $num_incorrect = $problemRecord->num_incorrect   || 0;
 			$num_of_attempts  = $num_correct + $num_incorrect;
-			
+	
 #######################################################
 			# This is a fail safe mechanism that makes sure that
 			# the problem is marked as attempted if the status has
@@ -1126,14 +1143,14 @@ sub grade_set {
 				$longStatus     = '.';
 			} elsif   ($valid_status) {
 				$longStatus     = 100*wwRound(2,$status);
-				$longStatus='C' if ($longStatus==100);
+				
 			} else	{
 				$longStatus 	= 'X';
 			}
 		
-                        $class = ($longStatus eq 'C')?"correct": (($longStatus eq '.')?'unattempted':'');
-                        $string      .= '<span class="'.$class.'">'.threeSpaceFill($longStatus).'</span>';
-			$twoString      .= threeSpaceFill($num_incorrect);
+                        $class = ($longStatus eq '100')?"correct": (($longStatus eq '.')?'unattempted':'');
+                        $string      .= '<span class="'.$class.'">'.fourSpaceFill($longStatus).'</span>';
+			$twoString      .= fourSpaceFill($num_incorrect);
 			my $probValue   =  $problemRecord->value;
 			$probValue      =  1 unless defined($probValue) and $probValue ne "";  # FIXME?? set defaults here?
 			$total          += $probValue;
@@ -1178,12 +1195,13 @@ sub grade_set {
 #################################
 # Utility function NOT a method
 #################################
-sub threeSpaceFill {
+sub fourSpaceFill {
 	my $num = shift @_ || 0;
 
-	if (length($num)<=1) {return "$num".'&nbsp;&nbsp;';}
-	elsif (length($num)==2) {return "$num".'&nbsp;';}
-	else {return "## ";}
+	if (length($num)<=1) {return "$num".'&nbsp;&nbsp;&nbsp;';}
+	elsif (length($num)==2) {return "$num".'&nbsp;&nbsp;';}
+	elsif (length($num)==3) {return "$num".'&nbsp;';}
+	else {return "### ";}
 }
 
 

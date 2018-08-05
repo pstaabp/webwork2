@@ -1,8 +1,5 @@
 define(['backbone', 'underscore','config','apps/util'], function(Backbone, _, config,util){
     var User = Backbone.Model.extend({
-        initialize: function (model){
-            this.changingAttributes = {};
-        },
         defaults:{
             first_name: "",
             last_name: "",
@@ -17,12 +14,14 @@ define(['backbone', 'underscore','config','apps/util'], function(Backbone, _, co
             logged_in: false,
             displayMode: "",
             showOldAnswers: false,
-            useMathView: false
+            useMathView: false,
+            lis_source_did: ""
         },
-        validation: { 
+        validation: {
             user_id: "checkLogin",
-            email_address: {pattern: "email", required: false}
-        }, 
+            email_address: {pattern: "email", required: false},
+            student_id: {required: true}
+        },
         idAttribute: "_id",
         initialize: function(attrs,opts){
             this.set(this.parse(attrs));
@@ -35,36 +34,45 @@ define(['backbone', 'underscore','config','apps/util'], function(Backbone, _, co
             return (config.userProps.map(function(prop){return util.csvEscape(self.get(prop.shortName));})).join(",") + "\n";
         },
         parse: function(response){
-            // check the response.  Perhaps an error should be thrown a valid value isn't sent from the server. 
+            // check the response.  Perhaps an error should be thrown a valid value isn't sent from the server.
             if(response && response.status){
                 _(config.enrollment_statuses).each(function(enr){
                     if(_(enr.abbrs).contains(response.status)){
-                        response.status = enr.value;        
+                        response.status = enr.value;
                     }
                 })
-                
+            }
+
+            // the permission need to be stored as strings.
+            if(response && ! _.isUndefined(response.permission)){
+              response.permission = "" + response.permission;
             }
             return response;
         },
-        checkLogin: function(){
-            if(!this.get("user_id").match(config.regexp.loginname)){
-                return "The login name is not valid (you can only use the characters a-z,A-Z, 1-9, . and _)"; // add to messageTemplate
-            }
+        checkLogin: function(opt){
+          var user_id = this.get("user_id") || opt;
+          if(!user_id.match(config.regexp.loginname)){
+              return "The login name is not valid (you can only use the characters a-z,A-Z, 1-9, . and _)"; // add to messageTemplate
+          }
         },
         userExists: function(users){
             if(users.findWhere({user_id: this.get("user_id")})){
                 return "The user with login " + this.get("user_id") + " already exists in this course.";
             }
         },
-        // this is separate from the user fields so information is not saved. 
+        // this is separate from the user fields so information is not saved.
         savePassword: function(passwords,options){
+          var success = _.isUndefined(options)? function () {} : (options.success) || function () {};
+          var error = _.isUndefined(options)? function () {} : (options.error) || function () {};
+          console.log(passwords); 
             $.ajax({
-                url: config.urlPrefix + "courses/" + config.courseSettings.course_id + "/users/" + this.get("user_id") 
+                url: config.urlPrefix + "courses/" + config.courseSettings.course_id + "/users/" + this.get("user_id")
                         + "/password",
-                type: "POST",
+                method: "POST",
+                type: "json",
                 data: passwords,
-                success: options.success,
-                error: options.error
+                success: success,
+                error: error
             })
         }
     });

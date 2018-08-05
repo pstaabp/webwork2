@@ -1,67 +1,67 @@
 /*
- *  This is a Message View for delivering messages to the user
- *
- */
+*  This is a Message View for delivering messages to the user
+*
+*/
 
-define(['backbone','underscore','models/MessageList','models/Message'], function(Backbone, _,MessageList,Message){
-	var MessageListView = Backbone.View.extend({
-		id: "message-pane",
-		isOpen: false,
-		initialize: function () {
-			_.bindAll(this,"open","addMessage");
-            this.messages = new MessageList();
-		},
-		render: function() {
-			this.$el.html($("#message-pane-template").html());
-			$("#short-message").on("click",this.open);
-			return this;
-		},
-		events: {"click .close": "close"},
-		open: function(){
-			var self = this;
-			var ul = this.$(".main-message-pane").empty();
-			this.messages.each(function(msg){
-				ul.append( (new MessageView({model: msg})).render().el);
-			});
-			if(! this.isOpen){
-				this.$el.fadeIn("slow", function () { self.$el.css("display","block"); });
-				this.isOpen = true;
-			}
-		},
-		close: function(){
-			var self = this;
-			if(this.isOpen){
-				this.$el.fadeOut("slow", function () { self.$el.css("display","none"); });
-				this.isOpen = false;
-			}
-		},
-		toggle: function (){
-			if(this.isOpen){
-				this.close();
-			} else {
-				this.open();
-			}
-		},
-		addMessage: function(msg){
-			$("#short-message").removeClass("alert-success").removeClass("alert-danger").addClass("alert-" + msg.type)
-				.text(msg.short).show("slide", 1000 );
-			setTimeout(function () {$("#short-message").hide("slide",1000).text("")}, 15000);
-			this.messages.add(new Message(msg));
-			
-		}
-	});
+define(['backbone','jquery','underscore','models/MessageList','models/Message'], function(Backbone,$, _,MessageList,Message){
+  var MessageListView = Backbone.View.extend({
+    id: "message-pane",
+    isOpen: false,
+    message_pane: null,
+    message_number: 0, // this stores the current message number shown on the nav bar.
+    template: $("#message-pane-template").html(),
+    message_queue: new MessageList(),
+    initialize: function () {
+      _(this).bindAll("addMessage","checkQueue");
+      this.messages = new MessageList();  // for storing all messages
+      this.message_queue.on("add",this.checkQueue);
+    },
+    render: function() {
+      var self = this;
+      this.$el.html(this.template);
+      var $j = $.noConflict();
+      this.message_pane = $j("#short-message");
+      return this;
+    },
+    /* the following two functions run the message queue to
+     * display the alert on the navigation bar.
+     *
+     * The first message opens the message popup and then successive messages
+     * 1. add to the this.messageQueue array
+     * 2. start a timeout that takes the first item off the messageQueue
+          displays it and waits 2000 ms.
+       3. Repeat
 
-	var MessageView = Backbone.View.extend({
-		tagName: "li",
-		initialize: function () {
-          
-		},
-		render: function() {
-			this.$el.addClass("alert").addClass("alert-"+this.model.get("type"));
-			this.$el.text(this.model.get("text"));
-			return this;
-		},
-	});
+     */
+    checkQueue: function () {
+      var self = this;
 
-	return MessageListView;
+      var msg = this.message_queue.pop();
+      if(!this.isOpen){
+        this.isOpen = true;
+        this.message_pane.fadeIn({duration: 500}).css("display","block");
+      }
+
+      this.message_pane
+        .removeClass("alert-success alert-danger border-success border-danger")
+        .addClass("alert-" + msg.get("type")).addClass("border-" + msg.get("type"))
+        .text(msg.get("short"))
+        .delay(5000)
+        .queue(function() {
+          if(self.message_queue.size()>0){
+            self.checkQueue();
+          } else {
+              $(this).fadeOut({duration: 500, complete: function() {self.isOpen = false}});
+          }
+          $(this).dequeue();
+        });
+
+    },
+    addMessage: function(msg){
+      this.messages.add(new Message(msg));
+      this.message_queue.push(new Message(msg));
+    }
+  });
+
+  return MessageListView;
 });

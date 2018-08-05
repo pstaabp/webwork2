@@ -1,9 +1,9 @@
 define(['backbone','config'], function(Backbone,config){
 	/**
-	 *   The LibraryTree is a model of the entire WeBWorK library formed as a tree.
-	 *
-	 *   The tree consists of nested arrays.  
-	 **/
+	*   The LibraryTree is a model of the entire WeBWorK library formed as a tree.
+	*
+	*   The tree consists of nested arrays.
+	**/
 
 	var LibraryTree = Backbone.Model.extend({
 

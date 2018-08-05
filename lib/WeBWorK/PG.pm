@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright ï¿½ 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: webwork2/lib/WeBWorK/PG.pm,v 1.76 2009/07/18 02:52:51 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -36,6 +36,7 @@ use constant DISPLAY_MODES => {
 	plainText     => "HTML",
 	images        => "HTML_dpng",
 	MathJax	      => "HTML_MathJax",
+	PTX           => "PTX",
 };
 
 sub new {
@@ -102,7 +103,7 @@ sub defineProblemEnvir {
 	$envir{probFileName}        = $envir{fileName};		 
 	$envir{problemSeed}         = $problem->problem_seed;
 	$envir{displayMode}         = translateDisplayModeNames($translationOptions->{displayMode});
-	$envir{languageMode}        = $envir{displayMode};	 
+#	$envir{languageMode}        = $envir{displayMode};	# don't believe this is ever used. 
 	$envir{outputMode}          = $envir{displayMode};	 
 	$envir{displayHintsQ}       = $translationOptions->{showHints};	 
 	$envir{displaySolutionsQ}   = $translationOptions->{showSolutions};
@@ -169,7 +170,9 @@ sub defineProblemEnvir {
 	$envir{sessionKey}          = $key;
 	$envir{courseName}          = $ce->{courseName};
 	$envir{enable_reduced_scoring} = $ce->{pg}{ansEvalDefaults}{enableReducedScoring} && $set->enable_reduced_scoring;
+	
 	$envir{language}            = $ce->{language};
+	$envir{language_subroutine} = WeBWorK::Localize::getLoc($envir{language}); 
 	$envir{reducedScoringDate} = $set->reduced_scoring_date;
 	
 	# Student Information
@@ -202,7 +205,7 @@ sub defineProblemEnvir {
 	$envir{externalPng2EpsPath}  = $ce->{externalPrograms}->{png2eps};
 	$envir{externalGif2PngPath}  = $ce->{externalPrograms}->{gif2png};
 	$envir{externalCheckUrl}     = $ce->{externalPrograms}->{checkurl};
-	$envir{externalCurlCommand}          = $ce->{externalPrograms}->{curlCommand};
+	$envir{externalCurlCommand}  = $ce->{externalPrograms}->{curlCommand};
 	# Directories and URLs
 	# REMOVED: courseName
 	# ADDED: dvipngTempDir
@@ -218,6 +221,10 @@ sub defineProblemEnvir {
 	$envir{classDirectory}         = undef;
     $envir{macrosPath}             = $ce->{pg}->{directories}{macrosPath};
     $envir{appletPath}             = $ce->{pg}->{directories}{appletPath};
+    $envir{macrosPath}             = $ce->{pg}->{directories}{macrosPath};
+    $envir{htmlPath}               = $ce->{pg}->{directories}{htmlPath};
+    $envir{imagesPath}             = $ce->{pg}->{directories}{imagesPath};
+    $envir{pdfPath}                = $ce->{pg}->{directories}{pdfPath};
     $envir{pgDirectories}          = $ce->{pg}->{directories};
 	$envir{webworkHtmlDirectory}   = $ce->{webworkDirs}->{htdocs}."/";
 	$envir{webworkHtmlURL}         = $ce->{webworkURLs}->{htdocs}."/";
@@ -266,7 +273,7 @@ sub defineProblemEnvir {
 	
 	# Other things...
 	$envir{QUIZ_PREFIX}              = $translationOptions->{QUIZ_PREFIX}//''; # used by quizzes
-	$envir{PROBLEM_GRADER_TO_USE}    = $ce->{pg}->{translationOptions}->{grader};
+	$envir{PROBLEM_GRADER_TO_USE}    = $ce->{pg}->{options}->{grader};
 	$envir{PRINT_FILE_NAMES_FOR}     = $ce->{pg}->{specialPGEnvironmentVars}->{PRINT_FILE_NAMES_FOR};
 
         #  ADDED: __files__
@@ -335,7 +342,7 @@ __END__
 	 $psvn,
 	 $formFields  # in &WeBWorK::Form::Vars format
 	 { # translation options
-		 displayMode     => "images", # (plainText|formattedText|images)
+		 displayMode     => "images", # (plainText|formattedText|images|MathJax)
 		 showHints       => 1,        # (0|1)
 		 showSolutions   => 0,        # (0|1)
 		 refreshMath2img => 0,        # (0|1)
@@ -420,7 +427,7 @@ a reference to a hash containing the following data:
 
 =item displayMode 
 
-one of "plainText", "formattedText", or "images"
+one of "plainText", "formattedText", "MathJax" or "images"
 
 =item showHints
 

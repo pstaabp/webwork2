@@ -89,8 +89,8 @@
 					  </div>
            	<div class="form-group">
               <div class="btn-group">
-                <button id="build-script" class="btn btn-default">Build Script</button>
-                <button id="testSave" class="btn btn-default">Save the File</button>
+                <button id="build-script" class="btn  btn-outline-dark">Build Script</button>
+                <button id="testSave" class="btn  btn-outline-dark">Save the File</button>
                </div>
             </div>
 					</div>
@@ -132,7 +132,7 @@
 
 <script type="text/template" id="row-setting-template">
 <td><span class="doc"></span>
-<button class='btn btn-sm btn-default help-button' style='margin-left: 25px'>
+<button class='btn btn-sm  btn-outline-dark help-button' style='margin-left: 25px'>
   <i class='fa fa-question'></i></button>
   <div class="help-hidden alert alert-info">
   <button class="close">&times;</button>

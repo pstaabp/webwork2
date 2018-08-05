@@ -1,26 +1,26 @@
 /*
-*  This is the main view for the Library Browser within the the Homework Manager.  
+*  This is the main view for the Library Browser within the the Homework Manager.
 *
-*  
-*/ 
+*
+*/
 
 
-define(['backbone', 'underscore','views/TabbedMainView', 
+define(['jquery','backbone', 'underscore','views/TabbedMainView',
         'views/library-views/LibrarySubjectView','views/library-views/LibraryDirectoryView',
         'views/library-views/LibrarySearchView','views/library-views/LocalLibraryView',
-        'views/library-views/LibraryTextbookView','models/ProblemSet','moment','config','apps/util',
-        'legacy/vendor/knowl'], 
-function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, LibrarySearchView,LocalLibraryView,
-    LibraryTextbookView,ProblemSet,moment,config,util){
+        'views/library-views/LibraryTextbookView','models/ProblemSet',
+        'models/User','moment','config','apps/util'],
+function($,Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, LibrarySearchView,
+    LocalLibraryView,LibraryTextbookView,ProblemSet,User,moment,config,util){
     var LibraryBrowser = TabbedMainView.extend({
         messageTemplate: _.template($("#library-messages-template").html()),
     	initialize: function (options){
-    		var self = this; 
+    		var self = this;
             _.bindAll(this,'render','updateNumberOfProblems');
             this.dateSettings = util.pluckDateSettings(options.settings);
             var viewOptions = {problemSets: options.problemSets,settings: options.settings, parent: this,
                     messageTemplate: this.messageTemplate, eventDispatcher: options.eventDispatcher};
-            
+
             options.views = {
                 subjects : new LibrarySubjectView(_.extend({},viewOptions,{libBrowserType: "subjects"})),
                 directories : new LibraryDirectoryView(_.extend({},viewOptions,{libBrowserType: "directories"})),
@@ -54,18 +54,18 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
         sidebarEvents: {
             "change-display-mode": function(evt) {
                 this.state.set("display_mode",$(evt.target).val());
-                this.views[this.state.get("tab_name")].changeDisplayMode(this.state.get("display_mode")) 
+                this.views[this.state.get("tab_name")].changeDisplayMode(this.state.get("display_mode"))
             },
-            "change-target-set": function(opt) { 
+            "change-target-set": function(opt) {
                 var setID = _.isString(opt)? opt: $(opt.target).val();
                 this.state.set("target_set_id",setID);
                 this.views[this.state.get("tab_name")].setTargetSet(setID);
-            }, 
+            },
             "add-problem-set": function(_set_name){
                 var _set = new ProblemSet({set_id: _set_name},this.dateSettings);
-                // why is 10 days from now the default.  This should be a setting. 
+                // why is 10 days from now the default.  This should be a setting.
                 _set.setDefaultDates(moment().add(10,"days")).set("assigned_users",[config.courseSettings.user]);
-               this.views[this.state.get("tab_name")].problemSets.add(_set); 
+               this.views[this.state.get("tab_name")].problemSets.add(_set);
             },
             "show-hide-tags": function(_show) {
                 this.state.set("show_tags",_show);
@@ -91,7 +91,7 @@ function(Backbone, _,TabbedMainView,LibrarySubjectView,LibraryDirectoryView, Lib
             //return TabbedMainView.prototype.getDefaultState.apply([]);
             var state = TabbedMainView.prototype.getDefaultState.apply(this,[]);
                return _.extend(state,{ target_set_id: "", show_path: false, show_tags: false, display_mode: "",
-                                     sidebar: ""}); 
+                                     sidebar: ""});
         }
     });
 

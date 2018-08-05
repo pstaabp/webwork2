@@ -1,10 +1,10 @@
-define(['backbone', 'underscore','views/TabbedMainView','views/TabView', 'apps/util','models/ProblemSetList',
-	'models/ProblemSet','config','bootstrap'], 
-	function(Backbone, _,TabbedMainView,TabView, util,ProblemSetList,ProblemSet,config){
+define(['jquery','backbone', 'underscore','views/TabbedMainView','views/TabView', 'apps/util','models/ProblemSetList',
+	'models/ProblemSet','config','bootstrap'],
+	function($,Backbone, _,TabbedMainView,TabView, util,ProblemSetList,ProblemSet,config){
 
 var ImportExportView = TabbedMainView.extend({
     initialize: function (options){
-    	
+
     	var opts = _(options).pick("settings","users","problemSets","eventDispatcher");
 
         options.views = {
@@ -50,7 +50,7 @@ var ImportView = TabView.extend({
         this.$(".import-table").removeClass("hidden");
         var table = this.$(".import-table table tbody").empty();
         this.problemSetsToImport.each(function(_set,i){
-        	self.rowViews[i] = (new ProblemSetRowView({model: _set,problemSets: self.problemSets})).render(); 
+        	self.rowViews[i] = (new ProblemSetRowView({model: _set,problemSets: self.problemSets})).render();
             table.append(self.rowViews[i].el);
         });
         this.checkSetNames();
@@ -84,12 +84,12 @@ var ImportView = TabView.extend({
 		this.$(".import-checkbox").prop("checked",this.$(".select-all-checkbox").prop("checked"));
 	},
 	getSelectedSets: function() {
-	 	var setNames = this.$(".import-checkbox:checked").map(function(i,v){ 
+	 	var setNames = this.$(".import-checkbox:checked").map(function(i,v){
 	 			return $(v).closest("tr").find(".set-name").text();}).toArray();
 		return this.problemSetsToImport.filter(function(_set) {return _(setNames).contains(_set.get("set_id"));});
 	},
 	getDateShift: function(firstDate){
-		
+
 		if(typeof(firstDate)=="undefined"){
 			return 0;
 		}
@@ -102,7 +102,7 @@ var ImportView = TabView.extend({
 			return shiftDate.diff(firstDate,"days");
 		} else {
 			return 0;
-		}		
+		}
 	},
 	importSets: function () {
 		var self = this;
@@ -138,7 +138,7 @@ var ImportView = TabView.extend({
 	            var setName = /^set(.*).def$/.exec(file.name)
 	            	, attrs = util.readSetDefinitionFile(blob.target.result)
 	            	, probSet = new ProblemSet(_.extend(attrs,{set_id: setName[1]}));
-	            
+
 
 	            // convert the webwork date-time to unix epoch
 	            var params = _.extend(probSet.pick("open_date","due_date","answer_date"),
@@ -169,7 +169,7 @@ var ProblemSetRowView = Backbone.View.extend({
     tagName: "tr",
     initialize: function(options){
     	this.problemSets = options.problemSets;
-    	
+
     },
     render: function(){
         this.$el.html($("#import-problem-set-row-template").html());

@@ -1,19 +1,18 @@
-## This is a number of common subroutines needed when processing the routes.  
+## This is a number of common subroutines needed when processing the routes.
 
 
 package Utils::LibraryUtils;
 use base qw(Exporter);
 use Path::Class qw/file dir/;
-use Dancer ':syntax';
-use Dancer::Plugin::Database;
-use List::MoreUtils qw/distinct first_index indexes/;
-use WeBWorK::Utils::Tags; 
+
 use WeBWorK::Utils qw(readDirectory);
 use WeBWorK3::PG::Local;
-use Utils::Convert qw/convertArrayOfObjectsToHash convertBooleans/;
+use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
+use Data::Dump qw/dd dump/;
+
 our @EXPORT    = ();
-our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render getProblemTagsFromDB);
-our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message 
+our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render render2);
+our @answerFields = qw/preview_latex_string done original_student_ans preview_text_string ans_message
 						student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name/;
 
 my %ignoredir = (
@@ -27,36 +26,43 @@ my %ignoredir = (
 #
 ###
 
-sub render {
-	my ($ce,$renderParams) = @_;
-	my @anskeys = split(";",params->{answer_fields} || ""); 
-	
+sub render2 {
+
+	dd "in LibraryUtils::render";
+
+	my $renderParams = shift;
+
+	my @anskeys = split(";",params->{answer_fields} || "");
+
 	$renderParams->{formFields}= {};
 	for my $key (@anskeys){
 		$renderParams->{formFields}->{$key} = params->{$key};
 	}
-    $renderParams->{formFields}->{user} = session->{user};
-    $renderParams->{formFields}->{effectiveUser} = params->{effectiveUser} || session->{user};
-    
-	# remove any pretty garbage around the problem
-	local $ce->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
-	local $ce->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
 
-    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_solutions} = 0; 
-    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_hints} = 0; 
+	# remove any pretty garbage around the problem
+	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
+	local vars->{ce}->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
+
+    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_solutions} = 0;
+    vars->{ce}->{pg}{specialPGEnvironmentVars}{use_knowls_for_hints} = 0;
 
 	my $translationOptions = {
 		displayMode     => $renderParams->{displayMode},
 		showHints       => $renderParams->{showHints},
 		showSolutions   => $renderParams->{showSolutions},
-		showAnswers		=> $renderParams->{showAnswers},
 		refreshMath2img => defined(param("refreshMath2img")) ? param("refreshMath2img") : 0 ,
 		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1,
 	};
-    
-    
-	my $pg = new WeBWorK3::PG::Local(
-		$ce,
+
+	dd $renderParams->{problem}->{pgSource};
+	if($renderParams->{problem}->{pgSource}){
+		my $source = $renderParams->{problem}->{pgSource};
+		$translationOptions->{r_source} = \$source;
+	}
+
+
+	my $pg = new WeBWorK::PG(
+		vars->{ce},
 		$renderParams->{user},
 		params->{session_key},
 		$renderParams->{set},
@@ -65,8 +71,7 @@ sub render {
 		$renderParams->{formFields},
 		$translationOptions,
     );
-    
-  	my $warning_messages="";
+	my $warning_messages="";
     my (@internal_debug_messages, @pgwarning_messages, @pgdebug_messages);
     if (ref ($pg->{pgcore}) ) {
     	@internal_debug_messages = $pg->{pgcore}->get_internal_debug_messages;
@@ -77,38 +82,32 @@ sub render {
     }
     my $answers = {};
 
-    # extract the important parts of the answer, but don't send the correct_ans if not requested. 
+    # extract the important parts of the answer, but don't send the correct_ans if not requested.
 
-    for my $key (@{$pg->{flags}->{ANSWER_ENTRY_ORDER}}){
-        if($key){
-            $answers->{$key} = {};
-            for my $field (@answerFields) {
-                if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
-                    $answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
-                }
-            }   
+    for my $key (@anskeys){
+    	for my $field (qw(preview_latex_string done original_student_ans preview_text_string ans_message student_ans error_flag score correct_ans ans_label error_message _filter_name type ans_name)) {
+    		if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
+	    		$answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
+	    	}
 	    }
     }
 
     my $flags = {};
 
-    ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for 
+    ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for
     ## passing out to the client since it is a perl code snippet.
 
     for my $key (keys(%{$pg->{flags}})){
      	if (ref($pg->{flags}->{$key}) ne "CODE"){
      	$flags->{$key}=$pg->{flags}->{$key};}
      }
-     
-     # FIXME: need to do a better job with problemRandomizes.  The follow works in the library, but not sure about the student view
-     $flags->{problemRandomize} = undef;
 
     my $problem_hash = {
 		text 						=> $pg->{body_text},
 		header_text 				=> $pg->{head_text},
 		answers 					=> $answers,
 		errors         				=> $pg->{errors},
-		warnings	   				=> $pg->{warnings}, 
+		warnings	   				=> $pg->{warnings},
 		problem_result 				=> $pg->{result},
 		problem_state				=> $pg->{state},
 		flags						=> $flags,
@@ -116,15 +115,6 @@ sub render {
 		debug_messages              => \@pgdebug_messages,
 		internal_debug_messages     => \@internal_debug_messages,
 	};
-    
-    if($problem_hash->{errors}){
-        my $text = qq|<div><em>An error occurred while processing this problem.</em>  
-                    Click <a href="#" onclick='\$(this).parent().find(".bg-danger").removeClass("hidden"); return false'>here</a>
-                    to show details of the error. <p class='bg-danger hidden'>|;
-        $text .= $problem_hash->{errors} . "</p></div>";
-        
-        $problem_hash->{text} = $text;
-    }
 
 	return $problem_hash;
 
@@ -137,7 +127,7 @@ sub getFilePaths {
 
 	my @problems = ();
 
-	## this seems like a very inefficient way to look up the path header.  Can we build a hash to do this? 
+	## this seems like a very inefficient way to look up the path header.  Can we build a hash to do this?
 
 	for my $file (@$allfiles){
 		my $path_header = database->quick_select('OPL_path',{path_id=>$file->{path_id}});
@@ -153,17 +143,17 @@ sub getFilePaths {
 ## this returns all problems in the library that matches the given subject
 
 sub get_subject_problems {
-	my ($subject) = @_;
+	my ($db,$subject) = @_;
 
 	my $queryString = "select CONCAT(path.path,'/',pg.filename) AS fullpath,pg.morelt_id "
 					. "from OPL_DBsubject AS sub "
-					. "JOIN OPL_DBchapter AS ch ON sub.DBsubject_id = ch.DBsubject_id " 
+					. "JOIN OPL_DBchapter AS ch ON sub.DBsubject_id = ch.DBsubject_id "
 					. "JOIN OPL_DBsection AS sect ON sect.DBchapter_id = ch.DBchapter_id "
 					. "JOIN OPL_pgfile AS pg ON sect.DBsection_id = pg.DBsection_id "
 					. "JOIN OPL_path AS path ON pg.path_id = path.path_id "
 					. "WHERE sub.name='" . $subject . "';";
 
-	my $results = database->selectall_arrayref($queryString);
+	my $results = $db->selectall_arrayref($queryString);
 
 	my @problems=  map {{source_file=>"Library/" .$_->[0], morelt=>$_[1]} } @{$results};
 
@@ -176,7 +166,7 @@ sub get_subject_problems {
 
 
 sub get_chapter_problems {
-	my ($subject,$chapter) = @_;
+	my ($db,$subject,$chapter) = @_;
 
 	my $queryString = "select CONCAT(path.path,'/',pg.filename) AS fullpath,pg.morelt_id "
 					. "from OPL_DBsection AS sect "
@@ -186,7 +176,7 @@ sub get_chapter_problems {
 					. "JOIN OPL_path AS path ON pg.path_id = path.path_id "
 					. "WHERE ch.name='" . $chapter . "' and sub.name='" . $subject . "';";
 
-	my $results = database->selectall_arrayref($queryString);
+	my $results = $db->selectall_arrayref($queryString);
 
 	my @problems=  map {{source_file=>"Library/" .$_->[0], morelt=>$_[1]} } @{$results};
 
@@ -200,7 +190,7 @@ sub get_chapter_problems {
 
 
 sub get_section_problems {
-	my ($subject,$chapter,$section) = @_;
+	my ($db,$subject,$chapter,$section) = @_;
 
 	my $queryString = "select CONCAT(path.path,'/',pg.filename) AS fullpath,pg.morelt_id "
 					. "from OPL_DBsection AS sect "
@@ -210,7 +200,7 @@ sub get_section_problems {
 					. "WHERE sect.name='" . $section . "' AND ch.name='" . $chapter . "'"
 					. "and sub.name='" . $subject . "';";
 
-	my $results = database->selectall_arrayref($queryString);
+	my $results = $db->selectall_arrayref($queryString);
 
 	my @problems=  map {{source_file=>"Library/" .$_->[0], morelt=>$_[1]} } @{$results};
 
@@ -235,15 +225,14 @@ sub get_section_problems {
 ###
 
 sub searchLibrary {
-	my $p = shift;
-    my $param = {};
+	my ($db,$p) = @_;
 
-    # if no params are passed return an empty array. 
+    # if no params are passed return an empty array.
     if(!( keys($p))){
         return [];
     }
 
-	# escape the ' in any parameter. 
+	# escape the ' in any parameter.
 
 	for my $key (keys %{$p}){
 		my $val = $p->{$key};
@@ -255,7 +244,7 @@ sub searchLibrary {
 					. "FROM OPL_path AS path "
 					. "JOIN OPL_pgfile AS pg ON path.path_id=pg.path_id ";
 
-	my $groupClause = ""; 
+	my $groupClause = "";
 	my $whereClause = "WHERE ";
 
 	## keyword search.  Note: only a single keyword works right now.
@@ -268,53 +257,53 @@ sub searchLibrary {
 		$whereClause .= "kw.keyword LIKE '" . $kw . "' ";
 		$groupClause = "GROUP BY pg.pgfile_id";
 
-	} 
-	## level search as a range of numbers like 2-4 
+	}
+	## level search as a range of numbers like 2-4
 	if (defined($param->{level}) && $param->{level} =~ /^[1-6]-[1-6]$/) {
 		if($param->{level} =~ /^(\d)-(\d)$/){
-			$whereClause .="AND " if(length($whereClause)>6); 
+			$whereClause .="AND " if(length($whereClause)>6);
 			$whereClause .= "pg.level BETWEEN $1 AND $2 ";
 		}
 	}
 	## level search as a set of numbers like 1,3,5 (works as a single number too)
 	if (defined($param->{level}) && $param->{level} =~ /^[1-6](,[1-6])*$/) {
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="pg.level IN (" . $param->{level} . ") ";
 	}
 	## problem author search    note: only searches by last name right now
 	if (defined($param->{author})){
 		$selectClause .= "JOIN OPL_author AS author ON author.author_id = pg.author_id ";
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="(author.lastname LIKE '" . $param->{author} . "' OR author.firstname LIKE '" . $param->{author} . "') ";
 	}
 	## institution search
 	## level search as a set of numbers like 1,3,5 (works as a single number too)
 	if (defined($param->{institution})) {
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="pg.institution LIKE '" . $param->{institution} . "'  ";
 	}
 	## DBsubject/DBchapter/DBsection search
 	if(defined($param->{subject}) || defined($param->{chapter}) || defined($param->{section})){
 		$selectClause .= "JOIN OPL_DBsection AS DBsect ON DBsect.DBsection_id = pg.DBsection_id "
-						. "JOIN OPL_DBchapter AS DBch ON DBsect.DBchapter_id = DBch.DBchapter_id " 
+						. "JOIN OPL_DBchapter AS DBch ON DBsect.DBchapter_id = DBch.DBchapter_id "
 						. "JOIN OPL_DBsubject AS DBsubj ON DBsubj.DBsubject_id = DBch.DBsubject_id ";
 	}
 	##DBsubject searach
 	if(defined($param->{subject})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="DBsubj.name LIKE '" . $param->{subject} . "'  ";
-	} 
+	}
 	## DBchapter search
 	if(defined($param->{chapter})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="DBch.name LIKE '" . $param->{chapter} . "'  ";
 	}
 	## DBsection search
 	if(defined($param->{section})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="DBsect.name LIKE '" . $param->{section} . "'  ";
 	}
-	##Textbook search 
+	##Textbook search
 	if(defined($param->{section_id})||defined($param->{textbook_id})||defined($param->{chapter_id}) || defined($param->{textbook_title}) || defined($param->{textbook_author})){
 		$selectClause .= "LEFT JOIN OPL_pgfile_problem AS pgprob ON pgprob.pgfile_id=pg.pgfile_id "
 				. "LEFT JOIN OPL_problem AS prob ON pgprob.problem_id=prob.problem_id "
@@ -324,99 +313,99 @@ sub searchLibrary {
 	}
 	##Textbook textbook_id search
 	if(defined($param->{textbook_id})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="textbook.textbook_id='".$param->{textbook_id} ."' ";
 	}
 	##Textbook chapter_id search
 	if(defined($param->{chapter_id})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="ch.chapter_id='".$param->{chapter_id} ."' ";
 	}
 	##Textbook section_id search
 	if(defined($param->{section_id})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="sect.section_id='".$param->{section_id} ."' ";
 	}
 
-	##Textbook author search 
+	##Textbook author search
 	if(defined($param->{textbook_author})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="textbook.author='".$param->{textbook_author}."' ";
 	}
-	##Textbook title search 
+	##Textbook title search
 	if(defined($param->{textbook_title})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="textbook.title='".$param->{textbook_title}."' ";
 	}
-	
-	##Textbook chapter search 
+
+	##Textbook chapter search
 	if(defined($param->{textbook_chapter})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="ch.name='".$param->{textbook_chapter}."' ";
 	}
 
-	##Textbook section search 
+	##Textbook section search
 	if(defined($param->{textbook_section})){
-		$whereClause .="AND " if(length($whereClause)>6); 
+		$whereClause .="AND " if(length($whereClause)>6);
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
-    
+
     #debug ($selectClause . $whereClause . $groupClause . ";");
 
 	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
-    
+
     my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
-    my @lib_bools = qw/mlt_leader/;    
+    my @lib_bools = qw/mlt_leader/;
     return convertArrayOfObjectsToHash(sortByMLT(\@problems), \@lib_bools);
-    
+
 
     my $sorted_probs = sortByMLT(\@problems);
     for my $prob (@$sorted_probs){
         convertBooleans($prob, \@lib_bools);
     }
-	
+
     return $sorted_probs;
 }
 
 ###
-# 
+#
 # This routine takes an array of problems in the array ref $problems, sorts them to put problem
 # with common mlt tags and returns the result.
 #
 ###
 
 sub sortByMLT {
-    my $problems = shift; 
-    
-    my @mlts = grep {$_ > 0} distinct map {$_->{morelt_id} } @$problems; 
-    my $leaders = {}; 
+    my $problems = shift;
+
+    my @mlts = grep {$_ > 0} distinct map {$_->{morelt_id} } @$problems;
+    my $leaders = {};
     for my $mlt_id (@mlts){
-        my @results = database->selectrow_array("select * from OPL_morelt where morelt_id='" 
+        my @results = database->selectrow_array("select * from OPL_morelt where morelt_id='"
                                                 . $mlt_id . "';");
-        $leaders->{$mlt_id} = $results[3]; 
+        $leaders->{$mlt_id} = $results[3];
     }
-    
-    my @sorted_problems = (); 
+
+    my @sorted_problems = ();
     while(scalar(@$problems)>0){
-        if (! defined($leaders->{$problems->[0]->{morelt_id}}) 
+        if (! defined($leaders->{$problems->[0]->{morelt_id}})
                 || $problems->[0]->{morelt_id} == 0) {
             my $prob = shift @$problems;
             push(@sorted_problems,$prob);
         } else {
             # find the more_lt leader for the given morelt_id
-            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}} 
+            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}}
                                 } @$problems;
             my $prob = splice(@$problems,$i,1);
-            $prob->{mlt_leader} = 1; 
-            
-            push(@sorted_problems,$prob);    
-            
-            # find the remainder of the related morelt problems and push them on the 
-            # $problems array. 
+            $prob->{mlt_leader} = 1;
+
+            push(@sorted_problems,$prob);
+
+            # find the remainder of the related morelt problems and push them on the
+            # $problems array.
             my @inds = indexes { $_->{morelt_id} == $prob->{morelt_id} } @$problems;
             for my $ind (reverse @inds){
                 my $p = splice(@$problems,$ind,1);
-                $p->{mlt_leader} = ""; 
+                $p->{mlt_leader} = "";
                 push(@sorted_problems,$p);
             }
         }
@@ -427,7 +416,7 @@ sub sortByMLT {
 sub getProblemTags {
     my $file_path = shift;
     my $tagObj = WeBWorK::Utils::Tags->new($file_path);
-    
+
     return $tagObj;
 
 }
@@ -435,16 +424,16 @@ sub getProblemTags {
 
 ###
 #
-#  Older version of the subroutine above. 
+#  Older version of the subroutine above.
 #
-##  
+##
 
 sub getProblemTagsFromDB {
 	my $fileID = shift;
-	if ($fileID < 0){  ## then the pgfile_id is not defined.  Use the source_file to look up the information. 
+	if ($fileID < 0){  ## then the pgfile_id is not defined.  Use the source_file to look up the information.
 
 		my $file = file(params->{source_file});
-		my @fileDirs = $file->parent->components; 
+		my @fileDirs = $file->parent->components;
 		@fileDirs = @fileDirs[1..$#fileDirs];
 
 		my $path = dir(@fileDirs);
@@ -452,11 +441,11 @@ sub getProblemTagsFromDB {
 		my $queryString = "SELECT pg.pgfile_id FROM OPL_path AS path "
 							." JOIN OPL_pgfile AS pg ON path.path_id = pg.path_id "
 							." WHERE path.path='" . $path->stringify .  "' and pg.filename='" . $filename . "';";
-       my $pathID = database->selectrow_arrayref($queryString);							
+       my $pathID = database->selectrow_arrayref($queryString);
        $fileID = $pathID->[0] || "";
 
 	}
-    
+
 	my	$selectClause = "SELECT CONCAT(author.firstname,' ',author.lastname), group_concat(DISTINCT kw.keyword), "
 						. "pg.level, pg.institution, DBsubj.name, DBch.name, DBsect.name, mlt.name, "
 						. "textbook.title,ch.name,sect.name "
@@ -465,7 +454,7 @@ sub getProblemTagsFromDB {
 						. "LEFT JOIN OPL_keyword AS kw ON kw.keyword_id=pgkey.keyword_id "
 						. "LEFT JOIN OPL_author AS author ON author.author_id = pg.author_id "
 						. "LEFT JOIN OPL_DBsection AS DBsect ON DBsect.DBsection_id = pg.DBsection_id "
-						. "LEFT JOIN OPL_DBchapter AS DBch ON DBsect.DBchapter_id = DBch.DBchapter_id " 
+						. "LEFT JOIN OPL_DBchapter AS DBch ON DBsect.DBchapter_id = DBch.DBchapter_id "
 						. "LEFT JOIN OPL_DBsubject AS DBsubj ON DBsubj.DBsubject_id = DBch.DBsubject_id "
 						. "LEFT JOIN OPL_morelt AS mlt ON mlt.morelt_id = pg.morelt_id "
 						. "LEFT JOIN OPL_pgfile_problem AS pgprob ON pgprob.pgfile_id=pg.pgfile_id "
@@ -474,7 +463,7 @@ sub getProblemTagsFromDB {
 						. "LEFT JOIN OPL_chapter AS ch ON ch.chapter_id = sect.chapter_id "
 						. "LEFT JOIN OPL_textbook AS textbook ON textbook.textbook_id = ch.textbook_id ";
 	my $whereClause ="WHERE pg.pgfile_id='". $fileID ."'";
-	
+
 	#debug $selectClause. $whereClause;
 
 	my $results = database->selectrow_arrayref($selectClause . $whereClause . ";");
@@ -487,7 +476,7 @@ sub getProblemTagsFromDB {
 
 
 ## This is for searching the disk for directories containing pg files.
-## to make the recursion work, this returns an array where the first 
+## to make the recursion work, this returns an array where the first
 ## item is the number of pg files in the directory.  The second is a
 ## list of directories which contain pg files.
 ##
@@ -506,7 +495,7 @@ sub getProblemTagsFromDB {
 ## pg file.
 
 # sub get_library_sets {
-	
+
 # 	my ($top,$base,$dir,$probLib) = @_;
 # 	# ignore directories that give us an error
 # 	my @lis = eval { readDirectory($dir) };
@@ -525,7 +514,7 @@ sub getProblemTagsFromDB {
 # 	my @dirs = grep {!$ignoredir{$_} and -d "$dir/$_"} @lis;
 # 	if ($top == 1) {@dirs = grep {!$problib{$_}} @dirs}
 # 	# Never include Library at the top level
-# 	if ($top == 1) {@dirs = grep {$_ ne 'Library'} @dirs} 
+# 	if ($top == 1) {@dirs = grep {$_ ne 'Library'} @dirs}
 # 	foreach my $subdir (@dirs) {
 # 		my @results = get_library_sets(0, "$dir/$subdir");
 # 		$pgcount += shift @results; push(@pgdirs,@results);
@@ -557,7 +546,7 @@ sub getProblemTagsFromDB {
 
 # 	return () unless $top || (scalar(@pgs) == 1 && $others) || grep /^=library-combine-up$/, @lis;
 # 	return (map {"$dir/$_"} @pgs);
-# } 
+# }
 
 sub list_pg_files {
 	my ($templates,$dir,$probLib) = @_;
@@ -606,5 +595,236 @@ sub munge_pg_file_path {
 	# set.def file.
 	return($pg_path);
 }
+
+####
+#
+##  This is the general rendering function
+#
+#  input: $ce (course envinroment), $db (database variable) and $renderParams
+#
+##
+
+sub render {
+
+  my ($ce,$db,$renderParams,$debug) = @_;  # if debug is passed in, one can use the following:
+
+	#&$debug(dump $renderParams);
+
+  my $form_data = {
+  	displayMode => $renderParams->{displayMode} || $ce->{pg}{options}{displayMode},
+  	outputformat => 'standard',
+  	problemSeed => $renderParams->{problem}->{problem_seed} || 1,
+  };
+
+  my @anskeys = split(";",$renderParams->{answer_fields} || "");
+  for my $key (@anskeys){
+		$form_data->{$key} = $renderParams->{$key};
+	}
+  $form_data->{user} = $renderParams->{user} || fake_user($db);
+  $form_data->{effectiveUser} = $renderParams->{effectiveUser} || session->{user};
+
+	my $user          = $renderParams->{user} || fake_user($db);
+	my $set           = $renderParams->{'this_set'} || fake_set($db);
+	my $problem_seed  = $renderParams->{problem}->{'problem_seed'} || 1; #$r->param('problem_seed') || 0;
+	my $showHints     = $renderParams->{show_hints} || 0;
+	my $showSolutions = $renderParams->{show_solutions} || 0;
+	my $problemNumber = $renderParams->{problem}->{'problem_number'} || 1;
+  my $displayMode   = $renderParams->{displayMode}//
+                       $ce->{pg}->{options}->{displayMode};
+
+	my $translationOptions = {
+		displayMode     => $displayMode,
+		showHints       => $showHints,
+		showSolutions   => $showSolutions,
+		refreshMath2img => 1,
+		processAnswers  => 1,
+		QUIZ_PREFIX     => '',
+		use_site_prefix => $ce->{server_root_url},
+		use_opaque_prefix => 1,
+	};
+	$translationOptions->{permissionLevel} = 20;  ## pull this from the user
+
+	my $extras = {};   # Check what this is used for.
+
+	# Create template of problem then add source text or a path to the source file
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
+	my $problem = fake_problem($db, 'problem_seed'=>$problem_seed);
+	$problem->{value} = $renderParams->{problemValue} || -1;
+
+	$set->set_id('this set') unless $set->set_id();
+	$problem->problem_id('1') unless $problem->problem_id();
+
+    if (ref $renderParams->{pgSource}) { #in this case the actual source is passed
+			$problem->source_file('');
+			$translationOptions->{r_source} = $renderParams->{source};
+	} else {
+      $problem->{source_file} = $renderParams->{problem}->{source_file};
+	}
+
+my $pg = new WeBWorK::PG(
+		$ce,
+		$user,
+		$key,
+		$set,
+		$problem,
+		123, # PSVN (practically unused in PG)  only used as an identifier
+		$form_data,
+		$translationOptions,
+		$extras,
+	);
+		# new version of output:
+	my $warning_messages = '';  # for now -- set up warning trap later
+	my ($internal_debug_messages, $pgwarning_messages, $pgdebug_messages);
+  if (ref ($pg->{pgcore}) ) {
+  	$internal_debug_messages   = $pg->{pgcore}->get_internal_debug_messages;
+  	$pgwarning_messages        = $pg ->{pgcore}->get_warning_messages();
+  	$pgdebug_messages          = $pg ->{pgcore}->get_debug_messages();
+  } else {
+  	$internal_debug_messages = ['Error in obtaining debug messages from PGcore'];
+  }
+
+  #debug dump $pg;
+
+	my $out =  {
+		text 						=> $pg->{body_text},
+		header_text 				=> $pg->{head_text},
+		answers 					=> $pg->{answers},
+		errors         				=> $pg->{errors},
+		WARNINGS	   				=> "WARNINGS\n".$warning_messages."\n<br/>More<br/>\n".$pg->{warnings},
+		PG_ANSWERS_HASH             => $pg->{pgcore}->{PG_ANSWERS_HASH},
+		problem_result 				=> $pg->{result},
+		problem_state				=> $pg->{state},
+		flags						=> $pg->{flags},
+		warning_messages            => $pgwarning_messages,
+		debug_messages              => $pgdebug_messages,
+		internal_debug_messages     => $internal_debug_messages,
+	};
+
+  # make the errors a bit easier to read.
+
+	if($problem_hash->{errors}){
+			my $text = qq|<div><em>An error occurred while processing this problem.</em>
+									Click <a href="#" onclick='\$(this).parent().find(".bg-danger").removeClass("hidden"); return false'>here</a>
+									to show details of the error. <p class='bg-danger hidden'>|;
+			$text .= $problem_hash->{errors} . "</p></div>";
+
+			$problem_hash->{text} = $text;
+	}
+
+  # the following contain subroutines, so remove them before serializing.
+	delete $out->{PG_ANSWERS_HASH};
+	delete $out->{flags}->{PROBLEM_GRADER_TO_USE};
+
+	return $out;
+}
+
+###
+#
+#  Common functionality for the renderer
+#
+###
+
+sub render_old {
+	my ($ce,$renderParams) = @_;
+	my @anskeys = split(";",params->{answer_fields} || "");
+
+	$renderParams->{formFields}= {};
+	for my $key (@anskeys){
+		$renderParams->{formFields}->{$key} = params->{$key};
+	}
+    $renderParams->{formFields}->{user} = session->{user};
+    $renderParams->{formFields}->{effectiveUser} = params->{effectiveUser} || session->{user};
+
+	# remove any pretty garbage around the problem
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPreamble} = {TeX=>'',HTML=>''};
+	local $ce->{pg}{specialPGEnvironmentVars}{problemPostamble} = {TeX=>'',HTML=>''};
+
+
+	my $translationOptions = {
+		displayMode     => $renderParams->{displayMode},
+		showHints       => $renderParams->{showHints},
+		showSolutions   => $renderParams->{showSolutions},
+		showAnswers		=> $renderParams->{showAnswers},
+		refreshMath2img => defined(param("refreshMath2img")) ? param("refreshMath2img") : 0 ,
+		processAnswers  => defined(param("processAnswers")) ? param("processAnswers") : 1
+	};
+
+    $translationOptions->{r_source} = $renderParams->{source} if defined($renderParams->{source});
+
+	my $pg = new WeBWorK3::PG::Local(
+		$ce,
+		$renderParams->{user},
+		params->{session_key},
+		$renderParams->{set},
+		$renderParams->{problem},
+		123, # PSVN (practically unused in PG)
+		$renderParams->{formFields},
+		$translationOptions,
+    );
+
+  	my $warning_messages="";
+    my (@internal_debug_messages, @pgwarning_messages, @pgdebug_messages);
+    if (ref ($pg->{pgcore}) ) {
+    	@internal_debug_messages = $pg->{pgcore}->get_internal_debug_messages;
+    	@pgwarning_messages        = $pg ->{pgcore}->get_warning_messages();
+    	@pgdebug_messages          = $pg ->{pgcore}->get_debug_messages();
+    } else {
+    	@internal_debug_messages = ('Error in obtaining debug messages from PGcore');
+    }
+    my $answers = {};
+
+    # extract the important parts of the answer, but don't send the correct_ans if not requested.
+
+    for my $key (@{$pg->{flags}->{ANSWER_ENTRY_ORDER}}){
+    	$answers->{$key} = {};
+    	for my $field (@answerFields) {
+    		if ($field ne 'correct_ans' || $renderParams->{showAnswers}){
+	    		$answers->{$key}->{$field} = $pg->{answers}->{$key}->{$field};
+	    	}
+
+	    }
+    }
+
+    my $flags = {};
+
+    ## skip the CODE reference which appears in the PROBLEM_GRADER_TO_USE.  I don't think this is useful for
+    ## passing out to the client since it is a perl code snippet.
+
+    for my $key (keys(%{$pg->{flags}})){
+     	if (ref($pg->{flags}->{$key}) ne "CODE"){
+     	$flags->{$key}=$pg->{flags}->{$key};}
+     }
+
+     # FIXME: need to do a better job with problemRandomizes.  The follow works in the library, but not sure about the student view
+     $flags->{problemRandomize} = undef;
+
+    my $problem_hash = {
+		text 						=> $pg->{body_text},
+		header_text 				=> $pg->{head_text},
+		answers 					=> $answers,
+		errors         				=> $pg->{errors},
+		warnings	   				=> $pg->{warnings},
+		problem_result 				=> $pg->{result},
+		problem_state				=> $pg->{state},
+		flags						=> $flags,
+		warning_messages            => \@pgwarning_messages,
+		debug_messages              => \@pgdebug_messages,
+		internal_debug_messages     => \@internal_debug_messages,
+	};
+
+    if($problem_hash->{errors}){
+        my $text = qq|<div><em>An error occurred while processing this problem.</em>
+                    Click <a href="#" onclick='\$(this).parent().find(".bg-danger").removeClass("hidden"); return false'>here</a>
+                    to show details of the error. <p class='bg-danger hidden'>|;
+        $text .= $problem_hash->{errors} . "</p></div>";
+
+        $problem_hash->{text} = $text;
+    }
+
+	return $problem_hash;
+
+}
+
 
 1;

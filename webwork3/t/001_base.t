@@ -1,39 +1,68 @@
-use Test::More tests => 5;
+###
+#  This test course is a basic test that the templating of the Webwork 3 app is working.
+##
+
 use strict;
 use warnings;
 
-use Data::Dump qw/dd/; 
-use JSON qw/from_json/;
+my $webwork_dir = "";
+my $pg_dir = "";
 
-BEGIN {$ENV{MOD_PERL_API_VERSION}=2}
+BEGIN {
+  $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
+  $webwork_dir = $ENV{WEBWORK_ROOT} || die "The environment variable WEBWORK_ROOT needs to be defined.";
+  $pg_dir = $ENV{PG_ROOT};
 
-use WeBWorK3;
-Dancer::set logger => 'console';
-use Dancer::Test;
+  if (not defined $pg_dir) {
+    $pg_dir = "$webwork_dir/../pg";
+  }
 
+  die "The directory $webwork_dir does not exist" if (not -d $webwork_dir);
+  die "The directory $pg_dir does not exist" if (not -d $pg_dir);
 
-#
-#my $settings = Dancer::Config::settings();
-#dd $settings; 
-
-response_status_is [GET => '/app-info'], 200, "GET /webwork3/app-info is found";
-route_exists [GET => '/app-info'], "GET /webwork3/app-info is handled";
-
-my $resp = dancer_response GET => '/app-info';
-my $obj = from_json $resp->{content};
-is( $obj->{appname}, "webwork3",          "The webapp returned as 'webwork3'" );
-
-route_exists [GET=> '/courses'] , "GET /webwork3/courses is handled.";
-
-#route_exists [GET => '/webwork3/courses/test' ], "GET /webwork3/courses/test is handled.";
-
-$resp = dancer_response(GET=>'/courses');
-my @courses = from_json($resp->{content});
-my $type; 
-for my $item (@courses){
-$type = ref($item);
 }
 
-is($type,"ARRAY", "The method GET /webwork3/courses returns an array");
+use lib "$webwork_dir/lib";
+use lib "$webwork_dir/webwork3/lib";
+use lib "$pg_dir/lib";
 
 
+use Routes::Templates;
+#use Routes::Login;
+use Test::More;
+use Plack::Test;
+use JSON;
+use Data::Dump qw/dd dump/;
+use HTTP::Request::Common;
+use HTTP::Cookies;
+
+my $app = Routes::Templates->to_app;
+my $url  = 'http://localhost';
+my $test = Plack::Test->create($app);
+my $jar  = HTTP::Cookies->new();
+
+subtest 'testing basic routes' => sub {
+
+  is( ref $app, 'CODE', 'Got app' );
+  my $res  = $test->request( GET "$url" );
+
+  ok( $res->is_success, '[GET /] successful' );
+
+  $res = $test->request(GET "$url/courses/test/login");
+
+  ok($res->is_success, ' [GET /courses/test/login ] returned');
+
+};
+
+subtest 'Check the login route' => sub {
+  ### check the login route
+  my $req = POST "$url/courses/test/login?username=dave&password=dave";
+  my $res = $test->request($req);
+  $jar->extract_cookies($res);
+  ok($res->is_success, '[POST /courses/test/login] successful');
+
+  dd $res;
+
+};
+
+done_testing();

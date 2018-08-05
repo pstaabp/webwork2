@@ -1,0 +1,688 @@
+
+<script type="text/template" id="standard-editor-template">
+  <div class="form-group row">
+    <label for="problem-path" class="col-sm-2 col-form-label">Problem Path</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control disabled" id="problem-path" placeholder="Undefined">
+    </div>
+  </div>
+
+   <ul class="nav nav-tabs" id="standard-editor-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#select-problem-tab" data-toggle="tab">Select Problem</a></li>
+      <li class="nav-item">
+        <a class="nav-link" href="#edit-problem-tab" data-toggle="tab">Problem Editor</a></li>
+      <li class="nav-item">
+        <a class="nav-link" href="#view-problem-tab" data-toggle="tab">Problem Viewer</a></li>
+   </ul>
+
+   <div class="tab-content">
+     <div class="tab-pane active" id="select-problem-tab"></div>
+     <div class="tab-pane" id="edit-problem-tab"></div>
+     <div class="tab-pane" id="view-problem-tab"></div>
+   </div>
+ </script>
+
+<script type="text/template" id="editor-select-problem-template">
+  <div role="form">
+    <div class="form-group row">
+      <label for="new-problem" class="col-4">Get a basic Problem Template</label>
+      <button id="new-problem" class="btn btn-outline-dark">Select New Problem From Template</button>
+    </div>
+    <div class="form-group row">
+      <label for="local-file-directory" class="col-4">Get a local Problem from a file:</label>
+      <div class="col-3">
+        <select class="form-control" id="local-file-directory"></select>
+      </div>
+      <div class="col-3">
+        <select class="form-control" id="local-file"></select>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="local-file-directory" class="col-4">Get a Problem from a Set:</label>
+      <div class="col-3">
+        <select class="form-control" id="problem-set"></select>
+      </div>
+      <div class="col-3">
+        <select class="form-control" id="problem-number"></select>
+      </div>
+    </div>
+
+</script>
+
+<script type="text/template" id="editor-edit-problem-template">
+  <textarea id="problem-source" rows="20"></textarea>
+  <div class="alert alert-danger border border-danger" style="display: none" id="editor-message">
+    This file is protected.  In order to edit the file, select "Save As.." from
+    the sidebar.
+  </div>
+</script>
+
+<script type="text/template" id="editor-view-problem-template">
+  <ul class='problemList no-bullets'></ul>
+</script>
+
+
+<script type="text/template" id="editor-sidepane-template">
+<div role="form">
+    <div class="form-group">
+      <label for="problem-display-option">Display Options</label>
+        <select id="problem-display-option" class="problem-display-option form-control"></select>
+    </div>
+  <div class="form-group">
+      <button class="btn btn-outline-dark" id="save-as-button">Save a Copy As...</button>
+  </div>
+  <div id="save-as-options" class="d-none">
+    <div class="form-group">
+      <label for="directory-select">Directory</label>
+      <select class="form-control" id="directory-select"></select>
+    </div>
+    <div class="form-group d-none">
+      <label for="new-directory">New Directory:</label>
+      <input class="form-control" id="new-directory" size="35">
+    </div>
+    <div class="form-group">
+      <label for="problem-filename">Filename:</label>
+      <input class="form-control" id="problem-filename">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-outline-primary" id="create-copy-button">Create a Copy</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="add-to-problem-set">Add current problem to Set</label>
+    <select id="add-to-problem-set" class="form-control"></select>
+  </div>
+  <!-- <div class="row">
+    <div class="form-group">
+      <button class="btn btn-default save-as-button" disabled>Save As</button>
+    </div>
+  </div>
+    <div class="row">
+    <div class="form-group">
+      <label for="editor-option-add-to-set">Add to Problem Set</label>
+      <div class="col-md-8">
+        <select id="editor-option-add-to-set" class="select-add-to-set form-control"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <button class="btn btn-default add-to-set-button" disabled>Add to Set</button>
+      </div>
+    </div>
+
+  </div> -->
+
+</div>
+</script>
+
+
+
+<!-- Templates for the Simple Editor -->
+
+
+<script type="text/template" id="simple-editor-template">
+
+   <ul class="nav nav-tabs" id="simple-editor-tabs">
+      <li class="active"><a href="#editor-tab" data-toggle="tab">Problem Editor</a></li>
+      <li><a href="#code-tab" data-toggle="tab">Problem Code</a></li>
+      <li><a href="#viewer-tab" data-toggle="tab">Problem Viewer</a></li>
+   </ul>
+
+   <div class="tab-content">
+     <div class="tab-pane active" id="editor-tab">
+        <div class="row">
+          	<div class="col-md-4">
+              <div class="group">
+               <div class="form-group">
+             		<label for="pgedit-pst">Problem Statement: </label>
+              	<textarea id="pgedit-pst" class="form-control problem-statement" rows="5"></textarea>
+               </div>
+               <div class="form-group">
+                  <label for="pgedit-pd">Problem Description: </label>
+                  <textarea id="pgedit-pd" class="form-control problem-description" rows="5"></textarea>
+               </div>
+               <div class="form-group">
+                  <label for="pgedit-pso">Problem Solution:</label>
+                  <textarea id="pgedit-pso" class="form-control problem-solution" rows="5"></textarea>
+               </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="group">
+                <div class="group-header">Database</div>
+                <div class="controls"  id="library-subjects"></div>
+                <div class="form-horizontal">
+                  <div class="form-group">
+                    <label class="col-md-3 control-label" for="problem-keywords">Keywords:</label>
+                    <div class="col-md-8">
+                     <input id="problem-keywords" class="form-control" type="text" placeholder="Keywords">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="group">
+                <div class="group-header">Answer</div>
+                <div class="form-horizontal">
+                  <div class="form-group">
+                    <label class="col-md-3 control-label" for="answer-type-select">Type:</label>
+                    <div class="col-md-8">
+                      <select class="input-sm answer-type form-control" id="answer-type-select">
+                      </select>
+                     </div>
+                   </div>
+                  </div>
+
+              <div class="form-group">
+                  <div id="answerArea">
+                  </div>
+               </div>
+            </div>
+               </div>
+
+            <div class="col-md-4">
+              <div class="group form-horizontal">
+                <div class="group-header">Problem Author Information</div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label" for="problem-author">Author:</label>
+                  <div class="col-md-8">
+                   <input id="problem-author" class="form-control problem-author" type="text" placeholder="Author's Name">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label" for="problem-institution">Institution:</label>
+                  <div class="col-md-8">
+                   <input id="problem-institution" class="form-control institution" type="text" placeholder="Author's Institution">
+                  </div>
+                </div>
+              </div>
+              <div class="group form-horizontal">
+                <div class="group-header">Textbook Information</div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label" for="problem-textbook-title">Title:</label>
+                  <div class="col-md-8">
+                   <input id="problem-textbook-title" class="form-control text-title" type="text" placeholder="Textbook Title">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label" for="problem-textbook-edition">Edition:</label>
+                  <div class="col-md-8">
+                   <input id="problem-textbook-edition" class="form-control text-edition" type="text" placeholder="Textbook Edition">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label" for="problem-textbook-author">Author:</label>
+                  <div class="col-md-8">
+                   <input id="problem-textbook-author" class="form-control text-author" type="text" placeholder="Textbook Author">
+                  </div>
+                </div>
+
+
+               </div>
+                              <div class="btn-group">
+                 <button class="btn btn-default build-script-button">Build Script</button>
+                 <button class="btn btn-default save-file-button">Save the File</button>
+               </div>
+
+            </div>
+
+         </div>
+      </div>
+
+      <div class="tab-pane" id="viewer-tab"><p>Here&apos;s where the problem will appear.</p>
+         <ul class='problemList no-bullets'>
+         </ul>
+      </div>
+      <div class="tab-pane" id="code-tab"><h4>Code for the Problem</h4>
+         <pre id="problem-code"></pre>
+      </div>
+   </div>
+</div>
+</script>
+
+
+<script type="text/template" id="help-text">
+<h3>Help for the Simple PG Editor</h3>
+   <p> Please add some help text.
+</p>
+
+</script>
+
+
+
+<script type="text/template" id="pg-template">
+##DESCRIPTION
+##KEYWORDS('trigonometry', 'limits')
+##  <%=description%>
+##ENDDESCRIPTION
+
+## Created with simple-pg
+
+## DBsubject('<%=db_subject%>')
+## DBchapter('<%=db_chapter%>')
+## DBsection('<%=db_section%>')
+## Date('')
+## Author('<%=problem_author%>')
+## Institution('<%=institution%>')
+## TitleText1('<%=textbook_title%>')
+## EditionText1('<%=textbook_edition%>')
+## AuthorText1('<%=textbook_author%>')
+## Section1('<%=textbook_section%>')
+## Problem1('<%=textbook_problem_number%>')
+
+DOCUMENT();        # This should be the first executable line in the problem.
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "PGcourse.pl",
+   "contextInequalities.pl",
+   "MathObjects.pl",
+   "PGchoicemacros.pl",
+   "parserNumberWithUnits.pl",
+   "parserFormulaWithUnits.pl",
+   "AnswerFormatHelp.pl",        # provides help links to students
+);
+
+
+TEXT(beginproblem());
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+
+<%=setup_section%>
+
+
+##############################################################
+#
+#  Text
+#
+#
+
+
+<%=statement_section%>
+##############################################################
+#
+# Answers
+#
+#
+
+
+<%=answer_section%>
+
+Context()->texStrings;
+BEGIN_SOLUTION;
+$PAR SOLUTION $PAR
+<%=solution%>
+
+END_SOLUTION
+Context()->normalStrings;
+
+
+COMMENT('MathObject version');
+ENDDOCUMENT();
+#############################################################
+
+</script>
+<script id="empty-template" type="text/template">
+</script>
+
+<!--- The Number Option -->
+
+<script id="number-option-template" type="text/template">
+  <div class="form-horizontal">
+   <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Numerical Answer">
+         </div>
+   </div>
+   <div class="checkbox col-sm-offset-4">
+  <label>
+    <input type="checkbox" class="require-units answer-option">
+    Require Units
+  </label>
+</div>
+</script>
+
+<script id="number-option-pg-setup" type="text/template">
+      Context("Numeric");
+
+      $answer = <% require_units ? print('NumberWithUnits("' + answer + '");') : print ('Compute("' + answer +'");') %>
+</script>
+
+<script id="number-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   <%=statement%> $BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("numbers")\}
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="number-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+
+
+<!--- The String Option -->
+
+
+<script id="string-option-template" type="text/template">
+  <div class="form-horizontal">
+   <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer as a string">
+         </div>
+   </div>
+</script>
+
+
+<script id="string-option-pg-setup" type="text/template">
+      Context("Numeric");
+      Context()->strings->add("<%=answer%>"=>{});
+
+      $answer = Compute("<%=answer%>");
+
+
+</script>
+<script id="string-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+      <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\}
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="string-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+
+
+<!--- The Formula Option -->
+
+
+<script id="formula-option-template" type="text/template">
+  <div class="form-horizontal">
+   <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+      <div class="col-md-8">
+        <input id="Answer-input" class="answer form-control" type="text" placeholder="Formula">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Variables:</label>
+      <div class="col-md-8">
+        <input id="variables-input" class="variables form-control" type="text" placeholder="variables">
+      </div>
+    </div>
+
+    <div class="checkbox col-sm-offset-4">
+      <label>
+        <input type="checkbox" class="require-units answer-option">
+        Require Units
+      </label>
+    </div>
+  </div>
+</script>
+
+
+
+<script id="formula-option-pg-setup" type="text/template">
+      Context("Numeric");
+      Context()->variables->are(<% print(variables.split(",").join("=>'Real',") + "=>'Real'"); %>);
+
+      $answer = <% require_units ? print('FormulaWithUnits("' + answer + '");') : print ('Compute("' + answer +'");') %>
+</script>
+
+
+<script id="formula-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("formulas")\}\
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="formula-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+
+<!-- The interval/inequality option -->
+
+<script id="interval-option-template" type="text/template">
+  <div class="form-horizontal">
+    <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Interval or Inequality">
+         </div>
+    </div>
+    <div class="checkbox col-sm-offset-4">
+      <label>
+        <input type="checkbox" class="allow-interval-notation answer-option">
+        Allow interval notation
+      </label>
+    </div>
+    <div class="checkbox col-sm-offset-4">
+      <label>
+        <input type="checkbox" class="allow-inequality-notation answer-option">
+        Allow inequality notation
+      </label>
+    </div>
+  </div>
+</script>
+
+
+<script id="interval-option-pg-setup" type="text/template">
+      <% if (allow_interval && !allow_inequality) { print('Context("Interval");')
+      } else if (!allow_interval && allow_inequality) { print('Context("Inequalities-Only");')
+      } else {print('Context("Inequalities");')} %>
+
+      $answer = Compute("<%=answer%>");
+</script>
+
+
+<script id="interval-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   <%=statement%>$BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp(<% (allow_interval && !allow_inequality) ? print('"interval"') : print('"inequalities"')%>)\}\
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="interval-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+
+<!-- The comma-separated list of values option -->
+
+<script id="list-option-template" type="text/template">
+  <div class="form-horizontal">
+   <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="comma separated list">
+         </div>
+   </div>
+</script>
+
+<script id="list-option-pg-setup" type="text/template">
+      Context("Numeric");
+
+      $answer = List("<%=answer%>");
+</script>
+
+
+<script id="list-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   <%=statement%> $BR
+   Answer:\{$answer->ans_rule(10)\} \{AnswerFormatHelp("numbers")\}\
+
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="list-option-pg-answer" type="text/template">
+   ANS($answer->cmp);
+</script>
+
+<!-- The multiple choice option -->
+
+<script id="multiple-choice-option-template" type="text/template">
+  <div class="form-horizontal">
+    <div class="form-group">
+      <label class="col-md-3 control-label">Answer:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="answer form-control" type="text" placeholder="Answer">
+         </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Extra:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="extra-choice form-control" type="text" placeholder="Extra Choice">
+         </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Last:</label>
+          <div class="col-md-8">
+           <input id="Answer-input" class="last-choice form-control" type="text" placeholder="Last Choice">
+         </div>
+    </div>
+    <div class="checkbox col-sm-offset-4">
+      <label>
+        <input type="checkbox" class="use-last-choice answer-option">
+        Use Last Choice Option
+      </label>
+    </div>
+  </div>
+</script>
+
+<script id="multiple-choice-option-template" type="text/template">
+<div class="form-group">
+      <div class="controls">
+         <input id="Answer-input" type="text" placeholder="Answer">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input id="ExtraMultipleChoice-input" class="answer-option" type="text" placeholder="Extra Multiple Choice">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input id="LastChoice-input" class="answer-option" type="text" placeholder="Last Choice">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+      <label class="checkbox">
+         <input id="LastChoiceCheckBox" class="answer-option" type="checkbox"> Use last choice option</label>
+      </div>
+   </div>
+
+</script>
+
+<script id="multiple-choice-option-pg-setup" type="text/template">
+      $mc = new_multiple_choice();
+      $mc->qa("   <%=statement%>","<%=answer%>");
+      $mc->extra("<% print(extra_choice.split(",").join("\",\"")); %>");
+
+      <% if(use_last_choice) {print('$mc->makeLast("'+ last_choice +'"); ')} %>
+</script>
+
+<script id="multiple-choice-option-pg-text" type="text/template">
+   Context()->texStrings;
+   BEGIN_TEXT
+   \{$mc->print_q()\}
+   $BR
+   \{$mc->print_a()\}
+   END_TEXT
+   Context()->normalStrings;
+</script>
+
+<script id="multiple-choice-option-pg-answer" type="text/template">
+   ANS(radio_cmp($mc->correct_ans()));
+</script>
+
+<!-- Other information -->
+
+<script type="text/template" id="author-info-template">
+   <div class="form-group">Author Information</div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="ProblemAuthor-input" placeholder="Problem Author">
+      </div>
+   </div>
+
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="Institution-input" placeholder="Author Institution">
+      </div>
+   </div>
+</script>
+
+<script type="text/template" id="textbook-info-template">
+<div class="form-group">Textbook Information:</div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="TextTitle1-input" placeholder="Text Title">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="TextEdition1-input" placeholder="Text Edition">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="TextAuthor1-input" placeholder="Text Author">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="TextSection1-input" placeholder="Text Section">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="controls">
+         <input type="text" class="input" id="TextProblem1-input" placeholder="Text Problem Number">
+      </div>
+   </div>
+</script>
+
+
+<script type="text/template" id="vertical-library-select-template">
+<div class="form-horizontal">
+  <div class="form-group">
+    <label for="ll0" class="col-md-3 control-label">Subject:</label>
+    <div class="col-md-8 library-level-0">
+      <select class="form-control input-sm" id="ll0"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="ll1" class="col-md-3 control-label">Chapter:</label>
+    <div class="col-md-8 library-level-1">
+      <select class="form-control input-sm" id="ll1"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="ll2" class="col-md-3 control-label">Section:</label>
+    <div class="col-md-8 library-level-2">
+      <select class="form-control input-sm" id="ll2"></select>
+    </div>
+  </div>
+
+</script>

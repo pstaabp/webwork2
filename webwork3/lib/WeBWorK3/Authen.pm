@@ -2,12 +2,12 @@
 # WeBWorK Online Homework Delivery System
 # Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: webwork2/lib/WeBWorK/Authen.pm,v 1.63 2012/06/06 22:03:15 wheeler Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -20,7 +20,7 @@ use base qw (WeBWorK::Authen);
 use strict;
 use warnings;
 #use Carp::Always;
-use Dancer ':syntax';
+use Dancer2;
 
 use WeBWorK::Utils qw/writeCourseLog runtime_use/;
 
@@ -37,13 +37,13 @@ our $GENERIC_ERROR_MESSAGE = "";  # define in new
 #
 #=item class($ce, $type)
 #
-#This is a subclass of the WebWork::Authen class.  It overrides methods necessary to run Dancer. 
+#This is a subclass of the WebWork::Authen class.  It overrides methods necessary to run Dancer.
 #
 #=cut
 #
 #sub class {
 #	my ($ce, $type) = @_;
-#	
+#
 #	if (exists $ce->{authen}{$type}) {
 #		if (ref $ce->{authen}{$type} eq "ARRAY") {
 #			my $authen_type = shift @{$ce ->{authen}{$type}};
@@ -79,7 +79,7 @@ our $GENERIC_ERROR_MESSAGE = "";  # define in new
 #	my ($self,$ce) = shift;
 #
 #	my $user_authen_module = WeBWorK::Authen::class($ce, "user_module");
-#	#debug("user_authen_module = |$user_authen_module|");	
+#	#debug("user_authen_module = |$user_authen_module|");
 #	if (!defined($user_authen_module) or ($user_authen_module eq "")) {
 #		$self->{error} = "No authentication method found for your request.  "
 #			. "If this recurs, please speak with your instructor.";
@@ -87,7 +87,7 @@ our $GENERIC_ERROR_MESSAGE = "";  # define in new
 #		return(0);
 #	} else {
 #
-#		# not sure what to do here without a Request Object		
+#		# not sure what to do here without a Request Object
 #
 #		#runtime_use $user_authen_module;
 #		# my $authen = $user_authen_module->new($r);
@@ -121,6 +121,7 @@ sub new {
 	 	db => new WeBWorK::DB($ce->{dbLayout}),
 	 	params => {}
 	};
+
 	# weaken $self -> {r};
 	#initialize
 	$GENERIC_ERROR_MESSAGE = "Invalid user ID or password.";
@@ -134,10 +135,10 @@ sub new {
 #sub authenticate {
 #	my $self = shift;
 #	# my $r = $self->{r};
-#	
+#
 #	my $user_id = $self->{params}->{user};
 #	my $password = $self->{params}->{password};
-#	
+#
 #	if (defined $password) {
 #		return $self->checkPassword($user_id, $password);
 #	} else {
@@ -148,6 +149,7 @@ sub new {
 sub set_params {
 	my ($self,$params) = @_;
 	$self->{params} = $params;
+
 }
 #
 #################################################################################
@@ -182,8 +184,6 @@ sub checkPassword {
 sub verify {
 
 	my $self = shift;
-    
-
 
 	if (! ($self-> request_has_data_for_this_verification_module)) {
 		return ( $self -> call_next_authen_method());
@@ -191,23 +191,25 @@ sub verify {
 
 	my $result = $self->do_verify;
 	my $error = $self->{error};
+
+
 	my $log_error = $self->{log_error};
-	
+
 	$self->{was_verified} = $result ? 1 : 0;
-	
-    
-    
+
+
+
 	if ($self->can("site_fixup")) {
 		$self->site_fixup;
 	}
-	
+
 	if ($result) {
 		$self->write_log_entry("LOGIN OK") if $self->{initial_login};
 	} else {
 		if (defined $log_error) {
 			$self->write_log_entry("LOGIN FAILED $log_error");
 		}
-		if (defined($error) and $error=~/\S/) { # if error message has a least one non-space character. 
+		if (defined($error) and $error=~/\S/) { # if error message has a least one non-space character.
 
 			#if (defined($r->param("user")) or defined($r->param("user_id"))) {
 			if(defined($self->{params}->{user_id})){
@@ -216,14 +218,26 @@ sub verify {
 			}
 
 		}
-
-		$self->maybe_kill_cookie;
-		if (defined($error) and $error=~/\S/) { # if error message has a least one non-space character. 
-			return $error;
-			# MP2 ? $r->notes->set(authen_error => $error) : $r->notes("authen_error" => $error);
-		}
 	}
-	return $result;
+
+   return {result => $result, error=>$error};
+
+	# 		debug $result;
+	# 		debug $error;
+	# 		debug $log_error;
+	#
+	# 	#$self->maybe_kill_cookie;
+	# 	if (defined($error) and $error=~/\S/) { # if error message has a least one non-space character.
+	# 		return $error;
+	# 		# MP2 ? $r->notes->set(authen_error => $error) : $r->notes("authen_error" => $error);
+	# 	}
+	# }
+	#
+	# debug $result;
+	# debug $error;
+	# debug $log_error;
+	#
+	# return $result;
 }
 
 #
@@ -235,33 +249,33 @@ sub do_verify {
 	my $self = shift;
 	my $ce = $self->{ce};
 	my $db = $self->{db};
-    
+
 	return 0 unless $db;
-	
+
 	return 0 unless $self->get_credentials;
 
-    
+
 #	return 0 unless $self->check_user;
-	
+
 	my $practiceUserPrefix = $ce->{practiceUserPrefix};
 	if (defined($self->{login_type}) && $self->{login_type} eq "guest"){
 		return $self->verify_practice_user;
 	} else {
 		return $self->verify_normal_user;
 	}
-    
+
 }
 
 sub verify_practice_user {
 	my $self = shift;
 	my $ce = $self->{ce};
-	
+
 	my $user_id = $self->{user_id};
 	my $session_key = $self->{session_key};
-	
+
 	my ($sessionExists, $keyMatches, $timestampValid) = $self->check_session($user_id, $session_key, 1);
 	#debug("sessionExists='". $sessionExists.  "' keyMatches='". $keyMatches.  "' timestampValid='". $timestampValid. "'");
-	
+
 	if ($sessionExists) {
 		if ($keyMatches) {
 			if ($timestampValid) {
@@ -298,17 +312,18 @@ sub verify_practice_user {
 
 sub verify_normal_user {
 	my $self = shift;
-	
+
 	my $user_id = $self->{user_id};
 	my $session_key = $self->{session_key};
+
 	my ($sessionExists, $keyMatches, $timestampValid) = $self->check_session($user_id, $session_key, 1);
 	#debug("sessionExists='". $sessionExists. "' keyMatches='".$keyMatches. "' timestampValid='". $timestampValid. "'");
-	
+
 	if ($sessionExists and $keyMatches and $timestampValid) {
 		return 1;
 	} else {
 		my $auth_result = $self->authenticate;
-		
+
 		if ($auth_result > 0) {
 			$self->{session_key} = $self->create_session($user_id);
 			$self->{initial_login} = 1;
@@ -336,7 +351,7 @@ sub get_credentials {
 	my $ce = $self->{ce};
 	my $db = $self->{db};
 
-	
+
 	# allow guest login: if the "Guest Login" button was clicked, we find an unused
 	# practice user and create a session for it.
 	if ($self->{params}->{login_practice_user}) {
@@ -346,8 +361,8 @@ sub get_credentials {
 		my @GuestUsers = $db->getUsers(@guestUserIDs);
 		my @allowedGuestUsers = grep { $ce->status_abbrev_has_behavior($_->status, "allow_course_access") } @GuestUsers;
 		my @allowedGuestUserIDs = map { $_->user_id } @allowedGuestUsers;
-		
-		foreach my $userID (@allowedGuestUserIDs) { 
+
+		foreach my $userID (@allowedGuestUserIDs) {
 			if (not $self->unexpired_session_exists($userID)) {
 				my $newKey = $self->create_session($userID);
 				$self->{initial_login} = 1;
@@ -355,16 +370,15 @@ sub get_credentials {
 				$self->{session_key} = $newKey;
 				$self->{login_type} = "guest";
 				$self->{credential_source} = "none";
-				debug("guest user '", $userID. "' key '", $newKey. "'");
 				return 1;
 			}
 		}
-		
+
 		$self->{log_error} = "no guest logins are available";
 		$self->{error} = "No guest logins are available. Please try again in a few minutes.";
 		return 0;
 	}
-	
+
 
 		if (defined $self->{params}->{key}) {
 			$self->{user_id} = $self->{params}->{user};
@@ -372,9 +386,9 @@ sub get_credentials {
 			$self->{password} = $self->{params}->{password};
 			$self->{login_type} = "normal";
 			$self->{credential_source} = "params";
-			debug("params user '", $self->{user_id}, "' password '", $self->{password}, "' key '", $self->{session_key}, "'");
+			#debug("params user '", $self->{user_id}, "' password '", $self->{password}, "' key '", $self->{session_key}, "'");
 			return 1;
-		} 
+		}
 
     if (defined $self->{params}->{user}) {
 		$self->{user_id} = $self->{params}->{user};
@@ -384,7 +398,7 @@ sub get_credentials {
 		$self->{credential_source} = "params";
 		return 1;
 	}
-	
+
 }
 #
 #
@@ -400,16 +414,16 @@ sub create_session {
 	my ($self, $userID, $newKey) = @_;
 	my $ce = $self->{ce};
 	my $db = $self->{db};
-	
+
 	my $timestamp = time;
 	unless ($newKey) {
 		my @chars = @{ $ce->{sessionKeyChars} };
 		my $length = $ce->{sessionKeyLength};
-		
+
 		srand;
 		$newKey = join ("", @chars[map rand(@chars), 1 .. $length]);
 	}
-	
+
 	my $Key = $db->newKey(user_id=>$userID, key=>$newKey, timestamp=>$timestamp);
 	# DBFIXME this should be a REPLACE
 	eval { $db->deleteKey($userID) };
@@ -431,7 +445,7 @@ sub check_session {
 
 	return 0 unless defined $Key;
 	my $keyMatches = (defined $possibleKey and $possibleKey eq $Key->key);
-	
+
 	my $timestampValid=0;
 	if ($ce -> {session_management_via} eq "session_cookie" and defined($self->{cookie_timestamp})) {
 		$timestampValid = (time <= $self -> {cookie_timestamp} + $ce->{sessionKeyTimeout});
@@ -459,17 +473,16 @@ sub maybe_kill_cookie {
 #
 sub write_log_entry {
 	my ($self, $message) = @_;
-	
+
 	my $user_id = defined $self->{user_id} ? $self->{user_id} : "";
 	my $login_type = defined $self->{login_type} ? $self->{login_type} : "";
 	my $credential_source = defined $self->{credential_source} ? $self->{credential_source} : "";
-	
+
 	my ($remote_host, $remote_port) = ('','');
-	
+
 	my $log_msg = "$message user_id=$user_id login_type=$login_type credential_source=$credential_source host=$remote_host port=$remote_port";
 
 	writeCourseLog($self->{ce}, "login_log", $log_msg);
 }
 
 1;
-
