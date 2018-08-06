@@ -6,11 +6,13 @@ use base qw(Exporter);
 use Path::Class qw/file dir/;
 
 use List::MoreUtils qw/distinct first_index indexes/;
-use WeBWorK::Utils::Tags; 
+use WeBWorK::Utils::Tags;
 use WeBWorK::Utils qw(readDirectory);
+use Utils::Convert qw/convertBooleans/;
 use WeBWorK3::PG::Local;
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use Data::Dump qw/dd dump/;
+
 
 our @EXPORT    = ();
 our @EXPORT_OK = qw(list_pg_files searchLibrary getProblemTags render render2);
@@ -354,14 +356,12 @@ sub searchLibrary {
 
     #debug ($selectClause . $whereClause . $groupClause . ";");
 
-	my $results = database->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
+    my $results = $db->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
 
     my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
     my @lib_bools = qw/mlt_leader/;
-    return convertArrayOfObjectsToHash(sortByMLT(\@problems), \@lib_bools);
 
-
-    my $sorted_probs = sortByMLT(\@problems);
+    my $sorted_probs = sortByMLT($db,\@problems);
     for my $prob (@$sorted_probs){
         convertBooleans($prob, \@lib_bools);
     }
@@ -377,12 +377,12 @@ sub searchLibrary {
 ###
 
 sub sortByMLT {
-    my $problems = shift;
+    my ($db,$problems) = @_;
 
     my @mlts = grep {$_ > 0} distinct map {$_->{morelt_id} } @$problems;
     my $leaders = {};
     for my $mlt_id (@mlts){
-        my @results = database->selectrow_array("select * from OPL_morelt where morelt_id='"
+        my @results = $db->selectrow_array("select * from OPL_morelt where morelt_id='"
                                                 . $mlt_id . "';");
         $leaders->{$mlt_id} = $results[3];
     }
@@ -622,10 +622,13 @@ sub render {
   for my $key (@anskeys){
 		$form_data->{$key} = $renderParams->{$key};
 	}
-  $form_data->{user} = $renderParams->{user} || fake_user($db);
+
+  my $user = $renderParams->{user} || fake_user($db);
+
+  $form_data->{user} = $user;
   $form_data->{effectiveUser} = $renderParams->{effectiveUser} || session->{user};
 
-	my $user          = $renderParams->{user} || fake_user($db);
+	my $user          = $user;
 	my $set           = $renderParams->{'this_set'} || fake_set($db);
 	my $problem_seed  = $renderParams->{problem}->{'problem_seed'} || 1; #$r->param('problem_seed') || 0;
 	my $showHints     = $renderParams->{show_hints} || 0;

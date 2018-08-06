@@ -108,17 +108,14 @@ function($,Backbone, _,config,TabView,LibraryProblemsView, ProblemList,util){
                     .showProperty({show_tags: this.parent.state.get("show_tags")})
             this.parent.state.on("change:show_path change:show_tags change:show_hints " +
                                     "change:show_solution",function(_state){
-                self.libraryProblemsView.showProperty(_state.changed);
-            })
+                                        self.libraryProblemsView.showProperty(_state.changed);});
         },
     	loadProblems: function (opts){
             var self = this;
             this.problemsFetched = false;
             this.$(".load-library-button").bootstrapBtn("loading");
-            var _path;
-            if(this.libraryTreeView && this.libraryTreeView.fields){
-                _path = this.libraryTreeView.fields.values();
-            }
+            var _path = this.libraryTreeView && this.libraryTreeView.fields
+                            && _(this.libraryTreeView.fields.values()).without("");
             _(this.problemList = new ProblemList()).extend({path: _path, type: this.libBrowserType})
             if(opts && opts.directory){
                 this.problemList.dir = opts.directory;

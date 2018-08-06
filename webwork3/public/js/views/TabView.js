@@ -1,3 +1,9 @@
+/***
+*
+*  This is a Backbone.View to be used as a Tab in a TabbedMainView.
+*
+*/
+
 define(['backbone'],function(Backbone){
 	var TabView = Backbone.View.extend({
 		initialize: function(options){
@@ -18,4 +24,3 @@ define(['backbone'],function(Backbone){
 	});
 	return TabView;
 });
-

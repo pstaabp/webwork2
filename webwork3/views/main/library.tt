@@ -90,24 +90,6 @@
     <div class="col"><select class="custom-select custom-select-sm library-level-3 hidden"></select></div>
     <div class="col"><button class="btn btn-sm btn-outline-dark load-library-button" data-loading-text="Loading Problems...">Load</button></div>
   </div>
-<!-- <div class="form-horizontal">
-  <div class="col-md-3 library-level-0">
-    <select class="form-control input-sm"></select>
-  </div>
-  <div class="col-md-3 library-level-1 hidden">
-    <select class="form-control input-sm"></select>
-  </div>
-  <div class="col-md-3 library-level-2 hidden">
-    <select class="form-control input-sm"></select>
-  </div>
-  <div class="col-md-3 library-level-3 hidden">
-    <select class="form-control input-sm"></select>
-  </div>
-
-  <div class="col-md-3">
-    <button class="btn  btn-outline-dark load-library-button" data-loading-text="Loading Problems...">Load</button>
-  </div>
-</div> -->
 </script>
 
 <script type="text/template" id="loading-library-template">

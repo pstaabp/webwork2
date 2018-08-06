@@ -72,10 +72,10 @@
 
 <script type="text/template" id="problem-list-template">
 <div class="row problems-top-row">
-  <div class="problem-paginator col-md-4"></div>
-  <div class="col-md-8 num-problems"></div>
+  <div class="problem-paginator col-7"></div>
+  <div class="col-3 num-problems"></div>
   <%if(show_undo||false) {%>
-  <div class="pull-right btn-group">
+  <div class="col-2 btn-group">
     <button class="btn  btn-outline-dark renumber-button btn-sm">Renumber Problems</button>
     <button class="btn  btn-outline-dark undo-delete-button btn-sm disabled">Undo Delete Problem</button></div>
   <%}%>

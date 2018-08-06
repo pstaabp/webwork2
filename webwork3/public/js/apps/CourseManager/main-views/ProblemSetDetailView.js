@@ -559,9 +559,13 @@ define(['jquery','backbone','underscore','views/TabbedMainView','views/MainView'
                 = new ProblemSetView(_(options).pick("settings","messageTemplate","eventDispatcher"));
             TabView.prototype.initialize.apply(this,[options]);
             this.tabState.on("change:show_path",function(){
-                self.problemSetView.showPath(self.tabState.get("show_path"));
+                if(self.problemSetView){
+                    self.problemSetView.showPath(self.tabState.get("show_path"));
+                }
             }).on("change:show_tags",function(){
-                self.problemSetView.showTags(self.tabState.get("show_tags"));
+                if(self.problemSetView){
+                    self.problemSetView.showTags(self.tabState.get("show_tags"));
+                }
             });
         },
         render: function (){

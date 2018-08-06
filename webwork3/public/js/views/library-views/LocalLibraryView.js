@@ -1,15 +1,15 @@
 /*
 *  This is the a view of an interface to search the problem library
 *
-*  
-*/ 
+*
+*/
 
 
 define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config',
-        'models/Problem','views/library-views/LibraryTreeView'], 
+        'models/Problem','views/library-views/LibraryTreeView'],
 function(Backbone, _, LibraryView,ProblemList,config,Problem,LibraryTreeView){
     var LocalLibraryView = LibraryView.extend({
-        tabName: "Local Problems",
+        tabName: "Local Probs.",
     	initialize: function (options){
             _(this).extend(_(options).pick("tabName"));
             LibraryView.prototype.initialize.apply(this,[options]);
@@ -21,8 +21,8 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem,LibraryTreeView){
     	},
         /*showProblems: function (_dir){
             var self = this;
-            this.tabState.set("selected_dir", _dir == "TOPDIR" ? "": _dir); 
-            
+            this.tabState.set("selected_dir", _dir == "TOPDIR" ? "": _dir);
+
             this.problemList.each(function(prob){
                 var comps = prob.get("source_file").split("/");
                 comps.pop();
@@ -35,14 +35,14 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem,LibraryTreeView){
 
         }*/
     });
-    
+
     var LocalLibraryTreeView = LibraryTreeView.extend({
         template: $("#local-library-tree-template").html(),
         initialize: function(options){
-            var self = this; 
+            var self = this;
             _(this).bindAll("render");
-            this.libraryView = options.libraryView || console.error("libraryView must be defined");  
-            this.model = new Backbone.Model({directory: ""}); 
+            this.libraryView = options.libraryView || console.error("libraryView must be defined");
+            this.model = new Backbone.Model({directory: ""});
             this.model.on("change:directory",function(){
                 var obj = _(self.directories).findWhere({path: self.model.get("directory")});
                 self.$(".load-library-button").text("Load " + obj.num_files + " problems"); // I18N
@@ -50,31 +50,31 @@ function(Backbone, _, LibraryView,ProblemList,config,Problem,LibraryTreeView){
             this.directories = [];
         },
         render: function () {
-            self = this; 
+            self = this;
             if(_.isEmpty(this.directories)){
                 this.$el.html($("#library-tree-template").html());
                 var getDirectoryURL = config.urlPrefix + "courses/" + config.courseSettings.course_id + "/library/pending";
                 $.ajax({url: getDirectoryURL, success: function(data){
-                        self.directories = data; 
+                        self.directories = data;
                         self.render();
-                }}); 
+                }});
             } else {
                 this.$el.html($("#local-library-tree-template").html());
             }
-            this.stickit(); 
+            this.stickit();
         },
         bindings: {
             ".local-library-tree-select" : {observe: "directory", selectOptions: {
-                collection: 'this.directories', labelPath: "path", valuePath: "path"  
+                collection: 'this.directories', labelPath: "path", valuePath: "path"
             }}
         },
-        events: { 
-            "click .load-library-button": function () { 
+        events: {
+            "click .load-library-button": function () {
                 this.libraryView.loadProblems({directory: "Pending/" +this.model.get("directory")});
                 this.libraryView.showProblems();
             }
         }
-    }); 
+    });
 
     return LocalLibraryView;
 });

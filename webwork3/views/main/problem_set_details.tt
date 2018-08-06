@@ -38,46 +38,45 @@
 
 
 <script type="text/template" id="paginator-template">
-<ul class="pagination">
+<ul class="pagination pagination-sm">
 <% if(current_page==0){
-  print("<li class='disabled'>")
+  print("<li class='page-item disabled'>")
 } else {
-  print("<li>");
+  print("<li class='page-item'>");
 }
 %>
-  <a href="#" onclick="return false" class="goto-first"><i class="fa fa-step-backward"></i></a></li>
-<% if(current_page==0){
-  print("<li class='disabled'>")
-} else {
-  print("<li>");
-}
-%>
-<a href="#" onclick="return false" class="go-back-one"><i class="fa fa-arrow-left"></i></a></li>
-<% if (page_start>0) {print ("<li><a href=''> ...</a> </li>");} %>
+  <a href="#" onclick="return false" class="page-link goto-first"><i class="fa fa-step-backward"></i></a></li>
+  <% if(current_page==0){
+    print("<li class='page-item disabled'>")
+  } else {
+    print("<li class='page-item'>");
+  }
+  %>
+<a href="#" onclick="return false" class="page-link go-back-one"><i class="fa fa-arrow-left"></i></a></li>
+<% if (page_start>0) {print ("<li class='page-item'><a class='page-link' href=''> ...</a> </li>");} %>
 <% for(i=page_start;i<page_stop;i++){
     if(current_page==i){
-      print("<li class='active'><a href='#'' class='page-button' data-page='" + i + "'>" + (i+1) + "</a></li>");
+      print("<li class='page-item active'><a href='#'' class='page-link' data-page='" + i + "'>" + (i+1) + "</a></li>");
     } else {
-      print("<li><a href='#'' class='page-button' data-page='" + i + "'>" + (i+1) + "</a></li>");
+      print("<li class='page-item'><a href='#'' class='page-link' data-page='" + i + "'>" + (i+1) + "</a></li>");
     }
 } %>
 <% if (page_stop+1<num_pages) {print ("<li><a href=''> ...</a> </li>");} %>
 
 <% if(current_page+1===page_stop){
-  print("<li class='disabled'>")
+  print("<li class='page-item disabled'>")
 } else {
-  print("<li>");
+  print("<li class='page-item'>");
 }
 %>
-<a href="#" onclick="return false"  class="go-forward-one"><i class="fa fa-arrow-right"></i></a></li>
-
+<a href="#" onclick="return false"  class="page-link go-forward-one"><i class="fa fa-arrow-right"></i></a></li>
 <% if(current_page+1===page_stop){
-  print("<li class='disabled'>")
+  print("<li class='page-item disabled'>")
 } else {
-  print("<li>");
+  print("<li class='page-item'>");
 }
 %>
-<a href="#" onclick="return false"  class="goto-end"><i class="fa fa-step-forward"></i></a></li>
+<a href="#" onclick="return false"  class="page-link goto-end"><i class="fa fa-step-forward"></i></a></li>
 </ul>
 </script>
 

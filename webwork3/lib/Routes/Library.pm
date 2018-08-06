@@ -70,6 +70,10 @@ get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 
 	my ($subj,$chap) = splat;
 
+  debug $subj;
+  debug $chap;
+
+  debug dump searchLibrary(database,{subject=>$subj,chapter=>$chap});
 	return searchLibrary(database,{subject=>$subj,chapter=>$chap});
 };
 
@@ -494,19 +498,19 @@ get '/library/taxonomy' => sub {
 
 any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
 
-	my $renderParams = {};
+	my $renderParams = {
+    displayMode => query_parameters->get('displayMode') || body_parameters->get("displayMode")
+      || vars->{ce}->{pg}{options}{displayMode},
+    showHints => (query_parameters->get('showHints') || body_parameters->get("showHints") || "false") eq 'true'? 1:0,
+    showSolutions => (query_parameters->get('showSolutions') || body_parameters->get("showSolutions") || "false") eq 'true'? 1:0,
+    showAnswers => 0,
+    problem => {
+      problem_seed => query_parameters->get('problem_seed') || body_parameters->get("problem_seed") || 1,
+      problem_id => query_parameters->get('problem_id') || body_parameters->get("problem_id") || 1,
+    }
+  };
 
-    $renderParams->{displayMode} = params->{displayMode} || vars->{ce}->{pg}{options}{displayMode};
-	$renderParams->{problemSeed} = defined(params->{problemSeed}) ? params->{problemSeed} : 1;
-	$renderParams->{showHints} = params->{show_hints} eq 'true' ? 1 :  0;
-	$renderParams->{showSolutions} = params->{show_solution} eq 'true' ? 1 : 0;
-	$renderParams->{showAnswers} = 0;
 
-	$renderParams->{user} = fake_user(vars->{db});
-	$renderParams->{set} =  fake_set(vars->{db});
-	$renderParams->{problem} = fake_problem(vars->{db});
-	$renderParams->{problem}->{problem_seed} = params->{problem_seed} || 0;
-	$renderParams->{problem}->{problem_id} = params->{problem_id} || 1;
 
 	# check to see if the problem_path is defined
 
@@ -516,16 +520,16 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		$renderParams->{problem}->{source_file} = "Library/" . params->{problem_path};
 	} elsif (defined(params->{source_file})){  # this is generally a library problem
 		$renderParams->{problem}->{source_file} = params->{source_file};
-        # get the pgfile_id #
-        my $file = file(params->{source_file});
-        my $path = $file->dir->stringify;
-        $path =~ s/Library\///;
-        my $pathdb = database->quick_select('OPL_path',{path=>$path});
-        my $path_id = $pathdb->{path_id} if $pathdb;
-        my $pgfile = database->quick_select('OPL_pgfile',{path_id => $path_id, filename=> $file->basename});
-        my $pgfile_id = 0;  # needed for a fix.  Why doesn't a pgfile have an id?
-        $pgfile_id = $pgfile->{pgfile_id} if $pgfile;
-        $renderParams->{problem}->{problem_id} = $pgfile_id;
+    # get the pgfile_id #
+    my $file = file(params->{source_file});
+    my $path = $file->dir->stringify;
+    $path =~ s/Library\///;
+    my $pathdb = database->quick_select('OPL_path',{path=>$path});
+    my $path_id = $pathdb->{path_id} if $pathdb;
+    my $pgfile = database->quick_select('OPL_pgfile',{path_id => $path_id, filename=> $file->basename});
+    my $pgfile_id = 0;  # needed for a fix.  Why doesn't a pgfile have an id?
+    $pgfile_id = $pgfile->{pgfile_id} if $pgfile;
+    $renderParams->{problem}->{problem_id} = $pgfile_id;
 	} elsif ((params->{problem_id} =~ /^\d+$/) && (params->{problem_id} > 0)){
 			# try to look up the problem_id in the global database;
 		my $problem_info = database->quick_select('OPL_pgfile', {pgfile_id => route_parameters->{problem_id}});
@@ -534,10 +538,10 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
 		$renderParams->{problem}->{source_file} = file("Library" ,$path_header , $problem_info->{filename})->stringify;
 	}
 
-    my $rp = render(vars->{ce},$renderParams);
-    my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
-    #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
-    #$rp->{tags} = getProblemTagsFromDB(-1);
+  my $rp = render(vars->{ce},vars->{db},$renderParams,\&debug);
+  my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
+  #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
+  #$rp->{tags} = getProblemTagsFromDB(-1);
 	return $rp;
 };
 
