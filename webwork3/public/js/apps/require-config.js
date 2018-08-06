@@ -17,8 +17,10 @@ var require = {
         "blob":                 "/webwork3/modules/blob/Blob",
         "file-saver":           "/webwork3/modules/file-saver/FileSaver",
         "ev-emitter/ev-emitter":"/webwork3/modules/ev-emitter/ev-emitter", // NEEDED in this form by imagesloaded
-        "knowl":                "/webwork2_files/js/vendor/other/knowl",
-        "Base64":               "/webwork2_files/js/apps/Base64/Base64",
+        //"knowl":                "/webwork2_files/js/vendor/other/knowl",
+        "knowl":                "/webwork3/js/knowl/knowl",
+        "Base64":               "/webwork3/js/knowl/Base64",
+        //"Base64":               "/webwork2_files/js/apps/Base64/Base64",
         "jquery-csv":           "/webwork3/modules/jquery-csv/src/jquery.csv",
         "views":                "/webwork3/js/views",
         "models":               "/webwork3/js/models",
@@ -46,7 +48,6 @@ var require = {
         // //'jquery-truncate': ['jquery'],
         // //'editablegrid': {deps: ['jquery'], exports: 'EditableGrid'},
         // 'blob': {exports : 'Blob'},
-        'imagesloaded': ['jquery','ev-emitter/ev-emitter'],
-        'knowl': ['Base64','jquery']
+        'imagesloaded': ['jquery','ev-emitter/ev-emitter']
     }
 };
