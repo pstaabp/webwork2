@@ -156,54 +156,51 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
             return this;
         },
         renderProblems: function () {
-            var self = this;
-            var ul = this.$(".prob-list").empty();
-            if(this.problemViews.length == 0){
-                this.updateProblems();
+          var self = this;
+          var ul = this.$(".prob-list").empty();
+          if(this.problemViews.length == 0){
+              this.updateProblems();
+          }
+          _(this.problemViews).each(function(pv){
+              ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el);
+
+              // what is this needed for?
+              pv.model.once("rendered",function(_m){
+                  if(self.libraryView){
+                      self.libraryView.sidebarChanged();
+                  }
+              })
+              pv.delegateEvents();
+          });
+
+          if(this.viewAttrs.reorderable){
+              this.$(".prob-list").sortable({handle: ".reorder-handle", forcePlaceholderSize: true,
+                                              placeholder: "sortable-placeholder",axis: "y",
+                                              stop: this.reorder});
+          }
+
+          this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
+
+          // check if all of the problems are rendered.  When they are, trigger an event
+          //
+          // I think this needs work.  It appears that MathJax fires lots of "Math End" signals,
+          // although why not just one.
+          //
+          // this may also be part of the many calls to render throughout the app.
+          // (Note: after further work on another branch, this may not be necessary)
+
+          _(this.problemViews).each(function(pv){
+            if(pv && pv.model){
+              pv.model.on("rendered", function () {
+                if(_(self.problemViews).chain().map(function(pv){
+                  if(pv) {return pv.state.get("rendered");}}).every().value()){
+                    self.trigger("rendered");
+                  }
+              });
             }
-            _(this.problemViews).each(function(pv){
-                ul.append(pv.set({display_mode: self.state.get("display_mode")}).render().el);
-
-                // what is this needed for?
-                pv.model.once("rendered",function(_m){
-                    if(self.libraryView){
-                        self.libraryView.sidebarChanged();
-                    }
-                })
-                pv.delegateEvents();
-            });
-
-            if(this.viewAttrs.reorderable){
-                this.$(".prob-list").sortable({handle: ".reorder-handle", forcePlaceholderSize: true,
-                                                placeholder: "sortable-placeholder",axis: "y",
-                                                stop: this.reorder});
-            }
-
-            this.showProperty(this.state.pick("show_path","show_tags","show_hints","show_solution"));
-
-            // check if all of the problems are rendered.  When they are, trigger an event
-            //
-            // I think this needs work.  It appears that MathJax fires lots of "Math End" signals,
-            // although why not just one.
-            //
-            // this may also be part of the many calls to render throughout the app.
-            // (Note: after further work on another branch, this may not be necessary)
-
-            _(this.problemViews).each(function(pv){
-              if(pv && pv.model){
-                pv.model.on("rendered", function () {
-                  if(_(self.problemViews).chain().map(function(pv){
-                    if(pv) {return pv.state.get("rendered");}}).every().value()){
-                        self.trigger("rendered");
-                    }
-                  });
-                }
-            })
-//            this.showPath(this.show_path);
-        //    this.showTags(this.show_tags);
-
-            this.updateNumProblems();
-            return this;
+          })
+          this.updateNumProblems();
+          return this;
         },
         /* Clear the problems and rerender */
         reset: function (){
@@ -211,31 +208,13 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
             this.set({problems: new ProblemList()}).render();
         },
         updateNumProblems: function () {
-// <<<<<<< HEAD
-//             var numPerPage = _(this.pages).map(function(page){
-//                return  _(page).reduce(function(num,obj){ return num + parseInt(obj.leader?1:0);},0); });
-//             var totalProbs = _(numPerPage).reduce(function(num,page) { return num+page;},0);
-//             if (totalProbs>0){
-//                 var start = 1,i;
-//                 for(i=0;i<this.state.get("current_page"); i++)
-//                     start += numPerPage[i];
-//                 end = start-1+numPerPage[this.state.get("current_page")];
-//                 this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
-//                     opts: {probFrom: start, probTo:end,total: totalProbs }}));
-//             }
-//
-//             var num_problem_row_height = $(".num-problems").parent().outerHeight(true);
-//             var tab_height = $(".set-details-tab").parent().outerHeight(true);
-//             var navbar_height = $(".navbar-fixed-top").outerHeight(true);
-//             var footer_height = $(".navbar-fixed-bottom").outerHeight(true);
-//             this.$(".prob-list").height($(window).height()-num_problem_row_height-tab_height
-//                                                 -navbar_height-footer_height);
-
-            if (this.problems.size()>0){
-                this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
-                    opts: {probFrom: (this.pageRange[0]+1), probTo:(_(this.pageRange).last() + 1),
-                         total: this.problems.size() }}));
-            }
+          if (this.problems.size()>0){
+            var from = this.pageRange[0]+1;
+            var to = _(this.pageRange).last()+1>this.problems.size()?this.problems.size():
+                      _(this.pageRange).last()+1;
+              this.$(".num-problems").html(this.messageTemplate({type: "problems_shown",
+                opts: {probFrom: from, probTo:to, total: this.problems.size() }}));
+          }
         },
         updateCurrentPage: function(_model){
           currentPage = _model.get("current_page");
@@ -275,52 +254,6 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
             });
             return this;
         },
-        // firstPage: function() { this.state.set("current_page",0);},
-        // prevPage: function() {
-        //     if(this.state.get("current_page")>0)
-        //         this.state.set("current_page",this.state.get("current_page")-1);
-        //  },
-        // nextPage: function() {
-        //     if(this.state.get("current_page")<this.pages.length-1)
-        //         this.state.set("current_page",this.state.get("current_page")+1);
-        //  },
-        // lastPage: function() {this.state.set("current_page",this.pages.length-1);},
-        // gotoPage: function(arg){
-
-        //     var page = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
-        //     this.state.set("current_page",page);
-        //     return this;
-        // },
-        // updatePaginator: function() {
-        //     // render the paginator
-        //     if(! this.pages) { return this;}
-        //     var start =0,
-        //         stop = this.pages.length;
-        //     if(this.pages.length>8){
-        //         start = (this.state.get("current_page")-4 <0)?0:this.state.get("current_page")-4;
-        //         stop = start+8<this.pages.length?start+8 : this.pages.length;
-        //     }
-        //     if(this.pages.length>1){
-        //         var tmpl = _.template($("#paginator-template").html());
-        //         this.$(".problem-paginator").html(tmpl({current_page: this.state.get("current_page"),
-        //                                                 page_start:start,
-        //                                                 page_stop:stop,
-        //                                                 num_pages:this.pages.length}));
-        //     }
-
-        //     this.currentPage = /^\d+$/.test(arg) ? parseInt(arg,10) : parseInt($(arg.target).text(),10)-1;
-        //     this.pageRange = this.page_size >0 ? _.range(this.currentPage*this.page_size,
-        //         (this.currentPage+1)*this.page_size>this.problems.size()? this.problems.size():(this.currentPage+1)*this.page_size)
-        //             : _.range(this.problems.length);
-        //     this.updatePaginator();
-        //     this.renderProblems();
-        //     this.$(".problem-paginator button").removeClass("current-page");
-        //     this.$(".problem-paginator button[data-page='" +
-        //             this.state.get("current_page") + "']").addClass("current-page");
-        //
-        //     return this;
-        // },
-
         setProblemSet: function(_set) {
             this.model = _set;
             if(this.model){

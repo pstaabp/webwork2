@@ -1,5 +1,6 @@
-define(['jquery','backbone', 'underscore','config','models/Problem','apps/util','imagesloaded','knowl','bootstrap'],
-       function($,Backbone, _,config,Problem,util){
+define(['jquery','backbone', 'underscore','views/ProblemTagView','config',
+    'models/Problem','apps/util','imagesloaded','knowl','bootstrap'],
+       function($,Backbone, _,ProblemTagView,config,Problem,util){
     //##The problem View
 
     //A view defined for the browser app for the webwork Problem model.
@@ -240,16 +241,16 @@ define(['jquery','backbone', 'underscore','config','models/Problem','apps/util',
         },
         showTags: function (_show){
             var self = this;
-            if(_(this.model.get("tags")).isEmpty() && _show){
+            if(!this.model.get("tags_loaded") && _show){
                 this.$(".loading-tag-spinner").removeClass("hidden");
                 this.model.loadTags({success: function (){
                         self.$(".loading-tag-spinner").addClass("hidden");
                         self.showTags(_show);
                     }});
             }
-            if(_show && self.model.get("tags")) {
+            if(_show && self.model.get("tags_loaded")) {
                 if(_.isUndefined(self.problemTagView)){
-                    self.problemTagView = new ProblemTagView({model: self.model.get("tags"), edit_tags: self.edit_tags});
+                    self.problemTagView = new ProblemTagView({model: self.model, edit_tags: self.edit_tags});
                 }
                 self.problemTagView.setElement(self.$(".problem-tag-container")).render();
             }

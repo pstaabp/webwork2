@@ -9,7 +9,7 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
     var Problem = Backbone.Model.extend({
         defaults:{
             source_file:"",  // the path to the problem in the courses/templates directory
-            pgsource: "",
+            pgsource: "",  // source of the problem as a string.
             data: "",  // the HTML source of the problem.
             problem_id: 0,
             value: 1,
@@ -17,26 +17,32 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
             set_id: "",
             flags: "",
             problem_seed: 1,
-            morelt_id: "",
-            mlt_leader: false,
             show_hints: false,
             show_solution: false,
             showMeAnotherCount: 0,
             showMeAnother: -1,
             editable: false,
             // the following are useful tags for the library
-            date: "",
-            problem_author: "",
-            institution: "",
+            tags_loaded: false,
+            Author: "",
+            Date: "",
+            DBsubject: "",
+            DBchapter: "",
+            DBsection: "",
+            Institution: "",
             textbook_title: "",
             textbook_author: "",
             textbook_edition: "",
             textbook_section: "",
             textbook_problem_number: "",
-            db_subject: "",
-            db_chapter: "",
-            db_section: "",
             keywords: [],
+            Language: "",
+            Level: "",
+            MLT: "",
+            MLTleader: "",
+            MO: "",
+            Static: "",
+            Status: "",
             answer_type: "",
         },
         integerFields: ["problem_id","value","max_attempts","problem_seed","showMeAnotherCount","showMeAnother"],
@@ -91,18 +97,20 @@ define(['jquery','backbone', 'underscore', 'config', 'apps/util'], function($,Ba
             }
         },
         loadTags: function (opts) {
-            var self = this;
-            if(! this.get("tags")){
-                var fileID = (this.get("pgfile_id") || -1);
-                $.ajax({
-                    url: config.urlPrefix + "library/problems/" + fileID +"/tags",
-                    method: "GET",
-                    data: {course_id: config.courseSettings.course_id, source_file: this.get("source_file")},
-                    success: function (data) {
-                        self.set("tags",new ProblemTags(data));
-                        opts.success(data);
-                }});
-            }
+          var self = this;
+          if(! this.get("tags")){
+            var fileID = (this.get("pgfile_id") || -1);
+            $.ajax({
+                url: config.urlPrefix + "library/courses/" +config.courseSettings.course_id
+                    + "/problems/" + fileID +"/tags",
+                method: "GET",
+                data: {source_file: this.get("source_file")},
+                success: function (data) {
+                  self.set({tags_loaded: true});
+                  self.set(data);
+                  opts.success(data);
+            }});
+          }
         },
         problemURL: function(){
             // console.log(this.attributes);

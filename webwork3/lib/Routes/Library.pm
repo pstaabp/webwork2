@@ -452,17 +452,15 @@ get '/library/problems' => sub {
 
 ###
 #
-#  get '/Library/problems/:problem_id/tags'
+#  get '/library/courses/:course_id/problems/:problem_id/tags'
 #
 #  This returns all of the tags from the DB for a problem.  Note: the course_id must be passed as a parameter
 #
 ##
 
-get '/library/problems/:problem_id/tags' => sub {
-
-    setCourseEnvironment(params->{course_id});
-    my $filepath = file(vars->{ce}->{courseDirs}->{templates}, params->{source_file});
-	return convertObjectToHash(getProblemTags($filepath->stringify));
+get '/library/courses/:course_id/problems/:problem_id/tags' => sub {
+  my $pgfile = path(vars->{ce}->{courseDirs}->{templates}, params->{source_file});
+	return convertObjectToHash(getProblemTags($pgfile));
 };
 
 
@@ -472,9 +470,8 @@ get '/library/problems/:problem_id/tags' => sub {
 #
 ###
 
-get '/library/taxonomy' => sub {
-    setCourseEnvironment("");
-    my $file = file(vars->{ce}->{webwork_htdocs_dir},"DATA","tagging-taxonomy.json")->stringify;
+get '/library/courses/:course_id/taxonomy' => sub {
+    my $file = path(vars->{ce}->{webwork_htdocs_dir},"DATA","tagging-taxonomy.json");
 
     my $json_text = do {
         open(my $json_fh, "<:encoding(UTF-8)", $file)  or send_error("The file $file does not exist.",404);

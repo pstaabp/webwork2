@@ -1,12 +1,12 @@
 /*
 *  This is the a view of an interface to search the problem library
 *
-*  
-*/ 
+*
+*/
 
 
-define(['backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config'], 
-function(Backbone, _,LibraryView,ProblemList,config){
+define(['jquery','backbone', 'underscore','views/library-views/LibraryView','models/ProblemList','config'],
+function($,Backbone, _,LibraryView,ProblemList,config){
     var LibrarySearchView = LibraryView.extend({
         className: "lib-browser",
         tabName: "Search",
@@ -21,7 +21,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
         },
         events: function(){
             return _.extend({},LibraryView.prototype.events,{
-                "click .search-button": "search",      
+                "click .search-button": "search",
                 "keyup .search-query": "checkForEnter"
             });
         },
@@ -35,7 +35,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
     	},
         search: function () {
             var params = {};
-            var self = this; 
+            var self = this;
             var searches = this.tabState.get("search_query").match(/^\s*(.*)\s*$/)[1].split(/\s+and\s*/i);
             var valid = true;
             var error = "";
@@ -55,14 +55,14 @@ function(Backbone, _,LibraryView,ProblemList,config){
                 }
                 params[comps[0]]=comps[1];
             });
-            
+
             if(_(params).has("keyword")){
                 params.keyword = "%" + params.keyword + "%";
             }
-            
+
 
             if(valid){
-                this.$(".search-button").button("loading");
+                this.$(".search-button").bootstrapBtn("loading");
                 $.get(config.urlPrefix + "library/problems", params, this.showResults);
                 this.$(".search-query").parent().removeClass("has-error");
             } else {
@@ -71,7 +71,7 @@ function(Backbone, _,LibraryView,ProblemList,config){
             }
         },
         showResults: function (data) {
-            this.$(".search-button").button("reset");
+            this.$(".search-button").bootstrapBtn("reset");
             this.problemList = new ProblemList(data);
             this.$(".num-problems").text(this.problemList.length + " problems");
             this.showProblems();

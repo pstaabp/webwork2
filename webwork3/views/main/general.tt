@@ -130,7 +130,7 @@
         <i class="fa fa-trash-o"></i></a>
     <%}%>
     <%if(mlt_leader){ %>
-      <a href="#" onclick="return false;" class="mlt-button btn btn-default" title="Show/Hide More Like This problems">M</a>
+      <a href="#" onclick="return false;" class="mlt-button btn btn-outline-dark" title="Show/Hide More Like This problems">M</a>
     <%}%>
     <%if(markCorrect){ %>
       <a href="#" onclick="return false;" class="mark-correct-btn  btn btn-outline-dark" title="Mark this problem correct for all assigned users.">
@@ -154,8 +154,8 @@
     <i class="fa fa-bullseye fa-lg"></i></button>
   </div>
   </div>
-  <div class="problem-tags">
-  <table class="table table-condensed table-bordered"><tbody>
+  <div class="problem-tag-container">
+  <!-- <table class="table table-condensed table-bordered"><tbody>
 <tr class="hidden path-row"><td>Problem Path:</td><td colspan="3">
 <input type="text" class="problem-path form-control"></td>
 <td>Seed:</td><td class="seed"></td></tr>
@@ -173,7 +173,7 @@
 <td>Textbook Chapter:</td><td class="tb-chapter-tag"></td>
 <td>Textbook Section:</td><td class="tb-section-tag"></td></tr>
 </tbody>
-</table>
+</table> -->
 </div>
 <div><%=data%></div>
 <%if(flags && flags.comment){%>
@@ -192,7 +192,7 @@
 </script>
 
 <script type="text/template" id="show-tags-template">
-  <table class="table table-condensed table-bordered"><tbody>
+  <table class="table table-sm table-bordered"><tbody>
 <!--<tr class="hidden path-row"><td>Problem Path:</td><td colspan="3" class="problem-path"></td>
 <td>Seed:</td><td class="seed"></td></tr>-->
 
