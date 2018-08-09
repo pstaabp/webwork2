@@ -1,45 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WeBWorK 3</title>
-  <link rel="stylesheet" href="[% top_dir %]/modules/bootstrap/dist/css/bootstrap.min.css" type="test/css">
-  <link rel='stylesheet' href='[% top_dir %]/modules/font-awesome/css/font-awesome.min.css' type='text/css' media='screen'>
-  <link rel='stylesheet' href='[% top_dir %]/css/webwork.css' type='text/css' media='screen'>
-  <!-- <script src="[% top_dir %]/js/bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="[% top_dir %]/js/bower_components/bootstrap/dist/js/bootstrap.min.js"></script> -->
+<title>WeBWorK 3</title>
+<link rel='stylesheet' href='[% top_dir %]/modules/jquery-ui/themes/base/all.css' type='text/css' media='screen'>
+<link rel="stylesheet" href="[% top_dir %]/modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="[% top_dir %]/modules/codemirror/lib/codemirror.css" type="text/css">
+<link rel='stylesheet' href='[% top_dir %]/modules/@fortawesome/fontawesome-free/css/all.min.css' type='text/css' media='screen'>
+<link rel='stylesheet' type="text/css" href="[% top_dir %]/css/course-manager.css">
 </head>
 <body>
-
-
-
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark" role="navigation" id="top-navbar">
+  </nav>
 [% content %]
-
-<nav class="navbar-fixed-bottom navbar navbar-other" id="footer">
-<div class="container">
-<p id="footer" class="navbar-text">
-<a href="http://webwork.maa.org">WeBWorK</a> &copy; 1996-2017,
-  ww_version: [% ww_version %] | pg_version [% pg_version %]|
-  <span style="margin-left:4ex;">Powered</span> by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
-</div>
+<nav class="fixed-bottom navbar navbar-light bg-light" id="footer">
+  <div class="container">
+  <p id="footer" class="navbar-text">
+  <a href="http://webwork.maa.org">WeBWorK</a> &copy; 1996-2017,
+    ww_version: [% ww_version %] | pg_version [% pg_version %]|
+    <span style="margin-left:4ex;">Powered</span> by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
+  </div>
 </nav>
+
+
+
+<script type="text/template" id="menu-bar-template">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+     -->
+
+
+  <a class="navbar-brand" href="#"><img id="wwlogo" src="[% top_dir %]/images/webwork_square.svg">WeBWorK</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="nav nav-pills">
+      <li class="nav-item" id="navigation-buttons">
+        <div class="btn-group">
+          <button class="back-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-left"></i></button>
+          <button class="forward-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-right"></i></button>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="mx-3 nav-link dropdown-toggle btn btn-primary" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Menu
+        </a>
+        <div class="dropdown-menu manager-menu" aria-labelledby="navbarDropdown">
+        </div>
+      </li>
+      <li class="nav-item">
+        <span class="mx-3 navbar-text main-view-name"></span>
+      </li>
+
+      <li class="nav-item">
+        <span class="alert border" id="short-message">
+        </span>
+      </li>
+    </ul>
+
+  </div>
+   <ul class="nav nav-pills float-right">
+     <li class="nav-item">
+       <span class="navbar-text" id="welcome-nav">Welcome <span class="logged-in-as"></span><span class="act-as-user"></span></span>
+      <li>
+     <li class="nav-item dropdown">
+       <button class="btn  btn-outline-light btn-sm navbar-btn logout-button" data-toggle="dropdown">
+           <i class="fa fa-sign-out-alt"></i></button>
+           <div class="dropdown-menu" role="menu">
+             <a class="dropdown-item logout-link" href="#"  onclick="return false">Logout</a>
+             <a class="dropdown-item stop-acting-link" href="#"  onclick="return false">Stop Acting as User</a>
+           </div>
+     </li>
+     <li class="nav-item"><a class="nav-link" href="https://github.com/openwebwork/webwork2/issues/new" target="_blank">Bugs!</a></li>
+     <li class="nav-item"><a href="#" onclick="return false" class="main-help-button nav-link">Help</a></li>
+   </ul>
+</script>
 
 
 <script type="text/template" id="login-template">
 <div class="message"> <%=message%></div>
 <form class="form-horizontal" role="form">
   <div class="form-group">
-    <label for="inputEmail3" class="col-sm-2 control-label">Login Name:</label>
-    <div class="col-sm-10">
+    <label for="inputEmail3" class="col-md-4 control-label">Login Name:</label>
+    <div class="col-md-7">
       <input type="input" name="username" class="form-control login-name" id="inputEmail3" placeholder="Login">
     </div>
   </div>
   <div class="form-group">
-    <label for="password" class="col-sm-2 control-label">Login Name:</label>
-    <div class="col-sm-10">
+    <label for="password" class="col-md-4 control-label">Password</label>
+    <div class="col-md-7">
       <input type="password" name="password" class="form-control login-password" id="password" placeholder="Password">
     </div>
   </div>
 </form>
+<div class="message-bottom"></div>
 
 </script>
 

@@ -7,6 +7,8 @@ body {  /* needed for the navigation bars top and bottom*/
 
 .main-view-name {font-size: 125%;  font-weight: 300;}
 
+#welcome-nav {margin-right: 10px;}
+
 
 .breadcrumb {padding: 2px 15px ;}
 

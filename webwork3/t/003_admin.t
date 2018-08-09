@@ -88,9 +88,7 @@ subtest 'create a course' => sub {
     new_user_last_name =>"A",
     initial_password =>"profa"
   };
-  # my $req = POST "$url/courses/new_course_xyz";
-  # $req->header('Content-Type' => 'application/json');
-  # $req->content(encode_json($params));
+
   my $req = HTTP::Request->new(
     "POST","$url/admin/courses/new_course_xyz",
     HTTP::Headers->new('Content-Type' => 'application/json'),

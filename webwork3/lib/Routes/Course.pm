@@ -4,13 +4,22 @@
 #
 ##
 
-#package Routes::Course;
+
+####
+#
+#  pstaabp note: Aug. 2018.  Not sure these routes are used.  I think
+# this functionality is in the Routes/Admin.pm
+#
+###
+
+package Routes::Library;
 
 #use strict;
 #use warnings;
-#use Dancer ':syntax';
-##use Dancer::Plugin::Ajax; 
-use Dancer::FileUtils qw /read_file_content path/;
+use Dancer2 appname => "Routes::Login";
+use Dancer2::Plugin::Database;
+use Data::Dump qw/dump/;
+use Dancer2::FileUtils qw /read_file_content path/;
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use WeBWorK::Utils::CourseManagement qw(listCourses listArchivedCourses addCourse deleteCourse renameCourse);
 use WeBWorK::Utils::CourseIntegrityCheck qw(checkCourseTables);
@@ -23,12 +32,12 @@ our $PERMISSION_ERROR = "You don't have the necessary permissions.";
 
 ###
 #
-#  list the names of all courses.  
+#  list the names of all courses.
 #
 #  returns an array of course names.
 #
 ###
- 
+
 
 get '/courses' => sub {
 
@@ -65,8 +74,8 @@ get '/courses/:course_id' => sub {
 		 	webwork_dir         => vars->{ce}->{webwork_dir},
 			courseName => params->{course_id},
 		});
-        
-        
+
+
 
 		my $coursePath = vars->{ce}->{webworkDirs}->{courses} . "/" . params->{course_id};
 
@@ -84,7 +93,7 @@ get '/courses/:course_id' => sub {
 		} else {
             return {course_id => params->{course_id}, message=> "Course exists."};
         }
-		
+
 	} else {
 
 		my $session = {};
@@ -105,7 +114,7 @@ get '/courses/:course_id' => sub {
 #
 #  create a new course
 #
-#  the parameter new_userID must be sent to be an instructor for the course. 
+#  the parameter new_userID must be sent to be an instructor for the course.
 #
 #  returns the properties of the course
 #
@@ -113,23 +122,23 @@ get '/courses/:course_id' => sub {
 
 post '/courses/:new_course_id' => sub {
 
-    setCourseEnvironment("admin");  # this will make sure that the user is associated with the admin course. 
-    checkPermissions(10,session->{user});  ## maybe this should be at 15?  But is admin=15? 
-    
-    
-    
+    setCourseEnvironment("admin");  # this will make sure that the user is associated with the admin course.
+    checkPermissions(10,session->{user});  ## maybe this should be at 15?  But is admin=15?
+
+
+
     my $coursesDir = vars->{ce}->{webworkDirs}->{courses};
 	my $courseDir = "$coursesDir/" . params->{new_course_id};
 
-	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work. 
+	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work.
 
 	my $ce2 = new WeBWorK::CourseEnvironment({
 	 	webwork_dir => vars->{ce}->{webwork_dir},
 		courseName => params->{new_course_id},
 	});
-    
-    
-    
+
+
+
 	# return an error if the course already exists
 
 	if (-e $courseDir) {
@@ -146,7 +155,7 @@ post '/courses/:new_course_id' => sub {
 	if ($userTableExists){
 	  	return {error=>"The databases for " . params->{new_course_id} . " already exists"};
 	}
-	
+
 
 	# fail if the course ID contains invalid characters
 
@@ -181,7 +190,7 @@ post '/courses/:new_course_id' => sub {
 		user_id    => params->{new_userID},
 		permission => "10",
 	);
-    
+
 	push @users, [ $User, $Password, $PermissionLevel ];
 
 	my %courseOptions = ( dbLayoutName => "sql_single" );
@@ -205,7 +214,7 @@ put '/courses/:course_id' => sub {
 setCourseEnvironment("admin");
 	checkPermissions(10,session->{user});
 
-	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work. 
+	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work.
 
     my $ce2 = new WeBWorK::CourseEnvironment({
 	 	webwork_dir => vars->{ce}->{webwork_dir},
@@ -234,7 +243,7 @@ del '/courses/:course_id' => sub {
 	setCourseEnvironment("admin");
 	checkPermissions(10,session->{user});
 
-	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work. 
+	##  This is a hack to get a new CourseEnviromnet.  Use of %WeBWorK::SeedCE doesn't work.
 
     my $ce2 = new WeBWorK::CourseEnvironment({
 	 	webwork_dir => vars->{ce}->{webwork_dir},
@@ -249,25 +258,25 @@ del '/courses/:course_id' => sub {
 
 	deleteCourse(%{$options});
 
-	return {course_id => params->{course_id}, message => "Course deleted."}; 
+	return {course_id => params->{course_id}, message => "Course deleted."};
 
 };
 
-## 
+##
 #
-# get the current session 
+# get the current session
 #
 ##
 
 get '/courses/:course_id/session' => sub {
-	return convertObjectToHash(session); 
+	return convertObjectToHash(session);
 };
 
 post '/courses/:course_id/session' => sub {
 	session 'effectiveUser' => params->{effectiveUser};
 	return convertObjectToHash(session);
 };
- 
+
 
 get '/courses/:course_id/manager' =>  sub {
 
@@ -287,10 +296,10 @@ get '/courses/:course_id/manager' =>  sub {
 	# 1) the user is logged in and info stored as a cookie
 	# 2) the user is logged in and info stored on the URL
 	# 3) the user passed via the URL is not a member of the course
-	# 4) the user passed via the URL is not authorized for the manager. 
-    # 5) the user hasn't already logged in and needs to pop open a login window.  
+	# 4) the user passed via the URL is not authorized for the manager.
+    # 5) the user hasn't already logged in and needs to pop open a login window.
 	# 6) the user has already logged in and its safe to send all of the requisite data
-	# 
+	#
 
 
 
@@ -299,7 +308,7 @@ get '/courses/:course_id/manager' =>  sub {
 	my $ts = "";
 	my $cookieValue = cookie "WeBWorK.CourseAuthen." . params->{course_id};
 
-	# case 1) 
+	# case 1)
 	($userID,$sessKey,$ts) = split(/\t/,$cookieValue) if defined($cookieValue);
 
 	#debug "case 1";
@@ -331,7 +340,7 @@ get '/courses/:course_id/manager' =>  sub {
 		if (session->{user} && $userID ne session->{user}) {
 			my $key = vars->{db}->getKey(session 'user');
 			vars->{db}->deleteKey(session 'user') if $key;
-			session->destroy; 
+			session->destroy;
 		}
 	} elsif ($userID ne '') {
 		session 'user' => $userID;
@@ -341,7 +350,7 @@ get '/courses/:course_id/manager' =>  sub {
 
 	#debug "case 4";
 
-	
+
 	# case 1)
 
 	if($userID ne "" && ! vars->{db}->existsUser($userID)){
@@ -351,18 +360,18 @@ get '/courses/:course_id/manager' =>  sub {
 	}
 
 	# case 2)
-	
+
     if ($userID ne "" && vars->{db}->getPermissionLevel($userID)->{permission} < 10){
     	redirect  vars->{ce}->{server_root_url} .'/webwork2/' . params->{course_id};
-		return "You don't have access to this page.";	
+		return "You don't have access to this page.";
     }
 
-	# case 5) 
+	# case 5)
 	my $settings = [];
 	my $sets = [];
 	my $users = [];
 
-	# case 6) 
+	# case 6)
 	if(session 'user') {
 
 		buildSession($userID,$sessKey);
@@ -378,12 +387,12 @@ get '/courses/:course_id/manager' =>  sub {
 	my $theSession = convertObjectToHash(session);
 	$theSession->{effectiveUser} = session->{user};
 
-	# set the ww2 style cookie to save session info for work in both ww2 and ww3.  
+	# set the ww2 style cookie to save session info for work in both ww2 and ww3.
 
 	if(session && session 'user'){
-		setCookie();	
+		setCookie();
 	}
-	
+
 	template 'course_manager.tt', {course_id=> params->{course_id},theSession=>to_json(convertObjectToHash(session)),
 		theSettings=>to_json($settings), sets=>to_json($sets), users=>to_json($users), main_view_paths => to_json(\@view_paths),
 		main_views=>to_json($config),pagename=>"Course Manager"},
@@ -392,12 +401,12 @@ get '/courses/:course_id/manager' =>  sub {
 
 ###
 #
-#  list the names of all archived courses.  
+#  list the names of all archived courses.
 #
 #  returns an array of course names.
 #
 ###
- 
+
 
 get '/courses/archives' => sub {
 

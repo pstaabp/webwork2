@@ -199,7 +199,7 @@ get '/courses/:course_id/manager' =>  require_role professor => sub {
   };
 
 
-	template 'course_manager.tt', $params,{layout=>'manager.tt'};
+	template 'course_manager.tt', $params,{layout=>'main.tt'};
 };
 
 ##

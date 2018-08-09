@@ -1,6 +1,6 @@
-define(['module','backbone', 'underscore','models/UserSetList', 'views/WebPage','UserSetView', 'models/UserSet',
+define(['jquery','module','backbone', 'underscore','models/UserSetList', 'views/WebPage','UserSetView', 'models/UserSet',
     'models/UserProblemList', 'StudentCalendarView','models/AssignmentDateList','models/AssignmentDate', 'config'],
-function(module,Backbone, _, UserSetList, WebPage, UserSetView, UserSet, UserProblemList, StudentCalendarView,
+function($,module,Backbone, _, UserSetList, WebPage, UserSetView, UserSet, UserProblemList, StudentCalendarView,
             AssignmentDateList,AssignmentDate,config){
 
 var StudentView = WebPage.extend({
