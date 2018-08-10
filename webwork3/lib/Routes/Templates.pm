@@ -46,13 +46,16 @@ sub login_page {
 
   my $params = {
     top_dir=>config->{top_dir},
-    course_id => $course_id
+    course_id => $course_id,
+    top_nav => 'navbars/login.tt',
+    main_css => 'webwork.css'
   };
+
 
   $params->{msg} = "login_failed" if defined session 'login_failed';
   session->delete('login_failed');
 
-  template 'login.tt', $params, {layout=> 'main'};
+  template login => $params;
 }
 
 ###
@@ -128,10 +131,12 @@ any ['post','get'] => '/courses/:course_id/logout' => sub {
 
   my $params = {
     top_dir => config->{top_dir},
-    course_id => route_parameters->{course_id}
+    course_id => route_parameters->{course_id},
+    top_nav => 'navbars/default.tt',
+    main_css => 'webwork.css'
   };
 
-  template 'logout.tt', $params , {layout => "main.tt"};
+  template logout => $params;
 };
 
 get '/courses' => sub {
@@ -144,7 +149,15 @@ get '/courses' => sub {
   my @to_remove = qw/modelCourse/;
   my @courses = array_minus(@all_courses,@to_remove);
 
-  template 'course_list.tt', {top_dir => config->{top_dir},courses => \@courses}, {layout=>'main.tt'};
+  my $params = {
+    top_dir => config->{top_dir},
+    courses => \@courses,
+    top_nav => 'navbars/default.tt',
+    main_css => 'webwork.css'
+  };
+
+
+  template course_list => $params;
 };
 
 get '/courses/:course_id/manager' =>  require_role professor => sub {
@@ -195,7 +208,8 @@ get '/courses/:course_id/manager' =>  require_role professor => sub {
     user_info => to_json($user_info),
     main_view_paths => to_json(\@view_paths),
   	main_views=>to_json($config),
-    pagename=>"Course Manager"
+    pagename=>"Course Manager",
+    main_css => "course-manager.css"
   };
 
 
@@ -233,14 +247,13 @@ get '/admin' => sub {
 
 get '/courses/:course_id' => sub {
 
- template 'course_home.tt', {
+ template course_home => {
       course_id=> route_parameters->{course_id},
       user_id=> (session 'logged_in_user'),
       pagename=>"Course Home for " . route_parameters->{course_id},
       theSession=>to_json(convertObjectToHash(session)),
       top_dir => config->{top_dir}
-    },
-        {layout=>"main.tt"};
+    };
 
 
 };

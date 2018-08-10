@@ -23,7 +23,7 @@ var CourseManager = WebPage.extend({
       _(this).bindAll("showProblemSetDetails","changeViewAndSidebar","stopActing","logout");
 	    var self = this;
 
-      this.render();
+      WebPage.prototype.render.apply(this);
       this.session = (module.config().session)? module.config().session : {};
       this.settings = (module.config().settings)? new SettingList(module.config().settings, {parse: true}) : null;
       this.users = (module.config().users) ? new UserList(module.config().users) : null;
@@ -150,10 +150,6 @@ var CourseManager = WebPage.extend({
 
 
     },
-    // move this to WebPage.js  (need to deal with the parent-child events)
-    events: {
-        "click .sidebar-menu a.sidebar-menu-item": "changeSidebar"
-    },
     showProblemSetDetails: function(setName){
         if (this.objectDragging) return;
         this.changeView("problemSetDetails",{set_id: setName});
@@ -181,5 +177,5 @@ var CourseManager = WebPage.extend({
 });
 
 
-var App = new CourseManager({el: $("div#mainDiv")});
+var App = new CourseManager({el: $("div#main")});
 });

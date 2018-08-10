@@ -1,5 +1,5 @@
-define(['backbone','underscore','views/MainView','apps/util'],
-    function(Backbone,_,MainView,util){
+define(['jquery','backbone','underscore','views/MainView','apps/util'],
+    function($,Backbone,_,MainView,util){
 var UserSettingsView = MainView.extend({
 	messageTemplate: _.template($("#user-settings-messages-template").html()),
 	initialize: function(options){

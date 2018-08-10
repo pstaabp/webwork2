@@ -29,9 +29,9 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
     },
     postInitialize: function () {
         var self = this;
-        // load the previous state of the app or set it to the first main_view
 
-        // build the menu
+
+        // build the menu in the navigation bar
 
         var menuItemTemplate = _.template($("#main-menu-item-template").html());
         var ul = $(".manager-menu");
@@ -79,14 +79,17 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
             this.saveState();
         }
         this.enableBackForwardButtons();
-
-
-
     },
     render: function () {
     	var self = this;
-        this.navigationBar.setElement($(".navbar.fixed-top")).render();
-        this.loginPane.setElement($(".login-container"));
+      this.$el.html($("#main-view-template").html());
+      this.navigationBar.setElement($(".navbar.fixed-top")).render();
+      this.loginPane.setElement($(".login-container"));
+    },
+    events: {
+      "click .sidebar-menu a.sidebar-menu-item": "changeSidebar",
+      "click #open-sidebar-button": "openSidebar",
+      "click #close-sidebar-button": "closeSidebar"
     },
     closeLogin: function () {
         this.loginPane.close();
@@ -111,8 +114,8 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
         this.currentSidebar.state.set("is_open",true);
         this.currentSidebar.$el.parent().removeClass("hidden");
         this.currentView.$el.parent().removeClass("col-md-12").addClass("col-md-9");
-        this.$(".close-view-button").removeClass("hidden");
-        this.$(".open-view-button").addClass("hidden");
+        this.$("#close-sidebar-button").removeClass("hidden");
+        this.$("#open-sidebar-button").addClass("hidden");
         this.currentSidebar.render();
     },
     closeSidebar: function (){
@@ -121,8 +124,8 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
         }
         $("#sidebar-container").addClass("hidden");
         $("#main-view").removeClass("col-md-9").addClass("col-md-12");
-        this.$(".open-view-button").removeClass("hidden");
-        this.$(".close-view-button").addClass("hidden");
+        this.$("#open-sidebar-button").removeClass("hidden");
+        this.$("#close-sidebar-button").addClass("hidden");
 
     },
     changeSidebar: function(arg,_state){

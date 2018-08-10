@@ -1,0 +1,6 @@
+  <a class="navbar-brand" href="#"><img id="wwlogo" src="[% top_dir %]/images/webwork_square.svg">WeBWorK</a>
+  <span class="navbar-text ">Login to Course: [% course_id %]</span>
+
+  <ul class="nav float-right">
+    <a class="nav-link" href="[%top_dir%]/courses">Get a list of all courses</a>
+  </ul>

@@ -11,8 +11,7 @@ define(['jquery','backbone'],function($,Backbone){
       this.state.set(this.getDefaultState(), {silent: true});
     },
     render: function() {
-      var self = this;
-      this.$el.prepend($("#open-close-view-template").html());
+      var self = this;0
 
       //If any modals exist, remove the backdrops.
 
@@ -20,13 +19,8 @@ define(['jquery','backbone'],function($,Backbone){
       // I think the following just needs to work with the parent-child backbone events via the
       // additionalEvents, originalEvents below.
 
-      // since this won't happen automatically in Backbone's delegate events, call the click event directly.
-      this.$(".open-view-button").off("click").on("click", function(){
-        self.eventDispatcher.trigger("open-sidebar");
-      });
-      this.$(".close-view-button").off("click").on("click", function(){
-        self.eventDispatcher.trigger("close-sidebar");
-      });
+    
+      console.log(this.$el)
       return this;
     },
     // returns a defualt help template. This should be overriden to return a more helpful template.

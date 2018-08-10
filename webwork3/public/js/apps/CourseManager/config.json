@@ -43,7 +43,7 @@
 	{
 		"name": "Problem Editor",
 		"path": "main-views/EditorView",
-        "icon": "fa fa-pencil fa-lg",
+        "icon": "fa fa-pencil-alt fa-lg",
 		"default_sidebar": "editorOptions",
 		"other_sidebars" : ["editorOptions"],
         "id": "problemEditor"
@@ -51,7 +51,7 @@
 	{
 		"name": "Student Progress",
 		"path": "main-views/StudentProgressView",
-		"icon": "fa fa-bar-chart-o fa-lg",
+		"icon": "fa fa-chart-bar fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "statistics"
@@ -67,7 +67,7 @@
 	{
 		"name": "Import/Export Sets",
 		"path": "main-views/ImportExportView",
-		"icon": "fa fa-expand fa-lg",
+		"icon": "fa fa-exchange-alt fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": ["problemSets"],
 		"id": "importExport"
@@ -75,7 +75,7 @@
 	{
 		"name": "Settings",
 		"path": "main-views/SettingsView",
-		"icon": "fa fa-gears fa-lg",
+		"icon": "fa fa-cogs fa-lg",
 		"default_sidebar": "",
 		"other_sidebars": [],
 		"id": "settings"
@@ -111,7 +111,7 @@
 		"path": "sidebars/HelpSidebar",
 		"id": "help"
 	},
-	{	
+	{
 		"name": "All Messages",
 		"path": "sidebars/AllMessagesSidebar",
 		"id": "allMessages"

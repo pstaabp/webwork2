@@ -6,16 +6,19 @@
 <link rel="stylesheet" href="[% top_dir %]/modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="[% top_dir %]/modules/codemirror/lib/codemirror.css" type="text/css">
 <link rel='stylesheet' href='[% top_dir %]/modules/@fortawesome/fontawesome-free/css/all.min.css' type='text/css' media='screen'>
-<link rel='stylesheet' type="text/css" href="[% top_dir %]/css/course-manager.css">
+<link rel='stylesheet' type="text/css" href="[% top_dir %]/css/[% main_css %]">
 </head>
 <body>
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark" role="navigation" id="top-navbar">
+    [% IF top_nav%]
+    [% INCLUDE $top_nav %]
+    [% END %]
   </nav>
 [% content %]
 <nav class="fixed-bottom navbar navbar-light bg-light" id="footer">
   <div class="container">
   <p id="footer" class="navbar-text">
-  <a href="http://webwork.maa.org">WeBWorK</a> &copy; 1996-2017,
+  <a href="http://webwork.maa.org">WeBWorK</a> &copy; 1996-2018,
     ww_version: [% ww_version %] | pg_version [% pg_version %]|
     <span style="margin-left:4ex;">Powered</span> by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
   </div>
@@ -24,12 +27,6 @@
 
 
 <script type="text/template" id="menu-bar-template">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-     -->
-
 
   <a class="navbar-brand" href="#"><img id="wwlogo" src="[% top_dir %]/images/webwork_square.svg">WeBWorK</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,23 +78,24 @@
 
 
 <script type="text/template" id="login-template">
-<div class="message"> <%=message%></div>
-<form class="form-horizontal" role="form">
-  <div class="form-group">
-    <label for="inputEmail3" class="col-md-4 control-label">Login Name:</label>
-    <div class="col-md-7">
-      <input type="input" name="username" class="form-control login-name" id="inputEmail3" placeholder="Login">
+<div class="container">
+  <div class="message"> <%=message%></div>
+  <form class="form-horizontal" role="form">
+    <div class="form-group">
+      <label for="inputEmail3" class="col-md-4 control-label">Login Name:</label>
+      <div class="col-md-7">
+        <input type="input" name="username" class="form-control login-name" id="inputEmail3" placeholder="Login">
+      </div>
     </div>
-  </div>
-  <div class="form-group">
-    <label for="password" class="col-md-4 control-label">Password</label>
-    <div class="col-md-7">
-      <input type="password" name="password" class="form-control login-password" id="password" placeholder="Password">
+    <div class="form-group">
+      <label for="password" class="col-md-4 control-label">Password</label>
+      <div class="col-md-7">
+        <input type="password" name="password" class="form-control login-password" id="password" placeholder="Password">
+      </div>
     </div>
-  </div>
-</form>
-<div class="message-bottom"></div>
-
+  </form>
+  <div class="message-bottom"></div>
+</div>
 </script>
 
 </body>
