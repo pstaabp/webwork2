@@ -14,13 +14,7 @@ define(['jquery','backbone'],function($,Backbone){
       var self = this;0
 
       //If any modals exist, remove the backdrops.
-
       $(".modal-backdrop").remove()
-      // I think the following just needs to work with the parent-child backbone events via the
-      // additionalEvents, originalEvents below.
-
-    
-      console.log(this.$el)
       return this;
     },
     // returns a defualt help template. This should be overriden to return a more helpful template.

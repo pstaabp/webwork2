@@ -1,5 +1,5 @@
 body {  /* needed for the navigation bars top and bottom*/
-    padding-top: 90px;
+    padding-top: 70px;
     padding-bottom: 35px;
 }
 
@@ -22,7 +22,7 @@ body {  /* needed for the navigation bars top and bottom*/
 
 .manager-menu span, .manager-menu i {margin-right: 10px;}
 
-#navigation-buttons {
+.nav button {
   margin-top: 5px;
 }
 
@@ -94,8 +94,8 @@ body {  /* needed for the navigation bars top and bottom*/
 
 .sidepane-menu h3 {margin-top: 0px;}
 
-#footer {min-height: 20px;}
-#footer .navbar-text {margin: 0; line-height: 20px}
+#footer {height: 30px;}
+#footer .navbar-text {margin: 0; font-size: 85%; line-height: 20px}
 #footer .container {min-height: 20px;}
 
 

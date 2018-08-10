@@ -92,10 +92,7 @@
 <script type="text/template" id="problem-template">
 <div class="loading btn-sm">Problem Loading...<i class="fa fa-spinner fa-spin"></i></div>
 <div class="handle row">
-  <%if(reorderable){%><div class="col-md-1 pull-right"><a class="reorder-handle btn btn-sm btn-outline-dark" href="#"><i class="fa fa-arrows-v"></i></a></div><%}%>
-  <%if(draggable){%>
-    <div class="col-1 pull-right"> <a class="drag-handle btn btn-outline-dark btn-sm" href="#"><i class="fa fa-arrows"></i></a></div>
-  <%}%>
+  <%if(reorderable){%><div class="col-md-1 float-right"><a class="reorder-handle btn btn-sm btn-outline-dark" href="#"><i class="fa fa-arrows-alt-v"></i></a></div><%}%>
   <%if(showPoints || showMaxAttempts){%>
   <div class="col-5 form-horizontal">
       <span class="problem-id"></span>
@@ -114,10 +111,10 @@
   <%if(showAddTool){%><a class="btn btn-outline-dark add-problem" href="#" title="add to target set">
     <i class="fa fa-plus"></i></a><%}%>
   <%if(showEditTool){%><a onclick="return false;" class="btn btn-outline-dark edit-button" href="#" title="edit">
-      <i class="fa fa-pencil"></i></a><%}%>
+      <i class="fa fa-pencil-alt"></i></a><%}%>
     <%if(showRefreshTool){%>
       <a onclick="return false;" href="#"  class="btn  btn-outline-dark refresh-problem" title="randomize">
-      <i class="fa fa-refresh"></i></a>
+      <i class="fa fa-sync"></i></a>
     <%}%>
     <%if(showViewTool){%><a onclick="return false;" class="btn btn-outline-dark" target="WW_view" href='#' title="view problem">
       <i class="fa fa-eye"></i></a><%}%>
@@ -129,7 +126,7 @@
       <a href="#" onclick="return false;" class="remove-problem btn btn-outline-dark" title="delete problem">
         <i class="fa fa-trash-o"></i></a>
     <%}%>
-    <%if(mlt_leader){ %>
+    <%if(MLTleader){ %>
       <a href="#" onclick="return false;" class="mlt-button btn btn-outline-dark" title="Show/Hide More Like This problems">M</a>
     <%}%>
     <%if(markCorrect){ %>
@@ -153,6 +150,9 @@
   <button class="btn btn-success highlight-problem hidden" title="This problem is in the target set.">
     <i class="fa fa-bullseye fa-lg"></i></button>
   </div>
+  <%if(draggable){%>
+    <div class="col-1"> <a class="drag-handle btn btn-outline-dark btn-sm" href="#"><i class="fa fa-arrows-alt"></i></a></div>
+  <%}%>
   </div>
   <div class="problem-tag-container">
   <!-- <table class="table table-condensed table-bordered"><tbody>

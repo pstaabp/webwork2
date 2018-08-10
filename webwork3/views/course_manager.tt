@@ -23,12 +23,6 @@ main_view_paths.unshift("module","backbone");
 
 <script type="text/template" id="main-view-template">
 <div id="mainDiv" class="container">
-	<div class="row" id="top-row">
-		<div class="offset-md-10 col-2">
-		  <button class="btn btn-outline-dark btn-sm hidden" id="open-sidebar-button">Open Sidebar<i class="fa fa-chevron-down"></i></button>
-		  <button class="btn btn-outline-dark btn-sm" id="close-sidebar-button">Close Sidebar<i class="fa fa-chevron-up"></i></button>
-	  </div>
-	</div>
   <div class="row">
     <div class="col-9" id="main-view">
     </div>

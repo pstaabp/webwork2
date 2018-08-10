@@ -11,17 +11,8 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
                         ,"saveState","goBack","goForward");
         this.currentView = void 0;
         this.currentSidebar = void 0;
-
-
         this.loginPane = new LoginView({messageTemplate: this.messageTemplate});
-
         this.eventDispatcher = _.clone(Backbone.Events);
-        this.eventDispatcher.on({
-            "save-state": this.saveState,
-            "open-sidebar": this.openSidebar,
-            "close-sidebar": this.closeSidebar,
-            "show-help": function() { self.changeSidebar("help")},
-        });
         this.navigationBar = new NavigationBar({eventDispatcher: this.eventDispatcher});
     },
     setMainViewList: function(_list){
@@ -30,17 +21,10 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
     postInitialize: function () {
         var self = this;
 
-
         // build the menu in the navigation bar
-
-        var menuItemTemplate = _.template($("#main-menu-item-template").html());
-        var ul = $(".manager-menu");
-        _(this.mainViewList.views).each(function(_view){
-            ul.append(menuItemTemplate({name: _view.info.name, id: _view.info.id,icon: _view.info.icon}));
-        });
+        this.navigationBar.buildViewMenu(this.mainViewList.views);
 
         // this ensures that the rerender call on resizing the window only occurs once every 250 ms.
-
         var renderMainPane = _.debounce(function(evt){
             self.currentView.render();
             if(self.currentSidebar){
@@ -50,6 +34,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
 
         $(window).on("resize",renderMainPane);
 
+        // set up some app-wide events that need to be handled here.
 
         this.eventDispatcher.on({
             "change-view": function(id,state) {
@@ -60,16 +45,20 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
               self.currentView.sidebar = self.currentSidebar;
               self.saveState();
             },
+            "save-state": this.saveState,
             "logout": this.logout,
             "show-help": function() { self.changeSidebar("help",{is_open: true})},
-            "forward-page": self.goForward,
-            "back-page": self.goBack
+            "forward-page": this.goForward,
+            "back-page": this.goBack,
+            "close-sidebar": this.closeSidebar,
+            "open-sidebar": this.openSidebar,
         });
 
         try { // load the states from the local storage and switch to the existing view.
             this.appState = JSON.parse(window.localStorage.getItem("ww3_cm_state"));
             this.eventDispatcher.trigger("change-view",this.appState.states[this.appState.index].main_view,
                                                         this.appState.states[this.appState.index].main_view_state);
+            this.navigationBar.setSideBar({open: this.appState.states[this.appState.index].sidebar_open});
         } catch(err) {
             console.log(err);
             this.appState = {index: void 0, states: []};
@@ -78,7 +67,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
             this.changeSidebar(_sidebarID,{is_open: true});
             this.saveState();
         }
-        this.enableBackForwardButtons();
+        this.updateBackForwardButtons();
     },
     render: function () {
     	var self = this;
@@ -89,7 +78,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
     events: {
       "click .sidebar-menu a.sidebar-menu-item": "changeSidebar",
       "click #open-sidebar-button": "openSidebar",
-      "click #close-sidebar-button": "closeSidebar"
+      "click #close-sidebar-button": "closeSidebar",
     },
     closeLogin: function () {
         this.loginPane.close();
@@ -113,7 +102,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
         }
         this.currentSidebar.state.set("is_open",true);
         this.currentSidebar.$el.parent().removeClass("hidden");
-        this.currentView.$el.parent().removeClass("col-md-12").addClass("col-md-9");
+        this.currentView.$el.parent().removeClass("col-12").addClass("col-9");
         this.$("#close-sidebar-button").removeClass("hidden");
         this.$("#open-sidebar-button").addClass("hidden");
         this.currentSidebar.render();
@@ -123,7 +112,7 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
             this.currentSidebar.state.set("is_open",false);
         }
         $("#sidebar-container").addClass("hidden");
-        $("#main-view").removeClass("col-md-9").addClass("col-md-12");
+        $("#main-view").removeClass("col-9").addClass("col-12");
         this.$("#open-sidebar-button").removeClass("hidden");
         this.$("#close-sidebar-button").addClass("hidden");
 
@@ -254,14 +243,14 @@ function($,Backbone,MessageListView,ModalView,config,NavigationBar,Sidebar,util)
             this.appState.states = [state];
         }
         window.localStorage.setItem("ww3_cm_state",JSON.stringify(this.appState));
-        this.enableBackForwardButtons();
+        this.updateBackForwardButtons();
     },
-    enableBackForwardButtons: function () {  // change the navigation button states
+    updateBackForwardButtons: function () {  // change the navigation button states
       util.changeClass({state: this.appState.index>0,
-                          els: this.navigationBar.$(".back-button"),
+                          els: this.navigationBar.$("button#back-button"),
                           remove_class: "disabled"});
       util.changeClass({state: this.appState.index<this.appState.states.length-1,
-                          els: this.navigationBar.$(".forward-button"),
+                          els: this.navigationBar.$("button#forward-button"),
                           remove_class: "disabled"});
     },
     goBack: function () {

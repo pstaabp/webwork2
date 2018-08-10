@@ -201,6 +201,7 @@ get '/courses/:course_id/manager' =>  require_role professor => sub {
   my $params = {
     top_dir => config->{top_dir},
     course_id=> params->{course_id},
+    user_id => $user_info->{user_id},
     theSession=>to_json($session),
   	theSettings=>to_json($settings),
     sets=>to_json($sets),

@@ -8,14 +8,13 @@
 //     require(["bootstrap"]);
 // });
 
-define(['module','jquery','backbone','views/Sidebar', 'underscore','views/WebPage',
+define(['jquery','module','backbone','views/Sidebar', 'underscore','views/WebPage',
     'models/UserList','models/ProblemSetList','models/SettingList',
     'views/MainViewList', 'models/AssignmentDate','models/AssignmentDateList',
     'models/User', 'moment','config','apps/util','bootstrap','apps/bs-button'],
-function(module,$, Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
+function($,module,Backbone, Sidebar, _,WebPage, UserList, ProblemSetList,
     SettingList,MainViewList,AssignmentDate,AssignmentDateList,User,
     moment,config,util){
-      console.log("in CourseManager");
 var CourseManager = WebPage.extend({
     messageTemplate: _.template($("#course-manager-messages-template").html()),
     initialize: function(){
@@ -34,6 +33,12 @@ var CourseManager = WebPage.extend({
               dateSettings: dateSettings}) : null;
 
       _.extend(config.courseSettings,{course_id: module.config().course_id,user: this.session.user});
+
+      // I think the following is no longer needed in that the login is handled
+      // via a different route now.
+
+      // However, we may want to have this as a relogin option if the session expires. 
+
       if(this.session.user_id&&this.session.logged_in==1){
           this.startManager();
       } else {

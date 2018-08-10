@@ -125,6 +125,9 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
         render: function() {
             var tmpl = _.template($("#problem-list-template").html());
             this.$el.html(tmpl({show_undo: this.viewAttrs.show_undo}));
+            if(this.paginator){
+              this.$(".problem-paginator").append(this.paginator.render().el);
+            }
 
             _(this.problemViews).each(function(pv){
                 pv.rendered = false;
@@ -303,7 +306,7 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
               self.model.get("first_page")+8 > self.model.get("num_pages")){
             self.model.set({
               last_page: self.model.get("num_pages"),
-              first_page: self.model.get("num_pages")>8?1:self.model.get("num_pages")-8});
+              first_page: self.model.get("num_pages")<8?1:self.model.get("num_pages")-8});
           }
         });
         this.model.set(_(options).pick("num_problems","page_size","current_page"));

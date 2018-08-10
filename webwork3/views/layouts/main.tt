@@ -37,8 +37,8 @@
     <ul class="nav nav-pills">
       <li class="nav-item" id="navigation-buttons">
         <div class="btn-group">
-          <button class="back-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-left"></i></button>
-          <button class="forward-button btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-right"></i></button>
+          <button id="back-button" class="btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-left"></i></button>
+          <button id="forward-button" class="btn btn-outline-light btn-sm disabled"><i class="fa fa-arrow-right"></i></button>
         </div>
       </li>
       <li class="nav-item dropdown">
@@ -61,7 +61,11 @@
   </div>
    <ul class="nav nav-pills float-right">
      <li class="nav-item">
-       <span class="navbar-text" id="welcome-nav">Welcome <span class="logged-in-as"></span><span class="act-as-user"></span></span>
+       <button class="btn btn-outline-light btn-sm navbar-btn" id="open-sidebar-button">Sidebar <i class="fa fa-chevron-down"></i></button>
+       <button class="btn btn-outline-light btn-sm navbar-btn hidden" id="close-sidebar-button">Sidebar <i class="fa fa-chevron-up"></i></button>
+     </li>
+     <li class="nav-item">
+       <span class="px-3 navbar-text" id="welcome-nav">Welcome <span class="logged-in-as">[% user_id %]</span><span class="act-as-user"></span></span>
       <li>
      <li class="nav-item dropdown">
        <button class="btn  btn-outline-light btn-sm navbar-btn logout-button" data-toggle="dropdown">
