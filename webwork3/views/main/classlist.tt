@@ -3,54 +3,52 @@
 <script type="text/template" id="classlist-manager-template">
 
 <div class="row">
-    <div class="col-md-3">
-        <div class="input-group">
-          <input type="text" class="form-control filter-text" placeholder="Filter">
-          <span class="input-group-btn">
-            <button class="btn  btn-outline-dark clear-filter-button" type="button"><i class="fa fa-times"></i></button>
-          </span>
-        </div><!-- /input-group -->
-      </div><!-- /.col-md-4 -->
-    <div class="col-md-3 num-users"></div>
+  <div class="col-md-3">
+      <div class="input-group">
+        <input type="text" class="form-control filter-text" placeholder="Filter">
+        <span class="input-group-btn">
+          <button class="btn  btn-outline-dark clear-filter-button" type="button"><i class="fa fa-times"></i></button>
+        </span>
+      </div><!-- /input-group -->
+    </div><!-- /.col-md-4 -->
+  <div class="col-md-3 num-users"></div>
 
-    <div class="col-md-5 btn-group btn-sm">
+  <div class="col-5 btn-group btn-sm">
     <div class="btn-group">
       <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Action on Selected
         <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu">
-        <li><a href="#" onclick="return false" class="email-selected">Email Selected Students</a></li>
-        <li><a href="#" onclick="return false" class="password-selected">Change the Password of Selected Student</a></li>
-        <li><a href="#" onclick="return false" class="delete-selected">Delete Selected Students</a></li>
-      </ul>
+      <div class="dropdown-menu">
+        <button class="dropdown-item email-selected">Email Selected Students</button>
+        <button class="dropdown-item password-selected">Change the Password of Selected Student</button>
+        <button class="dropdown-item delete-selected">Delete Selected Students</button>
+      </div>
     </div>
-      <div class="btn-group">
-        <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
-          Import/Export Users
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a href="#" onclick="return false" class="add-students-file-option">Add Students from a File</a></li>
-          <li><a href="#" onclick="return false" class="add-students-man-option">Add Students Manually</a></li>
-          <li><a href="#" onclick="return false" class="export-students-option">Export Students to a File</a></li>
-
-        </ul>
-        </div>
-        <div class="btn-group">
+    <div class="btn-group">
+      <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
+        Import/Export Users
+        <span class="caret"></span>
+      </button>
+      <div class="dropdown-menu">
+        <button class="dropdown-item add-students-file-option">Add Students from a File</button>
+        <button class="dropdown-item add-students-man-option">Add Students Manually</button>
+        <button class="dropdown-item export-students-option">Export Students to a File</button>
+      </div>
+    </div>
+    <div class="btn-group">
       <button class="btn  btn-outline-dark dropdown-toggle" data-toggle="dropdown">
         Show Rows
         <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu">
-        <li><a href="#" onclick="return false" class="show-rows" data-num="10"><i class="fa fa-check"></i>Show 10 rows</a></li>
-        <li><a href="#" onclick="return false" class="show-rows" data-num="25"><i class="fa fa-check not-visible"></i>Show 25 rows</a></li>
-        <li><a href="#" onclick="return false" class="show-rows" data-num="50"><i class="fa fa-check not-visible"></i>Show 50 rows</a></li>
-        <li><a href="#" onclick="return false" class="show-rows" data-num="-1"><i class="fa fa-check not-visible"></i>Show All rows</a></li>
-
-      </ul>
+      <div class="dropdown-menu">
+        <button class="dropdown-item show-rows" data-num="10"><i class="fa fa-check"></i>Show 10 rows</button>
+        <button class="dropdown-item show-rows" data-num="25"><i class="fa fa-check not-visible"></i>Show 25 rows</button>
+        <button class="dropdown-item show-rows" data-num="50"><i class="fa fa-check not-visible"></i>Show 50 rows</button>
+        <button class="dropdown-item show-rows" data-num="-1"><i class="fa fa-check not-visible"></i>Show All rows</button>
+      </div>
     </div>
-    </div>
+  </div>
 
 </div>
 <div class="users-table-container table-responsive"></div>

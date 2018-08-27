@@ -23,7 +23,7 @@ function($,Backbone, _,ProblemSetList,ProblemSet,config,Sidebar,CourseCalendar,M
     {
       var self = this;
       this.$el.html($("#problem-set-list-template").html());
-      var ul = this.$(".btn-group-vertical");
+      var ul = this.$(".list-group");
       //var ul = this.$(".prob-set-container ul");
       this.problemSets.each(function (_model) {
           ul.append((new ProblemSetView({model: _model, template: self.setViewTemplate,
@@ -82,11 +82,10 @@ function($,Backbone, _,ProblemSetList,ProblemSet,config,Sidebar,CourseCalendar,M
     });
 
     var ProblemSetView = Backbone.View.extend({
-        tagName: "button",
-        className: "btn btn-outline-info sidebar-problem-set",
+        tagName: "li",
+        className: "list-group-item sidebar-problem-set",
         initialize: function(options) {
             _.bindAll(this,"render","showProblemSet");
-            this.$el.addClass("btn btn-default btn-sm");
             this.template = options.template;
             this.numUsers = options.numUsers;
             this.problemSets = options.problemSets;
@@ -107,14 +106,16 @@ function($,Backbone, _,ProblemSetList,ProblemSet,config,Sidebar,CourseCalendar,M
             ":el": { observe: ["enable_reduced_scoring","visible"],
                 update: function($el, vals, model, options) {
                     if(vals[0]){
-                        $el.addClass("set-reduced-scoring");
+                        $el.addClass("set-reduced-scoring list-group-item-primary");
                     } else {
-                        $el.removeClass("set-reduced-scoring");
+                        $el.removeClass("set-reduced-scoring").removeClass("list-group-item-primary");
                     }
                     if(vals[1]){
                         $el.addClass("set-visible").removeClass("set-not-visible");
+                        $el.addClass("list-group-item-warning");
                     } else {
                         $el.addClass("set-not-visible").removeClass("set-visible");
+                        $el.removeClass("list-group-item-warning");
                     }
                     if(! this.settings.getSettingValue("pg{ansEvalDefaults}{enableReducedScoring}")) {
                         $el.removeClass("set-reduced-scoring");

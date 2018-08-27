@@ -71,13 +71,17 @@ sub permission_denied_page_handler {
     template 'index';
 }
 
-get '/login/denied' => sub {
-  debug "in /login/denied";
-
-  debug session;
-
+sub test {
   template 'index';
-};
+}
+
+# get '/login/denied' => sub {
+#   debug "in /login/denied";
+#
+#   debug session;
+#
+#   template 'index';
+# };
 
 ###
 #

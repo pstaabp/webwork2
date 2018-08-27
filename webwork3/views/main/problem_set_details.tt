@@ -166,7 +166,7 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
 
 
 <script type="text/template" id="set-properties-tab-template">
-<table class="table" style="table-layout:fixed">
+<table class="table table-sm" style="table-layout:fixed">
 <tbody>
 <tr><td class="header">Set Name</td><td class="set-name"></td>
   <!--<td><label type="checkbox">Show Time <input type="checkbox" class="show-time-toggle"></label></td>-->
@@ -185,10 +185,10 @@ Loading sets for users...<i class='fa fa-spinner fa-spin'></i>
 <tr><td class="header">Restrict Release on sets:</td><td><input class="form-control restricted-release" type='input'></td></tr>
 <tr><td class="header">Score Required for Release</td><td><select class="restricted-status form-control input-sm"></select></td></tr>
 <tr><td class="header">Hide Hints from Users</td><td><input type='checkbox' class='hide-hint'></td></tr>
-<tr><td class="header">Set Type</td><td><select id='set-type' class='form-control input-sm'></select></tr>
+<tr><td class="header">Set Type</td><td><select id='set-type' class='form-control form-control-sm'></select></tr>
 <tr><td class="header">Number of Problems in Set</td><td class="num-problems"></td></tr>
 <tr><td class="header">Users Assigned</td><td class="users-assigned"></td>
-<td><button class="assign-all-users btn btn-outline-dark">Assign to All Users</td></tr>
+<td><button class="assign-all-users btn btn-sm btn-outline-dark">Assign to All Users</td></tr>
 <tr class="gateway-row pg-row"><td class="header" style="color: darkblue; font-style:italic">
         Proctored Gateway/Quiz parameters</td><td></td></tr>
 <tr class="gateway-row pg-row"><td colspan="2">

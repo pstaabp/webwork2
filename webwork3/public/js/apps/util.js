@@ -4,7 +4,8 @@
  *
  */
 
-define(['underscore','config','models/AssignmentDateList','models/AssignmentDate','moment'], function(_,config,AssignmentDateList,AssignmentDate,moment){
+define(['underscore','config','models/AssignmentDateList','models/AssignmentDate','moment'],
+    function(_,config,AssignmentDateList,AssignmentDate,moment){
 var util = {
     // as of 2015-01-02, this function is no longer used in lieu of a library.  To delete after some testing.
     CSVToHTMLTable: function( strData,headers, strDelimiter ){
@@ -118,7 +119,7 @@ var util = {
 
         // this parses the fields in obj as integers.
     parseAsIntegers: function(obj,fields){
-        ifields = _(_(obj).keys()).intersection(fields); // only select the fields in obj.  
+        ifields = _(_(obj).keys()).intersection(fields); // only select the fields in obj.
         var values = _(obj).chain().pick(ifields).values().map(function(d) {return d?parseInt(d):d;}).value();
         _.extend(obj,_.object(ifields,values));
         return obj;

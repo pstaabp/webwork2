@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<meta charset="UTF-8">
 <head>
 <title>WeBWorK 3</title>
 <link rel='stylesheet' href='[% top_dir %]/modules/jquery-ui/themes/base/all.css' type='text/css' media='screen'>

@@ -92,9 +92,8 @@
 <script type="text/template" id="problem-template">
 <div class="loading btn-sm">Problem Loading...<i class="fa fa-spinner fa-spin"></i></div>
 <div class="handle row">
-  <%if(reorderable){%><div class="col-md-1 float-right"><a class="reorder-handle btn btn-sm btn-outline-dark" href="#"><i class="fa fa-arrows-alt-v"></i></a></div><%}%>
   <%if(showPoints || showMaxAttempts){%>
-  <div class="col-5 form-horizontal">
+  <div class="col-4">
       <span class="problem-id"></span>
       <%if(showPoints){%>
       <label class="control-label">Value:
@@ -102,79 +101,69 @@
         <%}%>
       <%if(showMaxAttempts){%>
       <label class="control-label">Max Att.:
-        <input type="text" class="max-attempts" style="width: 60px"></label>
+        <input type="text" class="max-attempts" style="width: 30px" ></label>
       <%}%>
     </div>
   <%}%>
 
   <div class="col-4 btn-group btn-group-sm">
-  <%if(showAddTool){%><a class="btn btn-outline-dark add-problem" href="#" title="add to target set">
-    <i class="fa fa-plus"></i></a><%}%>
-  <%if(showEditTool){%><a onclick="return false;" class="btn btn-outline-dark edit-button" href="#" title="edit">
-      <i class="fa fa-pencil-alt"></i></a><%}%>
-    <%if(showRefreshTool){%>
-      <a onclick="return false;" href="#"  class="btn  btn-outline-dark refresh-problem" title="randomize">
-      <i class="fa fa-sync"></i></a>
+    <%if(showAddTool){%>
+      <button class="btn btn-outline-dark add-problem" title="add to target set">
+        <i class="fa fa-plus"></i></button>
     <%}%>
-    <%if(showViewTool){%><a onclick="return false;" class="btn btn-outline-dark" target="WW_view" href='#' title="view problem">
-      <i class="fa fa-eye"></i></a><%}%>
+    <%if(showEditTool){%>
+      <button class="btn btn-outline-dark edit-button" title="edit">
+        <i class="fa fa-pencil-alt"></i></button>
+    <%}%>
+    <%if(showRefreshTool){%>
+      <button class="btn  btn-outline-dark refresh-problem" title="randomize">
+      <i class="fa fa-sync"></i></button>
+    <%}%>
+    <%if(showViewTool){%><button class="btn btn-outline-dark view-problem" title="view problem">
+      <i class="fa fa-eye"></i></a>
+    <%}%>
     <%if(showHideTool){%>
-      <a href="#" onclick="return false;" class="btn btn-outline-dark hide-problem link" title="hide problem">
-      <i class="fa fa-times"></i></a>
+      <button class="btn btn-outline-dark hide-problem" title="hide problem">
+      <i class="fa fa-times"></i></button>
     <%}%>
     <%if(deletable){ %>
-      <a href="#" onclick="return false;" class="remove-problem btn btn-outline-dark" title="delete problem">
-        <i class="fa fa-trash-o"></i></a>
+      <button class="remove-problem btn btn-outline-dark" title="delete problem">
+        <i class="fa fa-trash-alt"></i></a>
     <%}%>
     <%if(MLTleader){ %>
-      <a href="#" onclick="return false;" class="mlt-button btn btn-outline-dark" title="Show/Hide More Like This problems">M</a>
+      <button class="mlt-button btn btn-outline-dark" title="Show/Hide More Like This problems"><b>M</b></button>
     <%}%>
     <%if(markCorrect){ %>
-      <a href="#" onclick="return false;" class="mark-correct-btn  btn btn-outline-dark" title="Mark this problem correct for all assigned users.">
+      <button class="mark-correct-btn  btn btn-outline-dark" title="Mark this problem correct for all assigned users.">
         <i class="fa fa-check"></i></a>
     <%}%>
     <%if(flags && flags.solutionExists == 1){%>
-      <a href="#" onclick="return false;" class="solution-exists-btn btn btn-outline-dark" title="Show the solution">
-        <b>S</b></a>
+      <button class="solution-exists-btn btn btn-outline-dark" title="Show the solution">
+        <b>S</b></button>
     <%}%>
     <%if(flags && flags.hintExists == 1){%>
-      <a href="#" onclick="return false;" class="hint-exists-btn btn btn-outline-dark" title="Show the hint">
-        <b>H</b></a>
+      <button class="hint-exists-btn btn btn-outline-dark" title="Show the hint">
+        <b>H</b></button>
     <%}%>
 
-  <a href="#" onclick="return false;" class="btn btn-small btn-outline-dark tags-button" title="show/hide tags"><i class="fa fa-tags"></i></a>
-  <a href="#" onclick="return false;" class="btn btn-small btn-outline-dark path-button" title="show/hide path"><i class="fa fa-file"></i></a>
+    <button class="btn btn-small btn-outline-dark tags-button" title="show/hide tags"><i class="fa fa-tags"></i></button>
+    <button class="btn btn-small btn-outline-dark path-button" title="show/hide path"><i class="fa fa-file"></i></button>
   </div>
 
   <div class="col-md-2 btn-group btn-group-sm">
-  <button class="btn btn-success highlight-problem hidden" title="This problem is in the target set.">
-    <i class="fa fa-bullseye fa-lg"></i></button>
+    <button class="btn btn-success highlight-problem hidden" title="This problem is in the target set.">
+      <i class="fa fa-bullseye fa-lg"></i></button>
   </div>
-  <%if(draggable){%>
-    <div class="col-1"> <a class="drag-handle btn btn-outline-dark btn-sm" href="#"><i class="fa fa-arrows-alt"></i></a></div>
-  <%}%>
+  <div class="col-2 btn-group btn-group-sm justify-content-end">
+    <%if(draggable){%>
+      <button class="drag-handle btn btn-outline-dark"><i class="fa fa-arrows-alt"></i></button>
+    <%}%>
+    <%if(reorderable){%>
+      <button class="reorder-handle btn btn-outline-dark"><i class="fa fa-arrows-alt-v"></i></button>
+    <%}%>
   </div>
-  <div class="problem-tag-container">
-  <!-- <table class="table table-condensed table-bordered"><tbody>
-<tr class="hidden path-row"><td>Problem Path:</td><td colspan="3">
-<input type="text" class="problem-path form-control"></td>
-<td>Seed:</td><td class="seed"></td></tr>
-<tr class="loading-row hidden"><td colcol-md-="3">Loading Tags...<i class="fa fa-spinner fa-spin"></i></td></tr>
-<tr class="tag-row hidden"><td>Keyword:</td><td colspan="3" class="keyword-tag"></td>
-<td>Level:</td><td class="level-tag"></td></tr>
-<tr class="tag-row hidden"><td>Problem Author:</td><td class="problem-author-tag"></td>
-<td>Institution:</td><td class="institution-tag"></td>
-<td>More LT:</td><td class="mlt-tag"></td>
-</tr>
-<tr class="tag-row hidden"><td>DB Subject:</td><td class="DBsubject-tag"></td>
-<td>DB Chapter:</td><td class="DBchapter-tag"></td>
-<td>DB Section:</td><td class="DBsection-tag"></td></tr>
-<tr class="tag-row hidden"><td>Textbook Title:</td><td class="tb-title-tag"></td>
-<td>Textbook Chapter:</td><td class="tb-chapter-tag"></td>
-<td>Textbook Section:</td><td class="tb-section-tag"></td></tr>
-</tbody>
-</table> -->
 </div>
+<div class="problem-tag-container"></div>
 <div><%=data%></div>
 <%if(flags && flags.comment){%>
 <%=flags.comment%>

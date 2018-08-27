@@ -257,6 +257,8 @@ var ProblemSet = Backbone.Model.extend({
         var newUnixDates =  _(dates2).chain().pick(changedKeys)
                                 .mapObject(function(val,key) { return val.unix();}).value();
 
+        console.log(newUnixDates);
+
         this.set(newUnixDates);
     }
 

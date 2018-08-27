@@ -23,13 +23,13 @@
           <button type="button" class="btn  btn-outline-dark btn-sm dropdown-toggle" data-toggle="dropdown">
             Sort By <span class="caret"></span>
           </button>
-          <ul class="dropdown-menu" role="menu">
-            <li><a class="sort-problem-set-option" data-sortfield="set_id" href="#">Set Name</a></li>
-            <li><a class="sort-problem-set-option" data-sortfield="due_date" href="#">Due Date</a></li>
-          </ul>
+          <div class="dropdown-menu" role="menu">
+            <button class="dropdown-item sort-problem-set-option" data-sortfield="set_id">Set Name</button>
+            <button class="dropdown-item sort-problem-set-option" data-sortfield="due_date">Due Date</button>
+          </div>
   </div>
   <div class="prob-set-list-container">
-    <div class='btn-group-vertical'></div>
+    <div class='list-group'></div>
   </div>
 </div>
 </script>

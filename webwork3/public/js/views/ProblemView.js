@@ -70,7 +70,7 @@ define(['jquery','backbone', 'underscore','views/ProblemTagView','config',
                 self.showHints(self.model.get("show_hints"));
             }).on("change:show_solution",function(){
                 self.showSolution(self.model.get("show_solution"));
-            });
+            })
 
             this.invBindings = util.invBindings(this.bindings);
         },
@@ -190,12 +190,13 @@ define(['jquery','backbone', 'underscore','views/ProblemTagView','config',
             "keyup .prob-value,.max-attempts": function (evt){
                 if(evt.keyCode == 13){ $(evt.target).blur() }
             },
-            "blur .max-attempts": function(evt){
-                if($(evt.target).val()==-1){
-                    //I18N
-                    $(evt.target).val("unlimited");
-                }
-            },
+            // "blur .max-attempts": function(evt){
+            //     var val = $(evt.target).val()
+            //     if(val==-1){
+            //         $(evt.target).val("\u221E");
+            //     }
+            //     this.set({max_attempts: val});
+            // },
             "click .edit-button": function(evt){
                 var ed  = this.libraryView && this.libraryView.eventDispatcher;
                 if (typeof ed === "undefined"){
@@ -209,10 +210,14 @@ define(['jquery','backbone', 'underscore','views/ProblemTagView','config',
         bindings: {
             ".problem-id": "problem_id",
             ".prob-value": {observe: "value", events: ['blur']},
-            ".max-attempts": {observe: "max_attempts", events: ['blur'] , onSet: function(val) {
-                    return (val=="unlimited")?-1:val;
-                }, onGet: function(val){
-                    return (val==-1)?"unlimited":val;
+            ".max-attempts": {observe: "max_attempts", events: ['blur'] ,
+            //     // onSet: function(val) {
+            //     //     return (val=="unlimited")?-1:val;
+            //     // }, onGet: function(val){
+            //     //     return (val==-1)?"unlimited":val;
+            //     // }
+                update: function($el, val, model, options) {
+                    $el.val(val==-1?"\u221E":val);
                 }
             },
             ".mlt-tag": "morelt",

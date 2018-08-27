@@ -219,20 +219,26 @@ define(['jquery','backbone', 'underscore', 'views/ProblemView',
                 opts: {probFrom: from, probTo:to, total: this.problems.size() }}));
           }
         },
-        updateCurrentPage: function(_model){
-          currentPage = _model.get("current_page");
-          this.state.set({current_page: currentPage});
-          this.pageRange = this.page_size >0 ? _.range(currentPage*this.page_size,
-                  (currentPage+1)*this.page_size>this.problems.size()? this.problems.size():(currentPage+1)*this.page_size)
-                      : _.range(this.problems.length);
-          this.renderProblems();
-        },
+        // updateCurrentPage: function(_model){
+        //   currentPage = _model.get("current_page");
+        //   this.state.set({current_page: currentPage});
+        //   this.pageRange = this.page_size >0 ? _.range(currentPage*this.page_size,
+        //           (currentPage+1)*this.page_size>this.problems.size()? this.problems.size():(currentPage+1)*this.page_size)
+        //               : _.range(this.problems.length);
+        //   this.renderProblems();
+        // },
         buildPaginator: function() {
             // render the paginator
             this.paginator = new PaginatorView({page_size:10, num_problems: this.problems.size(),
                 current_page: this.state.get("current_page")}).render();
             this.$(".problem-paginator").html(this.paginator.el);
-            this.listenTo(this.paginator.model, 'change:current_page', this.updateCurrentPage);
+
+            var currentPage = this.state.get("current_page");
+            this.pageRange = this.page_size >0 ? _.range(currentPage*this.page_size,
+                    (currentPage+1)*this.page_size>this.problems.size()? this.problems.size():(currentPage+1)*this.page_size)
+                        : _.range(this.problems.length);
+
+            //this.listenTo(this.paginator.model, 'change:current_page', this.updateCurrentPage);
             return this;
         },
         events: {
