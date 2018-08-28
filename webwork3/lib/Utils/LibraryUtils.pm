@@ -232,7 +232,7 @@ sub searchLibrary {
 	my ($db,$p) = @_;
 
     # if no params are passed return an empty array.
-    if(!( keys($p))){
+    if(!defined($p)){
         return [];
     }
 
@@ -395,8 +395,7 @@ sub sortByMLT {
             push(@sorted_problems,$prob);
         } else {
             # find the more_lt leader for the given morelt_id
-            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}}
-                                } @$problems;
+            my $i = first_index {$_->{pgfile_id} == $leaders->{$problems->[0]->{morelt_id}}} @$problems;
             my $prob = splice(@$problems,$i,1);
             $prob->{mlt_leader} = 1;
 
