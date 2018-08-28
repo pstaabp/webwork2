@@ -3,7 +3,6 @@ use base qw(Exporter);
 
 ### this is a number of subrotines from the webwork2 version of WeBWorK::Utils
 
-use Dancer ':syntax';
 use strict;
 use warnings;
 use DateTime;
@@ -15,14 +14,14 @@ our @EXPORT_OK = qw(writeConfigToFile getCourseSettingsWW2);
 
 
 
-# the following are used for loading settings in the WW2 way.  
+# the following are used for loading settings in the WW2 way.
 # we should change the settings so they are stored as a JSON file instead.  This
-# eliminate the need for these subroutines.  
+# eliminate the need for these subroutines.
 
 ### pstaab: I think a nearly identical version of this is in Utils::CourseUtils
 
 sub getCourseSettingsWW2 {
-    my $ce = shift; 
+    my $ce = shift;
 
 	my $ConfigValues = $ce->{ConfigValues};
 
@@ -44,14 +43,14 @@ sub getCourseSettingsWW2 {
 				$hash->{value} = eval('$ce->' . $string);
 
 				if ($hash->{var} eq 'defaultTheme'){
-					$hash->{values} = $themes;	
+					$hash->{values} = $themes;
 				}
 			}
 		}
 	}
 
 
-	my $tz = DateTime::TimeZone->new( name => $ce->{siteDefaults}->{timezone}); 
+	my $tz = DateTime::TimeZone->new( name => $ce->{siteDefaults}->{timezone});
 	my $dt = DateTime->now();
 
 	my @tzabbr = ("tz_abbr", $tz->short_name_for_datetime( $dt ));
@@ -76,26 +75,26 @@ sub writeConfigToFile {
 # changes are saved.\n\n";
 
 
-	# read in the file 
+	# read in the file
 
 	my @raw_data =();
 	if (-e $filename){
 		open(DAT, $filename) || die("Could not open file!");
 		@raw_data=<DAT>;
 		close(DAT);
-	} 
+	}
 
 	my $line;
-	my $varFound = 0; 
+	my $varFound = 0;
 
 	foreach $line (@raw_data)
 	{
 		chomp $line;
 	 	if ($line =~ /^\$/) {
 	 		my ($var,$value) = ($line =~ /^\$(.*)\s+=\s+(.*);$/);
-	 		if ($var eq $config->{var}){ 
+	 		if ($var eq $config->{var}){
 	 			$fileoutput .= writeLine($config->{var},$config->{value});
-	 			$varFound = 1; 
+	 			$varFound = 1;
 	 		} else {
 	 			$fileoutput .= writeLine($var,$value);
 	 		}
@@ -107,7 +106,7 @@ sub writeConfigToFile {
 	}
 
 	my $writeFileErrors;
-	eval {                                                          
+	eval {
 		local *OUTPUTFILE;
 		if( open OUTPUTFILE, ">", $filename) {
 			print OUTPUTFILE $fileoutput;
