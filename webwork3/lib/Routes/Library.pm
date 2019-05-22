@@ -539,6 +539,8 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
   my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
   #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
   #$rp->{tags} = getProblemTagsFromDB(-1);
+	$rp->{render_errors} = $rp->{errors}; # new ww3 has this reserved.  
+	delete $rp->{errors};
 	return $rp;
 };
 

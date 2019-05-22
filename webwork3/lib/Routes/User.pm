@@ -19,7 +19,7 @@ use Data::Dump qw/dump/;
 #
 ##
 
-get '/courses/:course/users' => require_role professor => sub {
+get '/courses/:course/users' => sub { #require_role professor => sub {
 
   my @user_ids = vars->{db}->listUsers;
   my @users = map { get_one_user(vars->{db},$_);} @user_ids;
@@ -32,7 +32,7 @@ get '/courses/:course/users' => require_role professor => sub {
 #
 ###
 
-get 'courses/:course_id/users/:user_id' => require_role professor => sub {
+get 'courses/:course_id/users/:user_id' => sub { #require_role professor => sub {
   return get_one_user(vars->{db},route_parameters->{user_id});
 };
 

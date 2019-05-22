@@ -1,0 +1,160 @@
+<template>
+  <li class="problem p-2 rounded">
+    <b-container>
+      <b-row>
+        <b-btn-toolbar>
+          <b-input-group size="sm" v-if="typeProp('numbered')">
+            <span class="problem-id">{{problem.problem_id}}</span>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Value:" class="col-3" v-if="typeProp('value')" >
+            <b-input type="number" v-model="problem.value"/>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Max. Att.:" class="col-3" v-if="typeProp('attempts')">
+            <b-input type="number" v-model="problem.max_attempts"/>
+          </b-input-group>
+          <b-btn-group size="sm">
+            <b-btn variant="outline-dark" title="add problem" v-if="typeProp('add')"
+                @click="$emit('add-problem',problem)">
+              <i class="fas fa-plus"></i></b-btn>
+            <b-btn variant="outline-dark" title="edit" v-if="typeProp('edit')" disabled>
+              <i class="fas fa-pencil-alt"></i></b-btn>
+            <b-btn variant="outline-dark" title="randomize" v-if="typeProp('randomize')"
+              @click="randomize"> <i class="fas fa-sync"></i></b-btn>
+            <b-btn variant="outline-dark" title="delete problem" v-if="typeProp('delete')">
+              <i class="fas fa-trash-alt"></i></b-btn>
+            <b-btn variant="outline-dark" title="Mark this problem correct for all assigned users."
+                v-if="typeProp('mark_all')" disabled><i class="fa fa-check"></i></b-btn>
+            <b-btn variant="outline-dark" title="show/hide tags" v-if="typeProp('tags')">
+              <i class="fas fa-tags"></i></b-btn>
+            <b-btn :variant="show_path ? 'success' : 'outline-dark'" title="show/hide path" v-if="typeProp('path')"
+                @click="show_path = !show_path">
+              <i class="fas fa-file"></i></b-btn>
+            <b-btn variant="outline-dark" title="This problem is in the target set." v-if="typeProp('target_set')">
+              <i class="fas fa-bullseye"></i>
+            </b-btn>
+          </b-btn-group>
+        </b-btn-toolbar>
+        <b-btn-group size="sm" class="float-right" v-if="typeProp('reorder')">
+          <b-btn variant="outline-dark"><i class="fa fa-arrows-alt-v"></i></b-btn>
+        </b-btn-group>
+
+
+      </b-row>
+      <b-row v-if="show_path">
+        Path: {{problem.source_file}}
+      </b-row>
+      <b-row>
+        <div v-if="html == ''" class="text-center">
+          <b-spinner variant="info" />
+        </div>
+        <div v-else class="problem-tag-container" v-html="html"></div>
+      </b-row>
+    </b-container>
+  </li>
+</template>
+
+
+
+<script>
+//import axios from 'axios'
+import Problem from '../../../models/Problem.js'
+import ProblemSetList from '../../../models/ProblemSetList'
+
+
+
+export default {
+  name: 'ProblemView', // name of the view
+  props: {
+    problem: Object, // perhaps this should be a Problem instead.
+    type: String,
+    problem_sets: ProblemSetList
+  },
+  data: function() {
+    return {
+      html: "",
+      show_tags: false,
+      show_path: false,
+      model: null
+    }
+  },
+  mounted: function () {
+    this.model = new Problem(this.problem);
+    this.fetchProblem();
+  },
+  methods: {
+    fetchProblem: function (other_params) {
+      this.html="";
+
+      this.model.fetch({params: Object.assign({},this.problem,other_params)})
+          .then( (response) => {
+            this.html = response.response.data.text
+          }) // why two levels of response
+    },
+    typeProp: function(prop){
+      return this.type=="library" ? LIB_PROB[prop] : SET_PROB[prop]
+    },
+    addProblem: function(evt){
+      // eslint-disable-next-line
+      console.log(evt);
+    },
+    randomize: function(){
+      const new_seed = Math.floor(10000*Math.random());
+      // eslint-disable-next-line
+      console.log(new_seed);
+
+      this.fetchProblem({problem_seed: new_seed});
+    }
+  },
+  watch: {
+    problem: function () {
+      // eslint-disable-next-line
+      console.log("in watch");
+      this.model = new Problem(this.problem);
+      this.fetchProblem();
+    }
+  },
+  updated: function () {
+  // eslint-disable-next-line
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+  }
+}
+
+const LIB_PROB = { // define characteristics of a library problem.
+  numbered: false,
+  reorder: false,
+  add: true,
+  value: false,
+  attempts: false,
+  edit: true,
+  randomize: true,
+  delete: false,
+  mark_all: false,
+  tags: true,
+  path: true,
+  target_set: true,
+}
+
+const SET_PROB = { // define characteristics of a library problem.
+  numbered: true,
+  reorder: true,
+  add: false,
+  value: true,
+  attempts: true,
+  edit: true,
+  randomize: true,
+  delete: true,
+  mark_all: true,
+  tags: false,
+  path: false,
+  target_set: false
+}
+</script>
+
+<style>
+.problem-id {font-weight: bold; font-size: 120%; padding-right: 1ex;}
+.problem {
+  list-style: none;
+  border: 1px black solid;
+  width: 100%
+}
+</style>

@@ -28,8 +28,6 @@ webwork2.komodoproject
 #courses.dist/*
 node_modules
 node_modules/*
-WeBWorK.sublime-project
-WeBWorK.sublime-workspace
 conf/*.apache-config
 math4-overrides.css
 math4-overrides.js

@@ -13,6 +13,8 @@ use Utils::GeneralUtils qw/writeConfigToFile getCourseSettingsWW2/;
 use Dancer2 appname => "Routes::Login";
 use Dancer2::Plugin::Auth::Extensible;
 
+use Data::Dump qw/dump/;
+
 ####
 #
 #  get /courses/:course_id/settings
@@ -21,9 +23,13 @@ use Dancer2::Plugin::Auth::Extensible;
 #
 ###
 
-get '/courses/:course_id/settings' => require_role professor => sub {
+get '/courses/:course_id/settings' => sub { # => require_role professor => sub {
 
-	return getCourseSettings;
+	my $sets = getCourseSettings(vars->{ce});
+
+	debug dump $sets;
+
+	return $sets;
 
 };
 
