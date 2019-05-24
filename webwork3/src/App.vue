@@ -88,22 +88,9 @@ export default {
     }
   },
   created: function() { // load all of the relevant data
-    var self = this;
-    this.problem_sets.fetch().then( response => {
-      self.problem_sets = new ProblemSetList({models: response.response.data});
-    });
-    this.users.fetch().then(response => {
-      self.users = new UserList({models: response.response.data});
-      // eslint-disable-next-line
-      console.log(self.users);
-    })
-    this.user.user_id = "peter";
-    this.user.fetch().then(response => {
-      self.user = new User(response.response.data);
-    })
-    this.settings.fetch().then(response => {
-      self.settings = new SettingList(response.response.data);
-    })
+    this.$store.dispatch('fetchSettings')
+    this.$store.dispatch('fetchUsers')
+    this.$store.dispatch('fetchProblemSets')
   },
   filters: {
     getName: (comp,arr) => arr.find(obj=>obj.comp==comp).name

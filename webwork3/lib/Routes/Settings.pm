@@ -27,7 +27,7 @@ get '/courses/:course_id/settings' => sub { # => require_role professor => sub {
 
 	my $sets = getCourseSettings(vars->{ce});
 
-	debug dump $sets;
+	# debug dump $sets;
 
 	return $sets;
 
@@ -84,6 +84,27 @@ put '/courses/:course_id/settings/:setting_id' => require_role professor => sub 
 	return {};
 };
 
+put '/courses/:course_id/setting' => sub {
+
+	my $ConfigValues = getCourseSettingsWW2(vars->{ce});
+	foreach my $oneConfig (@$ConfigValues) {
+		foreach my $hash (@$oneConfig) {
+			if (ref($hash)=~/HASH/){
+				if ($hash->{var} eq body_parameters->{var}){
+					if($hash->{type} eq 'boolean'){
+						$hash->{value} = body_parameters->{value} ? 1 : 0;
+					} else {
+						$hash->{value} = body_parameters->{value};
+					}
+					return writeConfigToFile(vars->{ce},$hash);
+				}
+			}
+		}
+	}
+
+	return {};
+
+};
 
 
 

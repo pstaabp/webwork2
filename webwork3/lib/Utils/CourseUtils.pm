@@ -77,10 +77,10 @@ sub getAllUsers {
 
 sub getCourseSettings {
 
-    my $ce = shift;
+  my $ce = shift;
 
 	my $ConfigValues = $ce->{ConfigValues};
-	
+
 	my @settings = ();
 
 	# get the list of theme folders in the theme directory and remove . and ..

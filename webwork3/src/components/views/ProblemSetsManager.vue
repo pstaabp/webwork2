@@ -29,7 +29,7 @@ import moment from 'moment'
 import Vuetable from 'vuetable-2'
 
 // models
-import ProblemSetList from '../../models/ProblemSetList.js'
+// import ProblemSetList from '../../models/ProblemSetList.js'
 
 
 export default {
@@ -47,11 +47,12 @@ export default {
       local_problem_sets: []
     }
   },
-  props: {
-    problem_sets: ProblemSetList
-  },
   created: function() {
-    this.local_problem_sets = this.problem_sets.models;
+    // eslint-disable-next-line
+    console.log("in created");
+    this.local_problem_sets = this.$store.state.problem_sets;
+    // eslint-disable-next-line
+    console.log(this.local_problem_sets);
   },
   components: {
     Vuetable

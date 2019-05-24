@@ -113,6 +113,6 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 thead {display: none}
 </style>

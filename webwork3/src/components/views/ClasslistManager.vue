@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-container>
-      <b-row>
+      <b-row class="pb-3">
         <b-col cols="3">
           <b-btn-toolbar>
             <b-input-group size="sm">
@@ -36,7 +36,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-table :items="users.models" :fields="fields" :small="true" :bordered="true"
+        <b-table :items="getUsers" :fields="fields" :small="true" :bordered="true"
         primary-key="set_id" selectable>
 
         <!-- A custom formatted column -->
@@ -57,9 +57,6 @@
 // components
 import ImportStudentsFile from './view_components/ImportStudentsFile.vue'
 import ImportStudentsManually from './view_components/ImportStudentsManually.vue'
-
-// models
-import UserList from '../../models/UserList.js'
 
 
 export default {
@@ -96,22 +93,13 @@ export default {
     ImportStudentsFile,
     ImportStudentsManually
   },
-  props: {
-    users: UserList
-  },
-  watch: {
-    users: function() {
-      // eslint-disable-next-line
-      console.log(this.users);
-    }
-  },
   methods: {
     formatUserType: function (value) { return this.user_types[value]},
     formatPermission: function(value) { return this.permission_levels[value]}
+  },
+  computed: {
+    getUsers() {return this.$store.state.users},
   }
 }
-
-
-
 
 </script>

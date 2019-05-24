@@ -6,16 +6,15 @@ import '../public/css/webwork.css'
 
 import Vue from 'vue'
 
-//import VuexORM from '@vuex-orm/core'
-//import VuexORMAxios from '@vuex-orm/plugin-axios'
 import BootstrapVue from 'bootstrap-vue'
-//import VueNestable from 'vue-nestable'
 
 Vue.use(BootstrapVue);
-//Vue.use(VueNestable);
 
 import App from './App.vue'
 
+import store from './store'
+
 new Vue({
+  store,
   render: h => h(App)
 }).$mount('#app')
