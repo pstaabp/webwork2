@@ -25,7 +25,7 @@ import Overrides from './view_components/Overrides.vue'
 import SetHeaders from './view_components/SetHeaders.vue'
 
 // models
-import ProblemSetList from '../../models/ProblemSetList.js'
+//import ProblemSetList from '../../models/ProblemSetList.js'
 
 export default {
   name: 'SetDetails',
@@ -35,7 +35,7 @@ export default {
       }
   },
   props: {
-    problem_sets: ProblemSetList  
+    //problem_sets: ProblemSetList
   },
   components: {
     SetInfo,
@@ -55,18 +55,5 @@ export default {
       return {};
     }
   },
-  // created: function() {
-  //
-  //     // eslint-disable-next-line
-  //     console.log("set details.vue: in created")
-  //   // eslint-disable-next-line
-  //   console.log(this.problem_sets);
-  // },
-  // beforeCreate: function() {
-  //   // eslint-disable-next-line
-  //   console.log("set details.vue: in beforeCreate")
-  //   // eslint-disable-next-line
-  //   console.log(this.problem_sets);
-  // },
 }
 </script>

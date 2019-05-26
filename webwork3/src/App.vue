@@ -28,12 +28,6 @@
 <script>
 import MenuBar from './components/MenuBar.vue'
 
-// models
-import User from './models/User.js'
-import UserList from './models/UserList.js'
-import ProblemSetList from './models/ProblemSetList.js'
-import SettingList from './models/SettingList.js'
-
 // sidebars
 import ProblemSetsSidebar from './components/sidebars/ProblemSetsSidebar.vue'
 import LibraryOptionsSidebar from './components/sidebars/LibraryOptionsSidebar.vue'
@@ -77,14 +71,14 @@ export default {
         {name: "Library Options", comp: "lib_opts"},
         {name: "Messages", comp: "messages"}
       ],
-      current_view: "settings",
+      current_view: "problem_sets_manager",
       current_sidebar: "lib_opts",
       show_sidebar: false,
-      problem_sets: new ProblemSetList(),
+      problem_sets: null,
       selected_set_id: "",
-      user: new User(),
-      users: new UserList(),
-      settings: new SettingList()
+      user: {user_id: "peter", first_name: "Peter", last_name: "Staab"},
+      users: null,
+      settings: null,
     }
   },
   created: function() { // load all of the relevant data

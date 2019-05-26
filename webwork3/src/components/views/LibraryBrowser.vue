@@ -16,13 +16,11 @@
 <script>
 // tab components
 import LibrarySubjects from './view_components/LibrarySubjects.vue'
-// models
-import ProblemSetList from '../../models/ProblemSetList.js'
 
 export default {
   name: 'SetDetails',
   props: {
-    problem_sets: ProblemSetList,
+    //problem_sets: ProblemSetList,
     selected_set_id: String
   },
   components: {

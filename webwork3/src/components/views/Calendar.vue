@@ -31,7 +31,6 @@
 
 
 <script>
-import ProblemSetList from '../../models/ProblemSetList.js'
 
 import CalendarRow from '../CalendarRow.vue'
 import moment from 'moment'
@@ -40,9 +39,9 @@ export default {
   components: {
     CalendarRow
   },
-  props: {
-    problem_sets: ProblemSetList
-  },
+  // props: {
+  //   problem_sets: ProblemSetList
+  // },
   data: function () {
       return {
         first_days: []

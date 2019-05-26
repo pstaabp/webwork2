@@ -6,11 +6,11 @@
 </template>
 
 <script>
-import ProblemSetList from '../../models/ProblemSetList.js'
+
 export default {
   name: 'ProblemSetsSidebar',
   props: {
-    problem_sets: ProblemSetList
+    //problem_sets: ProblemSetList
   },
   methods: {
     goto: function(evt){

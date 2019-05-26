@@ -83,7 +83,9 @@ post '/courses/:course_id/users' => require_role professor => sub {
 #
 ##
 
-put '/courses/:course_id/users/:user_id' => require_any_role [qw/professor student/] => sub {
+put '/courses/:course_id/users/:user_id' => sub { #=> require_any_role [qw/professor student/] => sub {
+
+	debug dump body_parameters;
 
   ## if the user is a student, they can only change their own information.
 
@@ -100,15 +102,17 @@ put '/courses/:course_id/users/:user_id' => require_any_role [qw/professor stude
 
   # if the user is a student, only allow changes to a few properties:
 
-  if (user_has_role('professor')){
+  ### WARNING:  This has changed to do testing!!
+
+  #if (user_has_role('professor')){
     for my $key (@user_props) {
       $user->{$key} = $params_to_update->{$key} if (defined $params_to_update->{$key});
     }
-  } else {
-    for my $key (qw/email_address displayMode showOldAnswers userMathView/){
-      $user->{$key} = $params_to_update->{$key} if (defined $params_to_update->{$key});
-    }
-  }
+  # } else {
+  #   for my $key (qw/email_address displayMode showOldAnswers userMathView/){
+  #     $user->{$key} = $params_to_update->{$key} if (defined $params_to_update->{$key});
+  #   }
+  # }
 
 	vars->{db}->putUser($user);
 
@@ -120,6 +124,8 @@ put '/courses/:course_id/users/:user_id' => require_any_role [qw/professor stude
       vars->{db}->putPermissionLevel($permission);
     }
   }
+
+	debug $user;
 
 	return get_one_user(vars->{db},$user->{user_id});
 

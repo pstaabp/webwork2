@@ -56,18 +56,13 @@
 
 
 <script>
-//import axios from 'axios'
-import Problem from '../../../models/Problem.js'
-import ProblemSetList from '../../../models/ProblemSetList'
-
-
 
 export default {
   name: 'ProblemView', // name of the view
   props: {
     problem: Object, // perhaps this should be a Problem instead.
     type: String,
-    problem_sets: ProblemSetList
+    //problem_sets: ProblemSetList
   },
   data: function() {
     return {
@@ -78,7 +73,7 @@ export default {
     }
   },
   mounted: function () {
-    this.model = new Problem(this.problem);
+    this.model = null,
     this.fetchProblem();
   },
   methods: {
@@ -109,7 +104,7 @@ export default {
     problem: function () {
       // eslint-disable-next-line
       console.log("in watch");
-      this.model = new Problem(this.problem);
+      this.model = null;
       this.fetchProblem();
     }
   },

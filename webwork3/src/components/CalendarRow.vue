@@ -17,7 +17,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import ProblemSetList from '../models/ProblemSetList.js'
+//import ProblemSetList from '../models/ProblemSetList.js'
 import {SaveMixin} from "../mixins/save_mixin.js"
 
 import moment from 'moment'
@@ -27,7 +27,7 @@ export default{
   mixins: [SaveMixin],
   props: {
     first_day_of_week: Object,
-    problem_sets: ProblemSetList
+    //problem_sets: ProblemSetList
   },
   components: {
     draggable

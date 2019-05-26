@@ -2,7 +2,7 @@
   <div>
     <b-form-group label="Target Problem Set">
       <b-form>
-        <b-select v-model="selected_set" :options="problem_sets.models"
+        <b-select v-model="selected_set"
         value-field="set_id" text-field="set_id" size="sm"
           @change="$emit('update:selected_set_id',selected_set)"
           :state="selected_set !== null">
@@ -17,11 +17,11 @@
 </template>
 
 <script>
-import ProblemSetList from '../../models/ProblemSetList.js'
+
 export default {
   name: 'LibraryOptionsSidebar',
   props: {
-    problem_sets: ProblemSetList,
+    //problem_sets: ProblemSetList,
     selected_set_id: String
   },
   data: function(){
