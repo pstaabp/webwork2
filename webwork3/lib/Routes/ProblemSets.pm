@@ -193,7 +193,7 @@ del '/courses/:course_id/sets/:set_id/problems/:problem_id' => require_role prof
 #  permission > Student
 ##
 
-del '/courses/:course_id/sets/:set_id' => require_role professor => sub {
+del '/courses/:course_id/sets/:set_id' => sub { #require_role professor => sub {
 
     # checkPermissions(10,session->{user});
 

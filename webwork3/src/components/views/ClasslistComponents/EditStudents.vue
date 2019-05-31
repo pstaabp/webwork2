@@ -1,5 +1,6 @@
 <template>
-  <b-modal size="xl" id="edit-students-modal" ref="sfmodal" title="Edit Selected Students">
+  <b-modal size="xl" id="edit-students-modal" ref="sfmodal" title="Edit Selected Students"
+      ok-title="Save and Close" @ok="save">>
     <b-container fluid>
       <table class="table table-sm">
         <thead>
@@ -30,12 +31,6 @@
         </tbody>
       </table>
     </b-container>
-    <div slot="modal-footer" class="w-100">
-      <b-btn-group size="sm" class="float-right">
-        <b-btn variant="outline-dark" @click="$bvModal.hide('edit-students-modal')">Cancel</b-btn>
-        <b-btn variant="primary" @click="save">Save and Close</b-btn>
-      </b-btn-group>
-     </div>
   </b-modal>
 </template>
 

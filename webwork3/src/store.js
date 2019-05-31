@@ -14,16 +14,29 @@ export default new Vuex.Store({
   mutations: {
     setSettings(state,_settings){ state.settings = _settings},
     setSetting(state,_setting){
-      const index = state.settings.findIndex( (_set) => _set.var == _setting.var);
+      const index = state.settings.findIndex( _set => _set.var == _setting.var);
       state.settings[index] = _setting;
     },
+
+    // User mutations
+
     setUsers(state,_users){ state.users = _users;},
     setUser(state,_user){
-      const index = state.users.findIndex( (_u) => _u.user_id == _user.user_id);
+      const index = state.users.findIndex( __user => __user.user_id == _user.user_id);
       state.users[index] = _user;
     },
-    setProblemSets(state,_sets){ state.problem_sets = _sets},
 
+    // ProblemSet mutations
+
+    setProblemSets(state,_sets){ state.problem_sets = _sets},
+    addProblemSet(state,_set) {state.problem_sets.push(_set)},
+    deleteProblemSet(state,_set) {
+      state.problem_sets = state.problem_sets.filter(__set => __set.set_id != _set.set_id)
+    },
+    setProblemSet(state,_set) {
+      const index = state.problem_sets.findIndex(__set => __set.set_id == _set.set_id)
+      state.problem_sets[index] = _set;
+    }
   },
   actions: {
     // Settings actions
@@ -85,7 +98,30 @@ export default new Vuex.Store({
         // eslint-disable-next-line
         console.log(error);
       })
-    }, // getUsers
-
+    }, // fetchProblemSets
+    async newProblemSet({state,commit},_set){
+      axios.post(state.api_url + "/courses/test/sets/" + _set.set_id,_set)
+      .then((response) => commit('addProblemSet', response.data))
+      .catch((error) => {
+        // eslint-disable-next-line
+        console.log(error);
+      })
+    }, // newProblemSet
+    async removeProblemSet({state,commit},_set){
+      axios.delete(state.api_url + "/courses/test/sets/" + _set.set_id)
+      .then((response) => commit('deleteProblemSet',response.data))
+      .catch((error) => {
+        // eslint-disable-next-line
+        console.log(error);
+      })
+    }, // removeProblemSet
+    async updateProblemSet({state,commit},_set){
+      axios.put(state.api_url + "/courses/test/sets/" + _set.set_id, _set)
+      .then((response) => commit('setProblemSet',response.data))
+      .catch((error) => {
+        // eslint-disable-next-line
+        console.log(error);
+      })
+    }
   }
 })
