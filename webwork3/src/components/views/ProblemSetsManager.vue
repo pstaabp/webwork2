@@ -6,7 +6,7 @@
           <b-input-group size="sm">
             <b-form-input placeholder="Filter" v-model="filter_string"/>
             <b-input-group-append>
-              <b-button size="sm" text="Button">X</b-button>
+              <b-button size="sm" text="Button" @click="filter_string=''">X</b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -87,15 +87,13 @@ export default {
     this.users = this.$store.state.users
   },
   methods: {
-    toDate: value => moment.unix(value).format("YYYY-MM-DD"),
-    updateDate: function(data,field,value) {
-      var _prob = this.problem_sets.find(_set => _set.set_id==data.set_id)
-      _prob.set(field,moment(value,"YYYY-MM-DD").unix())
-      // eslint-disable-next-line
-      console.log(_prob)
-      _prob.save();
-
-    },
+    // toDate: value => moment.unix(value).format("YYYY-MM-DD"),
+    // updateDate: function(data,field,value) {
+    //   var _prob = this.problem_sets.find(_set => _set.set_id==data.set_id)
+    //   _prob.set(field,moment(value,"YYYY-MM-DD").unix())
+    //   _prob.save();
+    //
+    // },
     rowSelected(rows){ this.selected_sets = rows },
     formatDate(_date){
       return this.show_time ? moment.unix(_date).format("MM/DD/YY [at] hh:mm a") :
@@ -117,11 +115,5 @@ export default {
   computed: {
     getProblemSets() {return this.$store.state.problem_sets}
   },
-  watch: {
-    filter_string: function(){
-      // eslint-disable-next-line
-      console.log(this.filter_string);
-    }
-  }
 }
 </script>
