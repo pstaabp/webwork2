@@ -23,6 +23,7 @@
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
+          <message-bar />
           <b-nav-item-dropdown right>
             <template slot="button-content">
               Sidebar
@@ -68,6 +69,7 @@
 </template>
 
 <script>
+import MessageBar from './views/view_components/MessageBar.vue'
 //import Notification from './Notification.vue'
 
 export default {
@@ -75,6 +77,7 @@ export default {
   filters: {
     getName: (comp,arr) => arr.find(obj=>obj.comp==comp).name
   },
+  components: {MessageBar},
   props: {
     views: Array,
     current_view: String,

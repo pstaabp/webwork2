@@ -1,7 +1,7 @@
 <template>
   <b-tabs content-class="mt-3">
     <b-tab title="By Subj." active>
-      <library-subjects :problem_sets="problem_sets" :selected_set_id="selected_set_id"/></b-tab>
+      <library-subjects :selected_set_id="selected_set_id"/></b-tab>
     <b-tab title="By Directory"><h3>Browse by Directory</h3></b-tab>
     <b-tab title="Textbooks"><h3>Browse problems in textbooks</h3></b-tab>
     <b-tab title="Local Prob."><h3>Browse local problems</h3></b-tab>
@@ -15,12 +15,11 @@
 
 <script>
 // tab components
-import LibrarySubjects from './view_components/LibrarySubjects.vue'
+import LibrarySubjects from './LibraryComponents/LibrarySubjects.vue'
 
 export default {
   name: 'SetDetails',
   props: {
-    //problem_sets: ProblemSetList,
     selected_set_id: String
   },
   components: {
@@ -29,7 +28,7 @@ export default {
   computed: {
     getSelectedSet: function(){
       return this.problem_sets.length == 0? "" : this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
-    }
+    },
   }
 }
 </script>

@@ -3,6 +3,7 @@
     <b-form-group label="Target Problem Set">
       <b-form>
         <b-select v-model="selected_set"
+        :options="getProblemSets"
         value-field="set_id" text-field="set_id" size="sm"
           @change="$emit('update:selected_set_id',selected_set)"
           :state="selected_set !== null">
@@ -28,6 +29,12 @@ export default {
     return {
       selected_set: null
     }
+  },
+  computed: {
+    getProblemSets(){
+      return this.$store.state.problem_sets;
+    }
   }
+
 }
 </script>

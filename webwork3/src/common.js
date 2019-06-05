@@ -50,11 +50,27 @@ export default {
       restrict_prob_progression: false,
       email_instructor: false,
     },
+    user_types: {
+      'C': "enrolled",
+      'P': "proctor",
+      'A': "audit",
+      'D': "drop"
+    },
+    permission_levels: {
+      20: "admin",
+      10: "professor",
+      0: "student",
+      "-5": "guest"
+    },
+    date_props: ["due_date","reduced_scoring_date","due_date","answer_date"],
     formatDateForBrowser(date_in_unix){
         return moment.unix(date_in_unix).format("YYYY-MM-DD")
     },
     formatDatetimeForBrowser(date_in_unix){
         return moment.unix(date_in_unix).format("YYYY-MM-DD[T]HH:mm")
+    },
+    formatTimeForBrowser(date_in_unix){
+        return moment.unix(date_in_unix).format("HH:mm")
     },
     parseDatetimeForBrowser(date_string){
       return moment(date_string,"YYYY-MM-DD[T]HH:mm").unix()

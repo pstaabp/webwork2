@@ -35,7 +35,7 @@
           </b-btn-group>
         </b-btn-toolbar>
         <b-btn-group size="sm" class="float-right" v-if="typeProp('reorder')">
-          <b-btn variant="outline-dark"><i class="fa fa-arrows-alt-v"></i></b-btn>
+          <i class="fa fa-arrows-alt-v drag-handle border border-dark rounded p-2"></i>
         </b-btn-group>
 
 
@@ -51,16 +51,18 @@
       </b-row>
     </b-container>
   </li>
+
 </template>
 
 
 
 <script>
+import axios from 'axios';
 
 export default {
   name: 'ProblemView', // name of the view
   props: {
-    problem: Object, // perhaps this should be a Problem instead.
+    problem: Object,
     type: String,
     //problem_sets: ProblemSetList
   },
@@ -69,7 +71,6 @@ export default {
       html: "",
       show_tags: false,
       show_path: false,
-      model: null
     }
   },
   mounted: function () {
@@ -79,11 +80,11 @@ export default {
   methods: {
     fetchProblem: function (other_params) {
       this.html="";
-
-      this.model.fetch({params: Object.assign({},this.problem,other_params)})
-          .then( (response) => {
-            this.html = response.response.data.text
-          }) // why two levels of response
+      axios.get("/webwork3/api/renderer/courses/test/problems/0",
+                  {params: Object.assign({},this.problem,other_params)})
+      .then( (response) => {
+        this.html = response.data.text
+      })
     },
     typeProp: function(prop){
       return this.type=="library" ? LIB_PROB[prop] : SET_PROB[prop]
@@ -102,8 +103,6 @@ export default {
   },
   watch: {
     problem: function () {
-      // eslint-disable-next-line
-      console.log("in watch");
       this.model = null;
       this.fetchProblem();
     }

@@ -5,10 +5,10 @@
         <b-col cols="3">
           <b-btn-toolbar>
             <b-input-group size="sm">
-              <b-input placeholder="Filter"/>
+              <b-input placeholder="Filter" v-model="filter_string"/>
             </b-input-group>
             <b-btn-group size="sm">
-              <b-btn variant="outline-dark">X</b-btn>
+              <b-btn variant="outline-dark" @click="filter_string=''">X</b-btn>
             </b-btn-group>
           </b-btn-toolbar>
         </b-col>
@@ -17,9 +17,9 @@
         <b-col cols="6">
           <b-btn-group size="sm" >
             <b-dd variant="outline-dark" text="Action on Selected">
-              <b-dd-item href="#">Email Students</b-dd-item>
-              <b-dd-item v-b-modal.edit-students href="#">Edit Students</b-dd-item>
-              <b-dd-item href="#">Delete Students</b-dd-item>
+              <b-dd-item href="#">Email Users</b-dd-item>
+              <b-dd-item v-b-modal.edit-users-modal>Edit Users</b-dd-item>
+              <b-dd-item href="#">Delete Users</b-dd-item>
             </b-dd>
             <b-dd variant="outline-dark" text="Import/Export Users">
               <b-dd-item v-b-modal.import-students-file href="#">Add Students from a File</b-dd-item>
@@ -37,7 +37,7 @@
       </b-row>
       <b-row>
         <b-table :items="getUsers" :fields="fields" :small="true" :bordered="true"
-        primary-key="set_id" @row-selected="rowSelected" selectable>
+        primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable>
 
         <!-- A custom formatted column -->
         <template slot="email_address" slot-scope="data">
@@ -46,7 +46,7 @@
       </b-table>
     </b-row>
   </b-container>
-  <edit-students :users="selected_users"/>
+  <edit-users-modal :users="selected_users"/>
   <import-students-file />
   <import-students-manually />
 </div>
@@ -58,7 +58,8 @@
 // components
 import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue'
 import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue'
-import EditStudents from './ClasslistComponents/EditStudents.vue'
+import EditUsersModal from './ClasslistComponents/EditUsersModal.vue'
+import common from '../../common.js'
 
 export default {
   name: 'ClasslistManager',
@@ -76,29 +77,18 @@ export default {
           { key: 'comment', sortable: true, label: "Comment"},
           { key: 'permission', sortable: true, label: "Permission", formatter: "formatPermission"}
         ],
-        user_types: {
-          'C': "enrolled",
-          'P': "proctor",
-          'A': "audit",
-          'D': "drop"
-        },
-        permission_levels: {
-          20: "admin",
-          10: "professor",
-          0: "student",
-          "-5": "guest"
-        },
-        selected_users: []
+        selected_users: [],
+        filter_string: "",
     }
   },
   components: {
     ImportStudentsFile,
     ImportStudentsManually,
-    EditStudents
+    EditUsersModal
   },
   methods: {
-    formatUserType(value) { return this.user_types[value]},
-    formatPermission(value) { return this.permission_levels[value]},
+    formatUserType(value) { return common.user_types[value]},
+    formatPermission(value) { return common.permission_levels[value]},
     rowSelected(rows){ this.selected_users = rows }
   },
   computed: {

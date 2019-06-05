@@ -1,23 +1,26 @@
 {
-  "name": "ww3",
+  "name": "webwork3",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "jest"
   },
   "dependencies": {
+    "@vue/test-utils": "^1.0.0-beta.29",
     "@vuex-orm/plugin-axios": "^0.5.0",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "jest": "^24.8.0",
     "mathjax": "^2.7.5",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.25",
     "papaparse": "^4.6.3",
     "vue": "^2.6.6",
+    "vue-jest": "^3.0.4",
     "vuedraggable": "^2.19.1",
-    "vuetable-2": "^2.0.0-beta.4",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -55,5 +58,20 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "jest": {
+    "moduleNameMapper": {
+      "^vue$": "vue/dist/vue.common.js"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+      ".*\\.(vue)$": "<rootDir>/node_modules/vue-jest"
+    },
+    "verbose": true,
+    "testURL": "http://localhost/"
+  }
 }

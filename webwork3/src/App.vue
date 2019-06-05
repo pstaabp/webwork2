@@ -18,7 +18,7 @@
           <h3 style="text-align: center" class="m-3">{{ current_sidebar | getName(sidebars) }}</h3>
           <problem-sets-sidebar v-if="current_sidebar=='problem_sets'" :problem_sets="problem_sets"/>
           <library-options-sidebar v-else-if="current_sidebar=='lib_opts'" :problem_sets="problem_sets"
-              :selected_set_id="selected_set_id" v-on:update:selected_set_id="selected_set_id = $event"/>
+              :selected_set_id="selected_set_id" @update:selected_set_id="selected_set_id = $event"/>
         </b-col>
       </b-row>
     </b-container>
@@ -71,7 +71,7 @@ export default {
         {name: "Library Options", comp: "lib_opts"},
         {name: "Messages", comp: "messages"}
       ],
-      current_view: "problem_sets_manager",
+      current_view: "problem_set_details",
       current_sidebar: "lib_opts",
       show_sidebar: false,
       problem_sets: null,

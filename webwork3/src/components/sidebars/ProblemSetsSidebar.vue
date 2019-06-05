@@ -9,14 +9,16 @@
 
 export default {
   name: 'ProblemSetsSidebar',
-  props: {
-    //problem_sets: ProblemSetList
-  },
   methods: {
     goto: function(evt){
       // eslint-disable-next-line
       console.log(evt);
     }
   },
+  computed: {
+    getProblemSets(){
+      return this.$store.state.problem_sets;
+    }
+  }
 }
 </script>

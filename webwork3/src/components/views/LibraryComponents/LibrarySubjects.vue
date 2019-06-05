@@ -49,11 +49,7 @@
 
 <script>
 import axios from 'axios'
-import ProblemView from './ProblemView.vue'
-
-// models,collections
-// import ProblemSetList from '../../../models/ProblemSetList.js'
-// import Problem from '../../../models/Problem.js'
+import ProblemView from '../view_components/ProblemView.vue'
 
 export default {
   name: 'LibrarySubjects',
@@ -147,8 +143,6 @@ export default {
     },
     addProblem: function(_problem){
       const set = this.problem_sets.find(set=>set.set_id==this.selected_set_id);
-      //const num_problems = set.problems.length;
-      //set.problems.push(new Problem({problem_id : num_problems+1,source_file: _problem.source_file}));
       set.save({method: "put"}).then(resp=>{
         // eslint-disable-next-line
         console.log(resp,_problem);
@@ -168,6 +162,10 @@ export default {
             // eslint-disable-next-line
             console.log(err);
           });
+  },
+  selected_set_id: function(){
+    // eslint-disable-next-line
+    console.log(this.selected_set_id)
   }
 }
 </script>

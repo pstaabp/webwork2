@@ -1,15 +1,16 @@
 <template>
   <b-tabs content-class="mt-3">
-    <b-tab title="Set Details" active><SetInfo :selected_set="getSelectedSet"/></b-tab>
-    <b-tab title="Problems"><ProblemListView :selected_set="getSelectedSet"/></b-tab>
-    <b-tab title="Assign Users">USERS</b-tab>
-    <b-tab title="Student Overrides"><Overrides  :selected_set="getSelectedSet"/></b-tab>
-    <b-tab title="Set Headers"><SetHeaders :selected_set="getSelectedSet"/></b-tab>
+    <b-tab title="Set Details" active>
+      <set-info :problem_sets="getProblemSets" :selected_set_id="selected_set_id"/></b-tab>
+    <b-tab title="Problems"><problem-list-view :selected_set_id="selected_set_id"/></b-tab>
+    <b-tab title="Assign Users Overrides">
+      <assign-users :selected_set_id="selected_set_id"/></b-tab>
+    <b-tab title="Set Headers"><set-headers :selected_set_id="selected_set_id"/></b-tab>
     <template slot="tabs">
       <b-nav-item href="#" @click="() => {}" class="pb-0">
-        <b-select size="sm" v-model="selected_set" @change="check">
+        <b-select size="sm" v-model="selected_set_id" @change="check">
           <option :value="null" selected>Select a Set</option>
-          <option v-for="set in problem_sets.models" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
+          <option v-for="set in getProblemSets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
         </b-select>
       </b-nav-item>
     </template>
@@ -19,39 +20,39 @@
 
 
 <script>
-import SetInfo from './view_components/SetInfo.vue'
-import ProblemListView from './view_components/ProblemListView.vue'
-import Overrides from './view_components/Overrides.vue'
-import SetHeaders from './view_components/SetHeaders.vue'
+import SetInfo from './SetDetailsComponents/SetInfo.vue'
+import ProblemListView from './SetDetailsComponents/ProblemListView.vue'
+import AssignUsers from './SetDetailsComponents/AssignUsers.vue'
+import SetHeaders from './SetDetailsComponents/SetHeaders.vue'
 
-// models
-//import ProblemSetList from '../../models/ProblemSetList.js'
+import common from '../../common.js'
 
 export default {
   name: 'SetDetails',
   data: function () {
       return {
-        selected_set: "set1"
+        selected_set_id: "set1"
       }
-  },
-  props: {
-    //problem_sets: ProblemSetList
   },
   components: {
     SetInfo,
     ProblemListView,
-    Overrides,
+    AssignUsers,
     SetHeaders
   },
   computed: {
-    getSelectedSet: function(){
-      return this.problem_sets.length == 0? "" : this.problem_sets.where(_set => _set.set_id == this.selected_set)[0];
+    getProblemSets: function(){
+      return this.$store.state.problem_sets
+    },
+    getSelectedSet () {
+      return (_sets && _sets.length>0) ? _sets.find(_set => _set.set_id == this.selected_set_id)
+          : common.new_problem_set;
     }
   },
   methods: {
     check: function() {
       // eslint-disable-next-line
-      console.log(this.selected_set)
+      console.log(this.selected_set_id)
       return {};
     }
   },

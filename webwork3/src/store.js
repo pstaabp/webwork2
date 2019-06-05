@@ -9,6 +9,7 @@ export default new Vuex.Store({
     settings: [],  // /webwork3/api/courses/test/settings
     users: [],
     problem_sets: [],
+    messages: [], // this stores the messages shown in the menu bar when things are saved.
     api_url: "/webwork3/api"
   },
   mutations: {
@@ -36,6 +37,19 @@ export default new Vuex.Store({
     setProblemSet(state,_set) {
       const index = state.problem_sets.findIndex(__set => __set.set_id == _set.set_id)
       state.problem_sets[index] = _set;
+    },
+
+    // messages
+    addMessage(state,_msg) {state.messages.push(_msg)}
+  },
+  getters: {
+    getUsers: (state) => {   // return a list of all users except proctors
+      //return state.users.filter(_u => ! /^set_id:/.test(_u.user_id))
+      return state.users;
+    },
+    getAssignedUsers: (state) => (set_id) => {  // return all non-proctor users assigned to set_id
+      const _set = state.problem_sets.find(_set => _set.set_id == set_id)
+      return _set ? _set.assigned_users : [];
     }
   },
   actions: {
@@ -117,7 +131,12 @@ export default new Vuex.Store({
     }, // removeProblemSet
     async updateProblemSet({state,commit},_set){
       axios.put(state.api_url + "/courses/test/sets/" + _set.set_id, _set)
-      .then((response) => commit('setProblemSet',response.data))
+      .then((response) => {
+        commit('setProblemSet',response.data)
+        commit('addMessage',_set._msg)
+        // eslint-disable-next-line
+        console.log(_set._msg)
+      })
       .catch((error) => {
         // eslint-disable-next-line
         console.log(error);

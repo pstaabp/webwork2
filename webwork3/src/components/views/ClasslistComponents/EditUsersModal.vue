@@ -1,6 +1,6 @@
 <template>
-  <b-modal size="xl" id="edit-students-modal" ref="sfmodal" title="Edit Selected Students"
-      ok-title="Save and Close" @ok="save">>
+  <b-modal size="xl" id="edit-users-modal" title="Edit Selected Users"
+      ok-title="Save and Close" @ok="save">
     <b-container fluid>
       <table class="table table-sm">
         <thead>
@@ -40,19 +40,14 @@
 
 
 export default {
-  name: 'EditStudents',
-  data: function() {
-    return {
-
-    }
-  },
+  name: 'EditUsers',
   props: {
     users: Array
   },
   methods: {
     save(){
       this.users.forEach( _user => this.$store.dispatch("updateUser",_user))
-      this.$refs['edit-students-modal'].hide()
+      this.$bvModal.hide('edit-users-modal')
     }
   }
 }
