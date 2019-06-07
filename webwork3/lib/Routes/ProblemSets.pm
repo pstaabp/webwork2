@@ -449,7 +449,7 @@ post '/courses/:course_id/users/:user_id/sets/:set_id' => require_role professor
 ##
 
 
-put '/courses/:course_id/users/:user_id/sets/:set_id' => require_role professor => sub {
+put '/courses/:course_id/users/:user_id/sets/:set_id' => sub { #=> require_role professor => sub {
 
     # check to make sure that the user is assigned to the course
     send_error("The user " . params->{user_id} . " is not enrolled in the course " . param("course_id"),404)

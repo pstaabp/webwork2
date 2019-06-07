@@ -43,7 +43,7 @@ get 'courses/:course_id/users/:user_id' => sub { #require_role professor => sub 
 ###
 
 
-post '/courses/:course_id/users/:user_id' => require_role professor => sub {
+post '/courses/:course_id/users/:user_id' => sub { #require_role professor => sub {
 
   my $user_id = route_parameters->{user_id};
 	my $user = vars->{db}->getUser($user_id);

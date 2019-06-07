@@ -103,8 +103,16 @@ export default {
     },
     cancel() {this.$refs.sfmodal.hide()},
     addAll() {
-       // eslint-disable-next-line
-        console.log(this.data);
+      if(this.use_first_row){
+        this.data.shift()
+      }
+      const self = this;
+      let _users = this.data.map(_u => this.header_values.reduce((result,_val,i) =>{
+          result[_val] = _u["col"+i];
+          return result;},{}));
+
+      _users.forEach(_u => this.$store.dispatch("addUser",_u));
+      this.$refs.sfmodal.hide();
 
     },
     addSelected() {this.$refs.sfmodal.hide()}

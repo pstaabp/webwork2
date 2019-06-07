@@ -7,7 +7,7 @@
       <assign-users :selected_set_id="selected_set_id"/></b-tab>
     <b-tab title="Set Headers"><set-headers :selected_set_id="selected_set_id"/></b-tab>
     <template slot="tabs">
-      <b-nav-item href="#" @click="() => {}" class="pb-0">
+      <b-nav-item href="#" @click="() => {}" id="custom-tab">
         <b-select size="sm" v-model="selected_set_id" @change="check">
           <option :value="null" selected>Select a Set</option>
           <option v-for="set in getProblemSets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
@@ -55,6 +55,13 @@ export default {
       console.log(this.selected_set_id)
       return {};
     }
-  },
+  }
 }
 </script>
+
+<style scoped>
+#custom-tab a {
+   padding-top: 4px;
+   padding-bottom: 4px
+}
+ </style>  .

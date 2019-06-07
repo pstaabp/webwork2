@@ -70,7 +70,6 @@
 
 <script>
 import MessageBar from './views/view_components/MessageBar.vue'
-//import Notification from './Notification.vue'
 
 export default {
   name: 'MenuBar',

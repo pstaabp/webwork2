@@ -92,10 +92,11 @@
 import moment from 'moment'
 import common from '../../../common'
 import {ProblemSetMixin} from '../../../mixins/problem_set_mixin.js'
+import MessagesMixin from '@/mixins/messages_mixin.js'
 
 export default {
   name: 'SetInfo',
-  mixins: [ ProblemSetMixin],
+  mixins: [ProblemSetMixin,MessagesMixin],
   props: {
     problem_sets: Array,
     selected_set_id: String
@@ -106,13 +107,10 @@ export default {
       data_loaded: false,
       pg_password: "" , // how to handle this?
       data_loading: true,
-      problem_set: common.new_problem_set
+      problem_set: common.new_problem_set,
+      set_params: common.new_problem_set
     }
   },
-  // created(){
-  //   // eslint-disable-next-line
-  //   console.log(this.problem_set);
-  // },
   computed: {
     problemsLength: function (){
       return this.problem_set.problems ? this.problem_set.problems.length : 0;
@@ -127,14 +125,17 @@ export default {
       this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
     },
     problem_set: {
-      handler: function(){ //function(old_value,new_value){
+      handler: function(){
+
         if(this.data_loading){
           this.data_loading = false;
           return;
         }
         if(this.validReducedScoring && this.validDueDate && this.validAnswerDate){
-          this.problem_set._msg = "The set " + this.problem_set.set_id + " was updated.";
+
+          Object.assign(this.problem_set,this.msgUpdateProblemSet(this.set_params,this.problem_set))
           this.$store.dispatch("updateProblemSet",this.problem_set)
+          this.set_params = Object.assign({},this.problem_set);
         }
       },
       deep: true
@@ -143,6 +144,7 @@ export default {
       // eslint-disable-next-line
       console.log("problem sets changed")
       this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
+      Object.assign(this.set_params,this.problem_set);
     }
   }
 }

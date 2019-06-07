@@ -5,7 +5,7 @@
       <b-badge variant="light">{{messages.length}}<span class="sr-only">unread messages</span></b-badge>
     </template>
     <b-dropdown-text class="message">
-      <b-btn size="sm" variant="primary" @click="messages=[]">Clear Messages</b-btn>
+      <b-btn size="sm" variant="primary" @click="clearMessages">Clear Messages</b-btn>
     </b-dropdown-text>
     <b-dropdown-divider  class="message" />
     <b-dropdown-text  class="message" v-for="(message,i) in messages" :key="i">{{message}}</b-dropdown-text>
@@ -14,15 +14,17 @@
 
 <script>
 import MessagesMixin from '@/mixins/messages_mixin'
+import {mapState} from 'vuex'
 
 export default {
   name: "MessageBar",
   mixins: [ MessagesMixin ],
-  data: function(){
-     return {
-       messages: ["msg 1","msg 2"]
-     }
-   }
+  computed: mapState(['messages']),
+  methods: {
+    clearMessages(){
+      this.$store.dispatch("clearMessages");
+    }
+  }
 }
 </script>
 
