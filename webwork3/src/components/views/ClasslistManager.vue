@@ -38,9 +38,7 @@
       <b-row>
         <b-table :items="getUsers" :fields="fields" :small="true" :bordered="true"
           primary-key="set_id" @row-selected="rowSelected" :filter="filter_string"
-          :current-page="current_page"
-          :per-page="per_page" selectable>
-
+          :current-page="current_page" :per-page="per_page" selectable>
         <!-- A custom formatted column -->
         <template slot="email_address" slot-scope="data">
           <a :href="data.value">Email</a>
@@ -48,13 +46,9 @@
       </b-table>
     </b-row>
     <b-row>
-      <b-col class="my-1">
-        <b-pagination
-          v-model="current_page" limit="10"
-          :total-rows="getUsers.length"
-          :per-page="per_page"
-          class="my-0"
-        ></b-pagination>
+      <b-col>
+        <b-pagination  v-model="current_page" limit="10"
+          :total-rows="getUsers.length" :per-page="per_page" />
       </b-col>
     </b-row>
   </b-container>

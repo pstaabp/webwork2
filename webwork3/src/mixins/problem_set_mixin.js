@@ -6,10 +6,8 @@ import moment from 'moment'
 import common from '../common.js'
 
 export const ProblemSetMixin = {
-  data: function() {
-    return {
-      problem_set: common.new_problem_set
-    }
+  props: {
+    problem_set: Object
   },
   computed: {
     displayOpenDate: {

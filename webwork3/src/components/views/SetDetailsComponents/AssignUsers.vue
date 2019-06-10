@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row>
-      <b-col>Users assigned to {{this.selected_set_id}}</b-col>
+      <b-col>Users assigned to {{set_id}}</b-col>
       <b-col v-if="selected_users.length == 0">
         <b-btn variant="outline-dark">Select Users to Override Dates</b-btn> </b-col>
       <b-col v-if="selected_users.length > 0">
@@ -10,14 +10,23 @@
 
     <b-row>
       <b-col>
-        <b-table small :items="getUsers" :fields="fields" :filter="filter_out" selectable
-          :filter-function="removeProctors" select-mode="range" @row-selected="rowSelected">
+        <b-table small :items="users" :fields="fields" :filter="filter_out" selectable
+          :filter-function="removeProctors" select-mode="range" @row-selected="rowSelected"
+          :current-page="current_page" :per-page="per_page">
           <template slot="assigned" slot-scope="row">
-            <b-checkbox v-model="users_assigned[row.index]" />
+            <b-checkbox v-model="assigned[row.index]" @change="toggleAssigned(row.index)" />
           </template>
         </b-table>
       </b-col>
     </b-row>
+
+    <b-row>
+      <b-col>
+        <b-pagination v-model="current_page" limit="10"
+          :total-rows="users.length" :per-page="per_page" />
+      </b-col>
+    </b-row>
+
     <b-row v-if="selected_users.length >0">
       <b-col cols="3">
         <b-form-group label="Open Date" class="header">
@@ -49,6 +58,7 @@
 
 
 <script>
+import { mapGetters, mapState } from 'vuex'
 import {ProblemSetMixin} from '@/mixins/problem_set_mixin.js'
 import common from '@/common.js'
 
@@ -57,46 +67,41 @@ export default {
   mixins: [ProblemSetMixin],
   data: function(){
     return {
-      users_assigned: [],
+      assigned: [], // array of the checkboxes
       fields: ["assigned","user_id","first_name","last_name"],
       filter_out: /^set_id:/,
-      problem_set: common.new_problem_set,
-      selected_users: [],
-      loading: true
+      selected_users: [], // which rows are selected
+      per_page: 10,
+      current_page: 1
     }
   },
   props: {
-    selected_set_id: String
+    problem_set: Object
   },
   computed: {
-    getUsers(){
-      return this.$store.state.users;
-    //  return this.$store.getters.getUsers;
+    ...mapGetters(['getAssignedUsers','getUsers']),
+    ...mapState(['users']),
+    set_id(){
+      return this.problem_set ? this.problem_set.set_id : "";
     }
-  }, // computed
-  watch: {
-    users_assigned(){ // TODO: handle proctor users in a better way.
-      var _set = {...this.$store.getters.getSet(this.selected_set_id)}; // make a copy of the set
-      _set.assigned_users = this.$store.getters.getUsers.filter( (_u,i) => this.users_assigned[i]).map(_u => _u.user_id);
-      if(!this.loading){
-        this.$store.dispatch("updateProblemSet",_set)
-      }
+  },
+  watch:{
+    current_page: function(){
+      this.setSelectedCheckboxes();
     }
   },
   mounted(){ // TODO: handle proctor users in a better way.
-    this.$store.watch(() => this.$store.getters.getAssignedUsers(this.selected_set_id),
-        _users => {
-          const assigned_ids = this.$store.getters.getAssignedUsers(this.selected_set_id);
-          this.users_assigned = this.$store.state.users.map(_u => assigned_ids.includes(_u.user_id));
-    });
+    // this.$store.watch(() => this.getAssignedUsers(this.set_id),
+    //     _users => { this.setSelectedCheckboxes() });
 
-    this.$store.watch(() => this.$store.getters.getSet(this.selected_set_id),
-      _set => {
-        const selected_set = {...this.$store.getters.getSet(this.selected_set_id)}; // make a copy of the set
-        if (selected_set == undefined) {return;}
-        Object.assign(this.problem_set, ...common.date_props.map(prop => ({[prop]: _set[prop]})));
-    });
-    this.loading = false;
+
+        // I think this is to determine if the problem_set has been updated.
+    // this.$store.watch(() => this.getSet(this.selected_set_id),
+    //   _set => {
+    //     const selected_set = {...this.getSet(this.selected_set_id)}; // make a copy of the set
+    //     if (selected_set == undefined) {return;}
+    //     Object.assign(this.problem_set, ...common.date_props.map(prop => ({[prop]: _set[prop]})));
+    // });
   },
   methods: {
     removeProctors(obj1,obj2){
@@ -104,6 +109,24 @@ export default {
     },
     rowSelected(items) {
       this.selected_users = items
+    },
+    toggleAssigned(index){
+      this.assigned[index] = ! this.assigned[index]
+      // get this user id of the selected user
+      const user = this.getUsers[(this.current_page-1)*this.per_page+index].user_id;
+      if(this.assigned[index]){ // add the user to the assigned users
+        let _users = [...this.problem_set.assigned_users];
+        _users.push(user)
+        this.problem_set.assigned_users = _users;
+      } else { // remove the user from the assigned users
+        this.problem_set.assigned_users = this.problem_set.assigned_users.filter(_u => _u != user)
+      }
+
+//      this.$store.dispatch("updateProblemSet",this.problem_set);
+    },
+    setSelectedCheckboxes(){
+      const users = this.getUsers.filter((_u,i) => i<this.current_page*this.per_page && i>=(this.current_page-1)*this.per_page)
+      this.assigned = users.map(_u => this.problem_set.assigned_users.includes(_u.user_id))
     },
     save(){
 

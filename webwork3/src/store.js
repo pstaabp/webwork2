@@ -50,12 +50,12 @@ export default new Vuex.Store({
   },
   getters: {
     getUsers: (state) => {   // return a list of all users except proctors
-      //return state.users.filter(_u => ! /^set_id:/.test(_u.user_id))
-      return state.users;
+      return state.users.filter(_u => ! /^set_id:/.test(_u.user_id))
+      //return state.users;
     },
     getAssignedUsers: (state) => (set_id) => {  // return all non-proctor users assigned to set_id
       const _set = state.problem_sets.find(_set => _set.set_id == set_id)
-      return _set ? _set.assigned_users : [];
+      return _set ? _set.assigned_users.filter(_u => ! /^set_id:/.test(_u.user_id)) : [];
     },
     getSet: (state) => (set_id) => { // return the set with given set_id
       return state.problem_sets.find(_set => _set.set_id == set_id)

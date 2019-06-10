@@ -99,7 +99,7 @@ export default {
   mixins: [ProblemSetMixin,MessagesMixin],
   props: {
     problem_sets: Array,
-    selected_set_id: String
+    problem_set: Object
   },
   data: function() {
     return {
@@ -107,7 +107,6 @@ export default {
       data_loaded: false,
       pg_password: "" , // how to handle this?
       data_loading: true,
-      problem_set: common.new_problem_set,
       set_params: common.new_problem_set
     }
   },
@@ -120,33 +119,14 @@ export default {
     gateway: function () { return this.problem_set.assignment_type=='gateway' ||
         this.problem_set.assignment_type =='proctored_gateway'}
   },
-  watch: {
-    selected_set_id: function(){
-      this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
-    },
-    problem_set: {
-      handler: function(){
-
-        if(this.data_loading){
-          this.data_loading = false;
-          return;
-        }
-        if(this.validReducedScoring && this.validDueDate && this.validAnswerDate){
-
-          Object.assign(this.problem_set,this.msgUpdateProblemSet(this.set_params,this.problem_set))
-          this.$store.dispatch("updateProblemSet",this.problem_set)
-          this.set_params = Object.assign({},this.problem_set);
-        }
-      },
-      deep: true
-    },
-    problem_sets: function(){
-      // eslint-disable-next-line
-      console.log("problem sets changed")
-      this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
-      Object.assign(this.set_params,this.problem_set);
-    }
-  }
+  // watch: {
+  //   problem_sets: function(){
+  //     // eslint-disable-next-line
+  //     console.log("problem sets changed")
+  //     this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
+  //     Object.assign(this.set_params,this.problem_set);
+  //   }
+  // }
 }
 </script>
 
