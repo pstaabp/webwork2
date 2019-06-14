@@ -32,7 +32,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-table :items="getProblemSets" :fields="fields" :small="true" :bordered="true"
+        <b-table :items="problem_sets" :fields="fields" :small="true" :bordered="true"
         primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable >
         <template slot="visible" slot-scope="data">
           <div class="mx-auto" width="100%">
@@ -47,7 +47,7 @@
       </b-table>
     </b-row>
   </b-container>
-  <add-problem-set-modal :problem_sets="getProblemSets" />
+  <add-problem-set-modal :problem_sets="problem_sets" />
   <edit-problem-sets-modal :selected_sets="selected_sets" />
 </div>
 </template>
@@ -56,6 +56,8 @@
 
 <script>
 import moment from 'moment'
+import {mapState} from 'vuex'
+
 import AddProblemSetModal from './ProblemSetsManagerComponents/AddProblemSetModal.vue'
 import EditProblemSetsModal from './ProblemSetsManagerComponents/EditProblemSetsModal.vue'
 
@@ -75,7 +77,6 @@ export default {
           {key: "answer_date", sortable: true, label: "Answer Date", formatter: "formatDate"}
       ],
       selected_sets: [],
-      users: [],
       show_time: false,
       filter_string: ""
     }
@@ -83,17 +84,7 @@ export default {
   components: {
     AddProblemSetModal, EditProblemSetsModal
   },
-  created: function(){
-    this.users = this.$store.state.users
-  },
   methods: {
-    // toDate: value => moment.unix(value).format("YYYY-MM-DD"),
-    // updateDate: function(data,field,value) {
-    //   var _prob = this.problem_sets.find(_set => _set.set_id==data.set_id)
-    //   _prob.set(field,moment(value,"YYYY-MM-DD").unix())
-    //   _prob.save();
-    //
-    // },
     rowSelected(rows){ this.selected_sets = rows },
     formatDate(_date){
       return this.show_time ? moment.unix(_date).format("MM/DD/YY [at] hh:mm a") :
@@ -113,7 +104,7 @@ export default {
     }
   }, // methods
   computed: {
-    getProblemSets() {return this.$store.state.problem_sets}
+    ...mapState(['users','problem_sets'])
   },
 }
 </script>

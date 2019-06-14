@@ -1,18 +1,17 @@
 <template>
   <div id="app">
-    <b-container>
-      <MenuBar :views="views" :current_view="current_view" @change-view="changeView" :user="user"
-                :sidebars="sidebars" :current_sidebar="current_sidebar" @change-sidebar="changeSidebar"
+    <menu-bar :views="views" :current_view="current_view"  :user="user"
+              :sidebars="sidebars" :current_sidebar="current_sidebar"
+              @change-view="current_view = $evt"
+              @show-hide-sidebar="show_sidebar = !show_sidebar"/>
+    <router-view> </router-view>
+    <!-- <b-container>
+      <menu-bar :views="views" :current_view="current_view"  :user="user"
+                :sidebars="sidebars" :current_sidebar="current_sidebar"
                 @show-hide-sidebar="show_sidebar = !show_sidebar"/>
       <b-row>
         <b-col :cols="show_sidebar ? 9 : 12"  id="leftpane">
-          <calendar v-if="current_view=='calendar'" :problem_sets="problem_sets"/>
-          <classlist-manager v-else-if="current_view=='classlist_manager'" :users="users" />
-          <set-details v-else-if="current_view=='problem_set_details'" :problem_sets="problem_sets"/>
-          <library-browser v-else-if="current_view=='library'" :problem_sets="problem_sets"
-            :selected_set_id="selected_set_id"/>
-          <problem-sets-manager v-else-if="current_view=='problem_sets_manager'" :problem_sets="problem_sets"/>
-          <settings-view  :settings="settings" v-else-if="current_view=='settings'" />
+          <router-view />
         </b-col>
         <b-col v-if="show_sidebar" cols="3" id="sidebar" class="border border-secondary rounded bg-light">
           <h3 style="text-align: center" class="m-3">{{ current_sidebar | getName(sidebars) }}</h3>
@@ -21,57 +20,35 @@
               :selected_set_id="selected_set_id" @update:selected_set_id="selected_set_id = $event"/>
         </b-col>
       </b-row>
-    </b-container>
+    </b-container> -->
   </div>
 </template>
 
 <script>
-import MenuBar from './components/MenuBar.vue'
-
-// sidebars
-import ProblemSetsSidebar from './components/sidebars/ProblemSetsSidebar.vue'
-import LibraryOptionsSidebar from './components/sidebars/LibraryOptionsSidebar.vue'
-
-// main views
-import Calendar from './components/views/Calendar.vue'
-import SetDetails from './components/views/SetDetails.vue'
-
-import ProblemSetsManager from './components/views/ProblemSetsManager.vue'
-import LibraryBrowser from './components/views/LibraryBrowser.vue'
-import ClasslistManager from './components/views/ClasslistManager.vue'
-import SettingsView from './components/views/SettingsView.vue'
+import MenuBar from '@/components/MenuBar'
 
 export default {
-  name: 'app',
   components: {
-    MenuBar,
-    Calendar,
-    ClasslistManager,
-    SetDetails,
-    SettingsView,
-    ProblemSetsManager,
-    LibraryBrowser,
-    ProblemSetsSidebar,
-    LibraryOptionsSidebar
+    MenuBar
   },
   data: function () {
     return { views: [
-        {name: "Calendar", icon: "fa-calendar", comp: "calendar"},
-        {name: "Classlist Manager", icon: "fa-users", comp: "classlist_manager"},
-        {name: "Problem Set Details", icon: "fa-info-circle", comp: "problem_set_details"},
-        {name: "Library Browser", icon: "fa-university", comp: "library"},
-        {name: "Problem Sets Manager", icon: "fa-list-alt", comp: "problem_sets_manager"},
-        {name: "Problem Editor", icon: "fa-edit", comp: "editor"},
-        {name: "Student Progress", icon: "fa-chart-bar", comp: "statistics"},
-        {name: "Import/Export Sets", icon: "fa-exchange-alt", comp: "import_export"},
-        {name: "Settings", icon: "fa-cogs", comp: "settings"}
+        {name: "Calendar", icon: "fa-calendar", route: 'calendar'},
+        {name: "Classlist Manager", icon: "fa-users", route: "classlist"},
+        {name: "Problem Set Details", icon: "fa-info-circle", route: "set-details"},
+        {name: "Library Browser", icon: "fa-university", route: "library"},
+        {name: "Problem Sets Manager", icon: "fa-list-alt", route: "problem-sets"},
+        {name: "Problem Editor", icon: "fa-edit", route: 'editor'},
+        {name: "Student Progress", icon: "fa-chart-bar", route: 'statistics'},
+        {name: "Import/Export Sets", icon: "fa-exchange-alt", route: 'import-export'},
+        {name: "Settings", icon: "fa-cogs", route: 'settings'}
       ],
       sidebars: [
         {name: "Problem Sets", comp: "problem_sets"},
         {name: "Library Options", comp: "lib_opts"},
         {name: "Messages", comp: "messages"}
       ],
-      current_view: "problem_set_details",
+      current_view: "set-details",
       current_sidebar: "lib_opts",
       show_sidebar: false,
       problem_sets: null,
@@ -81,37 +58,30 @@ export default {
       settings: null,
     }
   },
-  created: function() { // load all of the relevant data
-    this.$store.dispatch('fetchSettings')
-    this.$store.dispatch('fetchUsers')
-    this.$store.dispatch('fetchProblemSets')
-  },
-  filters: {
-    getName: (comp,arr) => arr.find(obj=>obj.comp==comp).name
-  },
   methods: {
-    changeView: function(comp) {
-      this.current_view = comp},
-    changeSidebar: function(comp){this.current_sidebar = comp;}
-  },
-  watch: {
-    selected_set_id: function(){
-      // eslint-disable-next-line
-      console.log(this.selected_set_id)
+    changeView(_route){
+      this.current_view = _route;
     }
   },
-  mounted: function() {    // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
+  mounted(){
+    this.$router.replace("/courses/test/manager/problem-sets");
+      // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
     if (document.getElementById('mathjax-scr')) return; // was already loaded
     var scriptTag = document.createElement("script");
     scriptTag.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML";
     scriptTag.id = "mathjax-scr";
     document.getElementsByTagName('head')[0].appendChild(scriptTag);
+  },
+  created: function() { // load all of the relevant data
+    this.$store.dispatch('setLoginInfo',{course_id: "test"})
+    this.$store.dispatch('fetchSettings')
+    this.$store.dispatch('fetchUsers')
+    this.$store.dispatch('fetchProblemSets')
+  },
+  watch: {
+    '$route' (to, from) {
+      this.current_view = to.path.split("/").pop()
+    }
   }
 }
 </script>
-
-<style>
-#sidebar {
-  background-color: rgb(240,240,240)
-}
-</style>

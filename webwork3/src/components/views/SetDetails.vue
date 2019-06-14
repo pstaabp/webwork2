@@ -1,20 +1,22 @@
 <template>
-  <b-tabs content-class="mt-3">
-    <b-tab title="Set Details" active>
-      <set-info :problem_sets="problem_sets" :problem_set="problem_set"/></b-tab>
-    <b-tab title="Problems"><problem-list-view :selected_set_id="selected_set_id"/></b-tab>
-    <b-tab title="Assign Users Overrides">
-      <assign-users :selected_set_id="selected_set_id"/></b-tab>
-    <b-tab title="Set Headers"><set-headers :selected_set_id="selected_set_id"/></b-tab>
-    <template slot="tabs">
-      <b-nav-item href="#" @click="() => {}" id="custom-tab">
-        <b-select size="sm" v-model="selected_set_id" @change="check">
-          <option :value="null" selected>Select a Set</option>
-          <option v-for="set in problem_sets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
-        </b-select>
-      </b-nav-item>
-    </template>
-  </b-tabs>
+    <b-container>
+    <b-tabs content-class="mt-3">
+      <b-tab title="Set Details" active>
+        <set-info :problem_sets="problem_sets" :problem_set="problem_set"/></b-tab>
+      <b-tab title="Problems"><problem-list-view :selected_set_id="selected_set_id"/></b-tab>
+      <b-tab title="Assign Users Overrides">
+        <assign-users :selected_set_id="selected_set_id"/></b-tab>
+      <b-tab title="Set Headers"><set-headers :selected_set_id="selected_set_id"/></b-tab>
+      <template slot="tabs">
+        <b-nav-item href="#" @click="() => {}" id="custom-tab">
+          <b-select size="sm" v-model="selected_set_id" @change="check">
+            <option :value="null" selected>Select a Set</option>
+            <option v-for="set in problem_sets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
+          </b-select>
+        </b-nav-item>
+      </template>
+    </b-tabs>
+  </b-container>
 </template>
 
 

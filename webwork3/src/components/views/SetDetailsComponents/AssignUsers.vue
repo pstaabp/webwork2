@@ -60,7 +60,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import {ProblemSetMixin} from '@/mixins/problem_set_mixin.js'
-import common from '@/common.js'
+//import common from '@/common.js'
 
 export default {
   name: 'AssignUsers',

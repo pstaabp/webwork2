@@ -76,17 +76,17 @@ export default {
   },
   methods: {
     loadFile() {
-      var self = this;
+
       const reader = new FileReader();
 
       reader.readAsText(this.file);
       reader.onload = (evt) => {
         const users = Papa.parse(evt.target.result);
         // change this to an array of an object:
-        self.data = users.data.map(row => Object.assign(...row.map((v,i) => ({["col"+i]: v}))));
-        self.first_row = users.data[0];
-        self.num_cols = users.data[0].length;
-        self.header_values = Array.from(Array(self.num_cols).keys()).map( () => null);
+        this.data = users.data.map(row => Object.assign(...row.map((v,i) => ({["col"+i]: v}))));
+        this.first_row = users.data[0];
+        this.num_cols = users.data[0].length;
+        this.header_values = Array.from(Array(this.num_cols).keys()).map( () => null);
       }
     },
     useFirstRow(){
@@ -106,7 +106,6 @@ export default {
       if(this.use_first_row){
         this.data.shift()
       }
-      const self = this;
       let _users = this.data.map(_u => this.header_values.reduce((result,_val,i) =>{
           result[_val] = _u["col"+i];
           return result;},{}));

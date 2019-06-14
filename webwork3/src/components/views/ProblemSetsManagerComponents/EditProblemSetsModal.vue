@@ -32,9 +32,9 @@
 
 
 <script>
-import common from '../../../common.js'
+import common from '@/common.js'
 
-import {ProblemSetMixin} from '../../../mixins/problem_set_mixin.js'
+import {ProblemSetMixin} from '@/mixins/problem_set_mixin.js'
 
 export default {
   name: 'EditProblemSetsModal',

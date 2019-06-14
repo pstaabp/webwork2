@@ -6,9 +6,9 @@ import moment from 'moment'
 import common from '../common.js'
 
 export const ProblemSetMixin = {
-  props: {
-    problem_set: Object
-  },
+  // props: {
+  //   problem_set: Object
+  // },
   computed: {
     displayOpenDate: {
       get(){ return common.formatDatetimeForBrowser(this.problem_set.open_date);},

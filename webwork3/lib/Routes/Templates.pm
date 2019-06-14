@@ -240,7 +240,10 @@ get '/admin' => sub {
 
 };
 
-
+get '/test' => sub {
+	debug config;
+	send_file 'index.html';
+};
 
 
 ###

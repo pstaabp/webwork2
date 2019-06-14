@@ -6,13 +6,16 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    settings: [],  // /webwork3/api/courses/test/settings
+    settings: [],  // /webwork3/api/courses/" + state.login_info.course_id + "/settings
     users: [],
     problem_sets: [],
     messages: [], // this stores the messages shown in the menu bar when things are saved.
-    api_url: "/webwork3/api"
+    api_url: "/webwork3/api",
+    login_info: {}
   },
   mutations: {
+    SET_LOGIN_INFO(state,_info) { state.login_info = _info},
+
     SET_SETTINGS(state,_settings){ state.settings = _settings},
     SET_SETTING(state,_setting){
       const index = state.settings.findIndex( _set => _set.var == _setting.var);
@@ -62,10 +65,16 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // login_info
+
+    setLoginInfo(state,_info){
+      state.commit('SET_LOGIN_INFO',_info)
+    },
+
     // Settings actions
 
     async fetchSettings({state,commit}){
-      axios.get(state.api_url + "/courses/test/settings")
+      axios.get(state.api_url + "/courses/"+ state.login_info.course_id + "/settings")
       .then((response) => commit('SET_SETTINGS', response.data))
       .catch(function (error) {
           commit('SET_SETTINGS', []);
@@ -74,7 +83,7 @@ export default new Vuex.Store({
       })
     }, // getSettings
     async updateSetting({state,commit},_setting){
-      axios.put(state.api_url + "/courses/test/setting",_setting)
+      axios.put(state.api_url + "/courses/" + state.login_info.course_id + "/setting",_setting)
       .then((response) => { commit('SET_SETTING',_setting);
         //eslint-disable-next-line
         console.log(response);
@@ -90,7 +99,7 @@ export default new Vuex.Store({
 
     // Users Actions
     async fetchUsers({state,commit}){
-      axios.get(state.api_url + "/courses/test/users")
+      axios.get(state.api_url + "/courses/" + state.login_info.course_id + "/users")
       .then((response) => commit('SET_USERS', response.data))
       .catch(function (error) {
           commit('SET_USERS', []);
@@ -99,16 +108,16 @@ export default new Vuex.Store({
       })
     }, // getUsers
     async updateUser({state,commit},_user){
-      axios.put(state.api_url + "/courses/test/users/" + _user.user_id,_user)
-        .then((response) => { commit('SET_USER',_user)})
+      axios.put(state.api_url + "/courses/" + state.login_info.course_id + "/users/" + _user.user_id,_user)
+        .then((response) => { commit('SET_USER',response.data)})
         .catch(function (error) {
           // eslint-disable-next-line
           console.log(error);
         })
     },
     async addUser({state,commit},_user){
-      axios.post(state.api_url + "/courses/test/users/" + _user.user_id,_user)
-        .then((repsonse) => {commit('ADD_USER',_user)})
+      axios.post(state.api_url + "/courses/" + state.login_info.course_id + "/users/" + _user.user_id,_user)
+        .then((response) => {commit('ADD_USER',response.data)})
         .catch(function (error) {
           // eslint-disable-next-line
           console.log(error);
@@ -119,7 +128,7 @@ export default new Vuex.Store({
     // Problem Set Actions
 
     async fetchProblemSets({state,commit}){
-      axios.get(state.api_url + "/courses/test/sets")
+      axios.get(state.api_url + "/courses/" + state.login_info.course_id + "/sets")
       .then((response) => commit('SET_PROBLEM_SETS', response.data))
       .catch(function (error) {
           commit('SET_PROBLEM_SETS', []);
@@ -128,7 +137,7 @@ export default new Vuex.Store({
       })
     }, // fetchProblemSets
     async newProblemSet({state,commit},_set){
-      axios.post(state.api_url + "/courses/test/sets/" + _set.set_id,_set)
+      axios.post(state.api_url + "/courses/" + state.login_info.course_id + "/sets/" + _set.set_id,_set)
       .then((response) => commit('ADD_PROBLEM_SET', response.data))
       .catch((error) => {
         // eslint-disable-next-line
@@ -136,7 +145,7 @@ export default new Vuex.Store({
       })
     }, // newProblemSet
     async removeProblemSet({state,commit},_set){
-      axios.delete(state.api_url + "/courses/test/sets/" + _set.set_id)
+      axios.delete(state.api_url + "/courses/" + state.login_info.course_id + "/sets/" + _set.set_id)
       .then((response) => commit('REMOVE_PROBLEM_SET',response.data))
       .catch((error) => {
         // eslint-disable-next-line
@@ -144,7 +153,7 @@ export default new Vuex.Store({
       })
     }, // removeProblemSet
     async updateProblemSet({state,commit},_set){
-      axios.put(state.api_url + "/courses/test/sets/" + _set.set_id, _set)
+      axios.put(state.api_url + "/courses/" + state.login_info.course_id + "/sets/" + _set.set_id, _set)
       .then((response) => {
         commit('SET_PROBLEM_SET',response.data)
         commit('ADD_MESSAGE',_set._message_short)
@@ -156,11 +165,11 @@ export default new Vuex.Store({
     },
 
     // Messages
-    addMessage({state,commit},_msg){
-      commit("ADD_MESSAGE",_msg)
+    addMessage(context,_msg){
+      context.commit("ADD_MESSAGE",_msg)
     },
-    clearMessages({state,commit}){
-      commit('CLEAR_MESSAGES');
+    clearMessages(context){
+      context.commit('CLEAR_MESSAGES');
     }
   }
 })
