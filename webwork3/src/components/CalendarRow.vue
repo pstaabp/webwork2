@@ -27,7 +27,7 @@ export default{
   mixins: [SaveMixin],
   props: {
     first_day_of_week: Object,
-    //problem_sets: ProblemSetList
+    problem_sets: Array
   },
   components: {
     draggable
@@ -56,7 +56,7 @@ export default{
     },
     formatDate: day => day.format("YYYY-MM-DD"),
     assignmentOnDate: function(day) {
-     const _sets = this.problem_sets.models || [];
+     const _sets = this.problem_sets || [];
       var all_dates = _sets.flatMap(_set => [
           {date: moment.unix(_set.answer_date), type: "answer", set_id: _set.set_id},
           {date: moment.unix(_set.due_date), type: "due", set_id: _set.set_id},

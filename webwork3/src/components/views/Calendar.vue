@@ -31,6 +31,7 @@
 
 
 <script>
+import {mapState} from 'vuex'
 
 import CalendarRow from '../CalendarRow.vue'
 import moment from 'moment'
@@ -39,15 +40,13 @@ export default {
   components: {
     CalendarRow
   },
-  // props: {
-  //   problem_sets: ProblemSetList
-  // },
   data: function () {
       return {
         first_days: []
       }
   },
   computed: {
+    ...mapState(['problem_sets']),
     monthName: () => {
       return moment().format("MMMM YYYY");
     },

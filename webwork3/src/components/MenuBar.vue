@@ -18,7 +18,7 @@
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
             <b-dropdown-item v-for="view in views" :key="view.route">
-              <router-link class="view-link" :to="'/courses/test/manager/'+view.route">
+              <router-link class="view-link" :to="path(view.route)">
                 <i class="fa fa-lg pr-2" :class="view.icon"></i> {{view.name}}</router-link>
             </b-dropdown-item>
           </b-nav-item-dropdown>
@@ -93,6 +93,11 @@ export default {
   },
   computed: {
     fullname: function(){ return this.user.first_name + " " + this.user.last_name}
+  },
+  methods: {
+    path: function(route) {
+      return "/courses/" + this.$store.state.login_info.course_id + "/manager/" + route
+    },
   }
 }
 </script>

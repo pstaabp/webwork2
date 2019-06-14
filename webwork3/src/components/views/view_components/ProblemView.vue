@@ -58,6 +58,7 @@
 
 <script>
 import axios from 'axios';
+import {mapState} from 'vuex'
 
 export default {
   name: 'ProblemView', // name of the view
@@ -73,6 +74,7 @@ export default {
       show_path: false,
     }
   },
+  computed: mapState(['login_info']),
   mounted: function () {
     this.model = null,
     this.fetchProblem();
@@ -80,7 +82,7 @@ export default {
   methods: {
     fetchProblem: function (other_params) {
       this.html="";
-      axios.get("/webwork3/api/renderer/courses/test/problems/0",
+      axios.get("/webwork3/api/renderer/courses/"+this.login_info.course_id+"/problems/0",
                   {params: Object.assign({},this.problem,other_params)})
       .then( (response) => {
         this.html = response.data.text

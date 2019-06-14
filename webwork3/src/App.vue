@@ -1,9 +1,5 @@
 <template>
   <div id="app">
-    <menu-bar :views="views" :current_view="current_view"  :user="user"
-              :sidebars="sidebars" :current_sidebar="current_sidebar"
-              @change-view="current_view = $evt"
-              @show-hide-sidebar="show_sidebar = !show_sidebar"/>
     <router-view> </router-view>
     <!-- <b-container>
       <menu-bar :views="views" :current_view="current_view"  :user="user"
@@ -21,50 +17,27 @@
         </b-col>
       </b-row>
     </b-container> -->
+    <b-navbar fixed="bottom"><b-nav-text>Bottom</b-nav-text></b-navbar>
   </div>
 </template>
 
 <script>
-import MenuBar from '@/components/MenuBar'
+
 
 export default {
-  components: {
-    MenuBar
-  },
   data: function () {
-    return { views: [
-        {name: "Calendar", icon: "fa-calendar", route: 'calendar'},
-        {name: "Classlist Manager", icon: "fa-users", route: "classlist"},
-        {name: "Problem Set Details", icon: "fa-info-circle", route: "set-details"},
-        {name: "Library Browser", icon: "fa-university", route: "library"},
-        {name: "Problem Sets Manager", icon: "fa-list-alt", route: "problem-sets"},
-        {name: "Problem Editor", icon: "fa-edit", route: 'editor'},
-        {name: "Student Progress", icon: "fa-chart-bar", route: 'statistics'},
-        {name: "Import/Export Sets", icon: "fa-exchange-alt", route: 'import-export'},
-        {name: "Settings", icon: "fa-cogs", route: 'settings'}
-      ],
-      sidebars: [
-        {name: "Problem Sets", comp: "problem_sets"},
-        {name: "Library Options", comp: "lib_opts"},
-        {name: "Messages", comp: "messages"}
-      ],
-      current_view: "set-details",
-      current_sidebar: "lib_opts",
-      show_sidebar: false,
-      problem_sets: null,
-      selected_set_id: "",
-      user: {user_id: "peter", first_name: "Peter", last_name: "Staab"},
-      users: null,
-      settings: null,
-    }
-  },
-  methods: {
-    changeView(_route){
-      this.current_view = _route;
+    return {
+      // current_view: "set-details",
+      // current_sidebar: "lib_opts",
+      // show_sidebar: false,
+      // problem_sets: null,
+      // selected_set_id: "",
+      // user: {user_id: "peter", first_name: "Peter", last_name: "Staab"},
+      // users: null,
+      // settings: null,
     }
   },
   mounted(){
-    this.$router.replace("/courses/test/manager/problem-sets");
       // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
     if (document.getElementById('mathjax-scr')) return; // was already loaded
     var scriptTag = document.createElement("script");
@@ -72,16 +45,11 @@ export default {
     scriptTag.id = "mathjax-scr";
     document.getElementsByTagName('head')[0].appendChild(scriptTag);
   },
-  created: function() { // load all of the relevant data
-    this.$store.dispatch('setLoginInfo',{course_id: "test"})
-    this.$store.dispatch('fetchSettings')
-    this.$store.dispatch('fetchUsers')
-    this.$store.dispatch('fetchProblemSets')
-  },
-  watch: {
-    '$route' (to, from) {
-      this.current_view = to.path.split("/").pop()
-    }
-  }
+  // created: function() { // load all of the relevant data
+  //   this.$store.dispatch('setLoginInfo',this.$route.params)
+  //   this.$store.dispatch('fetchSettings')
+  //   this.$store.dispatch('fetchUsers')
+  //   this.$store.dispatch('fetchProblemSets')
+  // },
 }
 </script>
