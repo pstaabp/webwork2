@@ -15,23 +15,24 @@ use Data::Dump qw(dump);
 
 sub authenticate_user {
   my ($self, $username, $password) = @_;
-  #$self->plugin->dsl->debug("In authenticate_user");
-  #$self->plugin->dsl->debug(dump $self->plugin->dsl->request);
-  my $course_id = $self->plugin->dsl->session->data->{course_id};
+  # $self->plugin->dsl->debug("In authenticate_user");
+
+  ## this works for login, but not sure in general. 
+  my $course_id = $self->plugin->app->config->{serializer}->{request}->{body_parameters}->{course_id};
+
   die "The course parameter must be set in the session" unless defined($course_id);
   my $ce = WeBWorK::CourseEnvironment->new({
                webwork_dir => $WeBWorK::Constants::WEBWORK_DIRECTORY,
                courseName=> $course_id});
 
   my $authen = WeBWorK3::Authen->new($ce);
-  my $session_key = $self->plugin->dsl->session->data->{session_key};
+
   $authen->set_params({
   		user => $username
       ,password => $password
-      , key => $session_key
   	});
 
-  #$self->plugin->dsl->debug($authen->verify());
+  $self->plugin->dsl->debug($authen->verify());
   return $authen->verify()->{result};
 }
 

@@ -6,7 +6,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    settings: [],  // /webwork3/api/courses/" + state.login_info.course_id + "/settings
+    settings: [],
     users: [],
     problem_sets: [],
     messages: [], // this stores the messages shown in the menu bar when things are saved.
@@ -14,7 +14,14 @@ export default new Vuex.Store({
     login_info: {}
   },
   mutations: {
-    SET_LOGIN_INFO(state,_info) { state.login_info = _info},
+    UPDATE_LOGIN_INFO(state,_info) {
+      // copy over only fields in _info and create a new object, so changes are fired.  
+      var obj = Object.assign({},state.login_info)
+      Object.keys(_info).forEach(_key => {
+        obj[_key] = _info[_key];
+      })
+      state.login_info = obj;
+    },
 
     SET_SETTINGS(state,_settings){ state.settings = _settings},
     SET_SETTING(state,_setting){
@@ -67,8 +74,8 @@ export default new Vuex.Store({
   actions: {
     // login_info
 
-    setLoginInfo(state,_info){
-      state.commit('SET_LOGIN_INFO',_info)
+    updateLoginInfo(state,_info){
+      state.commit('UPDATE_LOGIN_INFO',_info)
     },
 
     // Settings actions

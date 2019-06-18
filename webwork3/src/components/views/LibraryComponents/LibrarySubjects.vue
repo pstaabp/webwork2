@@ -50,9 +50,11 @@
 <script>
 import axios from 'axios'
 import ProblemView from '../view_components/ProblemView.vue'
+import LibraryMixin from '@/mixins/library_mixin.js'
 
 export default {
   name: 'LibrarySubjects',
+  mixins: [LibraryMixin],
   props: {
     selected_set_id: String,
     //problem_sets: ProblemSetList
@@ -66,30 +68,10 @@ export default {
       selected_chapter: null,
       selected_section: null,
       num_files: "",
-      all_problems : [],
-      view_problems: [],
-      current_page: 1,
-      rows_per_page: 10
     }
   },
   components: {
     ProblemView
-  },
-  computed: {
-    num_problems: function (){
-      return this.all_problems.length;
-    },
-    get_problems: function(){
-      if(this.all_problems.length==0 || this.current_page == 0){
-        return []
-      }
-      var probs = [];
-      for(var i=(this.current_page-1)*this.rows_per_page;
-          i < Math.min(this.all_problems.length,this.current_page*this.rows_per_page); i++){
-        probs.push(this.all_problems[i]);
-      }
-      return probs;
-    }
   },
   methods: {
     subjectChange: function(name){
@@ -140,13 +122,6 @@ export default {
         // eslint-disable-next-line
         console.log(err);
       });
-    },
-    addProblem: function(_problem){
-      const set = this.problem_sets.find(set=>set.set_id==this.selected_set_id);
-      set.save({method: "put"}).then(resp=>{
-        // eslint-disable-next-line
-        console.log(resp,_problem);
-      }).catch(err=>{console.log(err)})
     }
   },
   watch: {

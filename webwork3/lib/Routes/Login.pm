@@ -38,25 +38,41 @@ hook before => sub {
 };
 
 
+get '/login' => sub {
+  debug 'in get /login';
 
+  return {};
+
+};
 
 
 post '/courses/:course_id/login' => sub {
 
 	#debug "in POST /courses/:course_id/login";
-  my $username = query_parameters->{username} || body_parameters->{username};
+  my $username = query_parameters->{user_id} || body_parameters->{user_id};
 	my $password = query_parameters->{password} || body_parameters->{password};
 
 	my ($success, $realm) = authenticate_user($username,$password);
+
 
 	if($success){
 		my $key = vars->{db}->getKey($username)->{key};
 		session key => $key;
 		session logged_in_user => $username;
-		session logged_in_user_realm => $realm;
 		session logged_in => true;
+    session logged_in_user_realm => $realm;
 
-		return {session_key=>$key, user_id=>$username,logged_in=>1};
+		my $perm = vars->{db}->getPermissionLevel($username)->{permission};
+    my $user = vars->{db}->getUser($username);
+
+    return {
+      first_name => $user->{first_name},
+      last_name => $user->{last_name},
+			session_key=>$key,
+			user_id=>$username,
+			logged_in=>true,
+			permission=>$perm
+		};
 
 	} else {
 		app->destroy_session;
@@ -64,6 +80,27 @@ post '/courses/:course_id/login' => sub {
 	}
 };
 
+
+get '/courses/:course_id/login'  => require_login sub {
+
+    debug "here";
+
+    debug session->read("logged_in_user");
+
+    debug vars->{db}->getPermissionLevel(session->read("logged_in_user"));
+
+    my $perm = vars->{db}->getPermissionLevel(session->read("logged_in_user"))->{permission};
+    my $user = vars->{db}->getUser(session->read("logged_in_user"));
+
+    return {
+      first_name => $user->{first_name},
+      last_name => $user->{last_name},
+			session_key=>session->read("key"),
+			user_id=>session->read("logged_in_user"),
+			logged_in=>true,
+			permission=>$perm
+		};
+};
 
 post '/courses/:course_id/logout' => sub {
 

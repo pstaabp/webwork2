@@ -4,9 +4,9 @@
         :class="isToday(day)?'today':inCurrentMonth(day)?'current-month':'extra-month'">
       <div>{{shortDate(day)}}</div>
 
-      <div v-if="problem_sets">
+      <div v-if="problem_sets.length>0">
         <draggable v-model="items[index]" group="calendar" class="assignments"
-            @start="drag=true" @end="drag=false" @change="assignChange(formatDate(day),$event)">
+            @start="drag=true" @end="drag=false" @change="assignChange(day,$event)">
           <div v-for="assignment in items[index]" :key="assignment.id"
             :class="assignment.type" class="assign border rounded border-dark pl-1 p-0">{{assignment.set_id}}</div>
         </draggable>
@@ -17,14 +17,11 @@
 
 <script>
 import draggable from 'vuedraggable'
-//import ProblemSetList from '../models/ProblemSetList.js'
-import {SaveMixin} from "../mixins/save_mixin.js"
-
 import moment from 'moment'
+import common from '@/common'
 
 export default{
   name: 'CalendarRow',
-  mixins: [SaveMixin],
   props: {
     first_day_of_week: Object,
     problem_sets: Array
@@ -38,6 +35,15 @@ export default{
       return [0,1,2,3,4,5,6].map(i=>moment(first).add(i,'days'));
     }
   },
+  watch: {
+    problem_sets(){
+      // this is needed if the calendar is the initial view
+      // however, it appears this is called many times more than needed.
+      // is there a better place for this?
+
+      this.items = this.getWeek.map( day => this.assignmentOnDate(day));
+    }
+  },
   data: function (){
     return {
       today: moment(),
@@ -45,18 +51,12 @@ export default{
     }
   },
   methods: {
-    shortDate: function(day){
-      return day.get('date')==1? day.format("MMM D") : day.get("date");
-    },
-    inCurrentMonth: function(day){
-      return day.get("month") == this.today.get('month');
-    },
-    isToday: function(day){
-      return this.onSameDay(day,this.today);
-    },
-    formatDate: day => day.format("YYYY-MM-DD"),
+    formatDate: (_date) =>  common.formatDateForBrowser(_date),
+    shortDate: (day) => day.get('date')==1? day.format("MMM D") : day.get("date"),
+    inCurrentMonth: function(day) { return day.get("month") == this.today.get('month')},
+    isToday: function(day){ return this.onSameDay(day,this.today)},
     assignmentOnDate: function(day) {
-     const _sets = this.problem_sets || [];
+      const _sets = this.problem_sets || [];
       var all_dates = _sets.flatMap(_set => [
           {date: moment.unix(_set.answer_date), type: "answer", set_id: _set.set_id},
           {date: moment.unix(_set.due_date), type: "due", set_id: _set.set_id},
@@ -70,15 +70,15 @@ export default{
                               day1.get('year') == day2.get('year'),
     assignChange: function(new_date,evt) {
       if(evt.hasOwnProperty("added")){
+        const d = moment(new_date)
 
-        const d = moment(new_date,"YYYY-MM-DD");
+        // adjust the time to be the same as the previous assignment time.
         d.hours(evt.added.element.date.hours())
         d.minutes(evt.added.element.date.minutes());
-        var _set = this.problem_sets.find(_set => _set.set_id==evt.added.element.set_id);
+        var _set = Object.assign({},
+            this.problem_sets.find(_set => _set.set_id==evt.added.element.set_id)); // make a copy of the set
         _set[evt.added.element.type+"_date"] = d.unix();
-        // eslint-disable-next-line
-        console.log(_set);
-        this.saveProblemSet(_set);
+        this.$store.dispatch("updateProblemSet",_set);
       }
     }
   },
@@ -89,10 +89,6 @@ export default{
 </script>
 
 <style scoped>
-</style>
-
-
-<style>
   .cal-day {height: 100px; width: 14.3%}
   .current-month {background: lightyellow}
   .extra-month {background: aliceblue}

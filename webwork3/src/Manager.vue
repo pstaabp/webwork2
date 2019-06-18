@@ -1,23 +1,21 @@
 <template>
   <div>
-    <menu-bar :views="views" :current_view="current_view"  :user="user"
+    <menu-bar :views="views" :current_view="current_view"
               :sidebars="sidebars" :current_sidebar="current_sidebar"
-              @change-view="current_view = $evt"
+              @change-view="current_view = $evt" @logout="logout"
               @show-hide-sidebar="show_sidebar = !show_sidebar"/>
     <b-container><router-view/></b-container>
   </div>
 </template>
 
 <script>
-
+import axios from 'axios'
+import {mapState} from 'vuex'
 // main views
 import MenuBar from '@/components/MenuBar'
 
 export default {
   name: 'app',
-  props: {
-    params: Object
-  },
   components: {
     MenuBar
   },
@@ -41,32 +39,44 @@ export default {
       current_view: "calendar",
       current_sidebar: "lib_opts",
       show_sidebar: false,
-      problem_sets: null,
-      selected_set_id: "",
-      user: {user_id: "peter", first_name: "Peter", last_name: "Staab"},
-      users: null,
-      settings: null,
     }
   },
-  created: function() { // load all of the relevant data
-    this.$store.dispatch('setLoginInfo',this.$route.params)
-    this.$store.dispatch('fetchSettings')
-    this.$store.dispatch('fetchUsers')
-    this.$store.dispatch('fetchProblemSets')
+  computed:{
+    ...mapState(['login_info'])
   },
-  filters: {
-    getName: (comp,arr) => arr.find(obj=>obj.comp==comp).name
+  created: function() { // load all of the relevant data
+    this.$store.dispatch('updateLoginInfo',this.$route.params)
+    const self = this;
+    axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/login')
+      .then(response => {
+        var user = {}
+        if(response.data.logged_in == 1){
+          self.$store.dispatch('fetchSettings')
+          self.$store.dispatch('fetchUsers')
+          self.$store.dispatch('fetchProblemSets');
+          ["user_id","first_name","last_name"].forEach(_key => {user[_key] = response.data[_key]})
+          self.$store.dispatch('updateLoginInfo',user)
+        } else {
+          self.$router.replace("/courses/" + this.login_info.course_id + '/login')
+        }
+      }).catch( err => {
+        // eslint-disable-next-line
+        console.log(err);
+        self.$router.replace("/courses/" + self.login_info.course_id + "/login")
+      })
+
   },
   methods: {
-    changeView: function(comp) {
-      this.current_view = comp},
-    changeSidebar: function(comp){this.current_sidebar = comp;}
+    //changeView: function(comp) {this.current_view = comp},
+    changeSidebar: function(comp){this.current_sidebar = comp;},
+    logout: function(){
+      axios.post("/webwork3/api/courses/" + this.login_info.course_id + "/logout").
+      then(response => {
+        this.$router.replace("/courses/" + this.login_info.course_id + "/login")
+      })
+    }
   },
   watch: {
-    selected_set_id: function(){
-      // eslint-disable-next-line
-      console.log(this.selected_set_id)
-    },
     '$route' (to) { // (to,from)
       this.current_view = to.path.split("/").pop()
     }

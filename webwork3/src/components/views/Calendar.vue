@@ -1,12 +1,12 @@
 <template>
   <b-container>
     <b-row>
-      <b-col cols="3"><span id="month-name" style="{font: bold}"> {{monthName}}</span></b-col>
+      <b-col cols="3"><span id="month-name"> {{monthName}}</span></b-col>
       <b-col>
         <b-btn-toolbar key-nav  aria-label="Toolbar with button groups">
-        <b-btn-group size="sm" class="outline-primary">
+        <b-btn-group size="sm" class="outline-dark">
           <b-btn @click="shiftCalendar(-1)">Prev.</b-btn>
-          <b-btn>Today</b-btn>
+          <b-btn @click="today()">Today</b-btn>
           <b-btn @click="shiftCalendar(1)">Next</b-btn>
         </b-btn-group>
       </b-btn-toolbar>

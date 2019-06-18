@@ -7,13 +7,6 @@
 
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
-          <!-- <b-nav-item>
-            <b-btn-group size="sm">
-              <b-btn variant="outline-light"><i class="fa fa-arrow-left"></i></b-btn>
-              <b-btn variant="outline-light"><i class="fa fa-arrow-right"></i></b-btn>
-            </b-btn-group>
-          </b-nav-item> -->
-
           <b-navbar-brand id="view-name">  {{current_view | getName(views)}}
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
@@ -40,8 +33,9 @@
             <template slot="button-content">
               <i class="fas fa-user-alt"></i>
             </template>
+            <b-dropdown-text>{{fullname}}</b-dropdown-text>
             <b-dropdown-item href="#" v-b-modal.settings><i class="fas fa-cog mr-2"></i>Settings</b-dropdown-item>
-            <b-dropdown-item href="#"><i class="fas fa-sign-out-alt mr-2"></i>Logout</b-dropdown-item>
+            <b-dropdown-item @click="$emit('logout')"><i class="fas fa-sign-out-alt mr-2"></i>Logout</b-dropdown-item>
           </b-nav-item-dropdown>
 
         </b-navbar-nav>
@@ -51,8 +45,8 @@
       <table class="table table-sm">
         <tbody>
           <tr><td>Name:</td><td>{{fullname}}</td></tr>
-          <tr><td>login name:</td><td>{{user.user_id}}</td></tr>
-          <tr><td>Email: </td><td>{{user.email_address}}</td></tr>
+          <tr><td>login name:</td><td>{{login_info.user_id}}</td></tr>
+          <tr><td>Email: </td><td>{{login_info}}</td></tr>
           <tr><td>Password:</td>
               <td><b-button variant="outline-primary" size="sm" @click="change_password = !change_password">
                 {{change_password?'Cancel Change': 'Change Password'}}</b-button></td></tr>
@@ -71,20 +65,20 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
 import MessageBar from './views/view_components/MessageBar.vue'
 
 export default {
   name: 'MenuBar',
   filters: {
-    getName: (route,arr) => arr.find(obj=>obj.route==route).name
+    getName: (route,arr) =>  arr.find(obj=>obj.route==route) ? arr.find(obj=>obj.route==route).name : "Select View"
   },
   components: {MessageBar},
   props: {
     views: Array,
     current_view: String,
     sidebars: Array,
-    current_sidebar: String,
-    user: Object
+    current_sidebar: String
   },
   data: function(){
     return {
@@ -92,7 +86,10 @@ export default {
     }
   },
   computed: {
-    fullname: function(){ return this.user.first_name + " " + this.user.last_name}
+    ...mapState(['login_info']),
+    fullname: function(){
+      return this.login_info.first_name + " " + this.login_info.last_name
+    }
   },
   methods: {
     path: function(route) {

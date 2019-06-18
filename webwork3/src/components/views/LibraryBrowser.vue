@@ -1,8 +1,11 @@
 <template>
   <b-tabs content-class="mt-3">
     <b-tab title="By Subj." active>
-      <library-subjects :selected_set_id="selected_set_id"/></b-tab>
-    <b-tab title="By Directory"><h3>Browse by Directory</h3></b-tab>
+      <library-subjects :selected_set_id="selected_set_id"/>
+    </b-tab>
+    <b-tab title="By Directory">
+      <library-directory :select_set_id="selected_set_id" />
+    </b-tab>
     <b-tab title="Textbooks"><h3>Browse problems in textbooks</h3></b-tab>
     <b-tab title="Local Prob."><h3>Browse local problems</h3></b-tab>
     <b-tab title="Set Defn. files"><h3>Browse Set Definition Files</h3></b-tab>
@@ -16,6 +19,7 @@
 <script>
 // tab components
 import LibrarySubjects from './LibraryComponents/LibrarySubjects.vue'
+import LibraryDirectory from './LibraryComponents/LibraryDirectory.vue'
 
 export default {
   name: 'SetDetails',
@@ -23,7 +27,7 @@ export default {
     selected_set_id: String
   },
   components: {
-    LibrarySubjects
+    LibrarySubjects, LibraryDirectory
   },
   computed: {
     getSelectedSet: function(){

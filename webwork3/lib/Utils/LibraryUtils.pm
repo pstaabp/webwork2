@@ -659,12 +659,16 @@ sub render {
 	$set->set_id('this set') unless $set->set_id();
 	$problem->problem_id('1') unless $problem->problem_id();
 
-    if (ref $renderParams->{pgSource}) { #in this case the actual source is passed
-			$problem->source_file('');
-			$translationOptions->{r_source} = $renderParams->{source};
+	#&$debug(dump $renderParams->{problem});
+
+  if (ref $renderParams->{source}) { #in this case the actual source is passed
+	 	&$debug("here !!!!");
+		$problem->source_file('this/is/a/fake/path');
+		$translationOptions->{r_source} = $renderParams->{source};
 	} else {
-      $problem->{source_file} = $renderParams->{problem}->{source_file};
+    $problem->{source_file} = $renderParams->{problem}->{source_file};
 	}
+
 
 my $pg = new WeBWorK::PG(
 		$ce,

@@ -10,7 +10,8 @@ package Routes::Library;
 #use warnings;
 use Dancer2 appname => "Routes::Login";
 use Dancer2::Plugin::Database;
-use Data::Dump qw/dump/;
+use Dancer2::FileUtils qw/read_file_content/;
+use Data::Dump qw/dump dd/;
 use Path::Class;
 use File::Find::Rule;
 use File::Slurp;
@@ -22,7 +23,7 @@ use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
 use WeBWorK::Constants;
-use Data::Dump qw/dd/;
+
 
 get '/library/subjects' => sub {
 
@@ -69,11 +70,6 @@ get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/sections\/(.+)\/problems} => s
 get qr{\/library\/subjects\/(.+)\/chapters\/(.+)\/problems} => sub {
 
 	my ($subj,$chap) = splat;
-
-  debug $subj;
-  debug $chap;
-
-  debug dump searchLibrary(database,{subject=>$subj,chapter=>$chap});
 	return searchLibrary(database,{subject=>$subj,chapter=>$chap});
 };
 
@@ -138,8 +134,7 @@ get '/library/directories/**' => sub {
 	##         to work.
 
 	my ($dirs) = splat;
-	my @dirs =  shift @{$dirs};# strip the "OpenProblemLibrary" from the path
-	my $path = vars->{ce}->{courseDirs}{templates} ."/Library/". join("/",@$dirs);
+	my $path = vars->{ce}->{courseDirs}{templates} . "/" . join("/",@{$dirs});
 	my $header = vars->{ce}->{courseDirs}{templates} . "/";
 	my @files = File::Find::Rule->file()->name('*.pg')->in($path);
 	my @allFiles =  map { $_ =~ s/$header//; {source_file=>$_}} @files;
@@ -157,8 +152,6 @@ get '/library/directories/**' => sub {
 
 get '/courses/:course_id/library/local' => sub {
 
-	debug "in /Library/local";
-
 	## still need to search for directory with single files and others with ignoreDirectives.
 
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
@@ -166,16 +159,15 @@ get '/courses/:course_id/library/local' => sub {
 
 	my $libPath = $path . "/" . "Library";  # hack to get this to work.  Need to make this more robust.
 
-    my @dirs = File::Find::Rule->directory()
-                                ->not_name("Pending")
-                                ->not_name("Library")
-                                ->in($path->stringify);
+  my @dirs = File::Find::Rule->directory()
+                              ->not_name("Pending")
+                              ->not_name("Library")
+                              ->in($path->stringify);
 
-    my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
+  my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
 
-    my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files);
+  my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files);
 
-    debug to_dumper(\@parentDirectories);
 
 	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($path)->stringify} }@files;
 	return \@allFiles;
@@ -191,8 +183,6 @@ get '/courses/:course_id/library/local' => sub {
 ####
 
 get '/courses/:course_id/library/pending' => sub {
-
-	debug "in /library/pending";
 
 	## still need to search for directory with single files and others with ignoreDirectives.
 
@@ -217,7 +207,6 @@ get '/courses/:course_id/library/pending' => sub {
             push(@info, {num_files => scalar(@pgfiles), path => $dir });
         }
     }
-
 
     return \@info;
 };
@@ -248,25 +237,20 @@ get '/courses/:course_id/local/testing' => sub {
 
 get '/courses/:course_id/problems/local/**' => sub {
 
-    debug "in /courses/:course_id/problems/local/** ";
-    my ($courseID,$dirpath) = splat;
+  my ($courseID,$dirpath) = splat;
 
-    setCourseEnvironment($courseID);
+  setCourseEnvironment($courseID);
 
-    my @dirs = @$dirpath;
-    my $selectedDir = dir(vars->{ce}->{courseDirs}{templates},dir(@dirs)->relative(dir("problems","local")));
-
-
-    my $localDir = dir(vars->{ce}->{courseDirs}{templates});
-
-    debug $localDir->stringify;
-
-    my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($selectedDir->stringify);
-    my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
-
-    return \@allFiles;
+  my @dirs = @$dirpath;
+  my $selectedDir = dir(vars->{ce}->{courseDirs}{templates},dir(@dirs)->relative(dir("problems","local")));
 
 
+  my $localDir = dir(vars->{ce}->{courseDirs}{templates});
+
+  my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($selectedDir->stringify);
+  my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
+
+  return \@allFiles;
 };
 
 #######
@@ -279,10 +263,7 @@ get '/courses/:course_id/problems/local/**' => sub {
 
 get '/courses/:course_id/library/setDefinition' => sub {
 
-	debug "in /Library/setDefinition";
-
 	## still need to search for directory with single files and others with ignoreDirectives.
-
 
 	my $path = dir(vars->{ce}->{courseDirs}{templates});
 	my $probLibs = vars->{ce}->{courseFiles}{problibs};
@@ -539,7 +520,7 @@ any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => su
   my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
   #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
   #$rp->{tags} = getProblemTagsFromDB(-1);
-	$rp->{render_errors} = $rp->{errors}; # new ww3 has this reserved.  
+	$rp->{render_errors} = $rp->{errors}; # new ww3 has this reserved.
 	delete $rp->{errors};
 	return $rp;
 };
@@ -614,13 +595,11 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 #
 ####
 
-get '/library/fullproblem' => sub {
-	Routes::Login::setCourseEnvironment(params->{course_id});  # currently need to set the course to use vars->{ce}
+get '/courses/:course_id/library/fullproblem' => sub {
 
-	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , params->{path});
+	my $fullpath = path(vars->{ce}->{courseDirs}{templates} , query_parameters->{source_file});
 	my $problemSource = read_file_content($fullpath);
 	send_error("The problem with path " + params->{path} + " does not exist.",403) unless defined($problemSource);
-
 	return {problem_source=>$problemSource};
 };
 
@@ -637,8 +616,7 @@ put '/library/fullproblem' => sub {
 
 	my $test = write_file($fullpath,params->{problem_source});
 
-	debug $test;
-
+  return {};
 };
 
 ###
@@ -651,14 +629,14 @@ put '/library/fullproblem' => sub {
 
 post '/renderer' => sub {
 
-	my $source = decode_entities params->{source} if defined(params->{source});
+	my $source = decode_entities body_parameters->{source} if defined(body_parameters->{source});
 
 	my $problem = fake_problem(vars->{db});
 	$problem->{problem_seed} = params->{seed} || 1;
 	$problem->{problem_id} = 1;
 	$problem->{source_file} = params->{source_file} || "this_is_a_fake_path";
 
-    my $renderParams = {
+  my $renderParams = {
 		displayMode=>"MathJax",
 		showHints=>0,
 		showSolutions=>0,
@@ -670,7 +648,7 @@ post '/renderer' => sub {
 		source => defined($source)?\$source: undef
 	};
 
-	return render(vars->{ce},vars->{db},$renderParams);
+	return render(vars->{ce},vars->{db},$renderParams,\&debug);
 };
 
 ####
