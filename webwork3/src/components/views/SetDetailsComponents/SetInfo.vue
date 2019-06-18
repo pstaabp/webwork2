@@ -89,7 +89,7 @@
 
 
 <script>
-import moment from 'moment'
+//import moment from 'moment'
 import common from '../../../common'
 import {ProblemSetMixin} from '../../../mixins/problem_set_mixin.js'
 import MessagesMixin from '@/mixins/messages_mixin.js'

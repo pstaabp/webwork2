@@ -19,6 +19,7 @@ import Empty from '@/components/Empty'
 Vue.use(VueRouter);
 
 export default new VueRouter({
+  base: '/webwork3',
   mode: 'history',
   routes: [
     { path: '/courses', component: Empty, children: [
@@ -42,26 +43,3 @@ export default new VueRouter({
 }
 ]
 })
-
-//
-//           },
-//           {
-//             path: 'mananger/calendar',
-//             component: Calendar,
-//
-//           },
-//           {
-//             path: 'mananger/settings',
-//             component: Settings,
-//
-//           },
-//           {
-//             path: 'mananger/set-details',
-//             component: ProblemSetDetails,
-//
-//           }
-//       ]
-//     },
-//     { path: '*', component: PageNotFound }
-//   ]
-// });

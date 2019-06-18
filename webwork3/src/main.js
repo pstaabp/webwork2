@@ -6,28 +6,7 @@ import '../public/css/webwork.css'
 
 import Vue from 'vue'
 
-
-// import Manager from '@/Manager.vue'
-// import Login from '@/components/Login'
-
 import router from './router.js'
-//
-// const router = new VueRouter({
-//   mode: 'history',
-//   routes: [
-//     {
-//       path: 'courses/:course_id/manager/',
-//       component: Manager,
-//       props: (route) => ({ params: route.params })
-//     },
-//     {
-//       path: 'courses/:course_id/login',
-//       component: Login,
-//       props: (route) => ({params: route.params})
-//     }
-//   ]
-// });
-//
 
 import BootstrapVue from 'bootstrap-vue'
 

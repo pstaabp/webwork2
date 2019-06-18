@@ -99,6 +99,7 @@ export default {
     }
   },
   updated() {
+    // eslint-disable-next-line
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 

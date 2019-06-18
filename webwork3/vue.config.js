@@ -7,5 +7,6 @@ module.exports = {
           pathRewrite: {'^/webwork3/' : ''}
         }
     }
-  }
+  },
+  publicPath: '/webwork3/'
 }

@@ -21,10 +21,9 @@ export default {
     scriptTag.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML";
     scriptTag.id = "mathjax-scr";
     document.getElementsByTagName('head')[0].appendChild(scriptTag);
+    // eslint-disable-next-line
+    //console.log(this.$route.fullPath);
+    //this.$router.replace("/courses/test/login");
   }
 }
 </script>
-
-<style>
-#footer { max-height: 60px; background-color: rgb(200,200,200)}
-</style>

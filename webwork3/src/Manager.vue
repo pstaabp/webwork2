@@ -71,7 +71,7 @@ export default {
     changeSidebar: function(comp){this.current_sidebar = comp;},
     logout: function(){
       axios.post("/webwork3/api/courses/" + this.login_info.course_id + "/logout").
-      then(response => {
+      then( () => {
         this.$router.replace("/courses/" + this.login_info.course_id + "/login")
       })
     }
