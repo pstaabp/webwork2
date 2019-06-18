@@ -114,6 +114,7 @@ my @modulesList = qw(
 	UUID::Tiny
 	XML::Parser
 	XML::Parser::EasyTree
+	XML::Simple
 	XML::Writer
 	XMLRPC::Lite
 	YAML

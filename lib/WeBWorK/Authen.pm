@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: webwork2/lib/WeBWorK/Authen.pm,v 1.63 2012/06/06 22:03:15 wheeler Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -70,8 +70,6 @@ use constant MP2 => ( exists $ENV{MOD_PERL_API_VERSION} and $ENV{MOD_PERL_API_VE
 
 #use vars qw($GENERIC_ERROR_MESSAGE);
 our $GENERIC_ERROR_MESSAGE = "";  # define in new
-
-my $cookie_prefix = "WeBWorK.CourseAuthen";
 
 ## WeBWorK-tr end modification 
 #####################
@@ -234,8 +232,10 @@ sub verify {
 			$self->write_log_entry("LOGIN FAILED $log_error");
 		}
 		if (defined($error) and $error=~/\S/) { # if error message has a least one non-space character. 
-
-			if (defined($r->param("user")) or defined($r->param("user_id"))) {
+			if ( defined( $log_error ) and $log_error eq "inactivity timeout" ) {
+				# We don't want to override the localized inactivity timeout message.
+				# so do not check next "if" in this case.
+			} elsif (defined($r->param("user")) or defined($r->param("user_id"))) {
 				$error = $r->maketext("Your authentication failed.  Please try again. Please speak with your instructor if you need help.")
 			}
 
@@ -309,6 +309,18 @@ sub do_verify {
 	}
 }
 
+sub trim {  # used to trim leading and trailing white space from user_id and password
+            # in get_credentials
+  my $s = shift;
+  # If the value was NOT defined, we want to leave it undefined, so
+  # we can still catch session-timeouts and report them properly.
+  # Thus we only do the following substitution if $s is defined.
+  # Otherwise return the undefined value so a non-defined password
+  # can be caught later by authenticate() for the case of a
+  # session-timeout.
+  $s =~ s/(^\s+|\s+$)//g    if ( defined($s) );
+  return $s;
+}
 sub get_credentials {
 	my ($self) = @_;
 	my $r = $self->{r};
@@ -382,6 +394,8 @@ sub get_credentials {
 			$self->{password} = $r->param("passwd");
 			$self->{login_type} = "normal";
 			$self->{credential_source} = "params";
+			$self->{user_id}     = trim($self->{user_id});
+			$self->{password}     = trim($self->{password});
 			debug("params user '", $self->{user_id}, "' key '", $self->{session_key}, "'");
 			return 1;
 		} elsif (defined $cookieKey) {
@@ -390,6 +404,7 @@ sub get_credentials {
 			$self->{cookie_timestamp} = $cookieTimeStamp;
 			$self->{login_type} = "normal";
 			$self->{credential_source} = "cookie";
+			$self->{user_id}     = trim($self->{user_id});
 			debug("cookie user '", $self->{user_id}, "' key '", $self->{session_key}, "' cookie_timestamp '", $self->{cookieTimeStamp}, "'");
 			return 1;
 		} else {
@@ -399,6 +414,8 @@ sub get_credentials {
 			$self -> {cookie_timestamp} = $cookieTimeStamp;
 			$self -> {login_type} = "normal";
 			$self -> {credential_source} = "params_and_cookie";
+			$self->{user_id}     = trim($self->{user_id});
+			$self->{password}    = trim($self->{password});
 			debug("params and cookie user '", $self->{user_id}, "' params and cookie session key = '",
 				 $self->{session_key}, "' cookie_timestamp '", $self->{cookieTimeStamp}, "'");
 			return 1;
@@ -411,7 +428,10 @@ sub get_credentials {
 		$self->{password} = $r->param("passwd");
 		$self->{login_type} = "normal";
 		$self->{credential_source} = "params";
+		$self->{user_id}      = trim($self->{user_id});
+		$self->{password}     = trim($self->{password});
 		debug("params user '", $self->{user_id}, "' key '", $self->{session_key}, "'");
+		debug("params password '", $self->{password}, "' key '", $self->{session_key}, "'");
 		return 1;
 	}
 	
@@ -421,6 +441,7 @@ sub get_credentials {
 		$self->{cookie_timestamp} = $cookieTimeStamp;
 		$self->{login_type} = "normal";
 		$self->{credential_source} = "cookie";
+		$self->{user_id}     = trim($self->{user_id});
 		debug("cookie user '", $self->{user_id}, "' key '", $self->{session_key}, "' cookie_timestamp '", $self->{cookieTimeStamp}, "'");
 		return 1;
 	}
@@ -634,7 +655,16 @@ sub checkPassword {
 		# succeed in matching an entered password
 		# Use case: Moodle wwassignment stores null passwords and forces the creation 
 		# of a key -- Moodle wwassignment does not use  passwords for authentication, only keys.
-		if (($dbPassword =~/\S/) && $possibleCryptPassword eq $Password->password) {
+		# The following line was modified to also reject cases when the database has a crypted password
+		# which matches a submitted all white-space or null password by requiring that the
+		# $possibleClearPassword contain some non-space character. This is intended to address
+		# the issue raised in http://webwork.maa.org/moodle/mod/forum/discuss.php?d=4529 .
+		# Since several authentication modules fall back to calling this function without
+		# trimming the possibleClearPassword as done during get_credentials() here in
+		# lib/WeBWorK/Authen.pm we do not assume that an all-white space password would have
+		# already been converted to an empty string and instead explicitly test it for a non-space
+		# character.
+		if (($possibleClearPassword =~/\S/) && ($dbPassword =~/\S/) && $possibleCryptPassword eq $Password->password) {
 			$self->write_log_entry("AUTH WWDB: password accepted");
 			return 1;
 		} else {
@@ -826,11 +856,11 @@ sub fetchCookie {
      			$jar = $@->jar; # table of successfully parsed cookies
   		};
 		if ($jar) {
-			$cookie = uri_unescape($jar->get("$cookie_prefix.$courseID"));
+			$cookie = uri_unescape($jar->get("WeBWorKCourseAuthen.$courseID"));
 		};
 	} else {
 		my %cookies = WeBWorK::Cookie->fetch();
-		$cookie = $cookies{"$cookie_prefix.$courseID"};
+		$cookie = $cookies{"WeBWorKCourseAuthen.$courseID"};
 		if ($cookie) {
 			debug("found a cookie for this course: '", $cookie->as_string, "'");
 			$cookie = $cookie->value;
@@ -866,11 +896,9 @@ sub sendCookie {
  	my $timestamp = time();
 	
 	my $cookie = WeBWorK::Cookie->new($r,
-		-name    => "$cookie_prefix.$courseID",
+		-name    => "WeBWorKCourseAuthen.$courseID",
  		-value   => "$userID\t$key\t$timestamp",
- 		-path    => "/",
- 		# This is now changed so that both webwork2 and webwork3 can use the same cookie.
-		#-path    => "$ce->{webworkURLRoot}",
+		-path    => $ce->{webworkURLRoot},
 		-secure  => 0,
 	);
 
@@ -896,12 +924,10 @@ sub killCookie {
 	
 	my $expires = time2str("%a, %d-%h-%Y %H:%M:%S %Z", time-60*60*24, "GMT");
 	my $cookie = WeBWorK::Cookie->new($r,
-		-name => "$cookie_prefix.$courseID",
+		-name => "WeBWorKCourseAuthen.$courseID",
 		-value => "\t",
 		-expires => $expires,
-		# change the following to "/" to have better compatibility between ww2 and ww3
-		#-path => $ce->{webworkURLRoot},
-		-path => "/",
+		-path => $ce->{webworkURLRoot},
 		-secure => 0,
 	);
  	if ($r->hostname ne "localhost" && $r->hostname ne "127.0.0.1") {

@@ -1,29 +1,33 @@
 FROM ubuntu:16.04
 
-ENV WEBWORK_URL /webwork2
-ENV WEBWORK_ROOT_URL http://localhost
-ENV WEBWORK_DB_HOST db
-ENV WEBWORK_DB_PORT 3306
-ENV WEBWORK_DB_NAME webwork
-ENV WEBWORK_DB_DSN DBI:mysql:${WEBWORK_DB_NAME}:${WEBWORK_DB_HOST}:${WEBWORK_DB_PORT}
-ENV WEBWORK_DB_USER webworkWrite
-ENV WEBWORK_DB_PASSWORD passwordRW
-ENV WEBWORK_SMTP_SERVER localhost
-ENV WEBWORK_SMTP_SENDER webwork@example.com
-ENV WEBWORK_TIMEZONE America/New_York
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-# temporary state file location. This might be changed to /run in Wheezy+1
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APP_ROOT /opt/webwork
-ENV WEBWORK_ROOT $APP_ROOT/webwork2
-ENV PG_ROOT $APP_ROOT/pg
-ENV DEV 0
 
+
+ENV PG_BRANCH=develop \
+    WEBWORK_URL=/webwork2 \
+    WEBWORK_ROOT_URL=http://localhost \
+    WEBWORK_DB_HOST=db \
+    WEBWORK_DB_PORT=3306 \
+    WEBWORK_DB_NAME=webwork \
+    WEBWORK_DB_USER=webworkWrite \
+    WEBWORK_DB_PASSWORD=passwordRW \
+    WEBWORK_SMTP_SERVER=localhost \
+    WEBWORK_SMTP_SENDER=webwork@example.com \
+    WEBWORK_TIMEZONE=America/New_York \
+    APACHE_RUN_USER=www-data \
+    APACHE_RUN_GROUP=www-data \
+    # temporary state file location. This might be changed to /run in Wheezy+1 \
+    APACHE_PID_FILE=/var/run/apache2/apache2.pid \
+    APACHE_RUN_DIR=/var/run/apache2 \
+    APACHE_LOCK_DIR=/var/lock/apache2 \
+    # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+    APACHE_LOG_DIR=/var/log/apache2 \
+    APP_ROOT=/opt/webwork \
+    DEV=0
+
+ENV WEBWORK_DB_DSN=DBI:mysql:${WEBWORK_DB_NAME}:${WEBWORK_DB_HOST}:${WEBWORK_DB_PORT} \
+    WEBWORK_ROOT=$APP_ROOT/webwork2 \
+    PG_ROOT=$APP_ROOT/pg \
+    PATH=$PATH:$APP_ROOT/webwork2/bin
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --no-install-suggests \
@@ -54,6 +58,7 @@ RUN apt-get update \
        libpadwalker-perl \
        libpath-class-perl \
        libphp-serialization-perl \
+       libxml-simple-perl \
        libsoap-lite-perl \
        libsql-abstract-perl \
        libstring-shellquote-perl \
@@ -63,7 +68,10 @@ RUN apt-get update \
        libuuid-tiny-perl \
        libxml-parser-perl \
        libxml-writer-perl \
+       libxmlrpc-lite-perl \
        libapache2-reload-perl \
+       libxmlrpc-lite-perl \
+       libxml-simple-perl \
        make \
        netpbm \
        preview-latex-style \
@@ -72,41 +80,62 @@ RUN apt-get update \
        libc6-dev \
        git \
        mysql-client \
-    && curl -Lk https://cpanmin.us | perl - App::cpanminus \
-    && cpanm install XML::Parser::EasyTree Iterator Iterator::Util Pod::WSDL Array::Utils HTML::Template XMLRPC::Lite Mail::Sender Email::Sender::Simple Data::Dump Statistics::R::IO \
-    && rm -fr /var/lib/apt/lists/* ./cpanm /root/.cpanm /tmp/*
+    && rm -fr /var/lib/apt/lists/*
+
+# Warning - when I tried to include XML::Simple near the start of the first "cpanm install" line, there was an error:
+#       Building and testing XMLRPC-Lite-0.717 ... ! Installing XMLRPC::Lite failed. See /root/.cpanm/work/1551887935.125/build.log for details. Retry with --force to force install it.
+# so it was put into a second "cpanm install" line.
+
+RUN curl -Lk https://cpanmin.us | perl - App::cpanminus \
+    && cpanm install XML::Parser::EasyTree Iterator Iterator::Util Pod::WSDL Array::Utils HTML::Template Mail::Sender Email::Sender::Simple Data::Dump Statistics::R::IO 
+    
+##RUN cpanm install XML::Simple \
+#    && rm -fr ./cpanm /root/.cpanm /tmp/*
+
 
 RUN mkdir -p $APP_ROOT/courses $APP_ROOT/libraries $APP_ROOT/webwork2
 
-COPY VERSION /tmp
+# Block to include webwork2 in the container, when needed, instead of  getting it from a bind mount.
+#    Uncomment when needed, and set the correct branch name on the following line.
+#ENV WEBWORK_BRANCH=develop   # need a valid branch name from https://github.com/openwebwork/webwork2
+#RUN curl -fSL https://github.com/openwebwork/webwork2/archive/${WEBWORK_BRANCH}.tar.gz -o /tmp/${WEBWORK_BRANCH}.tar.gz \
+#    && cd /tmp \
+#    && tar xzf /tmp/${WEBWORK_BRANCH}.tar.gz \
+#    && mv webwork2-${WEBWORK_BRANCH} $APP_ROOT/webwork2 \
+#    && rm -rf /tmp/${WEBWORK_BRANCH}.tar.gz /tmp/webwork2-${WEBWORK_BRANCH}
 
-RUN WEBWORK_VERSION=`cat /tmp/VERSION|sed -n 's/.*\(develop\)'\'';/\1/p' && cat /tmp/VERSION|sed -n 's/.*\([0-9]\.[0-9]*\)'\'';/PG\-\1/p'` \
-    && curl -fSL https://github.com/openwebwork/pg/archive/${WEBWORK_VERSION}.tar.gz -o /tmp/${WEBWORK_VERSION}.tar.gz \
-    && tar xzf /tmp/${WEBWORK_VERSION}.tar.gz \
-    && mv pg-${WEBWORK_VERSION} $APP_ROOT/pg \
-    && rm /tmp/${WEBWORK_VERSION}.tar.gz \
+RUN curl -fSL https://github.com/openwebwork/pg/archive/${PG_BRANCH}.tar.gz -o /tmp/${PG_BRANCH}.tar.gz \
+    && tar xzf /tmp/${PG_BRANCH}.tar.gz \
+    && mv pg-${PG_BRANCH} $APP_ROOT/pg \
+    && rm /tmp/${PG_BRANCH}.tar.gz \
     && curl -fSL https://github.com/openwebwork/webwork-open-problem-library/archive/master.tar.gz -o /tmp/opl.tar.gz \
     && tar xzf /tmp/opl.tar.gz \
     && mv webwork-open-problem-library-master $APP_ROOT/libraries/webwork-open-problem-library \
-    && rm /tmp/opl.tar.gz \
-    && curl -fSL https://github.com/mathjax/MathJax/archive/master.tar.gz -o /tmp/mathjax.tar.gz \
+    && rm /tmp/opl.tar.gz
+
+RUN curl -fSL https://github.com/mathjax/MathJax/archive/master.tar.gz -o /tmp/mathjax.tar.gz \
     && tar xzf /tmp/mathjax.tar.gz \
     && mv MathJax-master $APP_ROOT/MathJax \
-    && rm /tmp/mathjax.tar.gz \
-    && rm /tmp/VERSION
+    && rm /tmp/mathjax.tar.gz
+    #&& rm /tmp/VERSION
     #curl -fSL https://github.com/openwebwork/webwork2/archive/WeBWorK-${WEBWORK_VERSION}.tar.gz -o /tmp/WeBWorK-${WEBWORK_VERSION}.tar.gz \
     #&& tar xzf /tmp/WeBWorK-${WEBWORK_VERSION}.tar.gz \
     #&& mv webwork2-WeBWorK-${WEBWORK_VERSION} $APP_ROOT/webwork2 \
     #&& rm /tmp/WeBWorK-${WEBWORK_VERSION}.tar.gz \
 
+
 RUN echo "PATH=$PATH:$APP_ROOT/webwork2/bin" >> /root/.bashrc
 
 COPY . $APP_ROOT/webwork2
 
-RUN cd $APP_ROOT/webwork2/courses.dist \
-    && cp *.lst $APP_ROOT/courses/ \
-    && cp -R modelCourse $APP_ROOT/courses/ \
-    && cd $APP_ROOT/pg/lib/chromatic \
+
+# Move these lines into docker-entrypoint.sh so the bind mount of courses
+# will be available
+#RUN cd $APP_ROOT/webwork2/courses.dist \
+#    && cp *.lst $APP_ROOT/courses/ \
+#    && cp -R modelCourse $APP_ROOT/courses/
+
+RUN cd $APP_ROOT/pg/lib/chromatic \
     && gcc color.c -o color
 
 # setup apache
@@ -132,8 +161,8 @@ RUN cd $APP_ROOT/webwork2/conf \
       \n<Perl>/' /etc/apache2/conf-enabled/webwork.conf
 
 RUN cd $APP_ROOT/webwork2/ \
-    && chown www-data DATA ../courses htdocs/tmp htdocs/applets logs tmp $APP_ROOT/pg/lib/chromatic \
-    && chmod -R u+w DATA ../courses htdocs/tmp htdocs/applets logs tmp $APP_ROOT/pg/lib/chromatic
+    && chown www-data DATA ../courses  htdocs/applets logs tmp $APP_ROOT/pg/lib/chromatic \
+    && chmod -R u+w DATA ../courses  htdocs/applets logs tmp $APP_ROOT/pg/lib/chromatic
 
 COPY docker-entrypoint.sh /usr/local/bin/
 
