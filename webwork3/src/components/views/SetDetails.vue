@@ -10,7 +10,7 @@
       <template slot="tabs">
         <b-nav-item href="#" @click="() => {}" id="custom-tab">
           <b-select size="sm" v-model="selected_set_id" @change="check">
-            <option :value="null" selected>Select a Set</option>
+            <option :value="null" selected :disabled="true">Select a Set</option>
             <option v-for="set in problem_sets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
           </b-select>
         </b-nav-item>
@@ -35,7 +35,7 @@ export default {
   name: 'SetDetails',
   data: function () {
       return {
-        selected_set_id: "set1",
+        selected_set_id: null,
         problem_set: common.new_problem_set,
         data_loading : true
       }
@@ -54,8 +54,6 @@ export default {
       this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
     },
     problem_sets(){
-      // eslint-disable-next-line
-      console.log("problem_sets changed")
       this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
     },
     problem_set: {
@@ -81,6 +79,11 @@ export default {
       console.log(this.selected_set_id)
       return {};
     }
+  },
+  mounted(){
+    if(this.$route.query.set_id){
+      this.selected_set_id = this.$route.query.set_id
+    }
   }
 }
 </script>
@@ -90,4 +93,4 @@ export default {
    padding-top: 4px;
    padding-bottom: 4px
 }
- </style>  .
+ </style>

@@ -4,7 +4,7 @@
     <b-navbar id="footer" fixed="bottom">
       <b-navbar-nav :small="true">
         <b-nav-item href="http://webwork.maa.org">WeBWorK</b-nav-item>
-        <b-nav-text>&copy;1996-2019</b-nav-text>
+        <b-nav-text>&#xa9;1996-2019</b-nav-text>
       </b-navbar-nav>
     </b-navbar>
   </div>
@@ -21,9 +21,9 @@ export default {
     scriptTag.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML";
     scriptTag.id = "mathjax-scr";
     document.getElementsByTagName('head')[0].appendChild(scriptTag);
-    // eslint-disable-next-line
-    //console.log(this.$route.fullPath);
-    //this.$router.replace("/courses/test/login");
+    if(this.$route.fullPath == '/'){
+      this.$router.replace('/courses')
+    }
   }
 }
 </script>

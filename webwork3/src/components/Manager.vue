@@ -12,7 +12,7 @@
 import axios from 'axios'
 import {mapState} from 'vuex'
 // main views
-import MenuBar from '@/components/MenuBar'
+import MenuBar from '@/components/common_components/MenuBar'
 
 export default {
   name: 'app',
@@ -83,6 +83,8 @@ export default {
   },
   mounted: function () {
     this.current_view = this.$route.fullPath.split("/").pop();
+    // eslint-disable-next-line
+    console.log(this.current_view)
   }
 }
 </script>

@@ -66,7 +66,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import MessageBar from './views/view_components/MessageBar.vue'
+import MessageBar from './MessageBar.vue'
 
 export default {
   name: 'MenuBar',

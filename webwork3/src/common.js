@@ -50,6 +50,20 @@ export default {
       restrict_prob_progression: false,
       email_instructor: false,
     },
+    new_problem: {
+      att_to_open_children: "",
+      counts_parent_grade: "",
+      flags: "",
+      max_attempts: -1,
+      prCount: "",
+      prPeriod: "",
+      problem_id: 1,
+      set_id: "",
+      showMeAnother: "",
+      showMeAnotherCount: 0,
+      source_file: "",
+      value: 1
+    },
     user_types: {
       'C': "enrolled",
       'P': "proctor",

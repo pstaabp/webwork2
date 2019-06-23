@@ -1,12 +1,14 @@
 <template>
   <b-tabs content-class="mt-3">
     <b-tab title="By Subj." active>
-      <library-subjects :selected_set_id="selected_set_id"/>
+      <library-tab tab_name="subjects" :problem_sets="problem_sets"/>
     </b-tab>
     <b-tab title="By Directory">
-      <library-directory :select_set_id="selected_set_id" />
+      <library-tab tab_name="directory" :problem_sets="problem_sets"/>
     </b-tab>
-    <b-tab title="Textbooks"><h3>Browse problems in textbooks</h3></b-tab>
+    <b-tab title="Textbooks">
+      <library-tab tab_name="textbooks" :problem_sets="problem_sets" />
+    </b-tab>
     <b-tab title="Local Prob."><h3>Browse local problems</h3></b-tab>
     <b-tab title="Set Defn. files"><h3>Browse Set Definition Files</h3></b-tab>
     <b-tab title="Search"><h3>Search the Library</h3></b-tab>
@@ -17,19 +19,20 @@
 
 
 <script>
+import {mapState} from 'vuex'
 // tab components
-import LibrarySubjects from './LibraryComponents/LibrarySubjects.vue'
-import LibraryDirectory from './LibraryComponents/LibraryDirectory.vue'
+import LibraryTab from './LibraryComponents/LibraryTab'
+// import LibrarySubjects from './LibraryComponents/LibrarySubjects'
+// import LibraryDirectory from './LibraryComponents/LibraryDirectory'
 
 export default {
   name: 'SetDetails',
-  props: {
-    selected_set_id: String
-  },
   components: {
-    LibrarySubjects, LibraryDirectory
+    //LibrarySubjects, LibraryDirectory
+    LibraryTab
   },
   computed: {
+    ...mapState(['problem_sets']),
     getSelectedSet: function(){
       return this.problem_sets.length == 0? "" : this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
     },

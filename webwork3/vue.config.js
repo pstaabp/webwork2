@@ -1,12 +1,15 @@
 module.exports = {
-    devServer: {
-      //proxy: 'http://localhost:5000'
-      proxy: {
-        '^/webwork3': {
-          target: 'http://localhost:5000',
-          pathRewrite: {'^/webwork3/' : ''}
-        }
+  devServer: {
+    proxy: {
+      '^/webwork3': {
+        target: 'http://localhost:5000',
+        pathRewrite: {'^/webwork3/' : ''}
+      }
+    },
+    watchOptions: {
+        poll: true
     }
   },
+
   publicPath: '/webwork3/'
 }

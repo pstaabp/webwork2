@@ -33,7 +33,7 @@
 <script>
 import {mapState} from 'vuex'
 
-import CalendarRow from '../CalendarRow.vue'
+import CalendarRow from './CalendarComponents/CalendarRow.vue'
 import moment from 'moment'
 export default {
   name: 'Calendar',

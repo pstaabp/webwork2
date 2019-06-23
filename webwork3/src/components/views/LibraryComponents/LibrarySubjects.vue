@@ -1,64 +1,42 @@
 <template>
-  <b-container>
-    <b-row  class="mb-3">
-      <b-col>
-        <b-select v-model="selected_subject" :options="subjects" value-field="name" text-field="name"
-            @change="subjectChange" size="sm">
-          <template slot="first">
-            <option :value="null" disabled>Select subject...</option>
-          </template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-select v-show="selected_subject!=null" v-model="selected_chapter" :options="chapters"
-        @change="chapterChange" value-field="name" text-field="name" size="sm">
-          <template slot="first">
-            <option :value="null">Select chapter...</option>
-          </template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-select v-show="selected_chapter!=null" v-model="selected_section" :options="sections"
-        value-field="name" text-field="name" size="sm" @change="sectionChange">
-          <template slot="first">
-            <option :value="null">Select section...</option>
-          </template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-btn size="sm" variant="outline-dark" @click="selectProblems">Select {{num_files}} Problems</b-btn>
-      </b-col>
-    </b-row>
-    <b-row v-if="get_problems.length > 0">
-      <b-col>
-        <b-pagination v-model="current_page" :total-rows="num_problems" :per-page="rows_per_page"
-              limit="10" size="sm"/>
-      </b-col>
-      <b-col>
-        {{current_page}}
-      </b-col>
-    </b-row>
-    <b-row>
-      <problem-view v-for="problem in get_problems" :key="problem.problem_id" :problem="problem" type="library"
-        @add-problem="addProblem"/>
-    </b-row>
-  </b-container>
+  <b-row  class="mb-3">
+    <b-col>
+      <b-select v-model="selected_subject" :options="subjects" value-field="name" text-field="name"
+          @change="subjectChange" size="sm">
+        <template slot="first">
+          <option :value="null" disabled>Select subject...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select v-show="selected_subject!=null" v-model="selected_chapter" :options="chapters"
+      @change="chapterChange" value-field="name" text-field="name" size="sm">
+        <template slot="first">
+          <option :value="null">Select chapter...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select v-show="selected_chapter!=null" v-model="selected_section" :options="sections"
+      value-field="name" text-field="name" size="sm" @change="sectionChange">
+        <template slot="first">
+          <option :value="null">Select section...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-btn size="sm" variant="outline-dark" @click="selectProblems">Select {{num_files}} Problems</b-btn>
+    </b-col>
+  </b-row>
 </template>
 
 
 
 <script>
 import axios from 'axios'
-import ProblemView from '../view_components/ProblemView.vue'
-import LibraryMixin from '@/mixins/library_mixin.js'
 
 export default {
   name: 'LibrarySubjects',
-  mixins: [LibraryMixin],
-  props: {
-    selected_set_id: String,
-    //problem_sets: ProblemSetList
-  },
   data: function () {
     return {
       subjects: [],
@@ -69,9 +47,6 @@ export default {
       selected_section: null,
       num_files: "",
     }
-  },
-  components: {
-    ProblemView
   },
   methods: {
     subjectChange: function(name){
@@ -102,22 +77,13 @@ export default {
     },
     selectProblems: function(){
       var url = "/webwork3/api/library/subjects/" + this.selected_subject;
-      if (this.selected_chapter != null){
-        url += "/chapters/" + this.selected_chapter;
-      }
-      if (this.selected_section != null){
-        url += "/sections/" + this.selected_section;
-      }
+      url += (this.selected_chapter != null) ?  "/chapters/" + this.selected_chapter : ''
+      url += (this.selected_section != null) ?  "/sections/" + this.selected_section : ''
       url += "/problems"
       url = encodeURI(url);
-      // eslint-disable-next-line
-      //console.log(url);
 
       axios.get(url).then(resp => {
-        // eslint-disable-next-line
-        //console.log(resp);
-        this.all_problems = resp.data;
-        this.current_page = 1;
+        this.$emit('load-problems',resp.data);
       }).catch(err => {
         // eslint-disable-next-line
         console.log(err);
@@ -137,10 +103,6 @@ export default {
             // eslint-disable-next-line
             console.log(err);
           });
-  },
-  selected_set_id: function(){
-    // eslint-disable-next-line
-    console.log(this.selected_set_id)
   }
 }
 </script>

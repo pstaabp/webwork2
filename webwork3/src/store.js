@@ -15,7 +15,7 @@ export default new Vuex.Store({
   },
   mutations: {
     UPDATE_LOGIN_INFO(state,_info) {
-      // copy over only fields in _info and create a new object, so changes are fired.  
+      // copy over only fields in _info and create a new object, so changes are fired.
       var obj = Object.assign({},state.login_info)
       Object.keys(_info).forEach(_key => {
         obj[_key] = _info[_key];
@@ -170,7 +170,7 @@ export default new Vuex.Store({
         console.log(error);
       })
     },
-
+    
     // Messages
     addMessage(context,_msg){
       context.commit("ADD_MESSAGE",_msg)

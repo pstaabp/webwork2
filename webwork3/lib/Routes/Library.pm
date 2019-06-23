@@ -34,7 +34,7 @@ get '/library/subjects' => sub {
 	    local $/;
 	    <$json_fh>
 	};
-	return decode_json($json_text);
+	return JSON->new->decode($json_text);
 
 };
 
@@ -326,15 +326,20 @@ get '/courses/:course_id/library/setDefinition' => sub {
 
 get '/library/textbooks' => sub {
 
+  debug 'in /library/textbooks';
+
 	my $webwork_dir = config->{webwork_dir};
 	my $file = "$webwork_dir/htdocs/DATA/textbook-tree.json";
+
+	debug $file;
+
 	my $json_text = do {
    		open(my $json_fh, "<:encoding(UTF-8)", $file)  or send_error("The file $file does not exist.",404);
 	    local $/;
 	    <$json_fh>
 	};
 
-	return $json_text;
+	return JSON->new->decode($json_text);
 
 };
 
@@ -348,8 +353,11 @@ get '/library/textbooks' => sub {
 
 get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
 
-	return searchLibrary(database,{section_id=>params->{section_id},textbook_id=>params->{textbook_id},
-			chapter_id=>params->{chapter_id}});
+	return searchLibrary(database,{
+			textbook_id=>route_parameters->{textbook_id},
+			chapter_id=>route_parameters->{chapter_id},
+			section_id=>route_parameters->{section_id}
+		});
 
 };
 
@@ -377,7 +385,7 @@ get '/library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
 
 get '/library/textbooks/:textbook_id/problems' => sub {
 
-	return searchLibrary(database,{textbook_id=>params->{textbook_id}});
+	return searchLibrary(database,{textbook_id=>route_parameters->{textbook_id}});
 
 };
 

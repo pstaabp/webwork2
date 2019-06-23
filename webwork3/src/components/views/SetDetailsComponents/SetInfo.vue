@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-sm set-info-table">
+  <table class="table table-sm set-info-table" v-if="problem_set.set_id">
     <tbody>
       <tr>
         <td class="header">Set Name</td><td>{{displaySet(problem_set.set_id)}}</td>
@@ -118,15 +118,7 @@ export default {
       return  this.problem_set.assignment_type =='proctored_gateway'},
     gateway: function () { return this.problem_set.assignment_type=='gateway' ||
         this.problem_set.assignment_type =='proctored_gateway'}
-  },
-  // watch: {
-  //   problem_sets: function(){
-  //     // eslint-disable-next-line
-  //     console.log("problem sets changed")
-  //     this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id)
-  //     Object.assign(this.set_params,this.problem_set);
-  //   }
-  // }
+  }
 }
 </script>
 

@@ -1,14 +1,16 @@
 <template>
-  <draggable handle=".drag-handle" @sort="reordered">
-    <ProblemView v-for="problem in getProblems" :key="problem.problem_id"
-        :problem="problem" type="set"/>
-  </draggable>
+  <div class="scrollable">
+    <draggable handle=".drag-handle" @sort="reordered">
+      <ProblemView v-for="problem in getProblems" :key="problem.problem_id"
+          :problem="problem" type="set"/>
+    </draggable>
+  </div>
 </template>
 
 
 
 <script>
-import ProblemView from '../view_components/ProblemView.vue'
+import ProblemView from '@/components/common_components/ProblemView.vue'
 import draggable from 'vuedraggable'
 
 export default {
@@ -27,8 +29,10 @@ export default {
   computed: {
     getProblems() {
       const sets = this.$store.state.problem_sets
-      return (sets === undefined || sets.length == 0) ? [] :
-          (sets.find(_set => _set.set_id == this.selected_set_id).problems || [])
+      if (sets === undefined || sets.length == 0){ return []}
+
+      const problem_set = sets.find(_set => _set.set_id == this.selected_set_id)
+      return problem_set === undefined ? [] : problem_set.problems;
     }
   }, // computed
   methods: {

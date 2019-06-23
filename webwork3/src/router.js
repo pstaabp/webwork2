@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import CourseList from '@/CourseList'
-import Manager from '@/Manager'
+import CourseList from '@/components/CourseList'
+import Manager from '@/components/Manager'
 import Login from '@/components/Login'
 import ProblemSetsManager from '@/components/views/ProblemSetsManager'
 import ClasslistManager from '@/components/views/ClasslistManager'
@@ -36,10 +36,10 @@ export default new VueRouter({
            { path: 'import-export', component: ImportExport},
            { path: 'editor', component: Editor},
            { path: 'statistics', component: Statistics}
-         ]}
-      ]
-    }
+         ]
+        }]
+      }]
+    },
+    {path: "*", component: PageNotFound}
   ]
-}
-]
 })

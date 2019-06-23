@@ -1,64 +1,45 @@
 <template>
-  <b-container>
-    <b-row>
-      <b-col>
-        <b-select size="sm" :options="dirs1" v-model="dir1" @change="dir1Change">
-          <template slot="first">
-            <option :value="null" disabled>Select a Library</option>
-          </template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-select size="sm"  :options="dirs2" v-model="dir2"
-          v-if="dirs2.length > 0" @change="dir2Change">
-          <template slot="first"><option :value="null" disabled>Select</option></template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-select size="sm"  :options="dirs3" v-model="dir3"
-          v-if="dirs3.length > 0" @change="dir3Change">
-          <template slot="first"><option :value="null" disabled>Select</option></template>
-        </b-select>
-      </b-col>
-      <b-col>
-        <b-select size="sm"  :options="dirs4" v-model="dir4"
-          v-if="dirs4.length > 0 " @change="dir4Change"/>
-      </b-col>
-      <b-col>
-        <b-select size="sm"  :options="dirs5" v-model="dir5"
-          v-if="dirs5.length > 0 " @change="dir5Change"/>
-      </b-col>
-      <b-col>
-        <b-btn size="sm" variant="outline-dark" @click="loadProblems"
-          :disabled="dir2 == null">Load {{load_num}} Problems</b-btn>
-      </b-col>
-    </b-row>
-    <b-row v-if="get_problems.length > 0">
-      <b-col>
-        <b-pagination v-model="current_page" :total-rows="num_problems" :per-page="rows_per_page"
-              limit="10" size="sm"/>
-      </b-col>
-      <b-col>
-        {{current_page}}
-      </b-col>
-    </b-row>
-    <b-row>
-      <problem-view v-for="problem in get_problems" :key="problem.problem_id" :problem="problem" type="library"
-        @add-problem="addProblem"/>
-    </b-row>
-  </b-container>
+  <b-row>
+    <b-col>
+      <b-select size="sm" :options="dirs1" v-model="dir1" @change="dir1Change">
+        <template slot="first">
+          <option :value="null" disabled>Select a Library</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select size="sm"  :options="dirs2" v-model="dir2"
+        v-if="dirs2.length > 0" @change="dir2Change">
+        <template slot="first"><option :value="null" disabled>Select</option></template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select size="sm"  :options="dirs3" v-model="dir3"
+        v-if="dirs3.length > 0" @change="dir3Change">
+        <template slot="first"><option :value="null" disabled>Select</option></template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select size="sm"  :options="dirs4" v-model="dir4"
+        v-if="dirs4.length > 0 " @change="dir4Change"/>
+    </b-col>
+    <b-col>
+      <b-select size="sm"  :options="dirs5" v-model="dir5"
+        v-if="dirs5.length > 0 " @change="dir5Change"/>
+    </b-col>
+    <b-col>
+      <b-btn size="sm" variant="outline-dark" @click="loadProblems"
+        :disabled="dir2 == null">Load {{load_num}} Problems</b-btn>
+    </b-col>
+  </b-row>
 </template>
 
 
 <script>
 import axios from 'axios'
-import LibraryMixin from '@/mixins/library_mixin.js'
-import ProblemView from '@/components/views/view_components/ProblemView'
 
 export default {
   name: "LibraryDirectory",
-  mixins: [LibraryMixin],
-  components: {ProblemView},
   data: function(){
     return {
       dirs1: [
@@ -74,9 +55,8 @@ export default {
       dir3: null,
       dir4: null,
       dir5: null,
-      library: [],
-      OPL: [],
-      load_num: 0,
+      load_num : 0,
+      OPL: []
     }
   },
   methods: {
@@ -116,7 +96,9 @@ export default {
       const dir = [this.dir1,this.dir2, this.dir3,this.dir4,this.dir5]
         .filter(_dir => _dir != null).join("/")
       axios.get("/webwork3/api/library/directories/"+dir)
-        .then((response)=>{ this.all_problems = response.data });
+        .then((response)=>{
+          this.$emit('load-problems',response.data);
+        }); 
     }
   },
   mounted(){

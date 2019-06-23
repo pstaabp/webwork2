@@ -1,41 +1,45 @@
 <template>
-  <b-container>
-    <b-row>
-      <b-col cols="3">
-        <b-form-group label="Select from" label-cols="6">
-        <b-select size="sm" v-model="problem_type">
-          <option value="set">Existing Set</option>
-          <option value="library">Problem Library</option>
-          <option value="template">From Template</option>
-        </b-select></b-form-group>
-      </b-col>
-      <b-col v-if="problem_type=='set'" cols="3">
-        <b-form-group label="Set Name:" label-cols="4">
-          <b-select size="sm" v-model="selected_set_id" :options="getSetNames">
+  <div>
+    <b-container>
+      <b-row>
+        <b-col>
+          <b-form-group label="Select from" label-cols="6">
+          <b-select size="sm" v-model="problem_type">
+            <option value="set">Existing Set</option>
+            <option value="library">Problem Library</option>
+            <option value="template">From Template</option>
+          </b-select></b-form-group>
+        </b-col>
+        <b-col v-if="problem_type=='set'" cols="3">
+          <b-form-group label="Set Name:" label-cols="4">
+            <b-select size="sm" v-model="selected_set_id" :options="getSetNames">
 
-          </b-select>
-        </b-form-group>
-      </b-col>
-      <b-col v-if="problem_type=='set'" cols="3">
-        <b-form-group label="Problem:" label-cols="4">
-          <b-select size="sm" v-model="selected_problem" :options="getProblems"
-              @change="updateSource"/>
-        </b-form-group>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-tabs content-class="mt-3">
-        <b-tab title="Problem Source" active>
-          <div>This problem is from the library and is read-only.  Please select "Save As..."
-            to create a local, editable copy.</div>
-          <codemirror id="source" :value="problem_source" :options="cm_opts" />
-        </b-tab>
-        <b-tab title="Rendered Problem" @click="render">
-          <div v-html="problem_html" />
-        </b-tab>
-      </b-tabs>
-    </b-row>
-  </b-container>
+            </b-select>
+          </b-form-group>
+        </b-col>
+        <b-col v-if="problem_type=='set'" cols="3">
+          <b-form-group label="Problem:" label-cols="4">
+            <b-select size="sm" v-model="selected_problem" :options="getProblems"
+                @change="updateSource"/>
+          </b-form-group>
+        </b-col>
+        <b-col><b-btn size="sm" variant="outline-dark" v-b-modal.save-as-problem-modal>Save Problem As...</b-btn></b-col>
+      </b-row>
+      <b-row>
+        <b-tabs content-class="mt-3">
+          <b-tab title="Problem Source" active>
+            <div v-if="not_editable">This problem is from the library and is read-only.  Please select "Save As..."
+              to create a local, editable copy.</div>
+            <codemirror id="source" :value="problem_source" :options="cm_opts" />
+          </b-tab>
+          <b-tab title="Rendered Problem" @click="render">
+            <div v-html="problem_html" />
+          </b-tab>
+        </b-tabs>
+      </b-row>
+    </b-container>
+    <save-as-problem-modal />
+  </div>
 </template>
 
 <script>
@@ -44,12 +48,13 @@ import axios from 'axios'
 import { codemirror } from 'vue-codemirror-lite'
 require('codemirror/mode/perl/perl')
 import 'codemirror/theme/paraiso-light.css'
-//import 'codemirror/mode/javascript/javascript.js'
+
+import SaveAsProblemModal from "./EditorComponents/SaveAsProblemModal"
 
 export default {
   name: "Editor",
   components: {
-    codemirror
+    codemirror, SaveAsProblemModal
   },
   data: function(){
     return {
@@ -57,6 +62,7 @@ export default {
       selected_set_id: "",
       selected_problem: 0,
       problem_source: "",
+      problem_path: "",
       problem_html: "",
       cm_opts: {
         mode: 'perl',
@@ -72,6 +78,9 @@ export default {
     getProblems(){
       const _set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id );
       return _set ? _set.problems.map(_prob => _prob.problem_id) : []
+    },
+    not_editable(){
+      return /^Library/.test(this.problem_path)
     }
   },
   methods: {
@@ -80,6 +89,7 @@ export default {
       const _prob = _set.problems.find(_prob => _prob.problem_id == this.selected_problem);
       // eslint-disable-next-line
       console.log(_prob);
+      this.problem_path = _prob.source_file;
       axios.get("/webwork3/api/courses/" + this.login_info.course_id + "/library/fullproblem",{params: _prob})
             .then((response) => {
               // eslint-disable-next-line
@@ -96,6 +106,9 @@ export default {
           console.log(response.data);
           this.problem_html = response.data.text;
         })
+    },
+    saveAs(){
+
     }
   },
   updated() {
