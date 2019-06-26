@@ -357,7 +357,7 @@ get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/p
 			textbook_id=>route_parameters->{textbook_id},
 			chapter_id=>route_parameters->{chapter_id},
 			section_id=>route_parameters->{section_id}
-		});
+		},\&debug);
 
 };
 

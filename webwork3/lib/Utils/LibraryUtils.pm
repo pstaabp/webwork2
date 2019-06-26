@@ -229,12 +229,12 @@ sub get_section_problems {
 ###
 
 sub searchLibrary {
-	my ($db,$p) = @_;
+	my ($db,$p,$debug) = @_;  # pass in the debug function as \&debug
 
-    # if no params are passed return an empty array.
-    if(!defined($p)){
-        return [];
-    }
+  # if no params are passed return an empty array.
+  if(!defined($p)){
+      return [];
+  }
 
 	# escape the ' in any parameter.
 
@@ -354,7 +354,7 @@ sub searchLibrary {
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
 
-    &$debug ($selectClause . $whereClause . $groupClause . ";");
+    &$debug($selectClause . $whereClause . $groupClause . ";");
 
     my $results = $db->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
 
