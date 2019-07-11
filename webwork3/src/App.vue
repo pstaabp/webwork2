@@ -4,7 +4,7 @@
     <b-navbar id="footer" fixed="bottom">
       <b-navbar-nav :small="true">
         <b-nav-item href="http://webwork.maa.org">WeBWorK</b-nav-item>
-        <b-nav-text>&#xa9;1996-2019</b-nav-text>
+        <b-nav-text>©1996-2019</b-nav-text>
       </b-navbar-nav>
     </b-navbar>
   </div>

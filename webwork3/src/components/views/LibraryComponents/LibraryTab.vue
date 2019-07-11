@@ -3,7 +3,8 @@
     <library-subjects v-if="tab_name == 'subjects'" @load-problems="loadProblems"/>
     <library-directory v-if="tab_name == 'directory'" @load-problems="loadProblems"/>
     <library-textbooks v-if="tab_name == 'textbooks'" @load-problems="loadProblems"/>
-    <b-row v-if="get_problems.length > 0">
+    <local-library v-if="tab_name == 'local'" @load-problems="loadProblems"/>
+    <b-row v-if="get_problems.length > 0" class="mt-2">
       <b-col>
         <b-pagination v-model="current_page" :total-rows="num_problems" :per-page="rows_per_page"
         limit="10" size="sm"/>
@@ -41,13 +42,14 @@ import {mapState} from 'vuex'
 import LibrarySubjects from './LibrarySubjects'
 import LibraryDirectory from './LibraryDirectory'
 import LibraryTextbooks from './LibraryTextbooks'
+import LocalLibrary from './LocalLibrary'
 import ProblemView from '@/components/common_components/ProblemView'
 
 export default {
   name: "LibraryTab",
   components: {
     LibrarySubjects, LibraryDirectory, LibraryTextbooks,
-    ProblemView
+    ProblemView, LocalLibrary
   },
   props: {
     problem_sets: Array,

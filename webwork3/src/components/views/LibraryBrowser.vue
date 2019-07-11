@@ -9,7 +9,9 @@
     <b-tab title="Textbooks">
       <library-tab tab_name="textbooks" :problem_sets="problem_sets" />
     </b-tab>
-    <b-tab title="Local Prob."><h3>Browse local problems</h3></b-tab>
+    <b-tab title="Local Prob.">
+      <library-tab tab_name="local" :problem_sets="problem_sets" />
+    </b-tab>
     <b-tab title="Set Defn. files"><h3>Browse Set Definition Files</h3></b-tab>
     <b-tab title="Search"><h3>Search the Library</h3></b-tab>
     <b-tab title="Pending"><h3>Browse pending problems</h3></b-tab>
@@ -20,15 +22,12 @@
 
 <script>
 import {mapState} from 'vuex'
-// tab components
+
 import LibraryTab from './LibraryComponents/LibraryTab'
-// import LibrarySubjects from './LibraryComponents/LibrarySubjects'
-// import LibraryDirectory from './LibraryComponents/LibraryDirectory'
 
 export default {
   name: 'SetDetails',
   components: {
-    //LibrarySubjects, LibraryDirectory
     LibraryTab
   },
   computed: {

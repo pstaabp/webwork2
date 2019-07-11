@@ -354,19 +354,21 @@ sub searchLibrary {
 		$whereClause .="sect.name='".$param->{textbook_section}."' ";
 	}
 
+	if(defined &$debug){
     &$debug($selectClause . $whereClause . $groupClause . ";");
+	}
 
-    my $results = $db->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
+  my $results = $db->selectall_arrayref($selectClause . $whereClause . $groupClause . ";");
 
-    my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
-    my @lib_bools = qw/mlt_leader/;
+  my @problems = map { {source_file => "Library/" . $_->[0], pgfile_id=>$_->[1], morelt_id => $_->[2]} } @{$results};
+  my @lib_bools = qw/mlt_leader/;
 
-    my $sorted_probs = sortByMLT($db,\@problems);
-    for my $prob (@$sorted_probs){
-        convertBooleans($prob, \@lib_bools);
-    }
+  my $sorted_probs = sortByMLT($db,\@problems);
+  for my $prob (@$sorted_probs){
+      convertBooleans($prob, \@lib_bools);
+  }
 
-    return $sorted_probs;
+  return $sorted_probs;
 }
 
 ###

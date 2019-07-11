@@ -6,8 +6,6 @@
 
 package Routes::Library;
 
-#use strict;
-#use warnings;
 use Dancer2 appname => "Routes::Login";
 use Dancer2::Plugin::Database;
 use Dancer2::FileUtils qw/read_file_content/;
@@ -15,10 +13,14 @@ use Data::Dump qw/dump dd/;
 use Path::Class;
 use File::Find::Rule;
 use File::Slurp;
+use List::MoreUtils qw/uniq/;
+
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;
 use Utils::LibraryUtils qw/list_pg_files searchLibrary getProblemTags render render2/;
 use Utils::ProblemSets qw/record_results/;
 use HTML::Entities qw/decode_entities/;
+
+
 use WeBWorK::DB::Utils qw(global2user);
 use WeBWorK::Utils::Tasks qw(fake_user fake_set fake_problem);
 use WeBWorK::PG::Local;
@@ -150,27 +152,49 @@ get '/library/directories/**' => sub {
 #
 ####
 
+### this subroutine returns all of the pg files in the given directory and subdirectories
+### in a recursive manner.
+
+sub get_pg_files_in_dir {
+	my $dir = shift;
+
+	debug $dir;
+
+	my @files = File::Find::Rule->file()->relative()->name("*.pg")->maxdepth(1)->in($dir);
+	if(scalar(@files)==0){
+		return {};
+	}
+
+	my @subdirs = File::Find::Rule->directory()
+															->maxdepth(1)
+															->mindepth(1)
+                              ->not_name("Pending")
+                              ->not_name("Library")
+                              ->in($dir);
+	debug \@subdirs;
+
+	my @other = ();
+
+	for my $subdir (@subdirs){
+		my $fred = get_pg_files_in_dir($subdir);
+		if(keys(%$fred)){
+			push(@other,$fred);
+		}
+	}
+	debug \@other;
+	if (scalar(@other)>0){
+		return {base=>dir($dir)->basename, files=>\@files, subdirs=>\@other}
+	} else {
+		return {base => dir($dir)->basename, files=>\@files};
+	}
+
+
+}
+
 get '/courses/:course_id/library/local' => sub {
 
 	## still need to search for directory with single files and others with ignoreDirectives.
-
-	my $path = dir(vars->{ce}->{courseDirs}{templates});
-	my $probLibs = vars->{ce}->{courseFiles}{problibs};
-
-	my $libPath = $path . "/" . "Library";  # hack to get this to work.  Need to make this more robust.
-
-  my @dirs = File::Find::Rule->directory()
-                              ->not_name("Pending")
-                              ->not_name("Library")
-                              ->in($path->stringify);
-
-  my @files = File::Find::Rule->file()->name("*.pg")->in(@dirs);
-
-  my @parentDirectories = distinct (map { file($_)->parent()->stringify() } @files);
-
-
-	my @allFiles =  map { my $f = file($_); {source_file=>file($_)->relative($path)->stringify} }@files;
-	return \@allFiles;
+	return get_pg_files_in_dir(dir(vars->{ce}->{courseDirs}{templates}));
 
 };
 
@@ -237,20 +261,25 @@ get '/courses/:course_id/local/testing' => sub {
 
 get '/courses/:course_id/problems/local/**' => sub {
 
-  my ($courseID,$dirpath) = splat;
+	my ($dirs) = splat;
+	my @dirs = @{$dirs};
 
-  setCourseEnvironment($courseID);
+	shift(@dirs) if($dirs[0] eq "templates");
+  Routes::Login::setCourseEnvironment(route_parameters->{course_id});
 
-  my @dirs = @$dirpath;
-  my $selectedDir = dir(vars->{ce}->{courseDirs}{templates},dir(@dirs)->relative(dir("problems","local")));
+	my $path = dir(vars->{ce}->{courseDirs}{templates},@dirs);
 
+	if($path->is_dir){
+	  my $localDir = dir(vars->{ce}->{courseDirs}{templates});
 
-  my $localDir = dir(vars->{ce}->{courseDirs}{templates});
+	  my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($path->stringify);
+	  my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
 
-  my @files = File::Find::Rule->extras({ follow => 1 })->file()->name("*.pg")->in($selectedDir->stringify);
-  my @allFiles = map { {source_file => file($_)->relative($localDir)->stringify }} @files;
-
-  return \@allFiles;
+	  return \@allFiles;
+	} else {
+		my $content = read_file_content($path);
+		return {content=>$content};
+	}
 };
 
 #######
@@ -343,6 +372,10 @@ get '/library/textbooks' => sub {
 
 };
 
+get '/library/textbooks/sections/:section_id/problems' => sub {
+  return searchLibrary(vars->{db},{section_id => route_parameters->{section_id}});
+};
+
 ####
 #
 #  get '/Library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems'
@@ -351,29 +384,14 @@ get '/library/textbooks' => sub {
 #
 ##
 
-get '/library/textbooks/:textbook_id/chapters/:chapter_id/sections/:section_id/problems' => sub {
+get '/library/textbooks/chapters/:chapter_id/problems' => sub {
 
 	return searchLibrary(database,{
-			textbook_id=>route_parameters->{textbook_id},
-			chapter_id=>route_parameters->{chapter_id},
-			section_id=>route_parameters->{section_id}
+			chapter_id=>route_parameters->{chapter_id}
 		},\&debug);
 
 };
 
-####
-#
-#  get '/Library/textbooks/:textbook_id/chapters/:chapter_id/problems'
-#
-#  returns all problems in the given textbook/chapter
-#
-##
-
-get '/library/textbooks/:textbook_id/chapters/:chapter_id/problems' => sub {
-
-	return searchLibrary(database,{textbook_id=>params->{textbook_id},chapter_id=>params->{chapter_id}});
-
-};
 
 ####
 #

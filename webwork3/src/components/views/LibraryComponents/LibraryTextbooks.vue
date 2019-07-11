@@ -44,26 +44,32 @@ export default {
   },
   watch: {
     textbook() {
-      const _textbook = this.textbook_data.find(_tb => _tb.name == this.textbook);
-      this.chapters = _textbook.subfields.map(_ch => _ch.name);
+      const _textbook = this.textbook_data.find(_tb => _tb.textbook_id == this.textbook);
+      this.chapters = _textbook.subfields.map(_ch => {return { text: _ch.name, value: _ch.chapter_id}});
       this.num_files = _textbook.num_files;
       this.chapter = this.section = null;
     },
     chapter() {
-      const _textbook = this.textbook_data.find(_tb => _tb.name == this.textbook);
-      this.chapters = _textbook.subfields.map(_ch => _ch.name);
-      const _chapter = _textbook.subfields.find(_ch => _ch.name == this.chapter);
-      this.sections = _chapter.subfields.map(_sect => _sect.name);
-      this.num_files = _chapter.num_files;
+      const _textbook = this.textbook_data.find(_tb => _tb.textbook_id == this.textbook);
+      this.chapters = _textbook.subfields.map(_ch => {return { text: _ch.name, value: _ch.chapter_id}});
+      const _chapter = _textbook.subfields.find(_ch => _ch.chapter_id == this.chapter);
+      if(_chapter){
+        this.sections = _chapter.subfields.map(_sect => {return {text: _sect.name, value: _sect.section_id}});
+        this.num_files = _chapter.num_files;
+      }
       this.section = null;
     }
   },
   methods: {
     loadProblems(){
-      var url = "/webwork3/api/library/textbooks/" + this.textbook;
-      url += this.chapter ? "/chapters/" + this.chapter : "";
-      url += this.section ? "/sections/" + this.section : "";
-      url += "/problems"
+      var url = "/webwork3/api/library/textbooks/";
+      if(this.section){
+        url += "sections/" + this.section + "/problems"
+      } else if(this.chapter){
+        url += "chapters/" + this.chapter + "/problems"
+      } else {
+        url += this.textbook +"/problems";
+      }
       axios.get(url)
         .then((response)=>{
           this.$emit('load-problems',response.data);
@@ -74,7 +80,7 @@ export default {
     axios.get("/webwork3/api/library/textbooks")
       .then((response) => {
         this.textbook_data = response.data;
-        this.textbooks = this.textbook_data.map(_tb => _tb.name);
+        this.textbooks = this.textbook_data.map(_tb => {return {value: _tb.textbook_id, text: _tb.name}});
       })
   }
 }
