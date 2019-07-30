@@ -15,10 +15,10 @@ use Data::Dump qw(dump);
 
 sub authenticate_user {
   my ($self, $username, $password) = @_;
-  # $self->plugin->dsl->debug("In authenticate_user");
+  #$self->plugin->dsl->debug("In authenticate_user");
 
-  ## this works for login, but not sure in general. 
-  my $course_id = $self->plugin->app->config->{serializer}->{request}->{body_parameters}->{course_id};
+  ## this works for login, but not sure in general.
+  my $course_id = $self->plugin->app->config->{serializer}->{request}->{route_parameters}->{course_id};
 
   die "The course parameter must be set in the session" unless defined($course_id);
   my $ce = WeBWorK::CourseEnvironment->new({
@@ -71,10 +71,11 @@ sub get_user_roles {
     #$self->plugin->dsl->debug($username);
     my %roles = reverse %{$self->plugin->dsl->vars->{ce}->{userRoles}};
   	my $db = $self->plugin->dsl->vars->{db};
+    #$self->plugin->dsl->debug(dump $db);
   	my $permission = $db->getPermissionLevel($username);
+    # $self->plugin->dsl->debug($permission);
     # $self->plugin->dsl->debug(%roles);
     # $self->plugin->dsl->debug($username);
-    # $self->plugin->dsl->debug($permission);
     # $self->plugin->dsl->debug($roles{$permission->{permission}});
   	return [$roles{$permission->{permission}}];
 

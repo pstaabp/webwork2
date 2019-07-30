@@ -32,44 +32,40 @@ use Routes::User;
 #
 
 hook before => sub {
-
 	session course_id => route_parameters->{course_id} if defined(route_parameters->{course_id});
 	setCourseEnvironment(session 'course_id') if defined (session 'course_id');
 };
 
-
-get '/login' => sub {
-  debug 'in get /login';
-
-  return {};
-
-};
+sub login {
+	my ($user_id,$password) = @_;
 
 
-post '/courses/:course_id/login' => sub {
+
+}
+
+any ['get', 'post'] => '/courses/:course_id/login' => sub {
 
 	#debug "in POST /courses/:course_id/login";
-  my $username = query_parameters->{user_id} || body_parameters->{user_id};
+  my $user_id = query_parameters->{user_id} || body_parameters->{user_id};
 	my $password = query_parameters->{password} || body_parameters->{password};
 
-	my ($success, $realm) = authenticate_user($username,$password);
-
+	my ($success, $realm) = authenticate_user($user_id,$password);
 
 	if($success){
-		my $key = vars->{db}->getKey($username)->{key};
+		my $key = vars->{db}->getKey($user_id)->{key};
 		session key => $key;
-		session logged_in_user => $username;
+		session logged_in_user => $user_id;
 		session logged_in => true;
-    session logged_in_user_realm => $realm;
+		session logged_in_user_realm => $realm;
 
-		my $perm = vars->{db}->getPermissionLevel($username)->{permission};
-    my $user = vars->{db}->getUser($username);
+		my $perm = vars->{db}->getPermissionLevel($user_id)->{permission};
+		my $user = vars->{db}->getUser($user_id);
 
-    return {
-      first_name => $user->{first_name},
-      last_name => $user->{last_name},
+		return {
+			first_name => $user->{first_name},
+			last_name => $user->{last_name},
 			session_key=>$key,
-			user_id=>$username,
+			user_id=>$user_id,
 			logged_in=>true,
 			permission=>$perm
 		};
@@ -78,29 +74,9 @@ post '/courses/:course_id/login' => sub {
 		app->destroy_session;
 		return {logged_in=>false};
 	}
+
 };
 
-
-get '/courses/:course_id/login'  => require_login sub {
-
-    debug "here";
-
-    debug session->read("logged_in_user");
-
-    debug vars->{db}->getPermissionLevel(session->read("logged_in_user"));
-
-    my $perm = vars->{db}->getPermissionLevel(session->read("logged_in_user"))->{permission};
-    my $user = vars->{db}->getUser(session->read("logged_in_user"));
-
-    return {
-      first_name => $user->{first_name},
-      last_name => $user->{last_name},
-			session_key=>session->read("key"),
-			user_id=>session->read("logged_in_user"),
-			logged_in=>true,
-			permission=>$perm
-		};
-};
 
 post '/courses/:course_id/logout' => sub {
 

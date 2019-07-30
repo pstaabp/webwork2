@@ -52,7 +52,7 @@ get '/courses/:course_id/test-for-admin' => require_role admin => sub {
 get '/courses/:course_id/users/:user_id/roles' => sub {
 
 	my $user = get_user_details(route_parameters->{user_id});
-  
+
 	send_error("The user " . route_parameters->{user_id} . " must be a member of the course",424)
 		unless defined($user) && defined($user->{user_id});
 	return user_roles(route_parameters->{user_id});

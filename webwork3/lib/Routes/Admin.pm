@@ -152,7 +152,6 @@ get '/admin/courses/:course_id' => require_role admin => sub {
 ###
 ### currently just renames the course
 
-
 put '/admin/courses/:course_id' => require_role admin => sub {
 
   my $ce2 = new WeBWorK::CourseEnvironment({
@@ -170,7 +169,6 @@ put '/admin/courses/:course_id' => require_role admin => sub {
       skipDBRename=> body_parameters->{skipDBRename} || false,
 			dbOptions=> body_parameters->{db_options}
   };
-
 
 	my $renameCourse = renameCourse(%{$options});
 
