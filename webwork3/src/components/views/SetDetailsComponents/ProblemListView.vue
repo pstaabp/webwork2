@@ -10,36 +10,39 @@
 
 
 <script>
-import ProblemView from '@/components/common_components/ProblemView.vue'
-import draggable from 'vuedraggable'
+import {mapState} from 'vuex';
+import ProblemView from '@/components/common_components/ProblemView.vue';
+import draggable from 'vuedraggable';
 
 export default {
   name: 'ProblemListView',
   props: {
-    selected_set_id: String
+    selected_set_id: String,
   },
   components: {
-    ProblemView, draggable
+    ProblemView, draggable,
   },
-  data: function() {
+  data() {
     return {
 
-    }
+    };
   },
   computed: {
+    ...mapState(['problem_sets']),
     getProblems() {
-      const sets = this.$store.state.problem_sets
-      if (sets === undefined || sets.length == 0){ return []}
+      const sets = this.problem_sets;
+      if (sets === undefined || sets.length === 0) {
+        return [];
+      }
 
-      const problem_set = sets.find(_set => _set.set_id == this.selected_set_id)
-      return problem_set === undefined ? [] : problem_set.problems;
-    }
+      const problemSet = sets.find( (set) => set.set_id === this.selected_set_id);
+      return problemSet === undefined ? [] : problemSet.problems;
+    },
   }, // computed
   methods: {
-    reordered(){
-      // eslint-disable-next-line
-      console.log("in update")
-    }
-  }
-}
+    reordered() {
+      // reorder the problems
+    },
+  },
+};
 </script>

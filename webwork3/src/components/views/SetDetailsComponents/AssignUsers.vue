@@ -58,39 +58,38 @@
 
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import {ProblemSetMixin} from '@/mixins/problem_set_mixin.js'
-//import common from '@/common.js'
+import { mapGetters, mapState } from 'vuex';
+import ProblemSetMixin from '@/mixins/problem_set_mixin';
 
 export default {
   name: 'AssignUsers',
   mixins: [ProblemSetMixin],
-  data: function(){
+  data() {
     return {
       assigned: [], // array of the checkboxes
-      fields: ["assigned","user_id","first_name","last_name"],
+      fields: ['assigned', 'user_id', 'first_name', 'last_name'],
       filter_out: /^set_id:/,
       selected_users: [], // which rows are selected
       per_page: 10,
-      current_page: 1
-    }
+      current_page: 1,
+    };
   },
   props: {
-    problem_set: Object
+    problem_set: Object,
   },
   computed: {
-    ...mapGetters(['getAssignedUsers','getUsers']),
+    ...mapGetters(['getAssignedUsers', 'getUsers']),
     ...mapState(['users']),
-    set_id(){
-      return this.problem_set ? this.problem_set.set_id : "";
-    }
+    set_id() {
+      return this.problem_set ? this.problem_set.set_id : '';
+    },
   },
-  watch:{
-    current_page: function(){
+  watch: {
+    current_page() {
       this.setSelectedCheckboxes();
-    }
+    },
   },
-  mounted(){ // TODO: handle proctor users in a better way.
+  mounted() { // TODO: handle proctor users in a better way.
     // this.$store.watch(() => this.getAssignedUsers(this.set_id),
     //     _users => { this.setSelectedCheckboxes() });
 
@@ -104,33 +103,34 @@ export default {
     // });
   },
   methods: {
-    removeProctors(obj1,obj2){
+    removeProctors(obj1, obj2) {
       return !obj2.test(obj1.user_id);
     },
     rowSelected(items) {
-      this.selected_users = items
+      this.selected_users = items;
     },
-    toggleAssigned(index){
-      this.assigned[index] = ! this.assigned[index]
+    toggleAssigned(index) {
+      this.assigned[index] = !this.assigned[index];
       // get this user id of the selected user
-      const user = this.getUsers[(this.current_page-1)*this.per_page+index].user_id;
-      if(this.assigned[index]){ // add the user to the assigned users
-        let _users = [...this.problem_set.assigned_users];
-        _users.push(user)
+      const user = this.getUsers[(this.current_page - 1) * this.per_page + index].user_id;
+      if (this.assigned[index]) { // add the user to the assigned users
+        const _users = [...this.problem_set.assigned_users];
+        _users.push(user);
         this.problem_set.assigned_users = _users;
       } else { // remove the user from the assigned users
-        this.problem_set.assigned_users = this.problem_set.assigned_users.filter(_u => _u != user)
+        this.problem_set.assigned_users = this.problem_set.assigned_users.filter( (_u) => _u !== user);
       }
 
 //      this.$store.dispatch("updateProblemSet",this.problem_set);
     },
-    setSelectedCheckboxes(){
-      const users = this.getUsers.filter((_u,i) => i<this.current_page*this.per_page && i>=(this.current_page-1)*this.per_page)
-      this.assigned = users.map(_u => this.problem_set.assigned_users.includes(_u.user_id))
+    setSelectedCheckboxes() {
+      const users = this.getUsers.filter((_u, i) => i < this.current_page * this.per_page &&
+                                                i >= (this.current_page - 1) * this.per_page);
+      this.assigned = users.map((user) => this.problem_set.assigned_users.includes(user.user_id));
     },
-    save(){
-
-    }
-  } // methods
-}
+    save() {
+      // save something here.
+    },
+  }, // methods
+};
 </script>

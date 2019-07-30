@@ -16,76 +16,85 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
-import moment from 'moment'
-import common from '@/common'
+import draggable from 'vuedraggable';
+import moment from 'moment';
+import Constants from '@/Constants';
+
 
 export default{
   name: 'CalendarRow',
   props: {
     first_day_of_week: Object,
-    problem_sets: Array
+    problem_sets: Array,
   },
   components: {
-    draggable
+    draggable,
   },
   computed: {
-    getWeek: function() {
-      const first=moment(this.first_day_of_week);
-      return [0,1,2,3,4,5,6].map(i=>moment(first).add(i,'days'));
-    }
+    getWeek() {
+      const first = moment(this.first_day_of_week);
+      return [0, 1, 2, 3, 4, 5, 6].map((i) => moment(first).add(i, 'days'));
+    },
   },
   watch: {
-    problem_sets(){
+    problem_sets() {
       // this is needed if the calendar is the initial view
       // however, it appears this is called many times more than needed.
       // is there a better place for this?
 
-      this.items = this.getWeek.map( day => this.assignmentOnDate(day));
-    }
+      this.items = this.getWeek.map( (day) => this.assignmentOnDate(day));
+    },
   },
-  data: function (){
+  data() {
     return {
       today: moment(),
-      items: []
-    }
+      items: [],
+    };
   },
   methods: {
-    formatDate: (_date) =>  common.formatDateForBrowser(_date),
-    shortDate: (day) => day.get('date')==1? day.format("MMM D") : day.get("date"),
-    inCurrentMonth: function(day) { return day.get("month") == this.today.get('month')},
-    isToday: function(day){ return this.onSameDay(day,this.today)},
-    assignmentOnDate: function(day) {
-      const _sets = this.problem_sets || [];
-      var all_dates = _sets.flatMap(_set => [
-          {date: moment.unix(_set.answer_date), type: "answer", set_id: _set.set_id},
-          {date: moment.unix(_set.due_date), type: "due", set_id: _set.set_id},
-          {date: moment.unix(_set.reduced_scoring_date), type: "reduced", set_id: _set.set_id},
-          {date: moment.unix(_set.open_date), type: "open", set_id: _set.set_id}]).
-            map( (d) => Object.assign(d, {id: d.set_id + "___" + d.type}) );
-      return all_dates.filter(_date => this.onSameDay(_date.date,day));
+    formatDate(_date) {
+      return Constants.formatDateForBrowser(_date);
     },
-    onSameDay: (day1,day2) => day1.get('date') == day2.get('date') &&
-                              day1.get('month') == day2.get('month') &&
-                              day1.get('year') == day2.get('year'),
-    assignChange: function(new_date,evt) {
-      if(evt.hasOwnProperty("added")){
-        const d = moment(new_date)
+    shortDate(day) {
+      return day.get('date') === 1 ? day.format('MMM D') : day.get('date');
+    },
+    inCurrentMonth(day) {
+      return day.get('month') === this.today.get('month');
+    },
+    isToday(day) {
+      return this.onSameDay(day, this.today);
+    },
+    assignmentOnDate(day) {
+      const _sets = this.problem_sets || [];
+      const allDates = _sets.flatMap( (_set) => [
+          {date: moment.unix(_set.answer_date), type: 'answer', set_id: _set.set_id},
+          {date: moment.unix(_set.due_date), type: 'due', set_id: _set.set_id},
+          {date: moment.unix(_set.reduced_scoring_date), type: 'reduced', set_id: _set.set_id},
+          {date: moment.unix(_set.open_date), type: 'open', set_id: _set.set_id}]).
+            map( (d) => Object.assign(d, {id: d.set_id + '___' + d.type}) );
+      return allDates.filter( (_date) => this.onSameDay(_date.date, day));
+    },
+    onSameDay: (day1, day2) => day1.get('date') === day2.get('date') &&
+                              day1.get('month') === day2.get('month') &&
+                              day1.get('year') === day2.get('year'),
+    assignChange(newDate, evt) {
+      if (evt.hasOwnProperty('added')) {
+        const d = moment(newDate);
 
         // adjust the time to be the same as the previous assignment time.
-        d.hours(evt.added.element.date.hours())
+        d.hours(evt.added.element.date.hours());
         d.minutes(evt.added.element.date.minutes());
-        var _set = Object.assign({},
-            this.problem_sets.find(_set => _set.set_id==evt.added.element.set_id)); // make a copy of the set
-        _set[evt.added.element.type+"_date"] = d.unix();
-        this.$store.dispatch("updateProblemSet",_set);
+        const _set = Object.assign({},
+            this.problem_sets.find(( _s) => _s.set_id === evt.added.element.set_id)); // make a copy of the set
+        _set[evt.added.element.type + '_date'] = d.unix();
+        this.$store.dispatch('updateProblemSet', _set);
       }
-    }
+    },
   },
-  created: function(){
-    this.items = this.getWeek.map( day => this.assignmentOnDate(day));
-  }
-}
+  created() {
+    this.items = this.getWeek.map( (day) => this.assignmentOnDate(day));
+  },
+};
 </script>
 
 <style scoped>

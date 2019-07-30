@@ -35,85 +35,78 @@
 
 
 <script>
-import axios from 'axios'
-import {mapState} from 'vuex'
+import axios from 'axios';
+import {mapState} from 'vuex';
 
 export default {
-  name: "LocalLibrary",
-  data: function (){
+  name: 'LocalLibrary',
+  data() {
     return {
       dir_info: {},
       dirs: {},
-      selection: {}
-    }
+      selection: {},
+    };
   },
   methods: {
-    loadProblems(){
-
-    },
-    // getDirectory(level){
-    //
-    // },
-
     // this opens either a directory or a file
     // Note: there are only 3 levels of directories.  Should write for more.
-    open(item,level){
-      var select = {}
-      for(var i = 0; i < level; i++){
-        select[i] = this.selection[i]
+    open(item, level) {
+      const select = {};
+      for (let i = 0; i < level; i++) {
+        select[i] = this.selection[i];
       }
       this.selection = select;
       this.selection[level] = item;
-      if(item.type=="dir"){
-        var dirs = {}
-        for(var i =0;i<level;i++){
+      if (item.type === 'dir') {
+        const dirs = {};
+        for (let i = 0; i < level; i++) {
           dirs[i] = this.dirs[i];
         }
-        var _dirs_tmp = [];
+        let _dirsTmp = [];
 
         // get the right level in the directory tree.  TODO: write recursively.
-        if(level==0){
-          _dirs_tmp = this.dir_info;
-        } else if(level==1){
-          _dirs_tmp = this.dir_info.subdirs.find(_dir => _dir.base == item.text);
-        } else if(level==2){
-          _dirs_tmp = this.dir_info.subdirs.find(_dir => _dir.base == this.selection[1].text);
-          _dirs_tmp = _dirs_tmp.subdirs.find(_dir => _dir.base == this.selection[2].text);
+        if (level === 0) {
+          _dirsTmp = this.dir_info;
+        } else if (level === 1) {
+          _dirsTmp = this.dir_info.subdirs.find( (_dir) => _dir.base === item.text);
+        } else if (level === 2) {
+          _dirsTmp = this.dir_info.subdirs.find( (_dir) => _dir.base === this.selection[1].text);
+          _dirsTmp = _dirsTmp.subdirs.find( (_dir) => _dir.base === this.selection[2].text);
         }
 
         // get all of the directories and filenames at the given level.
-        const _files_at_level = [
-              ...(_dirs_tmp.subdirs ? _dirs_tmp.subdirs.map(_dir => {return{type:"dir",text:_dir.base}}): []),
-              ..._dirs_tmp.files.map(_file => {return {type:"file",text: _file}})]
-        dirs[level] = _files_at_level;
-        this.dirs= dirs;
-      } else if (item.type=="file"){ // show the file in the
-        this.selection[level] = item
+        dirs[level] = [
+              ...(_dirsTmp.subdirs ? _dirsTmp.subdirs.map( (_dir) => ({type: 'dir', text: _dir.base})) : []),
+              ..._dirsTmp.files.map( (_file) => ({type: 'file', text: _file}) ),
+            ];
+        this.dirs = dirs;
+      } else if (item.type === 'file') { // show the file in the
+        this.selection[level] = item;
         // build the directory structure
-        const path = Object.keys(this.selection).map(key => this.selection[key].text).join("/")
-        // eslint-disable-next-line
+        const path = Object.keys(this.selection).map( (_key) => this.selection[_key].text).join('/');
+        // tslint:disable-next-line
         console.log(path)
-        axios.get("/webwork3/api/courses/" + this.login_info.course_id + "/problems/local/" + path)
-          .then((response)=>{
-            this.$emit('load-problems',response.data);
+        axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/problems/local/' + path)
+          .then((response) => {
+            this.$emit('load-problems', response.data);
           });
       }
-    }
+    },
   },
   computed: {
-    ...mapState(['login_info'])
+    ...mapState(['login_info']),
   },
-  mounted(){
-    axios.get("/webwork3/api/courses/" + this.login_info.course_id + "/library/local")
+  mounted() {
+    axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/library/local')
       .then( (response) => {
         this.dir_info = response.data;
-        this.open({type:"dir",text:"templates"},0)
-      })
-  }
-}
+        this.open({type: 'dir', text: 'templates'}, 0);
+      });
+  },
+};
 </script>
 
-<style>
+<style scoped>
 .list-group {
   height: 100px;
   overflow: scroll;

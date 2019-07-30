@@ -89,37 +89,39 @@
 
 
 <script>
-//import moment from 'moment'
-import common from '../../../common'
-import {ProblemSetMixin} from '../../../mixins/problem_set_mixin.js'
-import MessagesMixin from '@/mixins/messages_mixin.js'
+
+import ProblemSet from '@/models/ProblemSet';
+import ProblemSetMixin from '@/mixins/problem_set_mixin';
+import MessagesMixin from '@/mixins/messages_mixin';
 
 export default {
   name: 'SetInfo',
-  mixins: [ProblemSetMixin,MessagesMixin],
+  mixins: [ProblemSetMixin, MessagesMixin ],
   props: {
     problem_sets: Array,
-    problem_set: Object
+    problem_set: Object,
   },
-  data: function() {
+  data() {
     return {
       show_time: false,
       data_loaded: false,
-      pg_password: "" , // how to handle this?
+      pg_password: '' , // how to handle this?
       data_loading: true,
-      set_params: common.new_problem_set
-    }
+      set_params: new ProblemSet(),
+    };
   },
   computed: {
-    problemsLength: function (){
+    problemsLength() {
       return this.problem_set.problems ? this.problem_set.problems.length : 0;
     },
-    proctored: function () {
-      return  this.problem_set.assignment_type =='proctored_gateway'},
-    gateway: function () { return this.problem_set.assignment_type=='gateway' ||
-        this.problem_set.assignment_type =='proctored_gateway'}
-  }
-}
+    proctored() {
+      return  this.problem_set.assignment_type === 'proctored_gateway';
+    },
+    gateway() { return this.problem_set.assignment_type === 'gateway' ||
+        this.problem_set.assignment_type === 'proctored_gateway';
+    },
+  },
+};
 </script>
 
 <style scope>

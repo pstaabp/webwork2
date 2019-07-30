@@ -3,8 +3,8 @@
   </b-modal>
 </template>
 
-<script>
+<script lang="ts">
 export default {
-  name: "SaveAsProblemModal"
-}
+  name: 'SaveAsProblemModal',
+};
 </script>

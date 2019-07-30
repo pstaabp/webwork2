@@ -36,19 +36,25 @@
 
 
 
-<script>
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator';
+
+import User from '../../../models/User';
 
 
-export default {
-  name: 'EditUsers',
-  props: {
-    users: Array
-  },
-  methods: {
-    save(){
-      this.users.forEach( _user => this.$store.dispatch("updateUser",_user))
-      this.$bvModal.hide('edit-users-modal')
-    }
+@Component
+export default class EditUsersModel extends Vue {
+  public name!: 'EditUsers';
+   @Prop() private users!: User[];
+
+  constructor() {
+    super();
   }
+
+  private save(): void {
+    this.users.forEach( (_user) => this.$store.dispatch('updateUser', _user));
+    this.$bvModal.hide('edit-users-modal');
+  }
+
 }
 </script>

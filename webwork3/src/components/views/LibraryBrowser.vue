@@ -21,20 +21,21 @@
 
 
 <script>
-import {mapState} from 'vuex'
+import {mapState} from 'vuex';
 
-import LibraryTab from './LibraryComponents/LibraryTab'
+import LibraryTab from './LibraryComponents/LibraryTab';
 
 export default {
   name: 'SetDetails',
   components: {
-    LibraryTab
+    LibraryTab,
   },
   computed: {
     ...mapState(['problem_sets']),
-    getSelectedSet: function(){
-      return this.problem_sets.length == 0? "" : this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
+    getSelectedSet() {
+      return this.problem_sets.length === 0 ? '' :
+        this.problem_sets.find( (_set) => _set.set_id === this.selected_set_id);
     },
-  }
-}
+  },
+};
 </script>

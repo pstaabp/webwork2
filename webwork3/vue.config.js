@@ -1,3 +1,6 @@
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+    .BundleAnalyzerPlugin;
+
 module.exports = {
   devServer: {
     proxy: {
@@ -10,6 +13,11 @@ module.exports = {
         poll: true
     }
   },
-
-  publicPath: '/webwork3/'
+  // configureWebpack: {
+  //     plugins: [new BundleAnalyzerPlugin()]
+  // },
+  publicPath: '/webwork3/',
+  transpileDependencies: [
+    'vuex-module-decorators'
+  ]
 }

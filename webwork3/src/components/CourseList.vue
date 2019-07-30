@@ -20,21 +20,21 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
-  data: function () {
+  data() {
     return {
-      courses: []
-    }
+      courses: [],
+    };
   },
-  mounted(){
-    // eslint-disable-next-line
-    console.log("in courselist")
-    axios.get("/webwork3/api/courses")
+  mounted() {
+    // tslint:disable-next-line
+    console.log('in courselist');
+    axios.get('/webwork3/api/courses')
       .then( (response) => {
         this.courses = response.data;
-      })
-  }
-}
+      });
+  },
+};
 </script>

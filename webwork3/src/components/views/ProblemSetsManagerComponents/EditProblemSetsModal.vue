@@ -32,45 +32,50 @@
 
 
 <script>
-import common from '@/common.js'
+import ProblemSet from '@/models/ProblemSet';
 
-import {ProblemSetMixin} from '@/mixins/problem_set_mixin.js'
+import ProblemSetMixin from '@/mixins/problem_set_mixin';
 
 export default {
   name: 'EditProblemSetsModal',
-  data: function() {
+  data() {
     return {
-      problem_set: common.new_problem_set
-    }
+      problem_set: new ProblemSet(),
+    };
   },
   mixins: [ProblemSetMixin],
   props: {
-    selected_sets: Array
+    selected_sets: Array,
   },
   watch: {
     selected_sets() {
-      this.problem_set.open_date = Math.min(...this.selected_sets.map(_set => _set.open_date))
-      this.problem_set.reduced_scoring_date = Math.min(...this.selected_sets.map(_set => _set.reduced_scoring_date))
-      this.problem_set.due_date = Math.min(...this.selected_sets.map(_set => _set.due_date))
-      this.problem_set.answer_date = Math.min(...this.selected_sets.map(_set => _set.answer_date))
-
-    }
+      this.problem_set.open_date
+          = Math.min(...this.selected_sets.map( (_set) => _set.open_date));
+      this.problem_set.reduced_scoring_date
+          = Math.min(...this.selected_sets.map( (_set) => _set.reduced_scoring_date));
+      this.problem_set.due_date
+          = Math.min(...this.selected_sets.map( (_set) => _set.due_date));
+      this.problem_set.answer_date
+          = Math.min(...this.selected_sets.map( (_set) => _set.answer_date));
+    },
   },
   computed: {
-    getSetNames(){
-      return this.selected_sets.map(_set => _set.set_id).join(", ")
-    }
+    getSetNames() {
+      return this.selected_sets.map( (_set) => _set.set_id).join(', ');
+    },
   }, // computed
   methods: {
-    save(){
-      this.selected_sets.forEach( _set => {
-        const { enable_reduced_scoring,visible, open_date, reduced_scoring_date, due_date, answer_date } = this.problem_set;
-        Object.assign(_set,{ enable_reduced_scoring,visible, open_date, reduced_scoring_date, due_date, answer_date });
-        this.$store.dispatch("updateProblemSet",_set);
-      })
+    save() {
+      this.selected_sets.forEach( (_set) => {
+        const { enable_reduced_scoring, visible, open_date, reduced_scoring_date,
+            due_date, answer_date } = this.problem_set;
+        Object.assign(_set, { enable_reduced_scoring, visible, open_date,
+                              reduced_scoring_date, due_date, answer_date });
+        this.$store.dispatch('updateProblemSet', _set);
+      });
 
-      this.$bvModal.hide('edit-problem-sets-modal')
-    }
-  }
-}
+      this.$bvModal.hide('edit-problem-sets-modal');
+    },
+  },
+};
 </script>

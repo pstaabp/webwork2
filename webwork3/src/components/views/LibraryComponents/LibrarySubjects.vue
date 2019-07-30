@@ -33,11 +33,11 @@
 
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
   name: 'LibrarySubjects',
-  data: function () {
+  data() {
     return {
       subjects: [],
       chapters: [],
@@ -45,64 +45,66 @@ export default {
       selected_subject: null,
       selected_chapter: null,
       selected_section: null,
-      num_files: "",
-    }
+      num_files: '',
+    };
   },
   methods: {
-    subjectChange: function(name){
+    subjectChange(name) {
       this.selected_chapter = null;
       this.selected_section = null;
       this.current_page = 0;
-      const subjs = this.subjects.find(subj => subj.name==name);
+      const subjs = this.subjects.find( (subj) => subj.name === name);
       this.chapters = subjs.subfields;
       this.num_files = subjs.num_files;
     },
-    chapterChange: function(name){
-      this.selected_section = null
+    chapterChange(name) {
+      this.selected_section = null;
       this.current_page = 0;
-      if(name == null) {
+      if (name === null) {
         return;
       }
-      const chs = this.chapters.find(ch => ch.name==name);
+      const chs = this.chapters.find( (ch) => ch.name === name);
       this.sections = chs.subfields;
       this.num_files = chs.num_files;
     },
-    sectionChange: function(name){
+    sectionChange(name) {
       this.current_page = 0;
-      if(name == null) {
+      if (name == null) {
         return;
       }
-      const sect = this.sections.find(s => s.name==name)
+      const sect = this.sections.find( (_sect) => _sect.name === name);
       this.num_files = sect.num_files;
     },
-    selectProblems: function(){
-      var url = "/webwork3/api/library/subjects/" + this.selected_subject;
-      url += (this.selected_chapter != null) ?  "/chapters/" + this.selected_chapter : ''
-      url += (this.selected_section != null) ?  "/sections/" + this.selected_section : ''
-      url += "/problems"
+    selectProblems() {
+      let url = '/webwork3/api/library/subjects/' + this.selected_subject;
+      url += (this.selected_chapter != null) ?  '/chapters/' + this.selected_chapter : '';
+      url += (this.selected_section != null) ?  '/sections/' + this.selected_section : '';
+      url += '/problems';
       url = encodeURI(url);
 
-      axios.get(url).then(resp => {
-        this.$emit('load-problems',resp.data);
-      }).catch(err => {
-        // eslint-disable-next-line
+      axios.get(url).then( (response) => {
+        this.$emit('load-problems', response.data);
+      }).catch( (err) => {
+        // tslint:disable-next-line
         console.log(err);
       });
-    }
+    },
   },
   watch: {
-    view_problems: function(){
-      // eslint-disable-next-line
+    view_problems() {
+      // tslint:disable-next-line
       console.log(this.view_problems);
-    }
+    },
   },
-  created: function() {
+  created() {
     axios.get('/webwork3/api/library/subjects')
-          .then(response => (this.subjects = response.data))
-          .catch(err =>  {
-            // eslint-disable-next-line
-            console.log(err);
-          });
-  }
-}
+      .then( (response) => {
+        this.subjects = response.data;
+      })
+      .catch( (err) =>  {
+        // tslint:disable-next-line
+        console.log(err);
+      });
+  },
+};
 </script>

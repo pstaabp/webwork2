@@ -21,17 +21,17 @@
 
 
 <script>
-import SettingsTab from './SettingsComponents/SettingsTab.vue'
+import SettingsTab from './SettingsComponents/SettingsTab';
 
 export default {
   name: 'Settings',
   components: {
-    SettingsTab
+    SettingsTab,
   },
   methods: {
-    filterSettings(_cat) {
-      return this.$store.state.settings.filter(setting =>  setting.category == _cat);
-    }
-  }
-}
+    filterSettings(category) {
+      return this.$store.state.settings.filter( (setting) =>  setting.category === category);
+    },
+  },
+};
 </script>

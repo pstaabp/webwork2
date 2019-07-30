@@ -60,48 +60,64 @@
 
 
 
-<script>
-// components
-import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue'
-import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue'
-import EditUsersModal from './ClasslistComponents/EditUsersModal.vue'
-import common from '../../common.js'
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
 
-export default {
+
+// components
+import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue';
+import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue';
+import EditUsersModal from './ClasslistComponents/EditUsersModal.vue';
+import Constants from '@/Constants';
+import User from '@/models/User';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+@Component({
   name: 'ClasslistManager',
-  data: function () {
-      return {
-        fields: [
-          { key: 'user_id', sortable: true, label: "Login"},
-          { key: 'first_name', sortable: true,label: "First Name"},
-          { key: 'last_name', sortable: true, label: "Last Name"},
-          { key: 'email_address', sortable: false, label: "Email"},
-          { key: 'student_id', sortable: true, label: "Student ID"},
-          { key: 'status', sortable: true,formatter: "formatUserType"},
-          { key: 'section', sortable: true, label: "Sect."},
-          { key: 'recitation', sortable: true, label: "Rec."},
-          { key: 'comment', sortable: true, label: "Comment"},
-          { key: 'permission', sortable: true, label: "Permission", formatter: "formatPermission"}
-        ],
-        selected_users: [],
-        filter_string: "",
-        per_page: 10,
-        current_page: 1
-    }
-  },
   components: {
     ImportStudentsFile,
     ImportStudentsManually,
-    EditUsersModal
+    EditUsersModal,
   },
-  methods: {
-    formatUserType(value) { return common.user_types[value]},
-    formatPermission(value) { return common.permission_levels[value]},
-    rowSelected(rows){ this.selected_users = rows }
-  },
-  computed: {
-    getUsers() {return this.$store.state.users},
-  }
-}
+})
+export default class Manager extends Vue {
+  private fields =  [
+          { key: 'user_id', sortable: true, label: 'Login'},
+          { key: 'first_name', sortable: true, label: 'First Name'},
+          { key: 'last_name', sortable: true, label: 'Last Name'},
+          { key: 'email_address', sortable: false, label: 'Email'},
+          { key: 'student_id', sortable: true, label: 'Student ID'},
+          { key: 'status', sortable: true, formatter: 'formatUserType'},
+          { key: 'section', sortable: true, label: 'Sect.'},
+          { key: 'recitation', sortable: true, label: 'Rec.'},
+          { key: 'comment', sortable: true, label: 'Comment'},
+          { key: 'permission', sortable: true, label: 'Permission', formatter: 'formatPermission'},
+        ];
+  private selected_users: string[] = [];
+  private filter_string = '';
+  private per_page = 10;
+  private current_page = 1;
 
+  private formatUserType(value: string): string {
+    return Constants.userTypes()[value];
+  }
+
+  private formatPermission(value: string): string {
+    return Constants.userTypes()[value];
+  }
+
+  private rowSelected(rows: string[]): void {
+    this.selected_users = rows;
+  }
+
+  get users(): User[] {
+    return store.users.models();
+  }
+
+}
 </script>

@@ -58,62 +58,58 @@
 
 <script>
 import axios from 'axios';
-import {mapState} from 'vuex'
+import {mapState} from 'vuex';
 
 export default {
   name: 'ProblemView', // name of the view
   props: {
     problem: Object,
     type: String,
-    //problem_sets: ProblemSetList
+    // problem_sets: ProblemSetList
   },
-  data: function() {
+  data() {
     return {
-      html: "",
+      html: '',
       show_tags: false,
       show_path: false,
-    }
+    };
   },
   computed: mapState(['login_info']),
-  mounted: function () {
-    this.model = null,
+  mounted() {
+    this.model = null;
     this.fetchProblem();
   },
   methods: {
-    fetchProblem: function (other_params) {
-      this.html="";
-      axios.get("/webwork3/api/renderer/courses/"+this.login_info.course_id+"/problems/0",
-                  {params: Object.assign({},this.problem,other_params)})
-      .then( (response) => {
-        this.html = response.data.text
-      })
+    fetchProblem(otherParams) {
+      this.html = '';
+      axios.get('/webwork3/api/renderer/courses/' + this.login_info.course_id + '/problems/0',
+                  {params: Object.assign({}, this.problem, otherParams)})
+          .then( (response) => {
+            this.html = response.data.text;
+          });
     },
-    typeProp: function(prop){
-      return this.type=="library" ? LIB_PROB[prop] : SET_PROB[prop]
+    typeProp(prop) {
+      return this.type === 'library' ? LIB_PROB[prop] : SET_PROB[prop];
     },
-    addProblem: function(evt){
-      // eslint-disable-next-line
+    addProblem(evt) {
+      // tslint:disable-next-line
       console.log(evt);
     },
-    randomize: function(){
-      const new_seed = Math.floor(10000*Math.random());
-      // eslint-disable-next-line
-      console.log(new_seed);
-
-      this.fetchProblem({problem_seed: new_seed});
-    }
+    randomize() {
+      this.fetchProblem({problem_seed: Math.floor(10000 * Math.random())});
+    },
   },
   watch: {
-    problem: function () {
+    problem() {
       this.model = null;
       this.fetchProblem();
-    }
+    },
   },
-  updated: function () {
-  // eslint-disable-next-line
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-  }
-}
+  updated() {
+  // tslint:disable-next-line
+    MathJax.Hub.Queue(['Typeset',MathJax.Hub]);
+  },
+};
 
 const LIB_PROB = { // define characteristics of a library problem.
   numbered: false,
@@ -128,7 +124,7 @@ const LIB_PROB = { // define characteristics of a library problem.
   tags: true,
   path: true,
   target_set: true,
-}
+};
 
 const SET_PROB = { // define characteristics of a library problem.
   numbered: true,
@@ -142,8 +138,8 @@ const SET_PROB = { // define characteristics of a library problem.
   mark_all: true,
   tags: false,
   path: false,
-  target_set: false
-}
+  target_set: false,
+};
 </script>
 
 <style>

@@ -6,6 +6,6 @@
 
 <script>
 export default {
-  name: 'Overrides'
-}
+  name: 'Overrides',
+};
 </script>

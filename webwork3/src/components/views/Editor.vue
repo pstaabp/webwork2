@@ -43,80 +43,78 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
-import axios from 'axios'
-import { codemirror } from 'vue-codemirror-lite'
-require('codemirror/mode/perl/perl')
-import 'codemirror/theme/paraiso-light.css'
+import {mapState} from 'vuex';
+import axios from 'axios';
+import { codemirror } from 'vue-codemirror-lite';
+import perl from 'codemirror/mode/perl/perl';
+import 'codemirror/theme/paraiso-light.css';
 
-import SaveAsProblemModal from "./EditorComponents/SaveAsProblemModal"
+import SaveAsProblemModal from './EditorComponents/SaveAsProblemModal';
 
 export default {
-  name: "Editor",
+  name: 'Editor',
   components: {
-    codemirror, SaveAsProblemModal
+    codemirror, SaveAsProblemModal,
   },
-  data: function(){
+  data() {
     return {
-      problem_type: "set",
-      selected_set_id: "",
+      problem_type: 'set',
+      selected_set_id: '',
       selected_problem: 0,
-      problem_source: "",
-      problem_path: "",
-      problem_html: "",
+      problem_source: '',
+      problem_path: '',
+      problem_html: '',
       cm_opts: {
         mode: 'perl',
         theme: 'paraiso-light',
         height: 500,
-        readOnly: true
-      }
-    }
+        readOnly: true,
+      },
+    };
   },
-  computed:{
-    ...mapState(['problem_sets','login_info']),
-    getSetNames() { return this.problem_sets.map(_set => _set.set_id)},
-    getProblems(){
-      const _set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id );
-      return _set ? _set.problems.map(_prob => _prob.problem_id) : []
+  computed: {
+    ...mapState(['problem_sets', 'login_info']),
+    getSetNames() {
+      return this.problem_sets.map((_set) => _set.set_id);
     },
-    not_editable(){
-      return /^Library/.test(this.problem_path)
-    }
+    getProblems() {
+      const _set = this.problem_sets.find( (set) => set.set_id === this.selected_set_id );
+      return _set ? _set.problems.map((prob) => prob.problem_id) : [];
+    },
+    not_editable() {
+      return /^Library/.test(this.problem_path);
+    },
   },
   methods: {
-    updateSource(){
-      const _set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id );
-      const _prob = _set.problems.find(_prob => _prob.problem_id == this.selected_problem);
-      // eslint-disable-next-line
+    updateSource() {
+      const _set = this.problem_sets.find((set) => set.set_id === this.selected_set_id );
+      const _prob = _set.problems.find((prob) => prob.problem_id === this.selected_problem);
+      // tslint:disable-next-line
       console.log(_prob);
       this.problem_path = _prob.source_file;
-      axios.get("/webwork3/api/courses/" + this.login_info.course_id + "/library/fullproblem",{params: _prob})
+      axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/library/fullproblem', {params: _prob})
             .then((response) => {
-              // eslint-disable-next-line
+            // tslint:disable-next-line
               console.log(response);
-              this.problem_source = response.data.problem_source
-            })
+              this.problem_source = response.data.problem_source;
+            });
     },
-    render(){
-      // eslint-disable-next-line
-      console.log("in render")
-      axios.post("/webwork3/api/renderer",{source: this.problem_source})
-        .then((response) => {
-          // eslint-disable-next-line
-          console.log(response.data);
-          this.problem_html = response.data.text;
-        })
+    render() {
+      // tslint:disable-next-line
+      console.log('in render')
+      axios.post('/webwork3/api/renderer', {source: this.problem_source})
+            .then((response) => {
+              // tslint:disable-next-line
+              console.log(response.data);
+              this.problem_html = response.data.text;
+            });
     },
-    saveAs(){
-
-    }
   },
   updated() {
-    // eslint-disable-next-line
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-  }
-
-}
+    // tslint:disable-next-line
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+  },
+};
 </script>
 
 <style>

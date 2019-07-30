@@ -23,41 +23,39 @@
 </template>
 
 <script>
-import moment from 'moment'
+import moment from 'moment';
 
 export default {
-  name: "SettingsTab",
+  name: 'SettingsTab',
   props: {
-    setting: Object
+    setting: Object,
   },
-  data: function(){
+  data() {
     return {
       permission_levels : [
-        "guest","student","login_proctor","grade_proctor",
-        "ta","professor","admin"
-      ]
-    }
+        'guest', 'student', 'login_proctor', 'grade_proctor',
+        'ta', 'professor', 'admin',
+      ],
+    }; // return
   }, // data
   methods: {
-    parseTime: (_time) => moment(_time, "hh:mma").format("HH:mm"),
+    parseTime: (time) => moment(time, 'hh:mma').format('HH:mm'),
     update(target) {
-      // eslint-disable-next-line
-      console.log(target.value);
-      var _setting = this.setting;
-      _setting.value = target.value; 
-      this.$store.dispatch("updateSetting",_setting)
+      const setting = this.setting;
+      setting.value = target.value;
+      this.$store.dispatch('updateSetting', setting);
     },
-    showhelp(target,help_text){
-      const help_box = target.parentElement.parentElement.lastElementChild;
-      help_box.className = "help-box border p-2"
-      help_box.firstElementChild.innerHTML = help_text
+    showhelp(target, helpText) {
+      const helpBox = target.parentElement.parentElement.lastElementChild;
+      helpBox.className = 'help-box border p-2';
+      helpBox.firstElementChild.innerHTML = helpText;
     },
-    closeHelp(target){
-      target.parentElement.className = "help-box d-none"
-    }
-  }
+    closeHelp(target) {
+      target.parentElement.className = 'help-box d-none';
+    },
+  },
 
-}
+};
 
 </script>
 

@@ -10,15 +10,15 @@
 export default {
   name: 'ProblemSetsSidebar',
   methods: {
-    goto: function(evt){
-      // eslint-disable-next-line
+    goto(evt) {
+      // tslint:disable-next-line
       console.log(evt);
-    }
+    },
   },
   computed: {
-    getProblemSets(){
+    getProblemSets() {
       return this.$store.state.problem_sets;
-    }
-  }
-}
+    },
+  },
+};
 </script>

@@ -17,66 +17,68 @@
 
 
 <script>
-import common from '../../../common.js'
-import moment from 'moment'
+import ProblemSet from '@/models/ProblemSet';
+import moment from 'moment';
 
 export default {
-  data: function() {
+  data() {
     return {
-      problem_set: common.new_problem_set,
+      problem_set: new ProblemSet(),
       valid_name: true,
-      set_not_defined: true
-    }
+      set_not_defined: true,
+    };
   },
   props: {
-    problem_sets: Array
+    problem_sets: Array,
   },
   methods: {
-    validSetName(){
-      this.valid_name = /^[A-Za-z_][\w_]*$/.test(this.problem_set.set_id)
-      return this.valid_name
+    validSetName() {
+      this.valid_name = /^[A-Za-z_][\w_]*$/.test(this.problem_set.set_id);
+      return this.valid_name;
     },
-    setNotDefined(){
-      this.set_not_defined =  this.problem_sets.find(_set => _set.set_id==this.problem_set.set_id) === undefined
+    setNotDefined() {
+      this.set_not_defined =  this.problem_sets.find( (_set) => _set.set_id === this.problem_set.set_id) === undefined;
       return this.set_not_defined;
     },
-    feedback(){
-      if (!this.valid_name){
-        return "The name is not a valid name.";
-      } else if (! this.set_not_defined){
-        return "This name has already been used."
+    feedback() {
+      if (!this.valid_name) {
+        return 'The name is not a valid name.';
+      } else if (! this.set_not_defined) {
+        return 'This name has already been used.';
       }
-      return "";
+      return '';
     },
-    addProblemSet(modal_evt){
-      modal_evt.preventDefault()
-      if (!this.validSetName() || ! this.setNotDefined()) {return}
+    addProblemSet() {
+      modal_evt.preventDefault();
+      if (!this.validSetName() || ! this.setNotDefined()) {
+        return;
+      }
 
       // update all of the dates.
-      const time_assign_due_string =
-        this.$store.state.settings.find(_setting => _setting.var == "pg{timeAssignDue}").value
-      const time_assign_due = moment(time_assign_due_string,"hh:mma")
-      const open_date  = moment().add(7,'days').hour(time_assign_due.hour()).minute(time_assign_due.minute())
-      const due_date = moment(open_date).add(10,'days')
-      const reduced_scoring_date = moment(open_date).add(7,'days')
-      const answer_date = moment(due_date).add(7,'days')
+      const timeAssignDueString =
+        this.$store.state.settings.find( (_setting) => _setting.var === 'pg{timeAssignDue}').value;
+      const timeAssignDue = moment(timeAssignDueString, 'hh:mma');
+      const openDate  = moment().add(7, 'days').hour(time_assign_due.hour()).minute(time_assign_due.minute());
+      const dueDate = moment(open_date).add(10, 'days');
+      const reducedScoringDate = moment(open_date).add(7, 'days');
+      const answerDate = moment(due_date).add(7, 'days');
 
-      this.problem_set.open_date = open_date.unix()
-      this.problem_set.due_date = due_date.unix()
-      this.problem_set.reduced_scoring_date = reduced_scoring_date.unix()
-      this.problem_set.answer_date = answer_date.unix()
+      this.problem_set.open_date = openDate.unix();
+      this.problem_set.due_date = dueDate.unix();
+      this.problem_set.reduced_scoring_date = reducedScoringDate.unix();
+      this.problem_set.answer_date = answerDate.unix();
 
 
       // add to the store state:
-      this.$store.dispatch("newProblemSet",this.problem_set);
+      this.$store.dispatch('newProblemSet', this.problem_set);
       this.problem_set = common.new_problem_set;
 
       // Hide the modal manually
       this.$nextTick(() => {
-        this.$refs['add-prob-set-modal'].hide()
-      })
-    }
-  }
-}
+        this.$refs['add-prob-set-modal'].hide();
+      });
+    },
+  },
+};
 
 </script>

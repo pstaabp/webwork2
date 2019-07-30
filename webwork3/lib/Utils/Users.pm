@@ -28,7 +28,6 @@ sub get_one_user {
   my $permission = $db->getPermissionLevel($user_id);
   my $user_props = convertObjectToHash($user,\@boolean_user_props);
   $user_props->{permission} = $permission->{permission};
-  $user_props->{_id} = $user->{user_id};
 
   return $user_props;
 }

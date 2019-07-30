@@ -31,54 +31,53 @@
 
 
 <script>
-import {mapState} from 'vuex'
+import {mapState} from 'vuex';
 
-import CalendarRow from './CalendarComponents/CalendarRow.vue'
-import moment from 'moment'
+import CalendarRow from './CalendarComponents/CalendarRow.vue';
+import moment from 'moment';
 export default {
   name: 'Calendar',
   components: {
-    CalendarRow
+    CalendarRow,
   },
-  data: function () {
+  data() {
       return {
-        first_days: []
-      }
+        first_days: [],
+      };
   },
   computed: {
     ...mapState(['problem_sets']),
-    monthName: () => {
-      return moment().format("MMMM YYYY");
-    },
-    dayNames: () => {
-      return moment.weekdays();
-    }
+    monthName: () => moment().format('MMMM YYYY'),
+    dayNames: () => moment.weekdays(),
   },
   methods: {
-    shiftCalendar(week){
-      var first
-      if(week==0){
-        const now = moment()
-        first = moment().subtract(now.days(),'days')
-        while (first.get('month') == now.get('month')){
-          first = first.subtract(7,'days')
+    shiftCalendar(week) {
+      let first = null;
+      if (week === 0) {
+        const now = moment();
+        first = moment().subtract(now.days(), 'days');
+        while (first.get('month') === now.get('month')) {
+          first = first.subtract(7, 'days');
         }
       } else {
-        first = new moment({month: this. first_days[0].month, date: this.first_days[0].date,
-                  year: this.first_days[0].year})
-        first.add(week,"weeks")
+        first = new moment({
+          month: this. first_days[0].month,
+          date: this.first_days[0].date,
+          year: this.first_days[0].year,
+        });
+        first.add(week, 'weeks');
       }
       // this produces an array of the days of the first of the week.
-        this.first_days = [0,1,2,3,4,5].map(i=>{
-          var d = moment(first).add(i*7,'days');
-          return {month: d.get('month'), date: d.get('date'), year: d.get('year')}
-        });
-    }
+      this.first_days = [0, 1, 2, 3, 4, 5].map( (i) => {
+        const d = moment(first).add(i * 7, 'days');
+        return {month: d.get('month'), date: d.get('date'), year: d.get('year')};
+      });
+    },
   },
-  created: function () {
+  created() {
     this.shiftCalendar(0);
-  }
-}
+  },
+};
 </script>
 
 <style>

@@ -22,19 +22,19 @@
 export default {
   name: 'LibraryOptionsSidebar',
   props: {
-    //problem_sets: ProblemSetList,
-    selected_set_id: String
+    // problem_sets: ProblemSetList,
+    selected_set_id: String,
   },
-  data: function(){
+  data() {
     return {
-      selected_set: null
-    }
+      selected_set: null,
+    };
   },
   computed: {
-    getProblemSets(){
+    getProblemSets() {
       return this.$store.state.problem_sets;
-    }
-  }
+    },
+  },
 
-}
+};
 </script>

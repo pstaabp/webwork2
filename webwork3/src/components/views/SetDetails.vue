@@ -22,70 +22,70 @@
 
 
 <script>
-import {mapState} from 'vuex'
+import {mapState} from 'vuex';
 
-import SetInfo from './SetDetailsComponents/SetInfo.vue'
-import ProblemListView from './SetDetailsComponents/ProblemListView.vue'
-import AssignUsers from './SetDetailsComponents/AssignUsers.vue'
-import SetHeaders from './SetDetailsComponents/SetHeaders.vue'
+import SetInfo from './SetDetailsComponents/SetInfo';
+import ProblemListView from './SetDetailsComponents/ProblemListView';
+import AssignUsers from './SetDetailsComponents/AssignUsers';
+import SetHeaders from './SetDetailsComponents/SetHeaders';
 
-import common from '../../common.js'
+import ProblemSet from '@/models/ProblemSet';
 
 export default {
   name: 'SetDetails',
-  data: function () {
+  data() {
       return {
         selected_set_id: null,
-        problem_set: common.new_problem_set,
-        data_loading : true
-      }
+      problem_set: new ProblemSet(),
+        data_loading : true,
+      };
   },
   components: {
     SetInfo,
     ProblemListView,
     AssignUsers,
-    SetHeaders
+    SetHeaders,
   },
   computed: {
-    ...mapState(['problem_sets'])
+    ...mapState(['problem_sets']),
   },
   watch: {
-    selected_set_id(){
-      this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
+    selected_set_id() {
+      this.problem_set = this.problem_sets.find( (_set) => _set.set_id === this.selected_set_id);
     },
-    problem_sets(){
-      this.problem_set = this.problem_sets.find(_set => _set.set_id == this.selected_set_id);
+    problem_sets() {
+      this.problem_set = this.problem_sets.find( (_set) => _set.set_id === this.selected_set_id);
     },
     problem_set: {
-      handler: function(){
+      handler() {
 
-        if(this.data_loading){
+        if (this.data_loading) {
           this.data_loading = false;
           return;
         }
-        if(this.validReducedScoring && this.validDueDate && this.validAnswerDate){
+        if (this.validReducedScoring && this.validDueDate && this.validAnswerDate) {
 
-          Object.assign(this.problem_set,this.msgUpdateProblemSet(this.set_params,this.problem_set))
-          this.$store.dispatch("updateProblemSet",this.problem_set)
-          this.set_params = Object.assign({},this.problem_set);
+          Object.assign(this.problem_set, this.msgUpdateProblemSet(this.set_params, this.problem_set));
+          this.$store.dispatch('updateProblemSet', this.problem_set);
+          this.set_params = Object.assign({}, this.problem_set);
         }
       },
-      deep: true
+      deep: true,
     },
   },
   methods: {
-    check: function() {
+    check() {
       // eslint-disable-next-line
-      console.log(this.selected_set_id)
+      // console.log(this.selected_set_id)
       return {};
+    },
+  },
+  mounted() {
+    if (this.$route.query.set_id) {
+      this.selected_set_id = this.$route.query.set_id;
     }
   },
-  mounted(){
-    if(this.$route.query.set_id){
-      this.selected_set_id = this.$route.query.set_id
-    }
-  }
-}
+};
 </script>
 
 <style scoped>

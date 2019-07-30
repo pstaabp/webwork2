@@ -36,77 +36,78 @@
 </template>
 
 <script>
-import common from '@/common'
-import {mapState} from 'vuex'
+import Problem from '@/models/Problem';
+import {mapState} from 'vuex';
 
-import LibrarySubjects from './LibrarySubjects'
-import LibraryDirectory from './LibraryDirectory'
-import LibraryTextbooks from './LibraryTextbooks'
-import LocalLibrary from './LocalLibrary'
-import ProblemView from '@/components/common_components/ProblemView'
+import LibrarySubjects from './LibrarySubjects';
+import LibraryDirectory from './LibraryDirectory';
+import LibraryTextbooks from './LibraryTextbooks';
+import LocalLibrary from './LocalLibrary';
+import ProblemView from '@/components/common_components/ProblemView';
 
 export default {
-  name: "LibraryTab",
+  name: 'LibraryTab',
   components: {
     LibrarySubjects, LibraryDirectory, LibraryTextbooks,
-    ProblemView, LocalLibrary
+    ProblemView, LocalLibrary,
   },
   props: {
     problem_sets: Array,
-    tab_name: String
+    tab_name: String,
   },
-  data: function(){
+  data() {
     return {
       all_problems: [],
       current_page: 1,
       rows_per_page: 10,
       selected_set_id: null,
-    }
+    };
   },
   methods: {
     loadProblems(_problems) {
       this.all_problems = _problems;
     },
-    addProblem: function(_problem){
+    addProblem(_problem) {
 
-      const _set = this.problem_sets.find(set=>set.set_id==this.selected_set_id);
-      if (_set == undefined) {
+      const _set = this.problem_sets.find( (set) => set.set_id === this.selected_set_id);
+      if (_set === undefined) {
         return;
       }
-      var problem = common.new_problem;
+      const problem = new Problem();
       problem.source_file = _problem.source_file;
       problem.set_id = _set.set_id;
-      problem.problem_id = _set.problems.length + 1
+      problem.problem_id = _set.problems.length + 1;
       _set.problems.push(problem);
-      this.$store.dispatch("updateProblemSet",_set)
+      this.$store.dispatch('updateProblemSet', _set);
     },
-    go_to_set: function(){
-      this.$router.push("/courses/" + this.login_info.course_id + "/manager/set-details?set_id=" + this.selected_set_id);
-    }
+    go_to_set() {
+      this.$router.push('/courses/' + this.login_info.course_id + '/manager/set-details?set_id='
+                          + this.selected_set_id);
+    },
   },
   computed: {
     ...mapState(['login_info']),
-    valid_set_id: function () {
-      return this.selected_set_id != undefined
+    valid_set_id() {
+      return this.selected_set_id !== undefined;
     },
-    get_set_ids: function(){
-      return this.problem_sets.map(_set => _set.set_id)
+    get_set_ids() {
+      return this.problem_sets.map( (_set) => _set.set_id);
     },
-    num_problems: function (){
+    num_problems() {
       return this.all_problems.length;
     },
-    get_problems: function(){
-      if(this.all_problems.length==0 || this.current_page == 0){
-        return []
+    get_problems() {
+      if (this.all_problems.length === 0 || this.current_page === 0) {
+        return [];
       }
-      var probs = [];
-      for(var i=(this.current_page-1)*this.rows_per_page;
-          i < Math.min(this.all_problems.length,this.current_page*this.rows_per_page); i++){
+      const probs = [];
+      for (let i = (this.current_page - 1) * this.rows_per_page;
+          i < Math.min(this.all_problems.length, this.current_page * this.rows_per_page); i++) {
         probs.push(this.all_problems[i]);
       }
       return probs;
-    }
-  }
-}
+    },
+  },
+}; // export default
 
 </script>

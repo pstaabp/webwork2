@@ -8,17 +8,17 @@
 
 
 <script>
-import SettingsRow from './SettingsRow.vue'
+import SettingsRow from './SettingsRow';
 
 export default {
-  name: "SettingsTab",
+  name: 'SettingsTab',
   props: {
     name: String,
-    settings: Array
+    settings: Array,
   },
   components: {
-    SettingsRow
-  }
-}
+    SettingsRow,
+  },
+};
 
 </script>

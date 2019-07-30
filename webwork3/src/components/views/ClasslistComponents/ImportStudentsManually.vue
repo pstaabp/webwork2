@@ -37,23 +37,24 @@
 
 
 <script>
-import common from '../../../common.js'
-//import User from '../../../models/User.js'
+import User from '@/models/User';
+
 export default {
   name: 'ImportStudentsFile',
-  data: function() {
+  data() {
     return {
       num_students: 1,
-      users: [common.new_user]
-    }
+      users: [new User()],
+    };
   },
   methods: {
-    cancel() {this.$refs.addstudmodal.hide()},
+    cancel() {
+      this.$refs.addstudmodal.hide();
+    },
     addAll() {
-       // eslint-disable-next-line
+       // tslint:disable-next-line
         console.log(this.data);
-
-    }
-  }
-}
+    },
+  },
+};
 </script>

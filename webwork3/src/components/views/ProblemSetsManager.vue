@@ -55,56 +55,62 @@
 
 
 <script>
-import moment from 'moment'
-import {mapState} from 'vuex'
+import moment from 'moment';
+import {mapState} from 'vuex';
 
-import AddProblemSetModal from './ProblemSetsManagerComponents/AddProblemSetModal.vue'
-import EditProblemSetsModal from './ProblemSetsManagerComponents/EditProblemSetsModal.vue'
+import AddProblemSetModal from './ProblemSetsManagerComponents/AddProblemSetModal.vue';
+import EditProblemSetsModal from './ProblemSetsManagerComponents/EditProblemSetsModal.vue';
 
 export default {
   name: 'ProblemSetsManager',
-  data: function () {
+  data() {
       return {
         fields: [
-          {key: "set_id", sortable: true, label: "Name"},
-          {key: "assigned_users",sortable: true, label: "Users", formatter: "numUsers"},
-          {key: "problems", sortable: true, label: "Num. Probs.", formatter: "numProbs"},
-          {key: "visible", sortable: true},
-          {key: "enable_reduced_scoring", label: "RS"},
-          {key: "open_date", sortable: true, label: "Open Date", formatter: "formatDate"},
-          {key: "reduced_scoring_date", sortable: true, label: "Red. Sc. Date", formatter: "formatDate"},
-          {key: "due_date", sortable: true, label: "Due Date", formatter: "formatDate"},
-          {key: "answer_date", sortable: true, label: "Answer Date", formatter: "formatDate"}
+          {key: 'set_id', sortable: true, label: 'Name'},
+          {key: 'assigned_users', sortable: true, label: 'Users', formatter: 'numUsers'},
+          {key: 'problems', sortable: true, label: 'Num. Probs.', formatter: 'numProbs'},
+          {key: 'visible', sortable: true},
+          {key: 'enable_reduced_scoring', label: 'RS'},
+          {key: 'open_date', sortable: true, label: 'Open Date', formatter: 'formatDate'},
+          {key: 'reduced_scoring_date', sortable: true, label: 'Red. Sc. Date', formatter: 'formatDate'},
+          {key: 'due_date', sortable: true, label: 'Due Date', formatter: 'formatDate'},
+          {key: 'answer_date', sortable: true, label: 'Answer Date', formatter: 'formatDate'},
       ],
       selected_sets: [],
       show_time: false,
-      filter_string: ""
-    }
+      filter_string: '',
+    };
   },
   components: {
-    AddProblemSetModal, EditProblemSetsModal
+    AddProblemSetModal, EditProblemSetsModal,
   },
   methods: {
-    rowSelected(rows){ this.selected_sets = rows },
-    formatDate(_date){
-      return this.show_time ? moment.unix(_date).format("MM/DD/YY [at] hh:mm a") :
-          moment.unix(_date).format("MM/DD/YYYY")
+    rowSelected(rows) {
+      this.selected_sets = rows;
     },
-    numUsers(data){ return data.length +"/" + this.users.length;},
-    numProbs(data){ return data.length},
-    deleteSets(){
-      const _sets = this.selected_sets.map(_set => _set.set_id);
-      var conf = confirm("Are you sure you want to delete the following sets? " + _sets);
+    formatDate(_date) {
+      return this.show_time ? moment.unix(_date).format('MM/DD/YY [at] hh:mm a') :
+          moment.unix(_date).format('MM/DD/YYYY');
+    },
+    numUsers(data) {
+      return data.length + '/' + this.users.length;
+    },
+    numProbs(data) {
+      return data.length;
+    },
+    deleteSets() {
+      const _sets = this.selected_sets.map( (_set) => _set.set_id);
+      const conf = confirm('Are you sure you want to delete the following sets? ' + _sets);
 
-      if(conf){
-        this.selected_sets.forEach( _set => {
-          this.$store.dispatch("removeProblemSet",_set);
+      if (conf) {
+        this.selected_sets.forEach( (_set) => {
+          this.$store.dispatch('removeProblemSet', _set);
         });
       }
-    }
+    },
   }, // methods
   computed: {
-    ...mapState(['users','problem_sets'])
+    ...mapState(['users', 'problem_sets']),
   },
-}
+};
 </script>
