@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use feature 'say';
+use Moo;
+use MooX::Options;
+use Data::Dump qw/dd/;
+use Carp::Always;
+
+BEGIN {
+  die "WEBWORK_ROOT not found in environment.\n" unless exists $ENV{WEBWORK_ROOT};
+  $ENV{MOD_PERL_API_VERSION} = 2;
+}
+
+use lib "$ENV{WEBWORK_ROOT}/lib";
+use lib "$ENV{WEBWORK_ROOT}/../pg/lib";
+use lib "$ENV{WEBWORK_ROOT}/webwork3/lib";
+use WeBWorK::CourseEnvironment;
+
+use Utils::LibraryUtils qw/searchLibrary/;
+
+
+option dbsubject => (is=>'ro', format=>'s');
+option dbchapter => (is => 'ro', format => 's');
+option dbsection => (is => 'ro', format => 's');
+option authlast => (is => 'ro', format => 's');
+option authfirst => (is => 'ro', format => 's');
+option institution => (is => 'ro', format => 's');
+option level => (is => 'ro', format => 's');
+option keyword => (is => 'ro', format => 's');
+
+option textbooks => (is=> 'ro');
+
+### this is a test script to see about querying the OPL
+
+sub run {
+  my ($self) = @_;
+  my $start = time();
+  my $ce = new WeBWorK::CourseEnvironment({webwork_dir=>$ENV{WEBWORK_ROOT}});
+
+  my $dbh = DBI->connect(
+          $ce->{problemLibrary_db}->{dbsource},
+          $ce->{problemLibrary_db}->{user},
+          $ce->{problemLibrary_db}->{passwd},
+          {
+              PrintError => 0,
+              RaiseError => 1,
+              ($ce->{ENABLE_UTF8MB4})?(mysql_enable_utf8mb4 =>1):(mysql_enable_utf8 => 1),
+          },
+  );
+
+
+  if($self->textbooks){
+    
+  }
+
+
+   my $timediff = time() - $start;
+
+  print "Amount of time is $timediff seconds.\n";
+
+
+}
+
+main->new_with_options->run;
+
+1;
