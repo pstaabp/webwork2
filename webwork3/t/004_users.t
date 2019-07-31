@@ -12,7 +12,7 @@ my $webwork_dir = "";
 my $pg_dir = "";
 
 BEGIN {
-  $ENV{PLACK_ENV}='testing';
+  $ENV{PLACK_ENV}='testing'; # use the environnment testing.yaml
 
   $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
   $webwork_dir = $ENV{WEBWORK_ROOT} || die "The environment variable WEBWORK_ROOT needs to be defined.";
@@ -43,20 +43,21 @@ use List::Util qw/first/;
 
 use Data::Dump qw/dd dump/;
 
-my $app = Routes::ProblemSets->to_app;
+my $app = Routes::Admin->to_app;
 my $url  = 'http://localhost';
 my $test = Plack::Test->create($app);
 
-my $jar  = HTTP::Cookies->new();
+my $jar = HTTP::Cookies->new();
 
 subtest 'login to admin course and create a new course_zyx' => sub {
-  my $req =  POST "$url/courses/admin/login?username=admin&password=admin";
+  my $req =  GET "$url/courses/admin/login?user_id=admin&password=admin";
 
   my $res = $test->request($req);
   $jar->extract_cookies($res);
   my $result_hash =  decode_json($res->content);
 
-  ok($result_hash->{logged_in}, '[POST /courses/admin/login] using query params successful');
+  ok($result_hash->{logged_in}, '[GET /courses/admin/login] using query params successful');
+
 
   ## check if new_course_xyz exists.
 
@@ -64,41 +65,52 @@ subtest 'login to admin course and create a new course_zyx' => sub {
   $jar->add_cookie_header($req);
   $res = $test->request($req);
 
+  dd $res->content;
+
   $result_hash = decode_json($res->content);
-    ok($res->is_success, '[GET /admin/courses/new_course_xyz] checked if course exists');
+  ok($res->is_success, '[GET /admin/courses/new_course_xyz] checked if course exists');
   ok(! $result_hash->{course_exists}, 'The course new_course_xyz does not exist');
 
-  my $params = {
-    new_user_id=>"profa",
-    new_user_first_name =>"Professor",
-    new_user_last_name =>"A",
-    initial_password =>"profa"
-  };
+  SKIP: {
+    skip "course already exists", 1 if $result_hash->{course_exists};
 
-  $req = HTTP::Request->new(
-    "POST","$url/admin/courses/new_course_xyz",
-    HTTP::Headers->new('Content-Type' => 'application/json'),
-    encode_json($params)
-  );
-  $jar->add_cookie_header($req);
+    my $params = {
+      new_user_id=>"profa",
+      new_user_first_name =>"Professor",
+      new_user_last_name =>"A",
+      initial_password =>"profa"
+    };
 
-  $res = $test->request($req);
-  ok($res->is_success, '[POST /admin/courses/new_course_id] successfully created a new course');
+    unless($result_hash->{course_exists}){
+      $req = HTTP::Request->new(
+        "POST","$url/admin/courses/new_course_xyz",
+        HTTP::Headers->new('Content-Type' => 'application/json'),
+        encode_json($params)
+      );
+      $jar->add_cookie_header($req);
+      $res = $test->request($req);
+    }
+
+    ok($res->is_success, '[POST /admin/courses/new_course_id] successfully created a new course');
+  }
 };
 
+
+my $jar2 = HTTP::Cookies->new();
+
 subtest 'Login to new course as profa' => sub {
-  my $req =  POST "$url/courses/new_course_xyz/login?username=profa&password=profa";
+  my $req =  GET "$url/courses/new_course_xyz/login?user_id=profa&password=profa";
   my $res = $test->request($req);
-  $jar->extract_cookies($res);
+  $jar2->extract_cookies($res);
   my $result_hash =  decode_json($res->content);
 
-  ok($result_hash->{logged_in}, '[POST /courses/new_course_xyz/login] successfully logged in');
+  ok($result_hash->{logged_in}, '[GET /courses/new_course_xyz/login] successfully logged in');
 
 };
 
 subtest 'get users' => sub {
   my $req = GET "$url/courses/new_course_xyz/users";
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok($res->is_success,'[GET /courses/new_course_xyz/users] successful.');
   my $users =  decode_json($res->content);
@@ -125,12 +137,11 @@ subtest 'Add a single student to the course' => sub {
       HTTP::Headers->new('Content-Type' => 'application/json'),
       encode_json($user_props)
       );
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok($res->is_success,'[POST /courses/new_course_xyz/users/homer] successful.');
   my $user =  decode_json($res->content);
 
-  $user_props->{_id} = $user_props->{user_id};
   cmp_deeply($user,$user_props,"A user with id home has successfully been created.");
 
 };
@@ -143,15 +154,12 @@ subtest 'Add a number of users' => sub {
       HTTP::Headers->new('Content-Type' => 'application/json'),
       encode_json({ users => $users})
       );
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
 
   my $res = $test->request($req);
   ok($res->is_success,'[POST /courses/new_course_xyz/users] successful.');
   my $returned_users =  decode_json($res->content);
 
-  for my $i (0..$#{$users}){
-     $users->[$i]->{_id} = $users->[$i]->{user_id};
-  }
 
   cmp_deeply($users,$returned_users,'Creating multiple users was successful.');
 };
@@ -160,7 +168,7 @@ subtest 'Add a number of users' => sub {
 
 subtest 'Update a user' => sub {
   my $req = GET "$url/courses/new_course_xyz/users/homer";
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok($res->is_success,'[GET /courses/new_course_xyz/users/homer] successful.');
 
@@ -174,7 +182,7 @@ subtest 'Update a user' => sub {
       HTTP::Headers->new('Content-Type' => 'application/json'),
       encode_json($user)
       );
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   $res = $test->request($req);
 
   my $updated_user = decode_json $res->content;
@@ -185,7 +193,7 @@ subtest 'Update a user' => sub {
 
 subtest 'check the login status' => sub {
   my $req = GET "$url/courses/new_course_xyz/users/status/login";
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok($res->is_success,'[GET /courses/new_course_xyz/users/status/login] successful.');
   my $result_hash = decode_json $res->content;
@@ -197,12 +205,12 @@ subtest 'check the login status' => sub {
   ok(!$user_status->{logged_in},'The user homer is not logged in.');
 };
 
-
-### delete users:
+#
+# ### delete users:
 
 subtest 'delete a user' => sub {
   my $req = HTTP::Request->new("DELETE","$url/courses/new_course_xyz/users/homer");
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok($res->is_success,'[DELETE /courses/new_course_xyz/users/homer] successful.');
 
@@ -210,7 +218,7 @@ subtest 'delete a user' => sub {
 
 subtest 'delete a non-existent user' => sub {
   my $req = HTTP::Request->new("DELETE","$url/courses/new_course_xyz/users/user_xyz");
-  $jar->add_cookie_header($req);
+  $jar2->add_cookie_header($req);
   my $res = $test->request($req);
   ok(! $res->is_success,'[DELETE /courses/new_course_xyz/users/user_xyz] failed successfully.');
 
@@ -223,7 +231,7 @@ subtest 'delete a non-existent user' => sub {
 
 
 subtest 'delete a course' => sub {
-  my $req =  POST "$url/courses/admin/login?username=admin&password=admin";
+  my $req =  POST "$url/courses/admin/login?user_id=admin&password=admin";
 
   my $res = $test->request($req);
   $jar->extract_cookies($res);
@@ -233,8 +241,6 @@ subtest 'delete a course' => sub {
   $res = $test->request($req);
   ok($res->is_success, '[DELETE /admin/courses/new_course_xyz] successfully deleted the course');
 };
-
-done_testing();
 
 
 sub get_one_user {
@@ -285,5 +291,7 @@ sub get_multiple_users {
   }
   return \@users;
 }
+
+done_testing();
 
 1;

@@ -6,6 +6,8 @@ my $webwork_dir = "";
 my $pg_dir = "";
 
 BEGIN {
+  $ENV{PLACK_ENV}='testing'; # use the environnment testing.yaml
+  
   $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
   $webwork_dir = $ENV{WEBWORK_ROOT} || die "The environment variable WEBWORK_ROOT needs to be defined.";
   $pg_dir = $ENV{PG_ROOT};
@@ -69,10 +71,7 @@ subtest 'login to admin course' => sub {
 
   $result_hash =  decode_json($res->content);
 
-  dd $result_hash;
-
   ok($res->is_success, '[GET /courses/admin/users/:user_id/roles]');
-
   cmp_deeply($result_hash,["admin"],"The user roles returned correctly. ");
 
   ## check that a restricted route is accesible.
@@ -98,31 +97,28 @@ subtest 'get course parameters' => sub{
   $jar->add_cookie_header($req);
   my $res = $test->request($req);
 
-  dd $res;
-
   ok($res->is_success,'successfully got info about course new_course_xyz');
-
 };
 
-# subtest 'create a course' => sub {
-#   my $params = {
-#     new_user_id=>"profa",
-#     new_user_first_name =>"Professor",
-#     new_user_last_name =>"A",
-#     initial_password =>"profa"
-#   };
-#
-#   my $req = HTTP::Request->new(
-#     "POST","$url/admin/courses/new_course_xyz",
-#     HTTP::Headers->new('Content-Type' => 'application/json'),
-#     encode_json($params)
-#   );
-#   $jar->add_cookie_header($req);
-#
-#   my $res = $test->request($req);
-#
-#   ok($res->is_success, '[POST /admin/courses/new_course_id] successfully created a new course');
-# };
+subtest 'create a course' => sub {
+  my $params = {
+    new_user_id=>"profa",
+    new_user_first_name =>"Professor",
+    new_user_last_name =>"A",
+    initial_password =>"profa"
+  };
+
+  my $req = HTTP::Request->new(
+    "POST","$url/admin/courses/new_course_xyz",
+    HTTP::Headers->new('Content-Type' => 'application/json'),
+    encode_json($params)
+  );
+  $jar->add_cookie_header($req);
+
+  my $res = $test->request($req);
+
+  ok($res->is_success, '[POST /admin/courses/new_course_id] successfully created a new course');
+};
 
 subtest 'rename a course' => sub {
   my $params = {
@@ -134,17 +130,16 @@ subtest 'rename a course' => sub {
     encode_json($params)
   );
   $jar->add_cookie_header($req);
-  dd $req;
   my $res = $test->request($req);
   ok($res->is_success, '[PUT /admin/courses/new_course_id] successfully renamed the course');
 };
 
 
-# subtest 'delete a course' => sub {
-#   my $req =  HTTP::Request->new("DELETE","$url/admin/courses/course_zyx");
-#   $jar->add_cookie_header($req);
-#   my $res = $test->request($req);
-#   ok($res->is_success, '[DELETE /admin/courses/new_course_id] successfully deleted the course');
-# };
+subtest 'delete a course' => sub {
+  my $req =  HTTP::Request->new("DELETE","$url/admin/courses/course_zyx");
+  $jar->add_cookie_header($req);
+  my $res = $test->request($req);
+  ok($res->is_success, '[DELETE /admin/courses/new_course_id] successfully deleted the course');
+};
 
 done_testing();

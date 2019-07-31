@@ -71,12 +71,12 @@ sub get_user_roles {
     #$self->plugin->dsl->debug($username);
     my %roles = reverse %{$self->plugin->dsl->vars->{ce}->{userRoles}};
   	my $db = $self->plugin->dsl->vars->{db};
-    #$self->plugin->dsl->debug(dump $db);
+    #$self->plugin->dsl->debug(dump $db->getPermissionLevel);
   	my $permission = $db->getPermissionLevel($username);
-    # $self->plugin->dsl->debug($permission);
+    #$self->plugin->dsl->debug($permission);
     # $self->plugin->dsl->debug(%roles);
     # $self->plugin->dsl->debug($username);
-    # $self->plugin->dsl->debug($roles{$permission->{permission}});
+    #$self->plugin->dsl->debug($roles{$permission->{permission}});
   	return [$roles{$permission->{permission}}];
 
 }

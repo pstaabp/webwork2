@@ -68,10 +68,10 @@ get '/courses/:course_id' => sub {
 	# template 'course_home.tt', {course_id=>params->{course_id}};
 	if(request->is_ajax){
 
-        setCourseEnvironment(params->{course_id});
+    setCourseEnvironment(params->{course_id});
 
 		my $ce2 = new WeBWorK::CourseEnvironment({
-		 	webwork_dir         => vars->{ce}->{webwork_dir},
+		 	webwork_dir => vars->{ce}->{webwork_dir},
 			courseName => params->{course_id},
 		});
 

@@ -32,7 +32,11 @@ use Routes::User;
 #
 
 hook before => sub {
-	session course_id => route_parameters->{course_id} if defined(route_parameters->{course_id});
+	if (request->path =~ /^\/admin\//) {
+		session course_id => "admin";
+	} elsif (defined route_parameters->{course_id}) {
+		session course_id => route_parameters->{course_id};
+	}
 	setCourseEnvironment(session 'course_id') if defined (session 'course_id');
 };
 
@@ -45,7 +49,7 @@ sub login {
 
 any ['get', 'post'] => '/courses/:course_id/login' => sub {
 
-	#debug "in POST /courses/:course_id/login";
+	#debug "in GET/POST /courses/:course_id/login";
   my $user_id = query_parameters->{user_id} || body_parameters->{user_id};
 	my $password = query_parameters->{password} || body_parameters->{password};
 
@@ -131,9 +135,9 @@ get '/courses/:course_id/info' => sub {
 sub setCourseEnvironment {
 	my ($course_id) = @_;
 
-	#debug "in setCourseEnvironment";
+	# debug "in setCourseEnvironment";
 	# debug session;
-	# debug $course_id;
+	#debug $course_id;
 	session course_id => $course_id if defined($course_id);
 
 	send_error("The course has not been defined.  You may need to authenticate again",401)
@@ -193,4 +197,4 @@ sub setCookie {
 }
 
 
-true
+true;

@@ -32,7 +32,13 @@ get '/courses' => sub {
 
 };
 
-
+# ## set the course environment to admin for all routes starting with /admin/courses
+#
+# any '/admin/courses/**' => sub {
+# 	debug "in any /admin/courses/**";
+# 	Routes::Login::setCourseEnvironment('admin');
+#   pass;
+# };
 
 
 ###
@@ -129,22 +135,34 @@ post '/admin/courses/:new_course_id' => require_role admin => sub {
 };
 
 
-get '/admin/courses/:course_id' => require_role admin => sub {
+get '/admin/courses/:other_course_id' => require_role admin => sub {
 
-  debug "in /admin/courses/:course_id";
-  my $coursePath = path(config->{webwork_dir},route_parameters->{course_id});
+  #debug "in /admin/courses/:other_course_id";
+  my $coursePath = path(config->{webwork_dir},route_parameters->{other_course_id});
   if (! -e $coursePath){
-    return {course_id => route_parameters->{course_id}, message=> "Course does not exist.",
-      course_exists=> false};
+    return {
+			course_id => route_parameters->{other_course_id},
+			message=> "Course does not exist.",
+      course_exists=> false
+		};
   }
   my $CIchecker = new WeBWorK::Utils::CourseIntegrityCheck(vars->{ce});
 
   if (body_parameters->{checkCourseTables}){
-    my ($tables_ok,$dbStatus) = $CIchecker->checkCourseTables(params->{course_id});
-    return { coursePath => $coursePath, tables_ok => $tables_ok, dbStatus => $dbStatus,
-                      message => "Course exists."};
+    my ($tables_ok,$dbStatus) = $CIchecker->checkCourseTables(route_parameters->{other_course_id});
+    return {
+			coursePath => $coursePath,
+			tables_ok => $tables_ok,
+			dbStatus => $dbStatus,
+			message => "Course exists.",
+			course_exists => true
+		};
   } else {
-    return {course_id => route_parameters->{course_id}, message=> "Course exists.", course_exists=> true};
+    return {
+			course_id => route_parameters->{other_course_id},
+			message=> "Course exists.",
+			course_exists=> true
+		};
   }
 };
 
@@ -152,17 +170,17 @@ get '/admin/courses/:course_id' => require_role admin => sub {
 ###
 ### currently just renames the course
 
-put '/admin/courses/:course_id' => require_role admin => sub {
+put '/admin/courses/:other_course_id' => require_role admin => sub {
 
   my $ce2 = new WeBWorK::CourseEnvironment({
 	 	webwork_dir => vars->{ce}->{webwork_dir},
-		courseName => params->{course_id},
+		courseName => params->{other_course_id},
 	});
 
 	my %courseOptions = ( dbLayoutName => "sql_single" );
 
   my $options = {
-      courseID => route_parameters->{course_id},
+      courseID => route_parameters->{other_course_id},
       newCourseID => body_parameters->{new_course_id},
 			ce=>$ce2,
       courseOptions=>\%courseOptions,
@@ -178,25 +196,25 @@ put '/admin/courses/:course_id' => require_role admin => sub {
 
 ### delete the course course_id
 
-del '/admin/courses/:course_id' => require_role admin => sub {
+del '/admin/courses/:other_course_id' => require_role admin => sub {
 
   my $ce2 = new WeBWorK::CourseEnvironment({
 	 	webwork_dir => vars->{ce}->{webwork_dir},
-		courseName => params->{course_id},
+		courseName => route_parameters->{other_course_id},
 	});
 
 
 	my %courseOptions = ( dbLayoutName => "sql_single" );
 
 	my $options = {
-    courseID => route_parameters->{course_id},
+    courseID => route_parameters->{other_course_id},
     ce=>$ce2,
     courseOptions=>\%courseOptions,
 		dbOptions=> body_parameters->{db_options}};
 
 	deleteCourse(%{$options});
 
-	return {course_id => route_parameters->{course_id}, message => "Course deleted."};
+	return {course_id => route_parameters->{other_course_id}, message => "Course deleted."};
 
 };
 

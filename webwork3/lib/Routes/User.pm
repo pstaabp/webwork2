@@ -21,8 +21,7 @@ use Data::Dump qw/dump/;
 
 get '/courses/:course_id/users' => sub { #require_role professor => sub {
 
-	debug "in get /courses/:course_id/users";
-	debug dump route_parameters;
+	#debug "in get /courses/:course_id/users";
 
   my @user_ids = vars->{db}->listUsers;
   my @users = map { get_one_user(vars->{db},$_);} @user_ids;
@@ -127,8 +126,6 @@ put '/courses/:course_id/users/:user_id' => sub { #=> require_any_role [qw/profe
       vars->{db}->putPermissionLevel($permission);
     }
   }
-
-	debug $user;
 
 	return get_one_user(vars->{db},$user->{user_id});
 
