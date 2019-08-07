@@ -36,7 +36,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-table :items="getUsers" :fields="fields" :small="true" :bordered="true"
+        <b-table :items="users" :fields="fields" :small="true" :bordered="true"
           primary-key="set_id" @row-selected="rowSelected" :filter="filter_string"
           :current-page="current_page" :per-page="per_page" selectable>
         <!-- A custom formatted column -->
@@ -48,7 +48,7 @@
     <b-row>
       <b-col>
         <b-pagination  v-model="current_page" limit="10"
-          :total-rows="getUsers.length" :per-page="per_page" />
+          :total-rows="users.length" :per-page="per_page" />
       </b-col>
     </b-row>
   </b-container>
@@ -92,31 +92,31 @@ export default class Manager extends Vue {
           { key: 'last_name', sortable: true, label: 'Last Name'},
           { key: 'email_address', sortable: false, label: 'Email'},
           { key: 'student_id', sortable: true, label: 'Student ID'},
-          { key: 'status', sortable: true, formatter: 'formatUserType'},
+          { key: 'status', sortable: true, formatter: 'formatStatus'},
           { key: 'section', sortable: true, label: 'Sect.'},
           { key: 'recitation', sortable: true, label: 'Rec.'},
           { key: 'comment', sortable: true, label: 'Comment'},
           { key: 'permission', sortable: true, label: 'Permission', formatter: 'formatPermission'},
         ];
-  private selected_users: string[] = [];
+  private selected_users: object[] = [];
   private filter_string = '';
   private per_page = 10;
   private current_page = 1;
 
-  private formatUserType(value: string): string {
+  private formatStatus(value: string): string {
     return Constants.userTypes()[value];
   }
 
   private formatPermission(value: string): string {
-    return Constants.userTypes()[value];
+    return Constants.permissionLevels()[value];
   }
 
-  private rowSelected(rows: string[]): void {
+  private rowSelected(rows: object[]): void {
     this.selected_users = rows;
   }
 
-  get users(): User[] {
-    return store.users.models();
+  get users(): object[] {
+    return store.users.models().map( (_u) => _u.getAttributes());
   }
 
 }

@@ -39,20 +39,28 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
-import User from '../../../models/User';
+import User from '@/models/User';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
 
 
 @Component
 export default class EditUsersModel extends Vue {
   public name!: 'EditUsers';
-   @Prop() private users!: User[];
+   @Prop() private users!: object[];
 
   constructor() {
     super();
   }
 
   private save(): void {
-    this.users.forEach( (_user) => this.$store.dispatch('updateUser', _user));
+    // tslint:disable-next-line
+    console.log("hi");
+    this.users.forEach( (_user) => store.updateUser(new User(_user)));
     this.$bvModal.hide('edit-users-modal');
   }
 

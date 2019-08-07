@@ -3,6 +3,7 @@
 applets
 tmp
 logs/
+webwork3/yarn-error.log
 webwork3/logs
 !webwork3/logs/README
 courses.dist

@@ -94,11 +94,6 @@ any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
 
   my $problems_from_client = $all_params->{problems};
 
-  # debug dump $problems_from_client;
-
-  # for my $p (@$problems_from_client){
-  #   debug $p->{problem_id} . ":" . $p->{source_file};
-  # }
 
   if(request->is_post()){  ## the set is new
     send_error("The set name must only contain A-Za-z0-9_-.",403)

@@ -1,8 +1,8 @@
 <template>
-  <table class="table table-sm set-info-table" v-if="problem_set.set_id">
+  <table class="table table-sm set-info-table" v-if="set_params.set_id">
     <tbody>
       <tr>
-        <td class="header">Set Name</td><td>{{displaySet(problem_set.set_id)}}</td>
+        <td class="header">Set Name</td><td>{{displaySet(set_params.set_id)}}</td>
       </tr>
       <tr>
         <td><b-form-group label="Open Date" class="header">
@@ -10,29 +10,30 @@
         <td>
           <b-form-group class="header" label="Reduced Scoring Date"
               invalid-feedback="This date must be after the open date.">
-            <b-form-input size="sm" v-model="displayReducedScoringDate" type="datetime-local" :state="validReducedScoring"/>
+            <b-form-input size="sm" v-model="displayReducedScoringDate" type="datetime-local" :state="validReducedScoring()"/>
           </b-form-group>
         </td>
       </tr>
       <tr>
         <td><b-form-group label="Due Date" class="header"
               invalid-feedback="This date must be after the reduced scoring date.">
-          <b-input size="sm" type="datetime-local" v-model="displayDueDate" :state="validDueDate"/>
+          <b-input size="sm" type="datetime-local" v-model="displayDueDate" :state="validDueDate()"/>
         </b-form-group></td>
         <td><b-form-group class="header" label="Answer Date"
               invalid-feedback="This date must be after the due date.">
-            <b-form-input size="sm" v-model="displayAnswerDate" type="datetime-local" :state="validAnswerDate"/>
+            <b-form-input size="sm" v-model="displayAnswerDate" type="datetime-local" :state="validAnswerDate()"/>
           </b-form-group>
         </td>
       </tr>
       <tr><td class="header">Problem Set Visible to Users</td>
-        <td> <b-form-checkbox v-model="problem_set.visible" /></td></tr>
+        <td> <b-form-checkbox v-model="set_params.visible" /></td></tr>
       <tr><td class="header">Reduced Scoring Enabled</td>
-        <td> <b-form-checkbox v-model="problem_set.enable_reduced_scoring" /></td></tr>
+        <td> <b-form-checkbox v-model="set_params.enable_reduced_scoring" /></td></tr>
       <tr><td class="header">Hide Hints from Users</td>
-        <td> <b-form-checkbox v-model="problem_set.hide_hint" /></td></tr>
-      <tr><td class="header">Set Type</td><td><b-form-select size="sm" v-model="problem_set.assignment_type">
-        <option value="default">Homework</option>
+        <td> <b-form-checkbox v-model="set_params.hide_hint" /></td></tr>
+      <tr><td class="header">Set Type</td>
+        <td><b-form-select size="sm" v-model="set_params.assignment_type">
+        <option value="set">Homework</option>
         <option value="gateway">Gateway/Quiz</option>
         <option value="proctored_gateway">Proctored Gateway/Quiz</option>
       </b-form-select></td></tr>
@@ -53,19 +54,19 @@
       <tr v-if="gateway"><td class="header" style="color: darkblue; font-style:italic">
           Gateway/Quiz parameters</td><td></td></tr>
       <tr v-if="gateway"><td class="header">Test Time Limit (min; 0=Due Date)</td>
-        <td><b-form-input size="sm" type="text" v-model="problem_set.version_time_limit" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="set_params.version_time_limit" /></td></tr>
       <tr v-if="gateway"><td class="header">Cap Test Time at Set Due Date?</td>
-        <td><b-form-checkbox v-model="problem_set.time_limit_cap" /></td></tr>
+        <td><b-form-checkbox v-model="set_params.time_limit_cap" /></td></tr>
       <tr v-if="gateway"><td class="header">Number of Graded Submissions per Test (0=infty)</td>
-        <td><b-form-input size="sm" type="text" v-model="problem_set.attempts_per_version" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="set_params.attempts_per_version" /></td></tr>
       <tr v-if="gateway"><td class="header">Time Interval for New Test Versions (min; 0=infty)</td>
-        <td><b-form-input size="sm" type="text" v-model="problem_set.time_interval" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="set_params.time_interval" /></td></tr>
       <tr v-if="gateway"><td class="header">Number of Tests per Time Interval (0=infty)</td>
-        <td><b-form-input size="sm" type="text" v-model="problem_set.version_per_interval" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="set_params.version_per_interval" /></td></tr>
       <tr v-if="gateway"><td class="header">	Order Problems Randomly</td>
-        <td><b-form-checkbox v-model="problem_set.problem_random_order" /></td></tr>
+        <td><b-form-checkbox v-model="set_params.problem_random_order" /></td></tr>
       <tr v-if="gateway"><td class="header">Number of Problems per Page (0=all)</td>
-        <td><b-form-input size="sm" type="text" v-model="problem_set.problems_per_page" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="set_params.problems_per_page" /></td></tr>
       <tr v-if="gateway"><td class="header">Show Scores on Finished Assignments?</td>
         <td><b-form-select size="sm">
           <option value="N:">Yes</option>
@@ -88,40 +89,59 @@
 
 
 
-<script>
+<script lang="ts">
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 
-import ProblemSet from '@/models/ProblemSet';
+import ProblemSet, {ProblemSetAttributes} from '@/models/ProblemSet';
 import ProblemSetMixin from '@/mixins/problem_set_mixin';
 import MessagesMixin from '@/mixins/messages_mixin';
 
-export default {
+import ProblemSetList from '@/models/ProblemSetList';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+@Component({
   name: 'SetInfo',
   mixins: [ProblemSetMixin, MessagesMixin ],
-  props: {
-    problem_sets: Array,
-    problem_set: Object,
-  },
-  data() {
-    return {
-      show_time: false,
-      data_loaded: false,
-      pg_password: '' , // how to handle this?
-      data_loading: true,
-      set_params: new ProblemSet(),
-    };
-  },
-  computed: {
-    problemsLength() {
-      return this.problem_set.problems ? this.problem_set.problems.length : 0;
-    },
-    proctored() {
-      return  this.problem_set.assignment_type === 'proctored_gateway';
-    },
-    gateway() { return this.problem_set.assignment_type === 'gateway' ||
-        this.problem_set.assignment_type === 'proctored_gateway';
-    },
-  },
-};
+})
+export default class SetInfo extends Vue {
+  private pg_password: string = '';
+  private set_params: ProblemSetAttributes = (new ProblemSet({set_id: 'XXX___'})).defaults();
+
+  @Prop()
+  private problem_sets!: ProblemSetList;
+  @Prop()
+  private problem_set!: ProblemSet;
+
+  get problemsLength(): number {
+    return this.problem_set.get('problems') ? this.problem_set.get('problems').size() : 0;
+  }
+
+  get proctored(): boolean {
+    return  this.problem_set.get('assignment_type') === 'proctored_gateway';
+  }
+
+  get gateway(): boolean {
+    return this.problem_set.get('assignment_type') === 'gateway' ||
+        this.problem_set.get('assignment_type') === 'proctored_gateway';
+  }
+
+  @Watch('problem_set')
+  private problemSetChanged() {
+    this.set_params = this.problem_set.getAttributes();
+  }
+  @Watch('set_params', {deep: true})
+  private setParamsChanged(new_set: ProblemSetAttributes, old_set: ProblemSetAttributes) {
+    if (new_set.set_id === old_set.set_id) {
+      store.updateProblemSet(new_set.set_id, new_set);
+    }
+  }
+
+}
 </script>
 
 <style scope>

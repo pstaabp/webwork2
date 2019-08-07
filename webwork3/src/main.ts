@@ -28,9 +28,18 @@ import {faExchangeAlt } from '@fortawesome/free-solid-svg-icons/faExchangeAlt';
 import {faCogs } from '@fortawesome/free-solid-svg-icons/faCogs';
 import {faCog} from '@fortawesome/free-solid-svg-icons/faCog';
 import {faSignOutAlt} from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
+import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
+import {faPencilAlt} from '@fortawesome/free-solid-svg-icons/faPencilAlt';
+import {faSync} from '@fortawesome/free-solid-svg-icons/faSync';
+import {faTrashAlt} from '@fortawesome/free-solid-svg-icons/faTrashAlt';
+import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
+import {faFile} from '@fortawesome/free-solid-svg-icons/faFile';
+import {faBullseye} from '@fortawesome/free-solid-svg-icons/faBullseye';
+import {faArrowsAltV} from '@fortawesome/free-solid-svg-icons/faArrowsAltV';
 
 library.add(faCalendar, faUsers, faInfoCircle, faUniversity, faListAlt, faEdit, faChartBar,
-              faExchangeAlt, faCogs, faCog, faSignOutAlt);
+              faExchangeAlt, faCogs, faCog, faSignOutAlt, faPlus, faPencilAlt, faSync,
+            faTrashAlt, faCheck, faFile, faBullseye, faArrowsAltV);
 
 import Vue from 'vue';
 

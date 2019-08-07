@@ -21,7 +21,7 @@ const store = getModule(WeBWorKStore);
 
 // models
 import User from '@/models/User';
-import UserList from '@/models/UserList';
+// import UserList from '@/models/UserList';
 
 @Component({
   name: 'Manager',

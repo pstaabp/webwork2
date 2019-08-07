@@ -1,6 +1,6 @@
 export default abstract class Model {
   protected abstract  _idAttribute: string;
-  private _attrs: Map<string, any>;
+  protected _attrs: Map<string, any>;
   private _previousAttributes: Map<string, any>;
 
 
@@ -104,7 +104,7 @@ export default abstract class Model {
     return diff;
   }
 
-  private parse(attrs: {[key: string]: string}): void {
+  protected parse(attrs: {[key: string]: any}): void {
     const types: {[key: string]: string | RegExp} = this.dataTypes();
     for (const key of Object.keys(attrs)) {
       const type = types[key];

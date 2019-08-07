@@ -9,17 +9,17 @@
             <th>Sect.</th><th>Rec.</th><th>Comment</th><th>Permission</th>
           </thead>
           <tbody>
-            <tr v-for="i in num_students" :key="users[i-1].user_id">
-              <td><b-input size="sm" v-model="users[i-1].user_id" /></td>
-              <td><b-input size="sm" v-model="users[i-1].first_name" /></td>
-              <td><b-input size="sm" v-model="users[i-1].last_name" /></td>
-              <td><b-input size="sm" v-model="users[i-1].email_address" type="email" /></td>
-              <td><b-input size="sm" v-model="users[i-1].student_id" /></td>
-              <td><b-input size="sm" v-model="users[i-1].status" /></td>
-              <td><b-input size="sm" v-model="users[i-1].section" /></td>
-              <td><b-input size="sm" v-model="users[i-1].recitation" /></td>
-              <td><b-input size="sm" v-model="users[i-1].comment" /></td>
-              <td><b-input size="sm" v-model="users[i-1].permission" /></td>
+            <tr v-for="i in num_students" :key="users[i-1].get('user_id')">
+              <td><b-input size="sm" v-model="users[i-1].get('user_id')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('first_name')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('last_name')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('email_address')" type="email" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('student_id')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('status')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('section')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('recitation')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('comment')" /></td>
+              <td><b-input size="sm" v-model="users[i-1].get('permission')" /></td>
             </tr>
           </tbody>
         </table>
@@ -36,25 +36,20 @@
 
 
 
-<script>
+<script lang="ts">
 import User from '@/models/User';
 
-export default {
-  name: 'ImportStudentsFile',
-  data() {
-    return {
-      num_students: 1,
-      users: [new User()],
-    };
-  },
-  methods: {
-    cancel() {
-      this.$refs.addstudmodal.hide();
-    },
-    addAll() {
-       // tslint:disable-next-line
-        console.log(this.data);
-    },
-  },
-};
+import { Vue, Component, Prop } from 'vue-property-decorator';
+@Component({
+  name: 'ImportStudentsFiles',
+})
+export default class ImportStudentsFile extends Vue {
+  private num_students: number = 0;
+  private users: User[] = [];
+
+  private addAll() {
+     // tslint:disable-next-line
+      console.log(this.users);
+  }
+}
 </script>

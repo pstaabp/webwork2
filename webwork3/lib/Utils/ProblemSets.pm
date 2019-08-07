@@ -47,9 +47,9 @@ sub getGlobalSet {
 
   my @users = $db->listSetUsers($setName);
   my @problems = $db->getAllGlobalProblems($setName);
-  for my $problem (@problems){
-    $problem->{_id} = $problem->{set_id} . ":" . $problem->{problem_id};  # this helps backbone on the client side
-  }
+  # for my $problem (@problems){
+  #   $problem->{_id} = $problem->{set_id} . ":" . $problem->{problem_id};  # this helps backbone on the client side
+  # }
 
   my $proctor_id = "set_id:".$set->{set_id};
   if($db->existsUser($proctor_id)){
@@ -62,7 +62,7 @@ sub getGlobalSet {
 
   $problemSet->{assigned_users} = \@users;
   $problemSet->{problems} = convertArrayOfObjectsToHash(\@problems);
-  $problemSet->{_id} = $setName; # this is needed so that backbone works with the server.
+  # $problemSet->{_id} = $setName; # this is needed so that backbone works with the server.
 
   return $problemSet;
 }

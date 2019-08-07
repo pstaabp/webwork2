@@ -19,9 +19,9 @@
         </thead>
         <tbody>
           <CalendarRow v-for="day in first_days"
-            :first_day_of_week="{date: day.date, month: day.month, year: day.year}"
+            :first_day_of_week="day"
             :problem_sets="problem_sets"
-            :key="'row_'+ day.month +':' + day.date"/>
+            :key="day.format('DD-MM-YYYY')"/>
         </tbody>
       </table>
     </b-row>
@@ -30,54 +30,63 @@
 
 
 
-<script>
-import {mapState} from 'vuex';
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
 
 import CalendarRow from './CalendarComponents/CalendarRow.vue';
-import moment from 'moment';
-export default {
+import * as moment from 'moment';
+
+import ProblemSetList from '@/models/ProblemSetList';
+
+@Component({
   name: 'Calendar',
   components: {
     CalendarRow,
   },
-  data() {
-      return {
-        first_days: [],
-      };
-  },
-  computed: {
-    ...mapState(['problem_sets']),
-    monthName: () => moment().format('MMMM YYYY'),
-    dayNames: () => moment.weekdays(),
-  },
-  methods: {
-    shiftCalendar(week) {
-      let first = null;
-      if (week === 0) {
-        const now = moment();
-        first = moment().subtract(now.days(), 'days');
-        while (first.get('month') === now.get('month')) {
-          first = first.subtract(7, 'days');
-        }
-      } else {
-        first = new moment({
-          month: this. first_days[0].month,
-          date: this.first_days[0].date,
-          year: this.first_days[0].year,
-        });
-        first.add(week, 'weeks');
-      }
-      // this produces an array of the days of the first of the week.
-      this.first_days = [0, 1, 2, 3, 4, 5].map( (i) => {
-        const d = moment(first).add(i * 7, 'days');
-        return {month: d.get('month'), date: d.get('date'), year: d.get('year')};
-      });
-    },
-  },
-  created() {
+})
+export default class Calendar extends Vue {
+  private first_days!: moment.Moment[];  // the first of the week for the calendar.
+
+
+  get monthName(): string {
+    return moment.default().format('MMMM YYYY');
+  }
+
+  get dayNames(): string[] {
+    return moment.weekdays();
+  }
+
+  get problem_sets(): ProblemSetList {
+    return store.problem_sets;
+  }
+
+  public created(): void {
     this.shiftCalendar(0);
-  },
-};
+  }
+
+  private shiftCalendar(week: number) {
+    let first: moment.Moment = moment.default();
+    if (week === 0) {
+      const now = moment.default();
+      first = moment.default().subtract(now.days(), 'days');
+      while (first.get('month') === now.get('month')) {
+        first = first.subtract(7, 'days');
+      }
+    } else {
+      first = moment.default(this.first_days[0]);
+      first.add(week, 'weeks');
+    }
+    // this produces an array of the days of the first of the week.
+    this.first_days = [0, 1, 2, 3, 4, 5].map( (i) => moment.default(first).add(7 * i, 'days'));
+  }
+
+}
 </script>
 
 <style>

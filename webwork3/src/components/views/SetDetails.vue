@@ -9,9 +9,10 @@
       <b-tab title="Set Headers"><set-headers :selected_set_id="selected_set_id"/></b-tab>
       <template slot="tabs">
         <b-nav-item href="#" @click="() => {}" id="custom-tab">
-          <b-select size="sm" v-model="selected_set_id" @change="check">
+          <b-select size="sm" v-model="selected_set_id">
             <option :value="null" selected :disabled="true">Select a Set</option>
-            <option v-for="set in problem_sets" :value="set.set_id" :key="set.set_id">{{set.set_id}}</option>
+            <option v-for="set in problem_sets.models()" :value="set.get('set_id')" :key="set.get('set_id')">
+                {{set.get('set_id')}}</option>
           </b-select>
         </b-nav-item>
       </template>
@@ -21,71 +22,76 @@
 
 
 
-<script>
-import {mapState} from 'vuex';
+<script lang="ts">
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 
-import SetInfo from './SetDetailsComponents/SetInfo';
-import ProblemListView from './SetDetailsComponents/ProblemListView';
-import AssignUsers from './SetDetailsComponents/AssignUsers';
-import SetHeaders from './SetDetailsComponents/SetHeaders';
+
+import SetInfo from './SetDetailsComponents/SetInfo.vue';
+import ProblemListView from './SetDetailsComponents/ProblemListView.vue';
+import AssignUsers from './SetDetailsComponents/AssignUsers.vue';
+import SetHeaders from './SetDetailsComponents/SetHeaders.vue';
 
 import ProblemSet from '@/models/ProblemSet';
+import ProblemSetList from '@/models/ProblemSetList';
 
-export default {
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+@Component({
   name: 'SetDetails',
-  data() {
-      return {
-        selected_set_id: null,
-      problem_set: new ProblemSet(),
-        data_loading : true,
-      };
-  },
   components: {
     SetInfo,
     ProblemListView,
     AssignUsers,
     SetHeaders,
   },
-  computed: {
-    ...mapState(['problem_sets']),
-  },
-  watch: {
-    selected_set_id() {
-      this.problem_set = this.problem_sets.find( (_set) => _set.set_id === this.selected_set_id);
-    },
-    problem_sets() {
-      this.problem_set = this.problem_sets.find( (_set) => _set.set_id === this.selected_set_id);
-    },
-    problem_set: {
-      handler() {
+})
+export default class SetDetails extends Vue {
+  private selected_set_id: string = '';
+  private problem_set: ProblemSet = new ProblemSet({set_id: 'XXX___'});
+  private data_loading: boolean = true;
+  private validReducedScoring: boolean = true;
+  private validDueDate: boolean = true;
+  private validAnswerDate: boolean = true;
 
-        if (this.data_loading) {
-          this.data_loading = false;
-          return;
-        }
-        if (this.validReducedScoring && this.validDueDate && this.validAnswerDate) {
+  // @Prop()
+  // private problem_sets!: ProblemSetList;
 
-          Object.assign(this.problem_set, this.msgUpdateProblemSet(this.set_params, this.problem_set));
-          this.$store.dispatch('updateProblemSet', this.problem_set);
-          this.set_params = Object.assign({}, this.problem_set);
-        }
-      },
-      deep: true,
-    },
-  },
-  methods: {
-    check() {
-      // eslint-disable-next-line
-      // console.log(this.selected_set_id)
-      return {};
-    },
-  },
-  mounted() {
-    if (this.$route.query.set_id) {
-      this.selected_set_id = this.$route.query.set_id;
+  public mounted() {
+    if (this.$route.query && this.$route.query.set_id) {
+      this.selected_set_id = this.$route.query.set_id as string;
     }
-  },
-};
+    // tslint:disable-next-line
+    console.log(this.problem_sets);
+  }
+
+  @Watch('selected_set_id')
+  private selectedSetIdChanged(val: string, oldVal: string) {
+    this.problem_set = this.problem_sets.get(this.selected_set_id);
+  }
+
+  @Watch('problem_sets')
+  private problemSetsChanged(val: string, oldVal: string) {
+    this.problem_set = this.problem_sets.get(this.selected_set_id);
+  }
+
+  @Watch('problem_set', {deep: true})
+  private updateSet3(val: string, oldVal: string) {
+    if (this.data_loading) {
+      this.data_loading = false;
+      return;
+    }
+    // validate the problem set update
+  }
+
+  get problem_sets() {
+    return store.problem_sets;
+  }
+
+} // class SetDetails
 </script>
 
 <style scoped>

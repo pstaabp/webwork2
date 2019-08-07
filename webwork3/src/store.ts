@@ -4,8 +4,10 @@ import {VuexModule, Module, Mutation, Action} from 'vuex-module-decorators';
 // import Vuex from 'vuex';
 import axios from 'axios';
 
-import ProblemSet from '@/models/ProblemSet';
+import ProblemSet, {ProblemSetAttributes} from '@/models/ProblemSet';
 import ProblemSetList from '@/models/ProblemSetList';
+import Problem from '@/models/Problem';
+import ProblemList from '@/models/ProblemList';
 import User from '@/models/User';
 import UserList from '@/models/UserList';
 import Message from '@/models/Message';
@@ -157,7 +159,8 @@ export default class WeBWorKStore extends VuexModule {
   public async fetchUsers() {
     axios.get(this.api_url + '/courses/' + this.login_info.course_id + '/users')
     .then((response) => {
-      this.context.commit('SET_USERS', response.data.map( (_u: {[key: string]: string}) => new User(_u)));
+      const _users = new UserList(response.data.map( (_u: {[key: string]: string}) => new User(_u)));
+      this.context.commit('SET_USERS', _users);
     })
     .catch((error) => {
         this.context.commit('SET_USERS', []);
@@ -168,6 +171,8 @@ export default class WeBWorKStore extends VuexModule {
 
   @Action
   public async updateUser(_user: User) {
+    // tslint:disable-next-line
+    console.log("here");
     axios.put(this.api_url + '/courses/' + this.login_info.course_id + '/users/' + _user.get('user_id'), _user)
       .then((response) => {
         this.context.commit('SET_USER', response.data);
@@ -198,7 +203,13 @@ export default class WeBWorKStore extends VuexModule {
     .then((response) => {
       // tslint:disable-next-line
       console.log("in fetchProblemSets");
-      this.context.commit('SET_PROBLEM_SETS', response.data);
+
+      const _sets = new ProblemSetList(response.data.map( (_s: {[key: string]: any}) => new ProblemSet(_s)));
+
+      // tslint:disable-next-line
+      console.log(_sets);
+
+      this.context.commit('SET_PROBLEM_SETS', _sets);
     })
     .catch((error) => {
         this.context.commit('SET_PROBLEM_SETS', []);
@@ -232,8 +243,11 @@ export default class WeBWorKStore extends VuexModule {
   } // removeProblemSet
 
   @Action
-  public async updateProblemSet(_set: ProblemSet) {
-    axios.put(this.api_url + '/courses/' + this.login_info.course_id + '/sets/' + _set.get('set_id'), _set)
+  public async updateProblemSet(set_id: string, attrs: {[key: string]: any}) {
+    const _set = this.problem_sets.get(set_id);
+    _set.set(attrs);
+    axios.put(this.api_url + '/courses/' + this.login_info.course_id + '/sets/'
+          + _set.get('set_id'), _set.getAttributes())
     .then((response) => {
       this.context.commit('SET_PROBLEM_SET', response.data);
       this.context.commit('ADD_MESSAGE', _set.get('_message_short'));

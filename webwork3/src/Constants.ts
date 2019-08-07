@@ -60,7 +60,7 @@ export default class Constants {
       return moment.unix(dateInUnix).format('HH:mm');
   }
 
-  public static parseDatetimeForBrowser(dateString: number) {
+  public static parseDatetimeForBrowser(dateString: string) {
     return moment(dateString, 'YYYY-MM-DD[T]HH:mm').unix();
   }
 } // class Constants

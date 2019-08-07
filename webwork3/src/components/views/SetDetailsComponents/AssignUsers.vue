@@ -4,7 +4,7 @@
       <b-col>Users assigned to {{set_id}}</b-col>
       <b-col v-if="selected_users.length == 0">
         <b-btn variant="outline-dark">Select Users to Override Dates</b-btn> </b-col>
-      <b-col v-if="selected_users.length > 0">
+      <b-col v-else>
         <b-btn variant="outline-dark" @click="save">Save Override Dates</b-btn> </b-col>
     </b-row>
 
@@ -57,80 +57,77 @@
 
 
 
-<script>
-import { mapGetters, mapState } from 'vuex';
+<script lang="ts">
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
+
 import ProblemSetMixin from '@/mixins/problem_set_mixin';
 
-export default {
+import User from '@/models/User';
+import ProblemSet from '@/models/ProblemSet';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+
+@Component({
   name: 'AssignUsers',
   mixins: [ProblemSetMixin],
-  data() {
-    return {
-      assigned: [], // array of the checkboxes
-      fields: ['assigned', 'user_id', 'first_name', 'last_name'],
-      filter_out: /^set_id:/,
-      selected_users: [], // which rows are selected
-      per_page: 10,
-      current_page: 1,
-    };
-  },
-  props: {
-    problem_set: Object,
-  },
-  computed: {
-    ...mapGetters(['getAssignedUsers', 'getUsers']),
-    ...mapState(['users']),
-    set_id() {
-      return this.problem_set ? this.problem_set.set_id : '';
-    },
-  },
-  watch: {
-    current_page() {
-      this.setSelectedCheckboxes();
-    },
-  },
-  mounted() { // TODO: handle proctor users in a better way.
-    // this.$store.watch(() => this.getAssignedUsers(this.set_id),
-    //     _users => { this.setSelectedCheckboxes() });
+})
+export default class AssignUsers extends Vue {
+  private assigned: boolean[] = []; // array of the checkboxes
+  private fields: string[] = ['assigned', 'user_id', 'first_name', 'last_name'];
+  private filter_out: RegExp = /^set_id:/;
+  private selected_users: User[] = []; // which rows are selected
+  private per_page: number =  10;
+  private current_page: number = 1;
 
+  @Prop()
+  private problem_set!: ProblemSet;
 
-        // I think this is to determine if the problem_set has been updated.
-    // this.$store.watch(() => this.getSet(this.selected_set_id),
-    //   _set => {
-    //     const selected_set = {...this.getSet(this.selected_set_id)}; // make a copy of the set
-    //     if (selected_set == undefined) {return;}
-    //     Object.assign(this.problem_set, ...common.date_props.map(prop => ({[prop]: _set[prop]})));
-    // });
-  },
-  methods: {
-    removeProctors(obj1, obj2) {
-      return !obj2.test(obj1.user_id);
-    },
-    rowSelected(items) {
-      this.selected_users = items;
-    },
-    toggleAssigned(index) {
-      this.assigned[index] = !this.assigned[index];
-      // get this user id of the selected user
-      const user = this.getUsers[(this.current_page - 1) * this.per_page + index].user_id;
-      if (this.assigned[index]) { // add the user to the assigned users
-        const _users = [...this.problem_set.assigned_users];
-        _users.push(user);
-        this.problem_set.assigned_users = _users;
-      } else { // remove the user from the assigned users
-        this.problem_set.assigned_users = this.problem_set.assigned_users.filter( (_u) => _u !== user);
-      }
+  get set_id() {
+    return this.problem_set ? this.problem_set.get('set_id') : '';
+  }
 
-//      this.$store.dispatch("updateProblemSet",this.problem_set);
-    },
-    setSelectedCheckboxes() {
-      const users = this.getUsers.filter((_u, i) => i < this.current_page * this.per_page &&
-                                                i >= (this.current_page - 1) * this.per_page);
-      this.assigned = users.map((user) => this.problem_set.assigned_users.includes(user.user_id));
-    },
-    save() {
-      // save something here.
-    },
-  }, // methods
-};
+  get users() {
+    return store.users.models();
+  }
+
+  @Watch('current_page')
+  private onChangeCurrentPage(): void {
+    this.setSelectedCheckboxes();
+  }
+
+  private removeProctors(obj1: User, obj2: RegExp) {
+    return !obj2.test(obj1.get('user_id'));
+  }
+
+  private rowSelected(items: User[]): void {
+    this.selected_users = items;
+  }
+
+  private toggleAssigned(index: number): void {
+    this.assigned[index] = !this.assigned[index];
+    // get this user id of the selected user
+    const users = store.users.models();
+    const user = users[(this.current_page - 1) * this.per_page + index].get('user_id');
+    if (this.assigned[index]) { // add the user to the assigned users
+      const _users = [...this.problem_set.get('assigned_users')];
+      _users.push(user);
+      this.problem_set.set({assigned_users: _users});
+    } else { // remove the user from the assigned users
+      this.problem_set.set({assigned_users: this.problem_set.get('assigned_users')
+              .filter( (_user_id: string) => _user_id !== user)});
+    }
+
+  }
+
+  private setSelectedCheckboxes() {
+    const users = store.users.models().filter((_u: User, i: number) => i < this.current_page * this.per_page &&
+                                              i >= (this.current_page - 1) * this.per_page);
+    this.assigned = users.map((user: User) => this.problem_set.get('assigned_users').includes(user.get('user_id')));
+  }
+}
 </script>

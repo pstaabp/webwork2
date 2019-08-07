@@ -1,7 +1,7 @@
 <template>
   <div class="scrollable">
     <draggable handle=".drag-handle" @sort="reordered">
-      <ProblemView v-for="problem in getProblems" :key="problem.problem_id"
+      <ProblemView v-for="problem in problems" :key="problem.problem_id"
           :problem="problem" type="set"/>
     </draggable>
   </div>
@@ -9,40 +9,42 @@
 
 
 
-<script>
-import {mapState} from 'vuex';
+<script lang="ts">
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
+
 import ProblemView from '@/components/common_components/ProblemView.vue';
 import draggable from 'vuedraggable';
 
-export default {
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+@Component({
   name: 'ProblemListView',
-  props: {
-    selected_set_id: String,
-  },
   components: {
     ProblemView, draggable,
   },
-  data() {
-    return {
+})
+export default class ProblemListView extends Vue {
 
-    };
-  },
-  computed: {
-    ...mapState(['problem_sets']),
-    getProblems() {
-      const sets = this.problem_sets;
-      if (sets === undefined || sets.length === 0) {
-        return [];
-      }
+  @Prop()
+  private selected_set_id!: string;
 
-      const problemSet = sets.find( (set) => set.set_id === this.selected_set_id);
-      return problemSet === undefined ? [] : problemSet.problems;
-    },
-  }, // computed
-  methods: {
-    reordered() {
-      // reorder the problems
-    },
-  },
-};
+  get problems() {
+    const sets = store.problem_sets;
+    if (sets === undefined || sets.size() === 0 || this.selected_set_id === '') {
+      return [];
+    }
+
+    const problemSet = sets.get(this.selected_set_id);
+    return problemSet === undefined ? [] : problemSet.get('problems').models();
+  }
+
+  private reordered() {
+    //
+  }
+
+}
 </script>

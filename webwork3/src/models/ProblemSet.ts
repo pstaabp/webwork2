@@ -1,6 +1,44 @@
 import Model from './Model';
 import UserList from './UserList';
 import ProblemList from './ProblemList';
+import Problem from './Problem';
+
+export interface ProblemSetAttributes {
+  set_id: string;
+  assigned_users: string[];
+  problems: ProblemList;
+  set_header: string;
+  hardcopy_header: string;
+  open_date: number;
+  due_date: number;
+  answer_date: number;
+  reduced_scoring_date: number;
+  visible: boolean;
+  enable_reduced_scoring: boolean;
+  assignment_type: string;
+  description: string;
+  restricted_release: string;
+  restricted_status: number;
+  attempts_per_version: number;
+  time_interval: number;
+  versions_per_interval: number;
+  version_time_limit: number;
+  version_creation_time: number;
+  problem_randorder: boolean;
+  version_last_attempt_time: number;
+  problems_per_page: number;
+  hide_score: string;
+  hide_score_by_problem: string;
+  hide_work: string;
+  time_limit_cap: number;
+  restrict_ip: string;
+  relax_restrict_ip: string;
+  restricted_login_proctor: string;
+  hide_hint: boolean;
+  restrict_prob_progression: boolean;
+  email_instructor: boolean;
+  pg_password: string;
+}
 
 export default class ProblemSet extends Model {
 
@@ -10,11 +48,11 @@ export default class ProblemSet extends Model {
     super(attrs, opts);
   }
 
-  public defaults() {
+  public defaults(): ProblemSetAttributes {
     return {
       set_id: '',
-      assigned_users: UserList,
-      problems: ProblemList,
+      assigned_users: [],  // array of user_id's
+      problems: new ProblemList(),
       set_header: '',
       hardcopy_header: '',
       open_date: 0,
@@ -45,7 +83,14 @@ export default class ProblemSet extends Model {
       hide_hint: false,
       restrict_prob_progression: false,
       email_instructor: false,
+      pg_password: '',
     };
+  }
+
+  public getAttributes(): ProblemSetAttributes {
+    return Array.from(this._attrs).reduce((obj, [key, value]) => (
+      Object.assign(obj, { [key]: value })
+    ), this.defaults());
   }
 
   public dataTypes(): {[key: string]: string | RegExp} {
@@ -56,11 +101,19 @@ export default class ProblemSet extends Model {
       due_date: 'nonnegint',
       answer_date:  'nonnegint',
       assigned_users: 'UserList',
+      pg_password: 'string',
     };
   }
 
   public required_fields() {
     return ['set_id'];
+  }
+
+  protected parse(attrs: {[key: string]: any}): void {
+    const _probs = attrs.problems || [];
+    this._attrs.set('problems', new ProblemList(_probs.map( (_prob: {[key: string]: any}) => new Problem(_prob))));
+    delete attrs.problems;
+    super.parse(attrs);
   }
 
 } // class Problem Set

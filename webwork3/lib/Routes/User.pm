@@ -21,8 +21,8 @@ use Data::Dump qw/dump/;
 
 get '/courses/:course_id/users' => sub { #require_role professor => sub {
 
-	debug "in get /courses/:course_id/users";
-	debug dump route_parameters;
+	# debug "in get /courses/:course_id/users";
+	# debug dump route_parameters;
 
   my @user_ids = vars->{db}->listUsers;
   my @users = map { get_one_user(vars->{db},$_);} @user_ids;
@@ -67,7 +67,7 @@ post '/courses/:course_id/users/:user_id' => sub { #require_role professor => su
 
 post '/courses/:course_id/users' => require_role professor => sub {
 
-  debug "in POST /courses/:course_id/users";
+  # debug "in POST /courses/:course_id/users";
   my $users = body_parameters->multi->{users};
 
   my @users_to_add;
@@ -88,7 +88,7 @@ post '/courses/:course_id/users' => require_role professor => sub {
 
 put '/courses/:course_id/users/:user_id' => sub { #=> require_any_role [qw/professor student/] => sub {
 
-	debug dump body_parameters;
+	# debug dump body_parameters;
 
   ## if the user is a student, they can only change their own information.
 
@@ -128,7 +128,7 @@ put '/courses/:course_id/users/:user_id' => sub { #=> require_any_role [qw/profe
     }
   }
 
-	debug $user;
+	# debug $user;
 
 	return get_one_user(vars->{db},$user->{user_id});
 
@@ -147,7 +147,7 @@ del '/courses/:course_id/users/:user_id' => require_role professor => sub {
 
 	# check to see if the user exists
 
-  debug "in /courses/:course_id/users/:user_id";
+  # debug "in /courses/:course_id/users/:user_id";
 
   my $user_id = route_parameters->{user_id};
 	my $user = vars->{db}->getUser($user_id); # checked
@@ -176,7 +176,7 @@ del '/courses/:course_id/users/:user_id' => require_role professor => sub {
 
 get '/courses/:course_id/users/status/login' => sub { #require_role professor => sub {
 
-  debug "in /courses/:course_id/users/status/login";
+  # debug "in /courses/:course_id/users/status/login";
 
 	my @users = vars->{db}->listUsers();
 
@@ -204,7 +204,7 @@ post '/courses/:course_id/users/:user_id/password' => require_any_role [qw/profe
 	my $user = vars->{db}->getUser($user_id);
 	send_error("The user with login $user_id  does not exist",404) unless $user;
 
-  debug body_parameters;
+  # debug body_parameters;
 
 	my $password = vars->{db}->getPassword($user_id);
   if (user_has_role('student')){
@@ -216,7 +216,7 @@ post '/courses/:course_id/users/:user_id/password' => require_any_role [qw/profe
         return {message => "orig password not correct", success => 0, user_id => $user_id};
 	  }
   } else { ## professor has permission to change without old password.
-    debug body_parameters->{new_password};
+    # debug body_parameters->{new_password};
     $password->{password} = cryptPassword(body_parameters->{new_password});
     vars->{db}->putPassword($password);
     return {message => "password changed", success => 1, user_id => $user_id};

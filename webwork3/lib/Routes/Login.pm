@@ -37,15 +37,6 @@ hook before => sub {
 	setCourseEnvironment(session 'course_id') if defined (session 'course_id');
 };
 
-
-get '/login' => sub {
-  debug 'in get /login';
-
-  return {};
-
-};
-
-
 post '/courses/:course_id/login' => sub {
 
 	#debug "in POST /courses/:course_id/login";
@@ -83,11 +74,11 @@ post '/courses/:course_id/login' => sub {
 
 get '/courses/:course_id/login'  => require_login sub {
 
-    debug "here";
-
-    debug session->read("logged_in_user");
-
-    debug vars->{db}->getPermissionLevel(session->read("logged_in_user"));
+    # debug "here";
+		#
+    # debug session->read("logged_in_user");
+		#
+    # debug vars->{db}->getPermissionLevel(session->read("logged_in_user"));
 
     my $perm = vars->{db}->getPermissionLevel(session->read("logged_in_user"))->{permission};
     my $user = vars->{db}->getUser(session->read("logged_in_user"));
@@ -104,7 +95,7 @@ get '/courses/:course_id/login'  => require_login sub {
 
 post '/courses/:course_id/logout' => sub {
 
-	debug "in POST /courses/:course_id/logout";
+	# debug "in POST /courses/:course_id/logout";
 	my $deleteKey = vars->{db}->deleteKey(session 'logged_in_user');
 	app->destroy_session;
 
