@@ -69,6 +69,7 @@ my @modulesList = qw(
 	File::Path
 	File::Spec
 	File::stat
+	File::Slurp
 	File::Temp
 	GD
 	Getopt::Long
@@ -82,6 +83,7 @@ my @modulesList = qw(
 	Iterator
 	Iterator::Util
 	JSON
+	List::MoreUtils
 	Locale::Maketext::Lexicon
 	Locale::Maketext::Simple
 	LWP::Protocol::https
