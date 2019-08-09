@@ -37,7 +37,6 @@ export interface ProblemSetAttributes {
   hide_hint: boolean;
   restrict_prob_progression: boolean;
   email_instructor: boolean;
-  pg_password: string;
 }
 
 export default class ProblemSet extends Model {
@@ -83,14 +82,16 @@ export default class ProblemSet extends Model {
       hide_hint: false,
       restrict_prob_progression: false,
       email_instructor: false,
-      pg_password: '',
     };
   }
 
   public getAttributes(): ProblemSetAttributes {
-    return Array.from(this._attrs).reduce((obj, [key, value]) => (
+    const all_attrs = Array.from(this._attrs).reduce((obj, [key, value]) => (
       Object.assign(obj, { [key]: value })
     ), this.defaults());
+    const _probs = this.get('problems').models().map( (_prob: Problem) => _prob.getAttributes() );
+    all_attrs.problems = _probs;
+    return all_attrs;
   }
 
   public dataTypes(): {[key: string]: string | RegExp} {
@@ -101,7 +102,6 @@ export default class ProblemSet extends Model {
       due_date: 'nonnegint',
       answer_date:  'nonnegint',
       assigned_users: 'UserList',
-      pg_password: 'string',
     };
   }
 

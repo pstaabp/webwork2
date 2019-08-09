@@ -2,51 +2,64 @@
   <li class="problem p-2 rounded">
     <b-container>
       <b-row>
-        <b-btn-toolbar>
-          <b-input-group size="sm" v-if="typeProp('numbered')">
-            <span class="problem-id">{{problem.problem_id}}</span>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Value:" class="col-3" v-if="typeProp('value')" >
-            <b-input type="number" v-model="problem.value"/>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Max. Att.:" class="col-3" v-if="typeProp('attempts')">
-            <b-input type="number" v-model="problem.max_attempts"/>
-          </b-input-group>
-          <b-btn-group size="sm">
-            <b-btn variant="outline-dark" title="add problem" v-if="typeProp('add')"
-                @click="$emit('add-problem',problem)">
-                <font-awesome-icon icon='plus'/>
+        <b-col cols="6">
+          <b-row>
+            <b-col cols="2" v-if="prop.numbered">
+              <b-input-group size="sm">
+                <span class="problem-id">{{problem.get('problem_id')}}</span>
+              </b-input-group>
+            </b-col>
+            <b-col cols="5" v-if="prop.value">
+              <b-input-group size="sm">
+                <b-input-group-text slot="prepend">Value:</b-input-group-text>
+                <b-input type="number" v-model="value"/>
+              </b-input-group>
+            </b-col>
+            <b-col cols="5" v-if="prop.attempts">
+              <b-input-group size="sm" prepend="Max. Att.:">
+                <b-input type="number" v-model="max_attempts"/>
+              </b-input-group>
+            </b-col>
+          </b-row>
+        </b-col>
+        <b-col cols="5">
+          <b-btn-toolbar>
+            <b-btn-group size="sm">
+              <b-btn variant="outline-dark" title="add problem" v-if="prop.add"
+                  @click="$emit('add-problem',problem)">
+                  <font-awesome-icon icon='plus'/>
+                </b-btn>
+              <b-btn variant="outline-dark" title="edit" v-if="prop.edit" disabled>
+                <font-awesome-icon icon='pencil-alt'/>
               </b-btn>
-            <b-btn variant="outline-dark" title="edit" v-if="typeProp('edit')" disabled>
-              <font-awesome-icon icon='pencil-alt'/>
-            </b-btn>
-            <b-btn variant="outline-dark" title="randomize" v-if="typeProp('randomize')"
-              @click="randomize"> <font-awesome-icon icon='sync'/>
-            </b-btn>
-            <b-btn variant="outline-dark" title="delete problem" v-if="typeProp('delete')">
-              <font-awesome-icon icon='trash-alt'/>
-            </b-btn>
-            <b-btn variant="outline-dark" title="Mark this problem correct for all assigned users."
-                v-if="typeProp('mark_all')" disabled><font-awesome-icon icon='check'/>
+              <b-btn variant="outline-dark" title="randomize" v-if="prop.randomize"
+                @click="randomize"> <font-awesome-icon icon='sync'/>
               </b-btn>
-            <b-btn variant="outline-dark" title="show/hide tags" v-if="typeProp('tags')">
-              <font-awesome-icon icon='tags'/>
-            </b-btn>
-            <b-btn :variant="show_path ? 'success' : 'outline-dark'" title="show/hide path" v-if="typeProp('path')"
-                @click="show_path = !show_path"><font-awesome-icon icon='file'/>
+              <b-btn variant="outline-dark" title="delete problem" v-if="prop.delete">
+                <font-awesome-icon icon='trash-alt'/>
               </b-btn>
-            <b-btn variant="outline-dark" title="This problem is in the target set." v-if="typeProp('target_set')">
-              <font-awesome-icon icon='bullseye'/>
+              <b-btn variant="outline-dark" title="Mark this problem correct for all assigned users."
+                  v-if="prop.mark_all" disabled><font-awesome-icon icon='check'/>
+                </b-btn>
+              <b-btn variant="outline-dark" title="show/hide tags" v-if="prop.tags">
+                <font-awesome-icon icon='tags'/>
+              </b-btn>
+              <b-btn :variant="show_path ? 'success' : 'outline-dark'" title="show/hide path" v-if="prop.path"
+                  @click="show_path = !show_path"><font-awesome-icon icon='file'/>
+                </b-btn>
+              <b-btn variant="outline-dark" title="This problem is in the target set." v-if="prop.target_set">
+                <font-awesome-icon icon='bullseye'/>
+              </b-btn>
+            </b-btn-group>
+          </b-btn-toolbar>
+        </b-col>
+        <b-col cols="1">
+          <b-btn-group size="sm" class="float-right" v-if="prop.reorder">
+            <b-btn class="drag-handle border border-dark rounded p-2" variant="outline-dark">
+              <font-awesome-icon icon="arrows-alt-v" />
             </b-btn>
           </b-btn-group>
-        </b-btn-toolbar>
-        <b-btn-group size="sm" class="float-right" v-if="typeProp('reorder')">
-          <b-btn class="drag-handle border border-dark rounded p-2" variant="outline-dark">
-            <font-awesome-icon icon="arrows-alt-v" />
-          </b-btn>
-        </b-btn-group>
-
-
+        </b-col>
       </b-row>
       <b-row v-if="show_path">
         Path: {{problem.source_file}}
@@ -82,7 +95,6 @@ export default class ProblemView extends Vue {
   private html: string = '';
   private show_tags: boolean = false;
   private show_path: boolean = false;
-  private model!: Problem;
 
   @Prop()
   private problem!: Problem;
@@ -90,7 +102,6 @@ export default class ProblemView extends Vue {
   private type!: string;
 
   public mounted() {
-    this.model = null;
     this.fetchProblem();
   }
 
@@ -103,8 +114,32 @@ export default class ProblemView extends Vue {
         });
   }
 
-  private typeProp(prop: string): string {
-    return this.type === 'library' ? LIB_PROB[prop] : SET_PROB[prop];
+  get prop(): ProblemViewOptions {
+    return this.type === 'library' ? LIB_PROB : SET_PROB;
+  }
+
+  get value(): number {
+    return this.problem.get('value');
+  }
+
+  set value(value: number) {
+    if (value !== this.problem.get('value')) {
+      // update the problem.
+      // tslint:disable-next-line
+      console.log(value);
+    }
+  }
+
+  get max_attempts(): number {
+    return this.problem.get('max_attempts');
+  }
+
+  set max_attempts(value: number) {
+    if (value !== this.problem.get('max_attempts')) {
+      // update the problem.
+      // tslint:disable-next-line
+      console.log(value + ":" + this.problem.get('max_attempts'));
+    }
   }
 
   private addProblem(evt: Event): void {
@@ -118,7 +153,6 @@ export default class ProblemView extends Vue {
 
   @Watch('problem')
   private problemChange(): void {
-    this.model = null;
     this.fetchProblem();
   }
 

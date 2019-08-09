@@ -12,52 +12,96 @@ import Component from 'vue-class-component';
 export default class ProblemSetMixin extends Vue {
   [x: string]: any;
 
-  get displayOpenDate(): string {
-    return Constants.formatDatetimeForBrowser(this.set_params.open_date);
+  get set_id() {
+    return this.problem_set.get('set_id');
   }
 
-  set displayOpenDate(value: string) {
-    this.set_params.open_date = Constants.parseDatetimeForBrowser(value);
+  get visible() {
+    return this.problem_set.get('visible');
   }
 
-  get displayReducedScoringDate(): string {
-    return Constants.formatDatetimeForBrowser(this.set_params.reduced_scoring_date);
+  set visible(value: boolean) {
+    this.problem_set.set({visible: value});
   }
 
-  set displayReducedScoringDate(value: string) {
-    this.set_params.reduced_scoring_date = Constants.parseDatetimeForBrowser(value);
+  get open_date(): string {
+    return Constants.formatDatetimeForBrowser(this.problem_set.get('open_date'));
   }
 
-  get displayDueDate(): string {
-    return Constants.formatDatetimeForBrowser(this.set_params.due_date);
+  set open_date(value: string) {
+    this.problem_set.set({open_date: Constants.parseDatetimeForBrowser(value)});
   }
 
-  set displayDueDate(value: string) {
-    this.set_params.due_date = Constants.parseDatetimeForBrowser(value);
+  get reduced_scoring_date(): string {
+    return Constants.formatDatetimeForBrowser(this.problem_set.get('reduced_scoring_date'));
   }
 
-  get displayAnswerDate(): string {
-    return Constants.formatDatetimeForBrowser(this.set_params.answer_date);
+  set reduced_scoring_date(value: string) {
+    this.problem_set.set({reduced_scoring_date: Constants.parseDatetimeForBrowser(value)});
   }
 
-  set displayAnswerDate(value: string) {
-    this.set_params.answer_date = Constants.parseDatetimeForBrowser(value);
+  get due_date(): string {
+    return Constants.formatDatetimeForBrowser(this.problem_set.get('due_date'));
+  }
+
+  set due_date(value: string) {
+    this.problem_set.set({due_date: Constants.parseDatetimeForBrowser(value)});
+  }
+
+  get answer_date(): string {
+    return Constants.formatDatetimeForBrowser(this.problem_set.get('answer_date'));
+  }
+
+  set answer_date(value: string) {
+    this.problem_set.set({answer_date: Constants.parseDatetimeForBrowser(value)});
+  }
+
+  get enable_reduced_scoring(): boolean {
+    return this.problem_set.get('enable_reduced_scoring');
+  }
+
+  set enable_reduced_scoring(value: boolean) {
+    this.problem_set.set({enable_reduced_scoring: value});
+  }
+
+  get hide_hint(): boolean {
+    return this.problem_set.get('hide_hint');
+  }
+
+  set hide_hint(value: boolean) {
+    this.problem_set.set({hide_hint: value});
+  }
+
+  get assignment_type(): string {
+    return this.problem_set.get('assignment_type');
+  }
+
+  set assignment_type(value: string) {
+    this.problem_set.set({assignment_type: value});
+  }
+
+  get version_time_limit(): number {
+    return this.problem_set.get('version_time_limit');
+  }
+
+  set version_time_limit(value: number) {
+    this.problem_set.set({version_time_limit: value});
   }
 
 
   public validReducedScoring() {
-    return moment.unix(this.set_params.reduced_scoring_date)
-        .isSameOrAfter(moment.unix(this.set_params.open_date));
+    return moment.unix(this.problem_set.get('reduced_scoring_date'))
+        .isSameOrAfter(moment.unix(this.problem_set.get('open_date')));
   }
 
   public validDueDate() {
-    return moment.unix(this.set_params.due_date)
-        .isSameOrAfter(moment.unix(this.set_params.reduced_scoring_date));
+    return moment.unix(this.problem_set.get('due_date'))
+        .isSameOrAfter(moment.unix(this.problem_set.get('reduced_scoring_date')));
   }
 
   public validAnswerDate() {
-    return moment.unix(this.set_params.answer_date)
-        .isSameOrAfter(moment.unix(this.set_params.due_date));
+    return moment.unix(this.problem_set.get('answer_date'))
+        .isSameOrAfter(moment.unix(this.problem_set.get('due_date')));
   }
 
   public displaySet(setName: string): string {

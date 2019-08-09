@@ -201,14 +201,7 @@ export default class WeBWorKStore extends VuexModule {
   public async fetchProblemSets() {
     axios.get(this.api_url + '/courses/' + this.login_info.course_id + '/sets')
     .then((response) => {
-      // tslint:disable-next-line
-      console.log("in fetchProblemSets");
-
       const _sets = new ProblemSetList(response.data.map( (_s: {[key: string]: any}) => new ProblemSet(_s)));
-
-      // tslint:disable-next-line
-      console.log(_sets);
-
       this.context.commit('SET_PROBLEM_SETS', _sets);
     })
     .catch((error) => {
@@ -243,14 +236,22 @@ export default class WeBWorKStore extends VuexModule {
   } // removeProblemSet
 
   @Action
-  public async updateProblemSet(set_id: string, attrs: {[key: string]: any}) {
-    const _set = this.problem_sets.get(set_id);
-    _set.set(attrs);
+  public async updateProblemSet(_set: ProblemSet) {
     axios.put(this.api_url + '/courses/' + this.login_info.course_id + '/sets/'
           + _set.get('set_id'), _set.getAttributes())
     .then((response) => {
-      this.context.commit('SET_PROBLEM_SET', response.data);
-      this.context.commit('ADD_MESSAGE', _set.get('_message_short'));
+      // tslint:disable-next-line
+      console.log(_set);
+      // this.context.commit('SET_PROBLEM_SET', response.data);
+      // we should check that this worked.
+
+      const keys = Object.keys(_set.getChanges());
+
+      const _message = `The fields ${keys.join(', ')} have changed. `;
+
+      this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
+          message: _message}));
+      // this.context.commit('ADD_MESSAGE', new Message(_set.getChanges()));
     })
     .catch((error) => {
       // tslint:disable-next-line

@@ -1,38 +1,38 @@
 <template>
-  <table class="table table-sm set-info-table" v-if="set_params.set_id">
+  <table class="table table-sm set-info-table" v-if="problem_set">
     <tbody>
       <tr>
-        <td class="header">Set Name</td><td>{{displaySet(set_params.set_id)}}</td>
+        <td class="header">Set Name</td><td>{{displaySet(set_id)}}</td>
       </tr>
       <tr>
         <td><b-form-group label="Open Date" class="header">
-          <b-input size="sm" type="datetime-local" v-model="displayOpenDate" /></b-form-group></td>
+          <b-input size="sm" type="datetime-local" v-model="open_date" /></b-form-group></td>
         <td>
           <b-form-group class="header" label="Reduced Scoring Date"
               invalid-feedback="This date must be after the open date.">
-            <b-form-input size="sm" v-model="displayReducedScoringDate" type="datetime-local" :state="validReducedScoring()"/>
+            <b-form-input size="sm" v-model="reduced_scoring_date" type="datetime-local" :state="validReducedScoring()"/>
           </b-form-group>
         </td>
       </tr>
       <tr>
         <td><b-form-group label="Due Date" class="header"
               invalid-feedback="This date must be after the reduced scoring date.">
-          <b-input size="sm" type="datetime-local" v-model="displayDueDate" :state="validDueDate()"/>
+          <b-input size="sm" type="datetime-local" v-model="due_date" :state="validDueDate()"/>
         </b-form-group></td>
         <td><b-form-group class="header" label="Answer Date"
               invalid-feedback="This date must be after the due date.">
-            <b-form-input size="sm" v-model="displayAnswerDate" type="datetime-local" :state="validAnswerDate()"/>
+            <b-form-input size="sm" v-model="answer_date" type="datetime-local" :state="validAnswerDate()"/>
           </b-form-group>
         </td>
       </tr>
       <tr><td class="header">Problem Set Visible to Users</td>
-        <td> <b-form-checkbox v-model="set_params.visible" /></td></tr>
+        <td> <b-form-checkbox v-model="visible" /></td></tr>
       <tr><td class="header">Reduced Scoring Enabled</td>
-        <td> <b-form-checkbox v-model="set_params.enable_reduced_scoring" /></td></tr>
+        <td> <b-form-checkbox v-model="enable_reduced_scoring" /></td></tr>
       <tr><td class="header">Hide Hints from Users</td>
-        <td> <b-form-checkbox v-model="set_params.hide_hint" /></td></tr>
+        <td> <b-form-checkbox v-model="hide_hint" /></td></tr>
       <tr><td class="header">Set Type</td>
-        <td><b-form-select size="sm" v-model="set_params.assignment_type">
+        <td><b-form-select size="sm" v-model="assignment_type">
         <option value="set">Homework</option>
         <option value="gateway">Gateway/Quiz</option>
         <option value="proctored_gateway">Proctored Gateway/Quiz</option>
@@ -54,7 +54,7 @@
       <tr v-if="gateway"><td class="header" style="color: darkblue; font-style:italic">
           Gateway/Quiz parameters</td><td></td></tr>
       <tr v-if="gateway"><td class="header">Test Time Limit (min; 0=Due Date)</td>
-        <td><b-form-input size="sm" type="text" v-model="set_params.version_time_limit" /></td></tr>
+        <td><b-form-input size="sm" type="text" v-model="version_time_limit" /></td></tr>
       <tr v-if="gateway"><td class="header">Cap Test Time at Set Due Date?</td>
         <td><b-form-checkbox v-model="set_params.time_limit_cap" /></td></tr>
       <tr v-if="gateway"><td class="header">Number of Graded Submissions per Test (0=infty)</td>
@@ -110,7 +110,6 @@ const store = getModule(WeBWorKStore);
 })
 export default class SetInfo extends Vue {
   private pg_password: string = '';
-  private set_params: ProblemSetAttributes = (new ProblemSet({set_id: 'XXX___'})).defaults();
 
   @Prop()
   private problem_sets!: ProblemSetList;
@@ -130,17 +129,13 @@ export default class SetInfo extends Vue {
         this.problem_set.get('assignment_type') === 'proctored_gateway';
   }
 
-  @Watch('problem_set')
-  private problemSetChanged() {
-    this.set_params = this.problem_set.getAttributes();
-  }
-  @Watch('set_params', {deep: true})
-  private setParamsChanged(new_set: ProblemSetAttributes, old_set: ProblemSetAttributes) {
-    if (new_set.set_id === old_set.set_id) {
-      store.updateProblemSet(new_set.set_id, new_set);
+  @Watch('problem_set', {deep: true})
+  private problemSetChanged(new_set: ProblemSet, old_set: ProblemSet) {
+    if (new_set && old_set && new_set.getID() === old_set.getID()) {
+      // const _changes = this.problem_set.getChanges();
+      store.updateProblemSet(this.problem_set);
     }
   }
-
 }
 </script>
 

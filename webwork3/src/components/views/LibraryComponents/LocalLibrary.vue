@@ -34,76 +34,97 @@
 </template>
 
 
-<script>
+<script lang="ts">
+import { Vue, Component} from 'vue-property-decorator';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
 import axios from 'axios';
-import {mapState} from 'vuex';
 
-export default {
+interface DirectoryStructure {
+  base: string;
+  files: string[];
+  subdirs: DirectoryStructure[];
+}
+
+interface DirectoryType {
+  type: string;
+  text: string;
+}
+
+@Component({
   name: 'LocalLibrary',
-  data() {
-    return {
-      dir_info: {},
-      dirs: {},
-      selection: {},
-    };
-  },
-  methods: {
-    // this opens either a directory or a file
-    // Note: there are only 3 levels of directories.  Should write for more.
-    open(item, level) {
-      const select = {};
-      for (let i = 0; i < level; i++) {
-        select[i] = this.selection[i];
-      }
-      this.selection = select;
-      this.selection[level] = item;
-      if (item.type === 'dir') {
-        const dirs = {};
-        for (let i = 0; i < level; i++) {
-          dirs[i] = this.dirs[i];
-        }
-        let _dirsTmp = [];
+})
+export default class LocalLibrary extends Vue {
+  private dir_info: DirectoryStructure = {base: '', files: [], subdirs: []};
+  private dirs: {[key: number]: DirectoryType[]} = {};
+  private selection: DirectoryType[] = [];
 
-        // get the right level in the directory tree.  TODO: write recursively.
-        if (level === 0) {
-          _dirsTmp = this.dir_info;
-        } else if (level === 1) {
-          _dirsTmp = this.dir_info.subdirs.find( (_dir) => _dir.base === item.text);
-        } else if (level === 2) {
-          _dirsTmp = this.dir_info.subdirs.find( (_dir) => _dir.base === this.selection[1].text);
-          _dirsTmp = _dirsTmp.subdirs.find( (_dir) => _dir.base === this.selection[2].text);
-        }
-
-        // get all of the directories and filenames at the given level.
-        dirs[level] = [
-              ...(_dirsTmp.subdirs ? _dirsTmp.subdirs.map( (_dir) => ({type: 'dir', text: _dir.base})) : []),
-              ..._dirsTmp.files.map( (_file) => ({type: 'file', text: _file}) ),
-            ];
-        this.dirs = dirs;
-      } else if (item.type === 'file') { // show the file in the
-        this.selection[level] = item;
-        // build the directory structure
-        const path = Object.keys(this.selection).map( (_key) => this.selection[_key].text).join('/');
-        // tslint:disable-next-line
-        console.log(path)
-        axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/problems/local/' + path)
-          .then((response) => {
-            this.$emit('load-problems', response.data);
-          });
-      }
-    },
-  },
-  computed: {
-    ...mapState(['login_info']),
-  },
-  mounted() {
-    axios.get('/webwork3/api/courses/' + this.login_info.course_id + '/library/local')
+  public mounted() {
+    axios.get('/webwork3/api/courses/' + store.login_info.course_id + '/library/local')
       .then( (response) => {
         this.dir_info = response.data;
+        // tslint:disable-next-line
+        console.log(this.dir_info);
         this.open({type: 'dir', text: 'templates'}, 0);
       });
-  },
-};
+  }
+
+  // this opens either a directory or a file
+  // Note: there are only 3 levels of directories.  Should write for more.
+  private open(item: DirectoryType, level: number) {
+    const select: DirectoryType[] = [];
+    for (let i = 0; i < level; i++) {
+      select[i] = this.selection[i];
+    }
+    this.selection = select;
+    this.selection[level] = item;
+    if (item.type === 'dir') {
+      const dirs: {[key: number]: DirectoryType[]} = {};
+      for (let i = 0; i < level; i++) {
+        dirs[i] = this.dirs[i];
+      }
+      let _dirsTmp: DirectoryStructure = {base: '', files: [], subdirs: []};
+
+      // get the right level in the directory tree.  TODO: write recursively.
+      if (level === 0) {
+        _dirsTmp = this.dir_info;
+      } else if (level === 1) {
+        _dirsTmp = this.dir_info.subdirs.find( (_dir: DirectoryStructure) => _dir.base === item.text) ||
+                    {base: '', files: [], subdirs: []};
+      } else if (level === 2) {
+        _dirsTmp = this.dir_info.subdirs.find( (_dir: DirectoryStructure) => _dir.base === this.selection[1].text) ||
+                      {base: '', files: [], subdirs: []};
+        _dirsTmp = _dirsTmp.subdirs.find( (_dir: DirectoryStructure) => _dir.base === this.selection[2].text) ||
+                      {base: '', files: [], subdirs: []};
+      }
+
+      // get all of the directories and filenames at the given level.
+      dirs[level] = [
+            ...(_dirsTmp.subdirs ? _dirsTmp.subdirs.map( (_dir: DirectoryStructure) =>
+                                                            ({type: 'dir', text: _dir.base})) : []),
+            ..._dirsTmp.files.map( (_file: string) => ({type: 'file', text: _file}) ),
+          ];
+      this.dirs = dirs;
+    } else if (item.type === 'file') { // show the file in the
+      this.selection[level] = item;
+      // build the directory structure
+      const path = this.selection.map( (el: DirectoryType) => el.text).join('/');
+      // tslint:disable-next-line
+      console.log(path)
+      axios.get('/webwork3/api/courses/' + store.login_info.course_id + '/problems/local' + path)
+        .then((response) => {
+          this.$emit('load-problems', response.data);
+        }).catch( (error) => {
+          // tslint:disable-next-line
+          console.log(error);
+        });
+    }
+  } // open
+} // class LocalLibrary
 </script>
 
 <style scoped>

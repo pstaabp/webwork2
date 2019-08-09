@@ -81,6 +81,9 @@ any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
   my $set_id = route_parameters->{set_id};
   # set all of the new parameters sent from the client
   my $all_params = body_parameters->mixed;
+
+  debug $all_params;
+
   if (defined($all_params->{problems})) {
     $all_params->{problems} = [$all_params->{problems}] unless ref($all_params->{problems}) eq "ARRAY";
   } else {
@@ -154,7 +157,7 @@ any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
 
   ## proctored gateway quiz password
 
-  $returnSet->{pg_password} = $all_params->{pg_password} if defined($all_params->{pg_password});
+  # $returnSet->{pg_password} = $all_params->{pg_password} if defined($all_params->{pg_password});
 
   return convertObjectToHash($returnSet,\@boolean_set_props);
 
