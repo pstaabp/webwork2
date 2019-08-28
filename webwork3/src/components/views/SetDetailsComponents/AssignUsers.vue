@@ -10,8 +10,8 @@
 
     <b-row>
       <b-col>
-        <b-table small :items="users" :fields="fields" :filter="filter_out" selectable
-          :filter-function="removeProctors" select-mode="range" @row-selected="rowSelected"
+        <b-table small :items="users" :fields="fields" selectable
+          select-mode="range" @row-selected="rowSelected"
           :current-page="current_page" :per-page="per_page">
           <template slot="assigned" slot-scope="row">
             <b-checkbox v-model="assigned[row.index]" @change="toggleAssigned(row.index)" />
@@ -30,25 +30,25 @@
     <b-row v-if="selected_users.length >0">
       <b-col cols="3">
         <b-form-group label="Open Date" class="header">
-          <b-input size="sm" type="datetime-local" v-model="displayDueDate" />
+          <b-input size="sm" type="datetime-local" v-model="due_date" />
         </b-form-group>
       </b-col>
       <b-col cols="3">
         <b-form-group class="header" label="Reduced Scoring Date"
             invalid-feedback="This date must be after the open date.">
-          <b-input size="sm" type="datetime-local" v-model="displayReducedScoringDate" :state="validReducedScoring" />
+          <b-input size="sm" type="datetime-local" v-model="reduced_scoring_date" :state="validReducedScoring" />
         </b-form-group>
       </b-col>
       <b-col cols="3">
         <b-form-group label="Due Date" class="header"
               invalid-feedback="This date must be after the reduced scoring date.">
-          <b-input size="sm" type="datetime-local" v-model="displayDueDate" :state="validDueDate"/>
+          <b-input size="sm" type="datetime-local" v-model="due_date" :state="validDueDate"/>
         </b-form-group>
       </b-col>
       <b-col cols="3">
         <b-form-group class="header" label="Answer Date"
               invalid-feedback="This date must be after the due date.">
-          <b-input size="sm" v-model="displayAnswerDate" type="datetime-local" :state="validAnswerDate"/>
+          <b-input size="sm" v-model="answer_date" type="datetime-local" :state="validAnswerDate"/>
         </b-form-group>
       </b-col>
     </b-row>
@@ -59,8 +59,9 @@
 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
+import * as moment from 'moment';
 
-import ProblemSetMixin from '@/mixins/problem_set_mixin';
+// import ProblemSetMixin from '@/mixins/problem_set_mixin';
 
 import User from '@/models/User';
 import ProblemSet from '@/models/ProblemSet';
@@ -70,11 +71,9 @@ import { getModule } from 'vuex-module-decorators';
 import WeBWorKStore from '@/store';
 const store = getModule(WeBWorKStore);
 
-
-
 @Component({
   name: 'AssignUsers',
-  mixins: [ProblemSetMixin],
+  // mixins: [ProblemSetMixin],
 })
 export default class AssignUsers extends Vue {
   private assigned: boolean[] = []; // array of the checkboxes
@@ -83,21 +82,66 @@ export default class AssignUsers extends Vue {
   private selected_users: User[] = []; // which rows are selected
   private per_page: number =  10;
   private current_page: number = 1;
+  private open_date_value: moment.Moment = moment.default();
+  private reduced_scoring_date_value: moment.Moment = moment.default();
+  private due_date_value: moment.Moment = moment.default();
+  private answer_date_value: moment.Moment = moment.default();
 
   @Prop()
   private problem_set!: ProblemSet;
+
+  get open_date() {
+    return this.open_date_value.format('YYYY-MM-DD[T]HH:mm');
+  }
+
+  set open_date(value: string) {
+    this.open_date_value = moment.default(value, 'YYYY-MM-DD[T]HH:mm');
+  }
+
+  get due_date() {
+    return this.due_date_value.format('YYYY-MM-DD[T]HH:mm');
+  }
+
+  set due_date(value: string) {
+    this.due_date_value = moment.default(value, 'YYYY-MM-DD[T]HH:mm');
+  }
+
+  get reduced_scoring_date() {
+    return this.reduced_scoring_date_value.format('YYYY-MM-DD[T]HH:mm');
+  }
+
+  set reduced_scoring_date(value: string) {
+    this.reduced_scoring_date_value = moment.default(value, 'YYYY-MM-DD[T]HH:mm');
+  }
+
+  get answer_date() {
+    // tslint:disable-next-line
+    console.log("in get");
+    return this.answer_date_value.format('YYYY-MM-DD[T]HH:mm');
+  }
+
+  set answer_date(value: string) {
+    // tslint:disable-next-line
+    console.log("in set");
+    this.answer_date_value = moment.default(value, 'YYYY-MM-DD[T]HH:mm');
+  }
 
   get set_id() {
     return this.problem_set ? this.problem_set.get('set_id') : '';
   }
 
-  get users() {
-    return store.users.models();
+  get users(): object[] {
+    return store.users.models().map( (_u) => _u.getAttributes());
   }
 
   @Watch('current_page')
   private onChangeCurrentPage(): void {
     this.setSelectedCheckboxes();
+  }
+
+  private save(): void {
+    // tslint:disable-next-line
+    console.log("in save");
   }
 
   private removeProctors(obj1: User, obj2: RegExp) {
@@ -129,5 +173,18 @@ export default class AssignUsers extends Vue {
                                               i >= (this.current_page - 1) * this.per_page);
     this.assigned = users.map((user: User) => this.problem_set.get('assigned_users').includes(user.get('user_id')));
   }
+
+  get validReducedScoring(): boolean {
+    return this.reduced_scoring_date_value.isSameOrAfter(this.open_date_value);
+  }
+
+  get validDueDate(): boolean {
+    return this.due_date_value.isSameOrAfter(this.reduced_scoring_date_value);
+  }
+
+  get validAnswerDate(): boolean {
+    return this.answer_date_value.isSameOrAfter(this.due_date_value);
+  }
+
 }
 </script>
