@@ -13,7 +13,8 @@
             <b-dropdown-item v-for='view in views' :key='view.route'>
               <router-link class='view-link' :to='path(view.route)'>
                  <font-awesome-icon :icon='view.icon' size='lg'/>
-                 <span class='pl-2'>{{view.name}}</span></router-link>
+                 <span class='pl-2'>{{view.name}}</span>
+               </router-link>
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

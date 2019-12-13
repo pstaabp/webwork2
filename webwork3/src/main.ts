@@ -36,10 +36,13 @@ import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
 import {faFile} from '@fortawesome/free-solid-svg-icons/faFile';
 import {faBullseye} from '@fortawesome/free-solid-svg-icons/faBullseye';
 import {faArrowsAltV} from '@fortawesome/free-solid-svg-icons/faArrowsAltV';
+import {faQuestionCircle} from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import {faWindowClose} from '@fortawesome/free-solid-svg-icons/faWindowClose';
 
 library.add(faCalendar, faUsers, faInfoCircle, faUniversity, faListAlt, faEdit, faChartBar,
               faExchangeAlt, faCogs, faCog, faSignOutAlt, faPlus, faPencilAlt, faSync,
-            faTrashAlt, faCheck, faFile, faBullseye, faArrowsAltV);
+            faTrashAlt, faCheck, faFile, faBullseye, faArrowsAltV, faQuestionCircle,
+            faWindowClose);
 
 import Vue from 'vue';
 

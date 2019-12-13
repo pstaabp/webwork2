@@ -13,7 +13,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 
 import ProblemView from '@/components/common_components/ProblemView.vue';
-import draggable from 'vuedraggable';
+import Draggable from 'vuedraggable';
 
 // set up the store
 import { getModule } from 'vuex-module-decorators';
@@ -24,7 +24,7 @@ const store = getModule(WeBWorKStore);
 @Component({
   name: 'ProblemListView',
   components: {
-    ProblemView, draggable,
+    ProblemView, Draggable,
   },
 })
 export default class ProblemListView extends Vue {

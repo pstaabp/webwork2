@@ -108,7 +108,7 @@ export default abstract class Model {
     const types: {[key: string]: string | RegExp} = this.dataTypes();
     for (const key of Object.keys(attrs)) {
       const type = types[key];
-      if (type === 'string') {
+      if (type === 'string' || type === 'array') {
         this._attrs.set(key, attrs[key]);
       } else if (type === 'integer') {
         this._attrs.set(key, parseInt(attrs[key], 10));

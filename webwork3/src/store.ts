@@ -131,7 +131,9 @@ export default class WeBWorKStore extends VuexModule {
   public async fetchSettings() {
     axios.get(this.api_url + '/courses/' + this.login_info.course_id + '/settings')
       .then((response) => {
-        this.context.commit('SET_SETTINGS', response.data);
+        const _settings = new SettingList(response.data.map(
+              (_setting: {[key: string]: string}) => new Setting(_setting)));
+        this.context.commit('SET_SETTINGS', _settings);
       })
       .catch((error) => {
         this.context.commit('SET_SETTINGS', []);
@@ -146,6 +148,13 @@ export default class WeBWorKStore extends VuexModule {
     .then(() => {
       this.context.commit('SET_SETTING', _setting);
       // check that the response is the same as the _settting variable.
+      const keys = Object.keys(_setting.getChanges());
+      // tslint:disable-next-line
+      console.log(keys);
+      const _message = `The fields ${keys.join(', ')} have changed. `;
+      this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
+          message: _message}));
+
     })
     .catch( (error) => {
       // tslint:disable-next-line
@@ -246,12 +255,9 @@ export default class WeBWorKStore extends VuexModule {
       // we should check that this worked.
 
       const keys = Object.keys(_set.getChanges());
-
       const _message = `The fields ${keys.join(', ')} have changed. `;
-
       this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
           message: _message}));
-      // this.context.commit('ADD_MESSAGE', new Message(_set.getChanges()));
     })
     .catch((error) => {
       // tslint:disable-next-line

@@ -1,24 +1,28 @@
 <template>
   <div>
     <table class="table table-sm bordered">
-      <settings-row  v-for="setting in settings" :setting="setting" :key="setting.var"/>
+      <settings-row  v-for="setting in settings" :setting="setting" :key="setting.get('var')"/>
     </table>
   </div>
 </template>
 
 
-<script>
-import SettingsRow from './SettingsRow';
+<script lang="ts">
+import { Vue, Component, Prop} from 'vue-property-decorator';
 
-export default {
+import Setting from '@/models/Setting';
+
+import SettingsRow from './SettingsRow.vue';
+
+@Component({
   name: 'SettingsTab',
-  props: {
-    name: String,
-    settings: Array,
-  },
   components: {
     SettingsRow,
   },
-};
+})
+export default class SettingsTab extends Vue {
+  @Prop() public name!: string;
+  @Prop() public settings!: Setting[];
+}
 
 </script>

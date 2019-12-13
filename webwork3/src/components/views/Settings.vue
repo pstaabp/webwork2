@@ -20,18 +20,28 @@
 </template>
 
 
-<script>
-import SettingsTab from './SettingsComponents/SettingsTab';
+<script lang="ts">
+import { Vue, Component} from 'vue-property-decorator';
 
-export default {
+import SettingsTab from './SettingsComponents/SettingsTab.vue';
+
+import Setting from '@/models/Setting';
+
+// set up the store
+import { getModule } from 'vuex-module-decorators';
+import WeBWorKStore from '@/store';
+const store = getModule(WeBWorKStore);
+
+
+@Component({
   name: 'Settings',
   components: {
     SettingsTab,
   },
-  methods: {
-    filterSettings(category) {
-      return this.$store.state.settings.filter( (setting) =>  setting.category === category);
-    },
-  },
-};
+})
+export default class Settings extends Vue {
+  private filterSettings(category: string): Setting[] {
+    return store.settings.filter( (setting) =>  setting.get('category') === category);
+  }
+}
 </script>

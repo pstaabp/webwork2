@@ -38,6 +38,9 @@ export default class Constants {
     return {
       '20': 'admin',
       '10': 'professor',
+      '8': 'ta',
+      '7': 'grade_proctor',
+      '6': 'login_proctor',
       '0': 'student',
       '-5': 'guest',
     };
