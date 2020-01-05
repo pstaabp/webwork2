@@ -45,7 +45,6 @@ post '/courses/:course_id/login' => sub {
 
 	my ($success, $realm) = authenticate_user($username,$password);
 
-
 	if($success){
 		my $key = vars->{db}->getKey($username)->{key};
 		session key => $key;

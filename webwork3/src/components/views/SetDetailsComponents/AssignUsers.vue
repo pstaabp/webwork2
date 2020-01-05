@@ -62,14 +62,10 @@ import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import * as moment from 'moment';
 
 // import ProblemSetMixin from '@/mixins/problem_set_mixin';
-
-import User from '@/models/User';
-import ProblemSet from '@/models/ProblemSet';
+import {User, ProblemSet} from '@/store/models';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import user_store from '@/store/modules/login';
 
 @Component({
   name: 'AssignUsers',
@@ -131,7 +127,7 @@ export default class AssignUsers extends Vue {
   }
 
   get users(): object[] {
-    return store.users.models().map( (_u) => _u.getAttributes());
+    return users_store.users.models().map( (_u) => _u.getAttributes());
   }
 
   @Watch('current_page')

@@ -78,25 +78,30 @@ Vue.use(FormCheckboxPlugin);
 Vue.use(SpinnerPlugin);
 Vue.use(FormFilePlugin);
 
- // import BootstrapVue from 'bootstrap-vue'
- //
- // Vue.use(BootstrapVue)
+// store modules
 
+// import ProblemSetsModule from '@/store/modules/problem_sets';
+// import LoginModule from '@/store/modules/login';
+// import SettingsModule from '@/store/modules/settings';
+// import MessagesModule from '@/store/modules/messages';
 
-import App from './App.vue';
-
-import WeBWorKStore from './store';
+import WeBWorKApp from './App.vue';
 import Vuex from 'vuex';
 
-const store = new Vuex.Store({
-  modules: {
-    myMod: WeBWorKStore,
-  },
-});
+// const store = new Vuex.Store({
+//   modules: {
+//     problem_sets: ProblemSetsModule,
+//     login: LoginModule,
+//     settings: SettingsModule,
+//     messages: MessagesModule,
+//   },
+// });
+
+import store from '@/store';
 
 
 new Vue({
   router,
   store,
-  render: (h) => h(App),
+  render: (h) => h(WeBWorKApp),
 }).$mount('#app');

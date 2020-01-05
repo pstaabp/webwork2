@@ -26,9 +26,7 @@ import { Vue, Component, Prop} from 'vue-property-decorator';
 import LibraryTab from './LibraryComponents/LibraryTab.vue';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import problem_sets_store from '@/store/modules/problem_sets';
 
 
 @Component({
@@ -42,7 +40,7 @@ export default class LibraryBrowser extends Vue {
   private selected_set_id!: string;
 
 private getSelectedSet() {
-    return store.problem_sets.size() === 0 ? '' : store.problem_sets.get(this.selected_set_id);
+    return problem_sets_store.problem_sets.size() === 0 ? '' : problem_sets_store.problem_sets.get(this.selected_set_id);
   }
 }
 </script>

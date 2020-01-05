@@ -99,9 +99,7 @@ import MessagesMixin from '@/mixins/messages_mixin';
 import ProblemSetList from '@/models/ProblemSetList';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import problem_sets_store from '@/store/modules/problem_sets';
 
 
 @Component({
@@ -133,7 +131,7 @@ export default class SetInfo extends Vue {
   private problemSetChanged(new_set: ProblemSet, old_set: ProblemSet) {
     if (new_set && old_set && new_set.getID() === old_set.getID()) {
       // const _changes = this.problem_set.getChanges();
-      store.updateProblemSet(this.problem_set);
+      problem_sets_store.updateProblemSet(this.problem_set);
     }
   }
 }

@@ -15,13 +15,10 @@ import Constants from '@/Constants';
 import MenuBar from '@/components/common_components/MenuBar.vue';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
-
-// models
-import User from '@/models/User';
-// import UserList from '@/models/UserList';
+import login_module from '@/store/modules/login';
+import settings_module from '@/store/modules/settings';
+import users_module from '@/store/modules/users';
+import problem_sets_module from '@/store/modules/problem_sets';
 
 @Component({
   name: 'Manager',
@@ -41,29 +38,17 @@ export default class Manager extends Vue {
     this.current_view = value.path.split('/').pop() || '';
   }
 
-  public created(): void { // load all of the relevant data
-    store.updateLoginInfo(this.$route.params);
+  public async created(): void { // load all of the relevant data
+    //store.updateLoginInfo(this.$route.params);
 
-    axios.get('/webwork3/api/courses/' + store.login_info.course_id + '/login')
-      .then( (response) => {
-        if (response.data.logged_in === 1) {
-          store.fetchSettings();
-          store.fetchUsers();
-          store.fetchProblemSets();
-          store.updateLoginInfo({user: new User({
-              user_id: response.data.user_id,
-              first_name: response.data.first_name,
-              last_name: response.data.last_name,
-            }),
-          });
-        } else {
-          this.$router.replace('/courses/' + store.login_info.course_id + '/login');
-        }
-      }).catch( (err) => {
-        // tslint:disable-next-line
-        console.log(err);
-        this.$router.replace('/courses/' + store.login_info.course_id + '/login');
-      });
+    const response = await axios.get('/webwork3/api/courses/' + login_module.login_info.course_id + '/login');
+    if (response.data.logged_in === 1) {
+      settings_module.fetchSettings();
+      users_module.fetchUsers();
+      problem_sets_module.fetchProblemSets();
+    } else {
+      this.$router.replace('/courses/' + login_module.login_info.course_id + '/login');
+      }
   }
 
   private changeSidebar(comp: string): void {
@@ -71,9 +56,9 @@ export default class Manager extends Vue {
   }
 
   private logout(): void {
-    axios.post('/webwork3/api/courses/' + store.login_info.course_id + '/logout').
+    axios.post('/webwork3/api/courses/' + login_module.login_info.course_id + '/logout').
       then( () => {
-        this.$router.replace('/courses/' + store.login_info.course_id + '/login');
+        this.$router.replace('/courses/' + login_module.login_info.course_id + '/login');
       });
   }
 

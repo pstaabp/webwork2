@@ -1,8 +1,7 @@
 <template>
   <tr>
     <td v-for='(day,index) in week' class="cal-day" :key='day.format("YYYY-MM-DD")'
-        :class="isToday(day)?'today':inCurrentMonth(day)?'current-month':'extra-month'"
-    >{{shortDate(day)}}
+        :class="dayClass(day)" >{{shortDate(day)}}
       <div v-if='assignment_info.length>0'>
         <draggable v-model='assignment_info[index]' group='calendar' class='assignments'
             @start='drag=true' @end='drag=false' @change='assignChange(day,$event)'>
@@ -21,12 +20,8 @@ import Constants from '@/Constants';
 
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 
-// set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import {ProblemSet} from '@/store/models';
 
-import ProblemSetList from '@/models/ProblemSetList';
 
 interface AssignmentInfo {
   date: moment.Moment;
@@ -44,8 +39,9 @@ export default class CalendarRow extends Vue {
 
   @Prop({ type: Object, validator: moment.isMoment })
   public readonly first_day_of_week!: moment.Moment;
-  @Prop({type: ProblemSetList})
-  public readonly problem_sets!: ProblemSetList;
+
+  @Prop()
+  public readonly problem_sets!: Map<string,Problem>;
 
   private today: moment.Moment = moment.default();
   private items: AssignmentInfo[][] = [];
@@ -58,40 +54,33 @@ export default class CalendarRow extends Vue {
   }
 
   get assignment_info() {
-    if (this.problem_sets.size() > 0) {
+    if (this.problem_sets.size > 0) {
       return this.week.map( (day: moment.Moment) => this.assignmentOnDate(day));
     } else {
       return [[], [], [], [], [], [], []];
     }
   }
 
+  // returns the class for proper coloring of the calendar
+
+  private dayClass(day: moment.Moment) {
+    return this.today.isSame(day,'day')?'today':(this.today.isSame(day,'month')?'current-month':'extra-month');
+  }
+
   private shortDate(day: moment.Moment): string {
     return day.get('date') === 1 ? day.format('MMM D') : day.get('date').toString();
   }
 
-  private inCurrentMonth(day: moment.Moment): boolean {
-    return day.get('month') === this.today.get('month');
-  }
-
-  private isToday(day: moment.Moment): boolean {
-    return this.onSameDay(day, this.today);
-  }
-
+  // Find all assignments with date on a given day.
 
   private assignmentOnDate(day: moment.Moment): AssignmentInfo[] {
-    const _sets = this.problem_sets || [];
-    const allDates = _sets.models().flatMap( (_set) => [
-        {date: moment.unix(_set.get('answer_date')), type: 'answer', set_id: _set.get('set_id')},
-        {date: moment.unix(_set.get('due_date')), type: 'due', set_id: _set.get('set_id')},
-        {date: moment.unix(_set.get('reduced_scoring_date')), type: 'reduced', set_id: _set.get('set_id')},
-        {date: moment.unix(_set.get('open_date')), type: 'open', set_id: _set.get('set_id')}]).
-          map( (d) => Object.assign(d, {id: d.set_id + '___' + d.type}) );
-    return allDates.filter( (_date: AssignmentInfo) => this.onSameDay(_date.date, day));
-  }
-
-  private onSameDay(day1: moment.Moment, day2: moment.Moment): boolean {
-    return day1.get('date') === day2.get('date') && day1.get('month') === day2.get('month') &&
-                            day1.get('year') === day2.get('year');
+    const allDates = Array.from(this.problem_sets.values()).flatMap( (_set) => [
+        {date: moment.unix(_set.answer_date), type: 'answer', set_id: _set.set_id},
+        {date: moment.unix(_set.due_date), type: 'due', set_id: _set.set_id},
+        {date: moment.unix(_set.reduced_scoring_date), type: 'reduced', set_id: _set.set_id},
+        {date: moment.unix(_set.open_date), type: 'open', set_id: _set.set_id}] )
+          .map( (d) => Object.assign(d, {id: d.set_id + '___' + d.type}) );
+    return allDates.filter( (_date: AssignmentInfo) => _date.date.isSame(day,'day'));
   }
 
   private assignChange(newDate: moment.Moment, evt: MoveEvent) {

@@ -35,10 +35,7 @@ import ProblemSet from '@/models/ProblemSet';
 import ProblemSetList from '@/models/ProblemSetList';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
-
+import problem_sets_store from '@/store/modules/problem_sets';
 
 @Component({
   name: 'SetDetails',
@@ -88,7 +85,7 @@ export default class SetDetails extends Vue {
   }
 
   get problem_sets() {
-    return store.problem_sets;
+    return problem_sets_store.problem_sets;
   }
 
 } // class SetDetails

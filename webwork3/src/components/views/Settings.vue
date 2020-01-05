@@ -28,9 +28,7 @@ import SettingsTab from './SettingsComponents/SettingsTab.vue';
 import Setting from '@/models/Setting';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import settings_store from '@/store/modules/settings';
 
 
 @Component({
@@ -41,7 +39,7 @@ const store = getModule(WeBWorKStore);
 })
 export default class Settings extends Vue {
   private filterSettings(category: string): Setting[] {
-    return store.settings.filter( (setting) =>  setting.get('category') === category);
+    return settings_store.settings.filter( (setting) =>  setting.get('category') === category);
   }
 }
 </script>

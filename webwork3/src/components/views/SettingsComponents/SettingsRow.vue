@@ -31,9 +31,9 @@ import * as moment from 'moment';
 import Constants from '@/Constants';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+// import { getModule } from 'vuex-module-decorators';
+// import WeBWorKStore from '@/store';
+// const store = getModule(WeBWorKStore);
 
 
 @Component({
@@ -43,7 +43,7 @@ export default class SettingsRow extends Vue {
   @Prop() public setting!: Setting;
   public selected: string[] = [];
   public show_help = false;
-  public text_value: string = "";
+  public text_value: string = '';
 
   get doc() {
     return this.setting.get('doc');
@@ -81,7 +81,7 @@ export default class SettingsRow extends Vue {
 
   get valueAsTime() {
 
-    const time = moment(this.setting.get('value'),"HH:MMA");
+    const time = moment(this.setting.get('value'), 'HH:MMA');
     // tslint:disable-next-line
     console.log(time);
     return this.value;
@@ -104,7 +104,7 @@ export default class SettingsRow extends Vue {
   @Watch('text_value')
   private onTextValueChange() {
     // tslint:disable-next-line
-    console.log(text_value);
+    console.log(this.text_value);
   }
 }
 </script>

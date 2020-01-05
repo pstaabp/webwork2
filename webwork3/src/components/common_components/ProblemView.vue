@@ -81,10 +81,7 @@
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import axios from 'axios';
 
-// set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import login_module from '@/store/modules/login';
 
 import Problem from '@/models/Problem';
 
@@ -96,10 +93,8 @@ export default class ProblemView extends Vue {
   private show_tags: boolean = false;
   private show_path: boolean = false;
 
-  @Prop()
-  private problem!: Problem;
-  @Prop()
-  private type!: string;
+  @Prop() private problem!: Problem;
+  @Prop() private type!: string;
 
   public mounted() {
     this.fetchProblem();
@@ -107,7 +102,7 @@ export default class ProblemView extends Vue {
 
   private fetchProblem(otherParams?: {[key: string]: any}) {
     this.html = '';
-    axios.get('/webwork3/api/renderer/courses/' + store.login_info.course_id + '/problems/0',
+    axios.get('/webwork3/api/renderer/courses/' + login_module.login_info.course_id + '/problems/0',
                 {params: Object.assign({}, this.problem.getAttributes(), otherParams)})
         .then( (response) => {
           this.html = response.data.text;

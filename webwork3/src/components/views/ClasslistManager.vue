@@ -69,13 +69,10 @@ import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue';
 import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue';
 import EditUsersModal from './ClasslistComponents/EditUsersModal.vue';
 import Constants from '@/Constants';
-import User from '@/models/User';
+import {User} from '@/store/models';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
-
+import users_store from '@/store/modules/users';
 
 @Component({
   name: 'ClasslistManager',
@@ -115,8 +112,8 @@ export default class Manager extends Vue {
     this.selected_users = rows;
   }
 
-  get users(): object[] {
-    return store.users.models().map( (_u) => _u.getAttributes());
+  get users(): User[] {
+    return Array.from(users_store.users.values());
   }
 
 }

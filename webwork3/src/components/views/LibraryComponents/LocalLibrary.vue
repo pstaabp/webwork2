@@ -38,9 +38,7 @@
 import { Vue, Component} from 'vue-property-decorator';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import login_store from '@/store/modules/login';
 
 import axios from 'axios';
 
@@ -64,7 +62,7 @@ export default class LocalLibrary extends Vue {
   private selection: DirectoryType[] = [];
 
   public mounted() {
-    axios.get('/webwork3/api/courses/' + store.login_info.course_id + '/library/local')
+    axios.get('/webwork3/api/courses/' + login_store.login_info.course_id + '/library/local')
       .then( (response) => {
         this.dir_info = response.data;
         // tslint:disable-next-line

@@ -70,13 +70,11 @@
 import { BNavbar } from 'bootstrap-vue';
 
 import MessageBar from './MessageBar.vue';
-import {Vue, Component} from 'vue-property-decorator';
+import {Vue, Component, Prop} from 'vue-property-decorator';
 
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import login_store from '@/store/modules/login';
 
-import LoginInfo from '@/models/LoginInfo';
+// import LoginInfo from '@/models/LoginInfo';
 
 
 
@@ -91,12 +89,6 @@ interface RouteObj {
   components: {
     MessageBar,
     BNavbar,
-  },
-  props: {
-    views: Array,
-    current_view: String,
-    sidebars: Array,
-    current_sidebar: String,
   },
   filters: {
     getName: (route: string, arr: RouteObj[]): string =>  {
@@ -114,17 +106,22 @@ interface RouteObj {
 export default class MenuBar extends Vue {
   private change_password: boolean = false;
 
+  @Prop() private views: string[];
+  @Prop() private current_view: string;
+  @Prop() private sidebars: string[];
+  @Prop() private current_sidebar: string;
+
   get login_info(): LoginInfo {
-    return store.login_info;
+    return login_store.login_info;
   }
 
   get fullname(): string {
-    return store.login_info.logged_in_user.get('first_name') + ' ' +
-      store.login_info.logged_in_user.get('last_name');
+    return login_store.login_info.user.first_name + ' ' +
+      login_store.login_info.user.last_name;
   }
 
   private path(route: string): string {
-    return '/courses/' + store.login_info.course_id + '/manager/' + route;
+    return '/courses/' + login_store.login_info.course_id + '/manager/' + route;
   }
 } // class MenuBar
 </script>

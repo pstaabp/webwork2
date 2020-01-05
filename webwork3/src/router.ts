@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import CourseList from './components/CourseList.vue';
-import Manager from './components/Manager.vue';
-import Login from './components/Login.vue';
+import CourseList from '@/components/CourseList.vue';
+import Manager from '@/components/Manager.vue';
+import Login from '@/components/Login.vue';
 import ProblemSetsManager from './components/views/ProblemSetsManager.vue';
 import ClasslistManager from './components/views/ClasslistManager.vue';
 import Calendar from './components/views/Calendar.vue';

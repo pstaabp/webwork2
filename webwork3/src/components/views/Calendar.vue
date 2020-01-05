@@ -4,10 +4,10 @@
       <b-col cols="3"><span id="month-name"> {{monthName}}</span></b-col>
       <b-col>
         <b-btn-toolbar key-nav  aria-label="Toolbar with button groups">
-        <b-btn-group size="sm" class="outline-dark">
-          <b-btn @click="shiftCalendar(-1)">Prev.</b-btn>
-          <b-btn @click="today()">Today</b-btn>
-          <b-btn @click="shiftCalendar(1)">Next</b-btn>
+        <b-btn-group size="sm">
+          <b-btn variant="outline-dark" @click="changeWeek(-1)">Previous Week</b-btn>
+          <b-btn variant="outline-dark" @click="today()">Today</b-btn>
+          <b-btn variant="outline-dark" @click="changeWeek(1)">Next Week</b-btn>
         </b-btn-group>
       </b-btn-toolbar>
       </b-col>
@@ -18,10 +18,10 @@
           <th v-for="day in dayNames" :key="day">{{day}}</th>
         </thead>
         <tbody>
-          <CalendarRow v-for="day in first_days"
+          <CalendarRow v-for="day in first_days()"
             :first_day_of_week="day"
             :problem_sets="problem_sets"
-            :key="day.format('DD-MM-YYYY')"/>
+            :key="first_day_of_calendar.format('DD') + ':' + day.format('DD-MM-YYYY')"/>
         </tbody>
       </table>
     </b-row>
@@ -31,18 +31,12 @@
 
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
-
-// set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
-
-
-import CalendarRow from './CalendarComponents/CalendarRow.vue';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import * as moment from 'moment';
 
-import ProblemSetList from '@/models/ProblemSetList';
+import CalendarRow from './CalendarComponents/CalendarRow.vue';
+import problem_set_store from '@/store/modules/problem_sets';
+import {Problem} from '@/store/models';
 
 @Component({
   name: 'Calendar',
@@ -51,8 +45,7 @@ import ProblemSetList from '@/models/ProblemSetList';
   },
 })
 export default class Calendar extends Vue {
-  private first_days!: moment.Moment[];  // the first of the week for the calendar.
-
+  private first_day_of_calendar: number = moment.default().unix();
 
   get monthName(): string {
     return moment.default().format('MMMM YYYY');
@@ -62,28 +55,31 @@ export default class Calendar extends Vue {
     return moment.weekdays();
   }
 
-  get problem_sets(): ProblemSetList {
-    return store.problem_sets;
+  get problem_sets(): Map<string,ProblemSet> {
+    return problem_set_store.problem_sets;
   }
 
   public created(): void {
-    this.shiftCalendar(0);
+    this.today();
   }
 
-  private shiftCalendar(week: number) {
-    let first: moment.Moment = moment.default();
-    if (week === 0) {
-      const now = moment.default();
-      first = moment.default().subtract(now.days(), 'days');
-      while (first.get('month') === now.get('month')) {
-        first = first.subtract(7, 'days');
-      }
-    } else {
-      first = moment.default(this.first_days[0]);
-      first.add(week, 'weeks');
+  private changeWeek(week:number) {
+    this.first_day_of_calendar = moment.default(this.first_day_of_calendar.add(week * 7, 'days'));
+  }
+
+  private today() {
+
+    const now = moment.default();
+    this.first_day_of_calendar = moment.default().subtract(now.days(), 'days'); // first of the week from today
+    while (this.first_day_of_calendar.isSame(now,'month')) {
+      this.first_day_of_calendar = this.first_day_of_calendar.subtract(7, 'days');
     }
-    // this produces an array of the days of the first of the week.
-    this.first_days = [0, 1, 2, 3, 4, 5].map( (i) => moment.default(first).add(7 * i, 'days'));
+
+  }
+
+  // this produces an array of the days of the first of the week.
+  private first_days() {
+    return [0,1,2,3,4,5].map( (i) => moment.default(this.first_day_of_calendar).add(7 * i, 'days'));
   }
 
 }

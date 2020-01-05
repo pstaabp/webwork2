@@ -18,9 +18,7 @@ import MessagesMixin from '@/mixins/messages_mixin';
 import {Vue, Component, Watch} from 'vue-property-decorator';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import message_store from '@/store/modules/messages';
 
 
 @Component({
@@ -30,11 +28,11 @@ const store = getModule(WeBWorKStore);
 export default class MessageBar extends Vue {
   private new_message: boolean = false;
   get messages() {
-    return store.messages.map( (_m) => _m);
+    return message_store.messages;
   }
 
   get num_messages() {
-    return store.messages.size();
+    return message_store.messages.length;
   }
 
   private clearMessages(): void {

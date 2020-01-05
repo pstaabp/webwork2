@@ -24,6 +24,7 @@ use Data::Dump qw/dump/;
 ###
 
 get '/courses/:course_id/settings' => sub { # => require_role professor => sub {
+  debug "in get /courses/:course_id/settings";
 	return getCourseSettings(vars->{ce}, \&debug);
 };
 

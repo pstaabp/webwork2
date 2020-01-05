@@ -16,9 +16,7 @@ import ProblemView from '@/components/common_components/ProblemView.vue';
 import Draggable from 'vuedraggable';
 
 // set up the store
-import { getModule } from 'vuex-module-decorators';
-import WeBWorKStore from '@/store';
-const store = getModule(WeBWorKStore);
+import problem_sets_store from '@/store/modules/problem_sets';
 
 
 @Component({
@@ -33,7 +31,7 @@ export default class ProblemListView extends Vue {
   private selected_set_id!: string;
 
   get problems() {
-    const sets = store.problem_sets;
+    const sets = problem_sets_store.problem_sets;
     if (sets === undefined || sets.size() === 0 || this.selected_set_id === '') {
       return [];
     }

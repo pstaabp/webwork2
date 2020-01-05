@@ -10,10 +10,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { Vue, Component, Prop, Watch} from 'vue-property-decorator';
 
-export default {
-  mounted() {
+@Component({
+  name: 'WeBWorK',
+})
+export default class WeBWorKApp extends Vue {
+  private mounted() {
       // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
     if (document.getElementById('mathjax-scr')) {
       return; // was already loaded
@@ -25,6 +29,6 @@ export default {
     if (this.$route.fullPath === '/') {
       this.$router.replace('/courses');
     }
-  },
-};
+  }
+}
 </script>
