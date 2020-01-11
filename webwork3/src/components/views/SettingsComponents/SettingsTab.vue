@@ -1,7 +1,7 @@
 <template>
   <div>
     <table class="table table-sm bordered">
-      <settings-row  v-for="setting in settings" :setting="setting" :key="setting.get('var')"/>
+      <settings-row  v-for="setting in settings" :setting="setting" :key="setting.var"/>
     </table>
   </div>
 </template>

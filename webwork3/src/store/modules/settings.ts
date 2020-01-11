@@ -33,12 +33,31 @@ export class SettingsModule extends VuexModule {
     this.settings = _settings;
   }
 
+  @Mutation setSetting(_setting: Setting) {
+    // find the setting in the settings array
+
+
+  }
+
   // Settings actions
   @Action
   public async fetchSettings() {
     const response = await axios.get(api_url + '/courses/' + loginModule.login_info.course_id + '/settings');
     this.setSettings(response.data as Setting[]);
   } // fetchSettings
+
+  @Action
+  public async updateSetting(_setting: Setting) {
+    const response = await axios.put(api_url + '/courses/' + loginModule.login_info.course_id + '/setting', _setting);
+    this.setSetting(response as Setting);
+      // check that the response is the same as the _settting variable.
+      //const keys = Object.keys(_setting.getChanges());
+      // tslint:disable-next-line
+      //console.log(keys);
+      // const _message = `The fields ${keys.join(', ')} have changed. `;
+      // this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
+      //     message: _message}));
+  }
 
 }
 
