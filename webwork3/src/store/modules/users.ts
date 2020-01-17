@@ -43,14 +43,14 @@ export class UsersModule extends VuexModule {
   // Settings actions
   @Action({ rawError: true })
   public async fetchUsers() {
-    const response = await axios.get(login_module.getApiHeader + '/users');
+    const response = await axios.get(login_module.api_header + '/users');
     const _users  = response.data as User[];
     this.setUsers(_users);
   }
 
   @Mutation
   public async updateUser( _user: User) {
-    const response = await axios.put(login_module.getApiHeader + '/users/' + _user.user_id, _user);
+    const response = await axios.put(login_module.api_header + '/users/' + _user.user_id, _user);
     // tslint:disable-next-line
     console.log(response);
     this._users.set(_user.user_id, _user);

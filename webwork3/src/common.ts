@@ -2,9 +2,9 @@
 
 import moment from 'moment';
 
-import {ProblemSet} from '@/store/models';
+import {ProblemSet, User} from '@/store/models';
 
-interface ViewInfo {
+export interface ViewInfo {
   name: string;
   icon: string;
   route: string;
@@ -12,8 +12,13 @@ interface ViewInfo {
   show_user: boolean;
 }
 
+export interface SidebarInfo {
+  name: string;
+  comp: string;
+}
+
 export default class Common {
-  public static views(): Array<ViewInfo> {
+  public static views(): ViewInfo[] {
     return [
       {name: 'Calendar', icon: 'calendar', route: 'calendar', show_set: false, show_user: false},
       {name: 'Classlist Manager', icon: 'users', route: 'classlist', show_set: false, show_user: false},
@@ -27,7 +32,7 @@ export default class Common {
     ];
   }
 
-  public static sidebars(): Array<{name: string, comp: string}> {
+  public static sidebars(): SidebarInfo[] {
     return [
       {name: 'Problem Sets', comp: 'problem_sets'},
       {name: 'Library Options', comp: 'lib_opts'},
@@ -87,6 +92,26 @@ export default class Common {
 
   public static validAnswerDate(_set: ProblemSet) {
     return moment.unix(_set.answer_date).isSameOrAfter(moment.unix(_set.due_date));
+  }
+
+  public static newUser(): User {
+      return {
+        user_id: '__new_user',
+        first_name: '',
+        last_name: '',
+        status: '',
+        comment: '',
+        useMathView: false,
+        permission: -5,
+        recitation: '',
+        student_id: '',
+        lis_source_did: '',
+        email_address: '',
+        displayMode: 'MathJax',
+        section: '',
+        showOldAnswers: false,
+        useWirisEditor: false
+      }
   }
 
 } // class Constants

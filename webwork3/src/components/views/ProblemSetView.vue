@@ -52,26 +52,28 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     return Array.from(problem_sets_store.problem_sets.keys());
   }
 
-  public created() {
-    // watch for changes in the selected set from the menu bar.
-    this.$store.subscribe((mutation, state) => {
-      if (mutation.type === 'app_state/setSelectedSet') {
-        if (problem_sets_store.problem_sets.get(mutation.payload)) {
-          this.problem_set = problem_sets_store.problem_sets.get(mutation.payload);
-        }
-     }
-    });
-    const _set_id = app_state.selected_set;
-    if (_set_id && problem_sets_store.problem_sets.get(_set_id)) {
-      this.problem_set = problem_sets_store.problem_sets.get(app_state.selected_set);
+  private updateSet() {
+    const _set = problem_sets_store.problem_sets.get(app_state.selected_set);
+    if (_set) {
+      this.problem_set = _set;
     }
   }
 
-  // public mounted() {
-  //   if (this.$route.query && this.$route.query.set_id) {
-  //     this.selected_set_id = this.$route.query.set_id as string;
-  //   }
-  // }
+  private created() {
+    // watch for changes in the selected set from the menu bar.
+    this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'app_state/setSelectedSet') {
+        this.updateSet();
+     }
+    });
+    this.updateSet();
+  }
+
+  private mounted() {
+    if (this.$route.query && this.$route.query.set_id) {
+      app_state.setSelectedSet(this.$route.query.set_id as string);
+    }
+  }
 
 } // class SetDetails
 </script>

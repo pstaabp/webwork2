@@ -1,16 +1,16 @@
 <template>
   <b-tabs content-class="mt-3">
     <b-tab title="By Subj." active>
-      <library-tab tab_name="subjects" :problem_sets="problem_sets"/>
+      <library-tab tab_name="subjects" :problem_set="problem_set" />
     </b-tab>
     <b-tab title="By Directory">
-      <library-tab tab_name="directory" :problem_sets="problem_sets"/>
+      <library-tab tab_name="directory"/>
     </b-tab>
     <b-tab title="Textbooks">
-      <library-tab tab_name="textbooks" :problem_sets="problem_sets" />
+      <library-tab tab_name="textbooks" />
     </b-tab>
     <b-tab title="Local Prob.">
-      <library-tab tab_name="local" :problem_sets="problem_sets" />
+      <library-tab tab_name="local" />
     </b-tab>
     <b-tab title="Set Defn. files"><h3>Browse Set Definition Files</h3></b-tab>
     <b-tab title="Search"><h3>Search the Library</h3></b-tab>
@@ -27,6 +27,7 @@ import LibraryTab from './LibraryComponents/LibraryTab.vue';
 
 // set up the store
 import problem_sets_store from '@/store/modules/problem_sets';
+import app_state from '@/store/modules/app_state';
 
 
 @Component({
@@ -36,12 +37,9 @@ import problem_sets_store from '@/store/modules/problem_sets';
   },
 })
 export default class LibraryBrowser extends Vue {
-  @Prop()
-  private selected_set_id!: string;
 
-private getSelectedSet() {
-    return problem_sets_store.problem_sets.size === 0 ? '' :
-        problem_sets_store.problem_sets.get(this.selected_set_id);
+  private problem_set() {
+    return problem_sets_store.problem_sets.get(app_state.selected_set);
   }
 }
 </script>

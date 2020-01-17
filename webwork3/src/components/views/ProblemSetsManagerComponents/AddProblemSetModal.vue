@@ -67,18 +67,18 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     }
 
     // update all of the dates.
-    const timeAssignDueString =
-      settings_store.settings.find( (_setting) => _setting.var === 'pg{timeAssignDue}').value;
-    const timeAssignDue = moment.default(timeAssignDueString, 'hh:mma');
-    const openDate  = moment.default().add(7, 'days').hour(time_assign_due.hour()).minute(time_assign_due.minute());
-    const dueDate = moment.default(open_date).add(10, 'days');
-    const reducedScoringDate = moment.default(open_date).add(7, 'days');
-    const answerDate = moment.default(due_date).add(7, 'days');
+    const time_assign_due_setting = settings_store.settings.find( (_setting) => _setting.var === 'pg{timeAssignDue}');
+    const time_assign_due_string = time_assign_due_setting ? time_assign_due_setting.value : '';
+    const time_assign_due = moment.default(time_assign_due_string, 'hh:mma');
+    const open_date  = moment.default().add(7, 'days').hour(time_assign_due.hour()).minute(time_assign_due.minute());
+    const due_date = moment.default(open_date).add(10, 'days');
+    const reduced_scoring_date = moment.default(open_date).add(7, 'days');
+    const answer_date = moment.default(due_date).add(7, 'days');
 
-    this.problem_set.open_date = openDate.unix();
-    this.problem_set.due_date = dueDate.unix();
-    this.problem_set.reduced_scoring_date = reducedScoringDate.unix();
-    this.problem_set.answer_date = answerDate.unix();
+    this.problem_set.open_date = open_date.unix();
+    this.problem_set.due_date = due_date.unix();
+    this.problem_set.reduced_scoring_date = reduced_scoring_date.unix();
+    this.problem_set.answer_date = answer_date.unix();
 
 
     // add to the store state:

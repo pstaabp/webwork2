@@ -28,6 +28,10 @@ export class ProblemSetsModule extends VuexModule {
     return this._problem_sets;
   }
 
+  public get set_names() {
+    return Array.from(this._problem_sets.keys());
+  }
+
   @Mutation
   public setProblemSets(_sets: ProblemSet[]) {
     _sets.forEach( (_set) => {this._problem_sets.set(_set.set_id, _set); });
@@ -35,14 +39,14 @@ export class ProblemSetsModule extends VuexModule {
 
   @Action({ rawError: true })
   public async fetchProblemSets() {
-    const response = await axios.get(login_module.getApiHeader + '/sets');
+    const response = await axios.get(login_module.api_header + '/sets');
     const _sets  = response.data as ProblemSet[];
     this.setProblemSets(_sets);
   } // fetchProblemSets
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
-    const response = await axios.put(login_module.getApiHeader + '/sets/'
+    const response = await axios.put(login_module.api_header + '/sets/'
           + _set.set_id, _set);
       // tslint:disable-next-line
       console.log(response);

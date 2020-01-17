@@ -67,20 +67,20 @@ export interface ProblemSet {
 
 export interface User {
   user_id: string;
-  first_name?: string;
-  last_name?: string;
-  status?: string;
-  comment?: string;
-  useMathView?: boolean;
-  permission?: number;
-  recitation?: string;
-  student_id?: string;
-  lis_source_did?: string;
-  email_address?: string;
-  displayMode?: string;
-  section?: string;
-  showOldAnswers?: boolean;
-  useWirisEditor?: boolean;
+  first_name: string;
+  last_name: string;
+  status: string;
+  comment: string;
+  useMathView: boolean;
+  permission: number;
+  recitation: string;
+  student_id: string;
+  lis_source_did: string;
+  email_address: string;
+  displayMode: string;
+  section: string;
+  showOldAnswers: boolean;
+  useWirisEditor: boolean;
 }
 
 export interface Setting {

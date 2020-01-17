@@ -23,19 +23,19 @@ import axios from 'axios';
   dynamic: true,
 })
 export class SettingsModule extends VuexModule {
-  private settings: Setting[] = [];
+  private _settings: Setting[] = [];
 
   @Mutation
   public setSettings(_settings: Setting[]) {
-    this.settings = _settings;
+    this._settings = _settings;
   }
 
   @Mutation public setSetting(_setting: Setting) {
     // find the setting in the settings array
   }
 
-  public get all_settings() {
-    return this.settings;
+  public get settings() {
+    return this._settings;
   }
 
   // Settings actions

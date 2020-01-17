@@ -85,13 +85,15 @@
 <script lang="ts">
 import { BNavbar } from 'bootstrap-vue';
 
-import MessageBar from './MessageBar.vue';
 import {Vue, Component, Prop, Watch} from 'vue-property-decorator';
+
+import Common from '@/common';
+import MessageBar from './MessageBar.vue';
 
 import login_store from '@/store/modules/login';
 import problem_set_store from '@/store/modules/problem_sets';
 import app_state from '@/store/modules/app_state';
-import user_store from'@/store/modules/users';
+import user_store from '@/store/modules/users';
 
 import {LoginInfo} from '@/store/models';
 
@@ -125,12 +127,12 @@ interface RouteObj {
 export default class MenuBar extends Vue {
   private change_password: boolean = false;
 
-  @Prop() private views!: string[];
-  @Prop() private current_view!: string;
-  @Prop() private sidebars!: string[];
-  @Prop() private current_sidebar!: string;
+  private views = Common.views();
+  private sidebars = Common.sidebars();
 
-//  private set_names: string[] = [];
+  get current_view() {
+    return app_state.current_view;
+  }
 
   get selected_set() {
     return app_state.selected_set;
@@ -149,11 +151,13 @@ export default class MenuBar extends Vue {
   }
 
   get show_set() {
-    return this.views.find( (_v) => _v.route === this.current_view).show_set;
+    const view = this.views.find( (_v) => _v.route === this.current_view);
+    return view ? view.show_set : false;
   }
 
   get show_user() {
-    return this.views.find( (_v) => _v.route == this.current_view).show_user;
+    const view = this.views.find( (_v) => _v.route === this.current_view);
+    return view ? view.show_user : false;
   }
 
   get users() {

@@ -4,6 +4,8 @@ import {VuexModule, Module, Mutation, Action, getModule} from 'vuex-module-decor
 import {LoginInfo, UserPassword} from '@/store/models';
 import store from '@/store';
 
+import Common from '@/common';
+
 // this is to prevent an error occur with a hot reloading.
 if (store.state.login) {
   store.unregisterModule('login');
@@ -18,17 +20,21 @@ import axios from 'axios';
   dynamic: true,
 })
 export class LoginModule extends VuexModule {
-  public login_info: LoginInfo = {user_id: '', logged_in: false, course_id: '', user: {user_id: ''}};
+  private _login_info: LoginInfo = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
 
   @Mutation
   public setLoginInfo(_info: LoginInfo): void {
-    this.login_info = _info;
+    this._login_info = _info;
+  }
+
+  public get login_info() {
+    return this._login_info;
   }
 
   @Action
   public async checkPassword(login: UserPassword) {
     const login_info: LoginInfo = {logged_in: false, user_id: login.user_id,
-          course_id: login.course_id, user: {user_id: login.user_id}};
+          course_id: login.course_id, user: Common.newUser()};
 
     const response = await axios.post('/webwork3/api/courses/' + login_info.course_id + '/login', login);
     if (response.data.logged_in === 1) {
@@ -36,14 +42,14 @@ export class LoginModule extends VuexModule {
       login_info.user.permission = response.data.permission;
       login_info.user.first_name = response.data.first_name;
       login_info.user.last_name = response.data.last_name;
-      this.setLoginInfo(login_info);
     }
+    this.setLoginInfo(login_info);
     return login_info;
 
   }
 
-  public get getApiHeader() {
-    return '/webwork3/api/courses/' + this.login_info.course_id;
+  public get api_header() {
+    return '/webwork3/api/courses/' + this._login_info.course_id;
   }
 
 }

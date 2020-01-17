@@ -17,14 +17,34 @@ if (store.state.app_state) {
 export class AppStateModule extends VuexModule {
 
   private _selected_set: string = '';
+  private _selected_user: string = '';
+  private _current_view: string = '';
 
   get selected_set() {
     return this._selected_set;
   }
 
+  get selected_user() {
+    return this._selected_user;
+  }
+
+  get current_view() {
+    return this._current_view;
+  }
+
   @Mutation
   public setSelectedSet(_set_id: string) {
     this._selected_set = _set_id;
+  }
+
+  @Mutation
+  public setSelectedUser(_user_id: string) {
+    this._selected_user = _user_id;
+  }
+
+  @Mutation
+  public setCurrentView(_current_view: string) {
+    this._current_view = _current_view;
   }
 
 }

@@ -115,11 +115,11 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
 
   @Prop() private problem_set!: ProblemSet; // the problem set to assign users
 
-  @Watch('show_info',{deep: true})
+  @Watch('show_info', {deep: true})
   private showTogglesChanged(_old: string[], _new: string[]) {
     // tslint:disable-next-line
      console.log(this.show_info);
-     this.fields = [...['user_id', 'first_name', 'last_name'],...this.show_info];
+     this.fields = [...['user_id', 'first_name', 'last_name'], ...this.show_info];
   }
 
   private assignUsers() {
@@ -160,8 +160,6 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
 
   @Watch('problem_set', {deep: true})
   private probSetChanged(_new_set: ProblemSet, _old_set: ProblemSet) {
-    // tslint:disable-next-line
-    console.log('in problemSetChanged');
     this.setUsers();
     Object.assign(this.override_dates, this.problem_set);
   }
@@ -172,8 +170,6 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   }
 
   private mounted() {
-    // tslint:disable-next-line
-     console.log('in mounted');
      Object.assign(this.override_dates, this.problem_set);
      this.setUsers();
   }
@@ -190,11 +186,8 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   private save(): void {
     // tslint:disable-next-line
     console.log('in save');
+
   }
-  //
-  // private removeProctors(obj1: User, obj2: RegExp) {
-  //   return !obj2.test(obj1.get('user_id'));
-  // }
 
   private rowSelected(items: User[]): void {
     this.selected_users = items;

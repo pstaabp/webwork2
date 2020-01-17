@@ -231,6 +231,8 @@ sub get_section_problems {
 sub searchLibrary {
 	my ($db,$p,$debug) = @_;  # pass in the debug function as \&debug
 
+	dd 'in searchLibrary';
+
   # if no params are passed return an empty array.
   if(!defined($p)){
       return [];
