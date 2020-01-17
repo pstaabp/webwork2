@@ -5,13 +5,10 @@ import store from '@/store';
 import {LoginModule} from './login';
 const loginModule = getModule(LoginModule);
 
-
-const name = 'settings';
-
 // this is to prevent an error occur with a hot reloading.
 
-if (store.state[name]) {
-  store.unregisterModule(name);
+if (store.state.settings) {
+  store.unregisterModule('settings');
 }
 
 const api_url = '/webwork3/api';
@@ -33,10 +30,12 @@ export class SettingsModule extends VuexModule {
     this.settings = _settings;
   }
 
-  @Mutation setSetting(_setting: Setting) {
+  @Mutation public setSetting(_setting: Setting) {
     // find the setting in the settings array
+  }
 
-
+  public get all_settings() {
+    return this.settings;
   }
 
   // Settings actions
@@ -51,9 +50,9 @@ export class SettingsModule extends VuexModule {
     const response = await axios.put(api_url + '/courses/' + loginModule.login_info.course_id + '/setting', _setting);
     this.setSetting(response as Setting);
       // check that the response is the same as the _settting variable.
-      //const keys = Object.keys(_setting.getChanges());
+      // const keys = Object.keys(_setting.getChanges());
       // tslint:disable-next-line
-      //console.log(keys);
+      // console.log(keys);
       // const _message = `The fields ${keys.join(', ')} have changed. `;
       // this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
       //     message: _message}));
@@ -61,4 +60,4 @@ export class SettingsModule extends VuexModule {
 
 }
 
-export default getModule(SettingsModule);
+export default getModule(SettingsModule, store);

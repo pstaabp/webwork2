@@ -68,7 +68,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue';
 import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue';
 import EditUsersModal from './ClasslistComponents/EditUsersModal.vue';
-import Constants from '@/Constants';
+import Constants from '@/common';
 import {User} from '@/store/models';
 
 // set up the store

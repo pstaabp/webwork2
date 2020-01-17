@@ -15,6 +15,8 @@
 <script lang="ts">
 import MessagesMixin from '@/mixins/messages_mixin';
 
+import messages_store from '@/store/modules/messages';
+
 import {Vue, Component, Watch} from 'vue-property-decorator';
 
 // set up the store
@@ -36,7 +38,7 @@ export default class MessageBar extends Vue {
   }
 
   private clearMessages(): void {
-    store.clearMessages();
+    messages_store.clearMessages();
   }
 
   @Watch('num_messages')

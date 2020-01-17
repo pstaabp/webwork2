@@ -21,17 +21,20 @@ if (store.state[name]) {
   dynamic: true,
 })
 export class MessagesModule extends VuexModule {
-  private messages: Message[] = [];
+  private _messages: Message[] = [];
 
+  public get messages() {
+    return this._messages;
+  }
   // Messages
   @Action
   public addMessage(_msg: Message) {
-    this.messages.push(_msg);
+    this._messages.push(_msg);
   }
   @Mutation
   public clearMessages() {
-    this.messages = [];
+    this._messages = [];
   }
 }
 
-export default getModule(MessagesModule);
+export default getModule(MessagesModule, store);

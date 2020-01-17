@@ -26,11 +26,11 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch} from 'vue-property-decorator';
 
-import Setting from '@/store/models';
+import {Setting} from '@/store/models';
 
 import * as moment from 'moment';
 
-import Constants from '@/Constants';
+import Constants from '@/common';
 
 import settings_store from '@/store/modules/settings';
 
@@ -47,11 +47,11 @@ export default class SettingsRow extends Vue {
     return Object.values(Constants.permissionLevels());
   }
   get valueAsTime() {
-    return moment(this.setting.value, ['hh:mmA']).format('HH:mm');
+    return moment.default(this.setting.value, ['hh:mmA']).format('HH:mm');
   }
 
   set valueAsTime(value: string) {
-    this.setting.value = moment(value,['HH:mm']).format('hh:mmA');
+    this.setting.value = moment.default(value, ['HH:mm']).format('hh:mmA');
   }
 
   @Watch('setting', {deep: true })

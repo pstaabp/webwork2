@@ -8,7 +8,7 @@ import ProblemSetsManager from './components/views/ProblemSetsManager.vue';
 import ClasslistManager from './components/views/ClasslistManager.vue';
 import Calendar from './components/views/Calendar.vue';
 import Settings from './components/views/Settings.vue';
-import ProblemSetDetails from './components/views/SetDetails.vue';
+import ProblemSetView from './components/views/ProblemSetView.vue';
 import LibraryBrowser from './components/views/LibraryBrowser.vue';
 import ImportExport from './components/views/ImportExport.vue';
 import Editor from './components/views/Editor.vue';
@@ -31,7 +31,7 @@ export default new VueRouter({
            { path: 'classlist', component: ClasslistManager},
            { path: 'settings', component: Settings},
            { path: 'calendar', component: Calendar},
-           { path: 'set-details', component: ProblemSetDetails},
+           { path: 'set-view', component: ProblemSetView},
            { path: 'library', component: LibraryBrowser},
            { path: 'import-export', component: ImportExport},
            { path: 'editor', component: Editor},

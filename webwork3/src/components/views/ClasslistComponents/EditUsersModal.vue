@@ -39,7 +39,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
-import User from '@/models/User';
+import {User} from '@/store/models';
 
 // set up the store
 import users_store from '@/store/modules/users';
@@ -48,16 +48,14 @@ import users_store from '@/store/modules/users';
 @Component
 export default class EditUsersModel extends Vue {
   public name!: 'EditUsers';
-   @Prop() private users!: object[];
+   @Prop() private users!: User[];
 
-  constructor() {
-    super();
-  }
+  // constructor() {
+  //   super();
+  // }
 
   private save(): void {
-    // tslint:disable-next-line
-    console.log("hi");
-    this.users.forEach( (_user) => users_store.updateUser(new User(_user)));
+    this.users.forEach( (_user) => users_store.updateUser(_user));
     this.$bvModal.hide('edit-users-modal');
   }
 

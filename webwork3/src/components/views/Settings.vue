@@ -25,7 +25,7 @@ import { Vue, Component} from 'vue-property-decorator';
 
 import SettingsTab from './SettingsComponents/SettingsTab.vue';
 
-import Setting from '@/models/Setting';
+import {Setting} from '@/store/models';
 
 // set up the store
 import settings_store from '@/store/modules/settings';
@@ -39,7 +39,7 @@ import settings_store from '@/store/modules/settings';
 })
 export default class Settings extends Vue {
   private filterSettings(category: string): Setting[] {
-    return settings_store.settings.filter( (setting) =>  setting.category === category);
+    return settings_store.all_settings.filter( (setting: Setting) =>  setting.category === category);
   }
 }
 </script>

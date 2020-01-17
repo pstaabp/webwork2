@@ -11,10 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "typeRoots": [
-      "./@types",
-      "./node_modules/@types"
-    ],
+    "typeRoots" : ["./@types","./node_modules/@types"],
     "types": [
       "webpack-env",
       "jest"
@@ -32,6 +29,7 @@
     ]
   },
   "include": [
+    "@types/**/*.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",

@@ -34,7 +34,7 @@
 <script lang="ts">
 import axios from 'axios';
 import User from '@/models/User';
-import LoginInfo from '@/models/LoginInfo';
+import {LoginInfo, UserPassword} from '@/store/models';
 
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import login_store from '@/store/modules/login';
@@ -51,39 +51,13 @@ export default class Manager extends Vue {
   }
 
   private async checkPassword(evt: Event) {
-    const login_info =  await login_store.checkPassword(this.password_info)
+    const login_info =  await login_store.checkPassword(this.password_info);
 
-    if (login_info.logged_in) {
-      if (login_info.user.permission >= 10) {
+    if (login_info && login_info.logged_in) {
+      if (login_info && login_info.user && login_info.user.permission >= 10) {
         this.$router.replace('/courses/' + login_store.login_info.course_id + '/manager');
       }
     }
-
-
-
-    // axios.post('/webwork3/api/courses/' + this.course_id + '/login', {
-    //     course_id: this.course_id,
-    //     user_id: this.user_id,
-    //     password: this.password,
-    //   }).
-    //   then((response) => {
-    //     if (response.data.logged_in !== 1) {
-    //       this.password_state = false;
-    //     } else {
-    //       const info: {[key: string]: string} = {};
-    //       ['user_id', 'first_name', 'last_name'].forEach( (_key) => {
-    //         info[_key] = response.data[_key];
-    //       });
-    //       const login_info = new LoginInfo(this.course_id, new User(info));
-    //       this.$store.dispatch('updateLoginInfo', login_info);
-    //       if (response.data.permission >= 10) {
-    //         this.$router.replace('/courses/' + this.course_id + '/manager');
-    //       }
-    //     }
-    //   }).catch( (err) => {
-    //     // tslint:disable-next-line
-    //     console.log(err);
-    //   });
   }
 
   private cancel() {

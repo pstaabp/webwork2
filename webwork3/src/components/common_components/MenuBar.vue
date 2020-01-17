@@ -6,7 +6,7 @@
       <b-navbar-toggle target='nav_collapse' />
 
       <b-collapse is-nav id='nav_collapse'>
-        <b-navbar-nav>
+        <b-navbar-nav id='view-name-container'>
           <b-navbar-brand id='view-name'>  {{current_view | getName(views)}}
           </b-navbar-brand>
           <b-nav-item-dropdown class='mt-1' variant='outline-primary'>
@@ -15,6 +15,22 @@
                  <font-awesome-icon :icon='view.icon' size='lg'/>
                  <span class='pl-2'>{{view.name}}</span>
                </router-link>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav v-if="show_set" class="mr-3">
+          <b-nav-text class="font-weight-bold text-light">Selected Set: {{selected_set || 'none'}}</b-nav-text>
+          <b-nav-item-dropdown variant='outline-primary'>
+            <b-dropdown-item v-for='set_id in set_names' :key='set_id'>
+              <b-dropdown-item @click="selected_set = set_id" href="#">{{set_id}}</b-dropdown-item>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav v-if="show_user" class="mr-3">
+          <b-nav-text class="font-weight-bold text-light">Selected User: {{selected_user || 'none'}}</b-nav-text>
+          <b-nav-item-dropdown variant='outline-primary'>
+            <b-dropdown-item v-for='user_id in users' :key='user_id'>
+              <b-dropdown-item @click="selected_user = user_id" href="#">{{user_id}}</b-dropdown-item>
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -70,11 +86,14 @@
 import { BNavbar } from 'bootstrap-vue';
 
 import MessageBar from './MessageBar.vue';
-import {Vue, Component, Prop} from 'vue-property-decorator';
+import {Vue, Component, Prop, Watch} from 'vue-property-decorator';
 
 import login_store from '@/store/modules/login';
+import problem_set_store from '@/store/modules/problem_sets';
+import app_state from '@/store/modules/app_state';
+import user_store from'@/store/modules/users';
 
-// import LoginInfo from '@/models/LoginInfo';
+import {LoginInfo} from '@/store/models';
 
 
 
@@ -106,10 +125,45 @@ interface RouteObj {
 export default class MenuBar extends Vue {
   private change_password: boolean = false;
 
-  @Prop() private views: string[];
-  @Prop() private current_view: string;
-  @Prop() private sidebars: string[];
-  @Prop() private current_sidebar: string;
+  @Prop() private views!: string[];
+  @Prop() private current_view!: string;
+  @Prop() private sidebars!: string[];
+  @Prop() private current_sidebar!: string;
+
+//  private set_names: string[] = [];
+
+  get selected_set() {
+    return app_state.selected_set;
+  }
+
+  set selected_set(_set_id: string) {
+    app_state.setSelectedSet(_set_id);
+  }
+
+  get selected_user() {
+    return app_state.selected_user;
+  }
+
+  set selected_user(_user_id: string) {
+    app_state.setSelectedUser(_user_id);
+  }
+
+  get show_set() {
+    return this.views.find( (_v) => _v.route === this.current_view).show_set;
+  }
+
+  get show_user() {
+    return this.views.find( (_v) => _v.route == this.current_view).show_user;
+  }
+
+  get users() {
+    return Array.from(user_store.users.keys());
+  }
+
+  get set_names() {
+    return Array.from(problem_set_store.problem_sets.keys());
+  }
+
 
   get login_info(): LoginInfo {
     return login_store.login_info;
@@ -123,10 +177,19 @@ export default class MenuBar extends Vue {
   private path(route: string): string {
     return '/courses/' + login_store.login_info.course_id + '/manager/' + route;
   }
+
+  // private created() { // watch for changes in the selected set from the menu bar.
+  //   this.$store.subscribe((mutation, state) => {
+  //     if (mutation.type === 'problem_set_store/setProblemSets') {
+  //       this.set_names = Array.from(problem_set_store.problem_sets.keys());
+  //    }
+  //  });
+ // }
 } // class MenuBar
 </script>
 
 <style scoped>
 #view-name { font-size: 140%}
 .view-link {color: black}
+#view-name-container {width: 300px;}
 </style>

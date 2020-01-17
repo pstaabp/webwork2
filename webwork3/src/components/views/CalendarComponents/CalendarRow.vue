@@ -16,11 +16,13 @@
 <script lang='ts'>
 import Draggable, {MoveEvent} from 'vuedraggable';
 import * as moment from 'moment';
-import Constants from '@/Constants';
+import Constants from '@/common';
 
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 
 import {ProblemSet} from '@/store/models';
+
+import problem_set_store from '@/store/modules/problem_sets';
 
 
 interface AssignmentInfo {
@@ -41,7 +43,7 @@ export default class CalendarRow extends Vue {
   public readonly first_day_of_week!: moment.Moment;
 
   @Prop()
-  public readonly problem_sets!: Map<string,Problem>;
+  public readonly problem_sets!: Map<string, ProblemSet>;
 
   private today: moment.Moment = moment.default();
   private items: AssignmentInfo[][] = [];
@@ -64,7 +66,8 @@ export default class CalendarRow extends Vue {
   // returns the class for proper coloring of the calendar
 
   private dayClass(day: moment.Moment) {
-    return this.today.isSame(day,'day')?'today':(this.today.isSame(day,'month')?'current-month':'extra-month');
+    return this.today.isSame(day, 'day') ? 'today' :
+      (this.today.isSame(day, 'month') ? 'current-month' : 'extra-month');
   }
 
   private shortDate(day: moment.Moment): string {
@@ -80,10 +83,10 @@ export default class CalendarRow extends Vue {
         {date: moment.unix(_set.reduced_scoring_date), type: 'reduced', set_id: _set.set_id},
         {date: moment.unix(_set.open_date), type: 'open', set_id: _set.set_id}] )
           .map( (d) => Object.assign(d, {id: d.set_id + '___' + d.type}) );
-    return allDates.filter( (_date: AssignmentInfo) => _date.date.isSame(day,'day'));
+    return allDates.filter( (_date: AssignmentInfo) => _date.date.isSame(day, 'day'));
   }
 
-  private assignChange(newDate: moment.Moment, evt: MoveEvent) {
+  private assignChange(newDate: moment.Moment, evt: MoveEvent<any>) {
     if (evt.hasOwnProperty('added')) {
       const d = moment.default(newDate);
 
@@ -95,8 +98,10 @@ export default class CalendarRow extends Vue {
       const attrs: {[key: string]: any} = {};
       attrs[evt.added.element.type + '_date'] = d.unix;
       const _set = this.problem_sets.get(evt.added.element.set_id);
-      _set.set(attrs);
-      store.updateProblemSet(_set);
+      if (_set) {
+        _set.set(attrs);
+        problem_set_store.updateProblemSet(_set);
+      }
     }
   }
 

@@ -36,7 +36,7 @@ import * as moment from 'moment';
 
 import CalendarRow from './CalendarComponents/CalendarRow.vue';
 import problem_set_store from '@/store/modules/problem_sets';
-import {Problem} from '@/store/models';
+import {ProblemSet} from '@/store/models';
 
 @Component({
   name: 'Calendar',
@@ -45,7 +45,7 @@ import {Problem} from '@/store/models';
   },
 })
 export default class Calendar extends Vue {
-  private first_day_of_calendar: number = moment.default().unix();
+  private first_day_of_calendar: moment.Moment = moment.default();
 
   get monthName(): string {
     return moment.default().format('MMMM YYYY');
@@ -55,7 +55,7 @@ export default class Calendar extends Vue {
     return moment.weekdays();
   }
 
-  get problem_sets(): Map<string,ProblemSet> {
+  get problem_sets(): Map<string, ProblemSet> {
     return problem_set_store.problem_sets;
   }
 
@@ -63,15 +63,15 @@ export default class Calendar extends Vue {
     this.today();
   }
 
-  private changeWeek(week:number) {
-    this.first_day_of_calendar = moment.default(this.first_day_of_calendar.add(week * 7, 'days'));
+  private changeWeek(week: number) {
+    this.first_day_of_calendar = moment.default(this.first_day_of_calendar).add(week * 7, 'days');
   }
 
   private today() {
 
     const now = moment.default();
     this.first_day_of_calendar = moment.default().subtract(now.days(), 'days'); // first of the week from today
-    while (this.first_day_of_calendar.isSame(now,'month')) {
+    while (this.first_day_of_calendar.isSame(now, 'month')) {
       this.first_day_of_calendar = this.first_day_of_calendar.subtract(7, 'days');
     }
 
@@ -79,7 +79,7 @@ export default class Calendar extends Vue {
 
   // this produces an array of the days of the first of the week.
   private first_days() {
-    return [0,1,2,3,4,5].map( (i) => moment.default(this.first_day_of_calendar).add(7 * i, 'days'));
+    return [0, 1, 2, 3, 4, 5].map( (i) => moment.default(this.first_day_of_calendar).add(7 * i, 'days'));
   }
 
 }

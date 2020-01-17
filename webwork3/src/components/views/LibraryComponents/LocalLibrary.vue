@@ -62,7 +62,7 @@ export default class LocalLibrary extends Vue {
   private selection: DirectoryType[] = [];
 
   public mounted() {
-    axios.get('/webwork3/api/courses/' + login_store.login_info.course_id + '/library/local')
+    axios.get(login_store.getApiHeader + '/library/local')
       .then( (response) => {
         this.dir_info = response.data;
         // tslint:disable-next-line
@@ -113,7 +113,7 @@ export default class LocalLibrary extends Vue {
       const path = this.selection.map( (el: DirectoryType) => el.text).join('/');
       // tslint:disable-next-line
       console.log(path)
-      axios.get('/webwork3/api/courses/' + store.login_info.course_id + '/problems/local' + path)
+      axios.get(login_store.getApiHeader + '/problems/local' + path)
         .then((response) => {
           this.$emit('load-problems', response.data);
         }).catch( (error) => {

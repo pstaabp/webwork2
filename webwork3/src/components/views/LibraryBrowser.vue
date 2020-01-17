@@ -40,7 +40,8 @@ export default class LibraryBrowser extends Vue {
   private selected_set_id!: string;
 
 private getSelectedSet() {
-    return problem_sets_store.problem_sets.size() === 0 ? '' : problem_sets_store.problem_sets.get(this.selected_set_id);
+    return problem_sets_store.problem_sets.size === 0 ? '' :
+        problem_sets_store.problem_sets.get(this.selected_set_id);
   }
 }
 </script>

@@ -4,17 +4,12 @@ import {VuexModule, Module, Mutation, Action, getModule} from 'vuex-module-decor
 import {LoginInfo, UserPassword} from '@/store/models';
 import store from '@/store';
 
-const name = 'login';
-
 // this is to prevent an error occur with a hot reloading.
-
-if (store.state[name]) {
-  store.unregisterModule(name);
+if (store.state.login) {
+  store.unregisterModule('login');
 }
 
-
 import axios from 'axios';
-
 
 @Module({
   namespaced: true,
@@ -35,7 +30,7 @@ export class LoginModule extends VuexModule {
     const login_info: LoginInfo = {logged_in: false, user_id: login.user_id,
           course_id: login.course_id, user: {user_id: login.user_id}};
 
-    const response = await axios.post('/webwork3/api/courses/' + login.course_id + '/login', login);
+    const response = await axios.post('/webwork3/api/courses/' + login_info.course_id + '/login', login);
     if (response.data.logged_in === 1) {
       login_info.logged_in = true;
       login_info.user.permission = response.data.permission;
@@ -47,6 +42,10 @@ export class LoginModule extends VuexModule {
 
   }
 
+  public get getApiHeader() {
+    return '/webwork3/api/courses/' + this.login_info.course_id;
+  }
+
 }
 
-export default getModule(LoginModule);
+export default getModule(LoginModule, store);

@@ -2,9 +2,7 @@ import {VuexModule, Module, Action, Mutation, getModule} from 'vuex-module-decor
 import {User} from '@/store/models';
 import store from '@/store';
 
-//import {LoginModule} from './login';
 import login_module from './login';
-//const loginModule = getModule(LoginModule);
 
 
 const name = 'users';
@@ -27,20 +25,37 @@ import axios from 'axios';
   dynamic: true,
 })
 export class UsersModule extends VuexModule {
-  private users: Map<string, User> = new Map();
+  private _users: Map<string, User> = new Map();
+
+  get users() {
+    return this._users;
+  }
+
+  get users_array() {
+    return Array.from(this._users.values());
+  }
 
   @Mutation
-  public async setUsers(_users: User[]){
-    this.users = new Map();
-    _users.forEach( (_u) => {this.users.set(_u.user_id, _u); });
+  public async setUsers(_users: User[]) {
+    this._users = new Map();
+    _users.forEach( (_u) => {this._users.set(_u.user_id, _u); });
   }
   // Settings actions
-  @Action
+  @Action({ rawError: true })
   public async fetchUsers() {
-    const response = await axios.get(api_url + '/courses/' + login_module.login_info.course_id + '/users');
+    const response = await axios.get(login_module.getApiHeader + '/users');
     const _users  = response.data as User[];
     this.setUsers(_users);
   }
+
+  @Mutation
+  public async updateUser( _user: User) {
+    const response = await axios.put(login_module.getApiHeader + '/users/' + _user.user_id, _user);
+    // tslint:disable-next-line
+    console.log(response);
+    this._users.set(_user.user_id, _user);
+
+  }
 }
 
-export default getModule(UsersModule);
+export default getModule(UsersModule, store);

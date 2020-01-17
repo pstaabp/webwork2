@@ -45,6 +45,7 @@ library.add(faCalendar, faUsers, faInfoCircle, faUniversity, faListAlt, faEdit, 
             faWindowClose);
 
 import Vue from 'vue';
+import * as moment from 'moment';
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
@@ -78,27 +79,39 @@ Vue.use(FormCheckboxPlugin);
 Vue.use(SpinnerPlugin);
 Vue.use(FormFilePlugin);
 
-// store modules
+// overall filters:
 
-// import ProblemSetsModule from '@/store/modules/problem_sets';
-// import LoginModule from '@/store/modules/login';
-// import SettingsModule from '@/store/modules/settings';
-// import MessagesModule from '@/store/modules/messages';
+import {ProblemSet} from '@/store/models';
 
-import WeBWorKApp from './App.vue';
-import Vuex from 'vuex';
+Vue.filter('formatDateTime', (value: number) =>  moment.unix(value).format('YYYY-MM-DD[T]HH:mm'));
 
-// const store = new Vuex.Store({
-//   modules: {
-//     problem_sets: ProblemSetsModule,
-//     login: LoginModule,
-//     settings: SettingsModule,
-//     messages: MessagesModule,
-//   },
-// });
+function parseDatetimeForBrowser(dateString: string) {
+  return moment.default(dateString, 'YYYY-MM-DD[T]HH:mm').unix();
+}
+
+
+Vue.filter('setReducedScoringDate', (_set: ProblemSet, date_string: string) =>
+  _set.reduced_scoring_date = parseDatetimeForBrowser(date_string));
+
+Vue.filter('setDueDate', (_set: ProblemSet, date_string: string) =>
+  _set.due_date = parseDatetimeForBrowser(date_string));
+
+Vue.filter('setAnswerDate', (_set: ProblemSet, date_string: string) =>
+  _set.answer_date = parseDatetimeForBrowser(date_string));
+
+
+Vue.filter('validReducedScoring', (_set: ProblemSet) =>
+  moment.unix(_set.reduced_scoring_date!).isSameOrAfter(moment.unix(_set.open_date!)));
+
+Vue.filter('validDueDate', (_set: ProblemSet) =>
+  moment.unix(_set.due_date!).isSameOrAfter(moment.unix(_set.reduced_scoring_date!)));
+
+Vue.filter('validAnswerDate', (_set: ProblemSet) =>
+   moment.unix(_set.answer_date!).isSameOrAfter(moment.unix(_set.due_date!)));
+
+import WeBWorKApp from '@/App.vue';
 
 import store from '@/store';
-
 
 new Vue({
   router,

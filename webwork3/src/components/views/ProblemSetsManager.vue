@@ -32,7 +32,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-table :items="problem_sets" :fields="fields" :small="true" :bordered="true"
+        <b-table :items="problem_sets_as_array" :fields="fields" :small="true" :bordered="true"
         primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable >
         <template slot="visible" slot-scope="data">
           <div class="mx-auto" width="100%">
@@ -52,20 +52,30 @@
 </div>
 </template>
 
+<script lang="ts">
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
+import {mixins} from 'vue-class-component';
 
-
-<script>
 import moment from 'moment';
-import {mapState} from 'vuex';
+
+// set up the store
+import problem_sets_store from '@/store/modules/problem_sets';
+import users_store from '@/store/modules/users';
+
+import {ProblemSet} from '@/store/models';
 
 import AddProblemSetModal from './ProblemSetsManagerComponents/AddProblemSetModal.vue';
 import EditProblemSetsModal from './ProblemSetsManagerComponents/EditProblemSetsModal.vue';
 
-export default {
+import MessagesMixin from '@/mixins/messages_mixin';
+import ProblemSetMixin from '@/mixins/problem_set_mixin';
+
+@Component({
   name: 'ProblemSetsManager',
-  data() {
-      return {
-        fields: [
+  // mixins: [MessagesMixin, ProblemSetMixin ],
+})
+export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSetMixin) {
+  private fields = [
           {key: 'set_id', sortable: true, label: 'Name'},
           {key: 'assigned_users', sortable: true, label: 'Users', formatter: 'numUsers'},
           {key: 'problems', sortable: true, label: 'Num. Probs.', formatter: 'numProbs'},
@@ -75,42 +85,50 @@ export default {
           {key: 'reduced_scoring_date', sortable: true, label: 'Red. Sc. Date', formatter: 'formatDate'},
           {key: 'due_date', sortable: true, label: 'Due Date', formatter: 'formatDate'},
           {key: 'answer_date', sortable: true, label: 'Answer Date', formatter: 'formatDate'},
-      ],
-      selected_sets: [],
-      show_time: false,
-      filter_string: '',
-    };
-  },
-  components: {
-    AddProblemSetModal, EditProblemSetsModal,
-  },
-  methods: {
-    rowSelected(rows) {
-      this.selected_sets = rows;
-    },
-    formatDate(_date) {
-      return this.show_time ? moment.unix(_date).format('MM/DD/YY [at] hh:mm a') :
-          moment.unix(_date).format('MM/DD/YYYY');
-    },
-    numUsers(data) {
-      return data.length + '/' + this.users.length;
-    },
-    numProbs(data) {
-      return data.length;
-    },
-    deleteSets() {
-      const _sets = this.selected_sets.map( (_set) => _set.set_id);
-      const conf = confirm('Are you sure you want to delete the following sets? ' + _sets);
+      ];
+  private selected_sets: ProblemSet[] = [];
+  private show_time = false;
+  private filter_string = '';
 
-      if (conf) {
-        this.selected_sets.forEach( (_set) => {
-          this.$store.dispatch('removeProblemSet', _set);
-        });
-      }
-    },
-  }, // methods
-  computed: {
-    ...mapState(['users', 'problem_sets']),
-  },
-};
+  private get problem_sets() {
+    // tslint:disable-next-line
+    console.log(problem_sets_store.problem_sets);
+    return problem_sets_store.problem_sets;
+  }
+
+  private get problem_sets_as_array() {
+    // tslint:disable-next-line
+//    console.log(Array.from(...problem_sets_store.problem_sets));
+
+    return Array.from(problem_sets_store.problem_sets.values());
+  }
+
+  private rowSelected(rows: ProblemSet[]) {
+    this.selected_sets = rows;
+  }
+
+  private formatDate(_date: number) {
+    return this.show_time ? moment.unix(_date).format('MM/DD/YY [at] hh:mm a') :
+        moment.unix(_date).format('MM/DD/YYYY');
+  }
+
+  private numUsers(data: any[] ) {
+    return data.length + '/' + users_store.users.size;
+  }
+
+  private numProbs(data: any[]) {
+    return data.length;
+  }
+
+  private deleteSets() {
+    const _sets = this.selected_sets.map( (_set) => _set.set_id);
+    const conf = confirm('Are you sure you want to delete the following sets? ' + _sets);
+
+    if (conf) {
+      this.selected_sets.forEach( (_set) => {
+        this.$store.dispatch('removeProblemSet', _set);
+      });
+    }
+  }
+}
 </script>

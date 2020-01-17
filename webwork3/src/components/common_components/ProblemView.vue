@@ -6,18 +6,18 @@
           <b-row>
             <b-col cols="2" v-if="prop.numbered">
               <b-input-group size="sm">
-                <span class="problem-id">{{problem.get('problem_id')}}</span>
+                <span class="problem-id">{{problem.problem_id}}</span>
               </b-input-group>
             </b-col>
-            <b-col cols="5" v-if="prop.value">
+            <b-col cols="4" v-if="prop.value">
               <b-input-group size="sm">
                 <b-input-group-text slot="prepend">Value:</b-input-group-text>
-                <b-input type="number" v-model="value"/>
+                <b-input type="number" v-model="problem.value"/>
               </b-input-group>
             </b-col>
-            <b-col cols="5" v-if="prop.attempts">
+            <b-col cols="4" v-if="prop.attempts">
               <b-input-group size="sm" prepend="Max. Att.:">
-                <b-input type="number" v-model="max_attempts"/>
+                <b-input type="number" v-model="problem.max_attempts"/>
               </b-input-group>
             </b-col>
           </b-row>
@@ -103,7 +103,7 @@ export default class ProblemView extends Vue {
   private fetchProblem(otherParams?: {[key: string]: any}) {
     this.html = '';
     axios.get('/webwork3/api/renderer/courses/' + login_module.login_info.course_id + '/problems/0',
-                {params: Object.assign({}, this.problem.getAttributes(), otherParams)})
+                {params: Object.assign({}, this.problem, otherParams)})
         .then( (response) => {
           this.html = response.data.text;
         });
@@ -112,30 +112,30 @@ export default class ProblemView extends Vue {
   get prop(): ProblemViewOptions {
     return this.type === 'library' ? LIB_PROB : SET_PROB;
   }
+  //
+  // get value(): number {
+  //   return this.problem.value;
+  // }
+  //
+  // set value(value: number) {
+  //   if (value !== this.problem.value) {
+  //     // update the problem.
+  //     // tslint:disable-next-line
+  //     console.log(value);
+  //   }
+  // }
 
-  get value(): number {
-    return this.problem.get('value');
-  }
-
-  set value(value: number) {
-    if (value !== this.problem.get('value')) {
-      // update the problem.
-      // tslint:disable-next-line
-      console.log(value);
-    }
-  }
-
-  get max_attempts(): number {
-    return this.problem.get('max_attempts');
-  }
-
-  set max_attempts(value: number) {
-    if (value !== this.problem.get('max_attempts')) {
-      // update the problem.
-      // tslint:disable-next-line
-      console.log(value + ":" + this.problem.get('max_attempts'));
-    }
-  }
+  // get max_attempts(): number {
+  //   return this.problem.max_attempts;
+  // }
+  //
+  // set max_attempts(value: number) {
+  //   if (value !== this.problem.max_attempts) {
+  //     // update the problem.
+  //     // tslint:disable-next-line
+  //     console.log(value + ":" + this.problem.max_attempts);
+  //   }
+  // }
 
   private addProblem(evt: Event): void {
     // tslint:disable-next-line
@@ -147,7 +147,9 @@ export default class ProblemView extends Vue {
   }
 
   @Watch('problem')
-  private problemChange(): void {
+  private problemChange(new_prob: Problem, old_prob: Problem): void {
+    // tslint:disable-next-line
+    console.log('in problem changed');
     this.fetchProblem();
   }
 

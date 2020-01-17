@@ -11,7 +11,7 @@
 <script lang="ts">
 import axios from 'axios';
 
-import Constants from '@/Constants';
+import Constants from '@/common';
 import MenuBar from '@/components/common_components/MenuBar.vue';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 
@@ -38,11 +38,9 @@ export default class Manager extends Vue {
     this.current_view = value.path.split('/').pop() || '';
   }
 
-  public async created(): void { // load all of the relevant data
-    //store.updateLoginInfo(this.$route.params);
+  private async created() { // load all of the relevant data
 
-    const response = await axios.get('/webwork3/api/courses/' + login_module.login_info.course_id + '/login');
-    if (response.data.logged_in === 1) {
+    if (login_module.login_info && login_module.login_info.logged_in) {
       settings_module.fetchSettings();
       users_module.fetchUsers();
       problem_sets_module.fetchProblemSets();
