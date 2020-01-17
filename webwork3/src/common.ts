@@ -21,14 +21,14 @@ export default class Common {
   public static views(): ViewInfo[] {
     return [
       {name: 'Calendar', icon: 'calendar', route: 'calendar', show_set: false, show_user: false},
-      {name: 'Classlist Manager', icon: 'users', route: 'classlist', show_set: false, show_user: false},
-      {name: 'Problem Set Details', icon: 'info-circle', route: 'set-view', show_set: true, show_user: false},
-      {name: 'Library Browser', icon: 'university', route: 'library', show_set: true, show_user: false},
-      {name: 'Problem Sets Manager', icon: 'list-alt', route: 'problem-sets', show_set: false, show_user: true},
-      {name: 'Problem Editor', icon: 'edit', route: 'editor', show_set: false, show_user: false},
-      {name: 'Statistics', icon: 'chart-bar', route: 'statistics', show_set: true, show_user: true},
-      {name: 'Import/Export Sets', icon: 'exchange-alt', route: 'import-export', show_set: false, show_user: false},
-      {name: 'Settings', icon: 'cogs', route: 'settings', show_set: false, show_user: false},
+      {name: 'Classlist Manager', icon: 'people', route: 'classlist', show_set: false, show_user: false},
+      {name: 'Problem Set Details', icon: 'info-square', route: 'set-view', show_set: true, show_user: false},
+      {name: 'Library Browser', icon: 'book', route: 'library', show_set: true, show_user: false},
+      {name: 'Problem Sets Manager', icon: 'list-ul', route: 'problem-sets', show_set: false, show_user: true},
+      {name: 'Problem Editor', icon: 'pencil', route: 'editor', show_set: false, show_user: false},
+      {name: 'Statistics', icon: 'bar-chart', route: 'statistics', show_set: true, show_user: true},
+      {name: 'Import/Export Sets', icon: 'arrow-left-right', route: 'import-export', show_set: false, show_user: false},
+      {name: 'Settings', icon: 'gear', route: 'settings', show_set: false, show_user: false},
     ];
   }
 

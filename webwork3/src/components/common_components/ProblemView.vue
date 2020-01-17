@@ -27,28 +27,28 @@
             <b-btn-group size="sm">
               <b-btn variant="outline-dark" title="add problem" v-if="prop.add"
                   @click="$emit('add-problem',problem)">
-                  <font-awesome-icon icon='plus'/>
+                  <b-icon icon='plus'/>
                 </b-btn>
               <b-btn variant="outline-dark" title="edit" v-if="prop.edit" disabled>
-                <font-awesome-icon icon='pencil-alt'/>
+                <b-icon icon='pencil'/>
               </b-btn>
               <b-btn variant="outline-dark" title="randomize" v-if="prop.randomize"
-                @click="randomize"> <font-awesome-icon icon='sync'/>
+                @click="randomize"> <b-icon icon='arrow-clockwise'/>
               </b-btn>
               <b-btn variant="outline-dark" title="delete problem" v-if="prop.delete">
-                <font-awesome-icon icon='trash-alt'/>
+                <b-icon icon='trash'/>
               </b-btn>
               <b-btn variant="outline-dark" title="Mark this problem correct for all assigned users."
-                  v-if="prop.mark_all" disabled><font-awesome-icon icon='check'/>
+                  v-if="prop.mark_all" disabled><b-icon icon='check'/>
                 </b-btn>
               <b-btn variant="outline-dark" title="show/hide tags" v-if="prop.tags">
-                <font-awesome-icon icon='tags'/>
+                <b-icon icon='tag'/>
               </b-btn>
               <b-btn :variant="show_path ? 'success' : 'outline-dark'" title="show/hide path" v-if="prop.path"
-                  @click="show_path = !show_path"><font-awesome-icon icon='file'/>
+                  @click="show_path = !show_path"><b-icon icon='document-code'/>
                 </b-btn>
               <b-btn variant="outline-dark" title="This problem is in the target set." v-if="prop.target_set">
-                <font-awesome-icon icon='bullseye'/>
+                <b-icon icon='bullseye'/>
               </b-btn>
             </b-btn-group>
           </b-btn-toolbar>
@@ -56,7 +56,7 @@
         <b-col cols="1">
           <b-btn-group size="sm" class="float-right" v-if="prop.reorder">
             <b-btn class="drag-handle border border-dark rounded p-2" variant="outline-dark">
-              <font-awesome-icon icon="arrows-alt-v" />
+              <b-icon icon="arrows-alt-v" />
             </b-btn>
           </b-btn-group>
         </b-col>

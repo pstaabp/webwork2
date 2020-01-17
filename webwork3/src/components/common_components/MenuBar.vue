@@ -7,12 +7,13 @@
 
       <b-collapse is-nav id='nav_collapse'>
         <b-navbar-nav id='view-name-container'>
+          <b-nav-text class="mr-2"><b-icon :icon='current_icon' variant='light' font-scale='2' /></b-nav-text>
           <b-navbar-brand id='view-name'>  {{current_view | getName(views)}}
           </b-navbar-brand>
           <b-nav-item-dropdown class='mt-1' variant='outline-primary'>
             <b-dropdown-item v-for='view in views' :key='view.route'>
               <router-link class='view-link' :to='path(view.route)'>
-                 <font-awesome-icon :icon='view.icon' size='lg'/>
+                 <b-icon :icon='view.icon'/>
                  <span class='pl-2'>{{view.name}}</span>
                </router-link>
             </b-dropdown-item>
@@ -132,6 +133,11 @@ export default class MenuBar extends Vue {
 
   get current_view() {
     return app_state.current_view;
+  }
+
+  get current_icon() {
+    const view = Common.views().find( (_v) => _v.route === this.current_view);
+    return view ? view.icon : '';
   }
 
   get selected_set() {
