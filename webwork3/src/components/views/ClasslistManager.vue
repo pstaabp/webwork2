@@ -5,11 +5,11 @@
         <b-col cols="3">
           <b-btn-toolbar>
             <b-input-group size="sm">
-              <b-input placeholder="Filter" v-model="filter_string"/>
+              <b-input v-model="filter_string" placeholder="Filter"/>
+              <template v-slot:append>
+                <b-btn @click="filter_string=''"><b-icon icon='x'/></b-btn>
+              </template>
             </b-input-group>
-            <b-btn-group size="sm">
-              <b-btn variant="outline-dark" @click="filter_string=''">X</b-btn>
-            </b-btn-group>
           </b-btn-toolbar>
         </b-col>
         <b-col cols="3">
@@ -24,9 +24,9 @@
             <b-dd variant="outline-dark" text="Import/Export Users">
               <b-dd-item v-b-modal.import-students-file href="#">Add Students from a File</b-dd-item>
               <b-dd-item v-b-modal.import-students-manually href="#">Add Students Manually</b-dd-item>
-              <b-dd-item href="#">Export Students to a File</b-dd-item>
+              <b-dd-item v-b-modal.export-students href="#">Export Students to a File</b-dd-item>
             </b-dd>
-            <b-select>
+            <b-select v-model="num_rows">
               <option default value="10">Show 10 rows</option>
               <option value="25">Show 25 rows</option>
               <option value="50">Show 50 rows</option>
@@ -38,7 +38,8 @@
       <b-row>
         <b-table :items="users" :fields="fields" :small="true" :bordered="true"
           primary-key="set_id" @row-selected="rowSelected" :filter="filter_string"
-          :current-page="current_page" :per-page="per_page" selectable>
+          :current-page="current_page" :per-page="num_rows" selectable
+          @row-dblclicked='editRow'>
         <!-- A custom formatted column -->
         <template slot="email_address" slot-scope="data">
           <a :href="data.value">Email</a>
@@ -48,25 +49,27 @@
     <b-row>
       <b-col>
         <b-pagination  v-model="current_page" limit="10"
-          :total-rows="users.length" :per-page="per_page" />
+          :total-rows="users.length" :per-page="num_rows" />
       </b-col>
     </b-row>
   </b-container>
   <edit-users-modal :users="selected_users"/>
   <import-students-file />
   <import-students-manually />
+  <export-students />
 </div>
 </template>
 
 
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 
 
 // components
 import ImportStudentsFile from './ClasslistComponents/ImportStudentsFile.vue';
 import ImportStudentsManually from './ClasslistComponents/ImportStudentsManually.vue';
+import ExportStudents from './ClasslistComponents/ExportStudents.vue';
 import EditUsersModal from './ClasslistComponents/EditUsersModal.vue';
 import Constants from '@/common';
 import {User} from '@/store/models';
@@ -80,6 +83,7 @@ import users_store from '@/store/modules/users';
     ImportStudentsFile,
     ImportStudentsManually,
     EditUsersModal,
+    ExportStudents
   },
 })
 export default class Manager extends Vue {
@@ -97,7 +101,7 @@ export default class Manager extends Vue {
         ];
   private selected_users: object[] = [];
   private filter_string = '';
-  private per_page = 10;
+  private num_rows = 10;
   private current_page = 1;
 
   private formatStatus(value: string): string {
@@ -108,13 +112,24 @@ export default class Manager extends Vue {
     return Constants.permissionLevels()[value];
   }
 
-  private rowSelected(rows: object[]): void {
+  private rowSelected(rows: User[]): void {
     this.selected_users = rows;
+    // tslint:disable-next-line
+    console.log(this.$bvModal);
+    this.$bvModal.show('edit-users-modal');
   }
 
   get users(): User[] {
     return Array.from(users_store.users.values());
   }
+
+  private editRow(item,index,event){
+    // tslint:disable-next-line
+    console.log(item);
+    this.selected_users = [item];
+
+  }
+
 
 }
 </script>
