@@ -13,7 +13,7 @@
             <b-form-group id="login-form"
             label-cols-sm="4" label-cols-lg="3"
             label="Login Name" label-for="login">
-              <b-form-input id="login" v-model="password_info.user_id"></b-form-input>
+              <b-form-input id="login" ref="login-input" v-model="password_info.user_id"></b-form-input>
             </b-form-group>
             <b-form-group id="password-form" invalid-feedback="Incorrect Password" :state="password_state"
             label-cols-sm="4" label-cols-lg="3"
@@ -58,6 +58,10 @@ export default class Manager extends Vue {
         this.$router.replace('/courses/' + login_store.login_info.course_id + '/manager');
       }
     }
+  }
+
+  private mounted() { // give the login username focus on page load.
+    this.$refs['login-input'].$el.focus();
   }
 
   private cancel() {
