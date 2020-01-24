@@ -401,6 +401,18 @@ get '/courses/:course_id/manager' =>  sub {
 
 ###
 #
+#  get a list of files and directies in a course
+#
+###
+
+get '/courses/:course_id/files/**' => sub {
+	my ($path) = splat;
+  debug $path;
+	return {msg => 'hi'};
+};
+
+###
+#
 #  list the names of all archived courses.
 #
 #  returns an array of course names.
