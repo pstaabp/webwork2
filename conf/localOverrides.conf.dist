@@ -221,6 +221,7 @@ $options{PGCodeMirror} = 1;
 # This sets if mathview is available on the PG editor for use as a minimal latex equation editor
 $options{PGMathView} = 0;
 $options{PGWirisEditor} = 0;
+$options{PGMathQuill} = 0;
 
 ################################################################################
 # PG subsystem options
@@ -382,7 +383,7 @@ $showeditors{simplepgeditor}   = 0;
 # Additional PG modules
 #####################
 
-#push (@{${pg}{modules}}, [qw(TikZ_Image2)]);
+#push (@{${pg}{modules}}, [qw(TikZImage)]);
 ################################################################################ 
 # Student Date Format
 ################################################################################
@@ -512,4 +513,64 @@ $options{useOPLdefFiles}=1;
  $permissionLevels{show_answer_group_info_checkbox}	= "admin";
 
  $permissionLevels{modify_tags} = "admin";
+
+################################################################################
+
+# Available Hardcopy themes (located in snippets) - adds four XeLaTeX themes
+# using polyglossia for multilingual support and fontspec.
+
+$hardcopyThemes = [ qw (
+	oneColumn
+	twoColumn
+	XeLaTeX-oneColumn
+	XeLaTeX-twoColumn
+	XeLaTeX-Hebrew-oneColumn
+	XeLaTeX-Hebrew-twoColumn
+)];
+
+# Hardcopy theme names (pretty names for themes)
+$hardcopyThemeNames = {
+        oneColumn => 'pdfLaTeX - English - One Column',
+        twoColumn => 'pdfLaTeX - English - Two Columns',
+	XeLaTeX-oneColumn => 'XeLaTeX - English - one Column',
+	XeLaTeX-twoColumn => 'XeLaTeX - English - two Columns',
+        XeLaTeX-Hebrew-oneColumn => 'XeLaTeX - Hebrew/English - one Column',
+        XeLaTeX-Hebrew-twoColumn => 'XeLaTeX - Hebrew/English - two Columns',
+};
+
+# Change default Hardcopy theme - in order to use an XeLaTeX theme, we must set
+#    $externalPrograms{pdflatex} to use xelatex (here or in site.conf) !!!
+#$hardcopyTheme = "XeLaTeX-twoColumn";
+#$externalPrograms{pdflatex} ="/usr/bin/xelatex --shell-escape";
+
+################################################################################
+
+
+################################################################################
+# Webwork Caliper
+################################################################################
+
+# enable/disable Caliper for install
+$caliper{enabled} = 0;
+# base_url should ideally be hard coded to a persistent url pointing to the webwork root
+# (important to keep it consistent over time)
+$caliper{base_url} = 'https://webwork.elearning.ubc.ca/webwork2/';
+# LRS endpoint
+$caliper{host} = 'http://caliper.example.host.org/api/endpoint';
+# LRS endpoint Bearer API key
+$caliper{api_key} = '1234567890abcdefg';
+# log file for caliper errors
+$caliper{errorlog} = $webworkDirs{logs} . "/caliper_errors.log";
+# customized Caliper actor. Useful if persistent identifiers for students are available in WebWork
+# $caliper{custom_actor_generator} = sub {
+# 	my ($ce, $db, $user) = @_;
+# 	# set caliper id as needed
+# 	my $caliper_id = 'http://www.ubc.ca/' . $user->user_id();
+# 	return {
+# 		'id' => $caliper_id,
+# 		'type' => 'Person',
+# 		'name' => $user->first_name() . " " . $user->last_name(),
+# 	};
+# };
+
 1; #final line of the file to reassure perl that it was read properly.

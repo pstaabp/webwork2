@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: webwork2/lib/WeBWorK/ContentGenerator/Problem.pm,v 1.225 2010/05/28 21:29:48 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 package WeBWorK::ContentGenerator::ProblemUtil::ProblemUtil;
 use base qw(WeBWorK);
 use base qw(WeBWorK::ContentGenerator);
+use Encode qw(encode_utf8 encode);
 
 =head1 NAME
 
@@ -49,6 +50,9 @@ use Email::Simple;
 use Email::Sender::Simple qw(sendmail);
 use Email::Sender::Transport::SMTP qw();
 use Try::Tiny;
+
+use Caliper::Sensor;
+use Caliper::Entity;
 
 
 # process_and_log_answer subroutine.
@@ -278,6 +282,61 @@ sub process_and_log_answer{
 					$pureProblem->num_incorrect
 					);
 
+				my $caliper_sensor = Caliper::Sensor->new($self->{ce});
+				if ($caliper_sensor->caliperEnabled()) {
+					my $startTime = $r->param('startTime');
+					my $endTime = time();
+
+					my $completed_question_event = {
+						'type' => 'AssessmentItemEvent',
+						'action' => 'Completed',
+						'profile' => 'AssessmentProfile',
+						'object' => Caliper::Entity::problem_user(
+							$self->{ce},
+							$db,
+							$problem->set_id(),
+							0, #version is 0 for non-gateway problems
+							$problem->problem_id(),
+							$problem->user_id(),
+							$pg
+						),
+						'generated' => Caliper::Entity::answer(
+							$self->{ce},
+							$db,
+							$problem->set_id(),
+							0, #version is 0 for non-gateway problems
+							$problem->problem_id(),
+							$problem->user_id(),
+							$pg,
+							$startTime,
+							$endTime
+						),
+					};
+					my $submitted_set_event = {
+						'type' => 'AssessmentEvent',
+						'action' => 'Submitted',
+						'profile' => 'AssessmentProfile',
+						'object' => Caliper::Entity::problem_set(
+							$self->{ce},
+							$db,
+							$problem->set_id()
+						),
+						'generated' => Caliper::Entity::problem_set_attempt(
+							$self->{ce},
+							$db,
+							$problem->set_id(),
+							0, #version is 0 for non-gateway problems
+							$problem->user_id(),
+							$startTime,
+							$endTime
+						),
+					};
+					$caliper_sensor->sendEvents($r, [$completed_question_event, $submitted_set_event]);
+
+					# reset start time
+					$r->param('startTime', '');
+				}
+
 				#Try to update the student score on the LMS
 				# if that option is enabled.
 				my $LTIGradeMode = $self->{ce}->{LTIGradeMode} // '';
@@ -331,6 +390,7 @@ sub create_ans_str_from_responses {
 	my $isEssay2=0;
 	my %answersToStore2;
 	my @answer_order2;
+	my @answer_order3;
 
 	my %answerHash2 = %{ $pg->{pgcore}->{PG_ANSWERS_HASH}};
 	foreach my $ans_id (@{$pg->{flags}->{ANSWER_ENTRY_ORDER}//[]} ) {
@@ -338,7 +398,8 @@ sub create_ans_str_from_responses {
 		$isEssay2 = 1 if ($answerHash2{$ans_id}->{ans_eval}{rh_ans}{type}//'') eq 'essay';
 		foreach my $response_id ($answerHash2{$ans_id}->response_obj->response_labels) {
 			$answersToStore2{$response_id} = $problem->{formFields}->{$response_id};
-			push @answer_order2, $response_id;
+			push @answer_order2, $response_id unless ($response_id =~ /^MaThQuIlL_/);
+			push @answer_order3, $response_id;
 		 }
 	}
 	my $answerString2 = '';
@@ -347,10 +408,32 @@ sub create_ans_str_from_responses {
 	}
 	$answerString2=~s/\t$//; # remove last tab
 
-   	my $encoded_answer_string = encodeAnswers(%answersToStore2,
-							 @answer_order2);
+	my $encoded_answer_string = encodeAnswers(%answersToStore2,
+							 @answer_order3);
 
 	return ($answerString2,$encoded_answer_string, $scores2,$isEssay2);
+}
+
+# insert_mathquill_responses subroutine
+
+# Add responses to each answer's response group that store the latex form of the students'
+# answers and add corresponding hidden input boxes to the page.
+
+sub insert_mathquill_responses {
+	my ($self, $pg) = @_;
+	for my $answerLabel (keys %{$pg->{pgcore}->{PG_ANSWERS_HASH}}) {
+		my $mq_opts = $pg->{pgcore}->{PG_ANSWERS_HASH}->{$answerLabel}->{ans_eval}{rh_ans}{mathQuillOpts};
+		my $response_obj = $pg->{pgcore}->{PG_ANSWERS_HASH}->{$answerLabel}->response_obj;
+		for my $response ($response_obj->response_labels) {
+			next if (ref($response_obj->{responses}{$response}));
+			my $name = "MaThQuIlL_$response";
+			push(@{$response_obj->{response_order}}, $name);
+			$response_obj->{responses}{$name} = '';
+			my $value = defined($self->{formFields}{$name}) ? $self->{formFields}{$name} : '';
+			$pg->{body_text} .= CGI::hidden({ -name => $name, -id => $name, -value => $value });
+			$pg->{body_text} .= "<script>var ${name}_Opts = {$mq_opts}</script>" if ($mq_opts);
+		}
+	}
 }
 
 # process_editorLink subroutine
@@ -423,9 +506,9 @@ sub output_JS{
 # prints out summary information for the problem pages.
 
 # sub output_summary{
-# 
+#
 # 	my $self = shift;
-# 
+#
 # 	my $editMode = $self->{editMode};
 # 	my $problem = $self->{problem};
 # 	my $pg = $self->{pg};
@@ -433,12 +516,12 @@ sub output_JS{
 # 	my %will = %{ $self->{will} };
 # 	my $checkAnswers = $self->{checkAnswers};
 # 	my $previewAnswers = $self->{previewAnswers};
-# 
+#
 # 	my $r = $self->r;
-# 
+#
 # 	my $authz = $r->authz;
 # 	my $user = $r->param('user');
-# 
+#
 # 	# custom message for editor
 # 	if ($authz->hasPermissions($user, "modify_problem_sets") and defined $editMode) {
 # 		if ($editMode eq "temporaryFile") {
@@ -448,15 +531,15 @@ sub output_JS{
 # 		}
 # 	}
 # 	print CGI::start_div({class=>"problemHeader"});
-# 
-# 
+#
+#
 # 	# attempt summary
 # 	#FIXME -- the following is a kludge:  if showPartialCorrectAnswers is negative don't show anything.
 # 	# until after the due date
 # 	# do I need to check $will{showCorrectAnswers} to make preflight work??
 # 	if (($pg->{flags}->{showPartialCorrectAnswers} >= 0 and $submitAnswers) ) {
 # 		# print this if user submitted answers OR requested correct answers
-# 
+#
 # 		print $self->attemptResults($pg, 1,
 # 			$will{showCorrectAnswers},
 # 			$pg->{flags}->{showPartialCorrectAnswers}, 1, 1);
@@ -476,7 +559,7 @@ sub output_JS{
 # 			# don't show attempt results (correctness)
 # 			# show attempt previews
 # 	}
-# 
+#
 # 	print CGI::end_div();
 # }
 
@@ -516,6 +599,7 @@ sub output_main_form{
 	my $problem = $self->{problem};
 	my $set = $self->{set};
 	my $submitAnswers = $self->{submitAnswers};
+	my $startTime = $r->param('startTime') || time();
 
 	my $db = $r->db;
 	my $ce = $r->ce;
@@ -528,6 +612,7 @@ sub output_main_form{
 	print "\n";
 	print CGI::start_form(-method=>"POST", -action=> $r->uri,-name=>"problemMainForm", onsubmit=>"submitAction()");
 	print $self->hidden_authen_fields;
+	print CGI::hidden({-name=>'startTime', -value=>$startTime});
 	print CGI::end_form();
 }
 
@@ -576,6 +661,11 @@ sub output_footer{
 		module             => __PACKAGE__,
 		set                => $self->{set}->set_id,
 		problem            => $problem->problem_id,
+		problemPath        => $problem->source_file,
+		randomSeed         => $problem->problem_seed,
+		emailAddress       => join(";",$self->fetchEmailRecipients('receive_feedback',$user)),
+		emailableURL       => $self->generateURLs('absolute'),
+		studentName        => $user->full_name,
 		displayMode        => $self->{displayMode},
 		showOldAnswers     => $will{showOldAnswers},
 		showCorrectAnswers => $will{showCorrectAnswers},
@@ -649,26 +739,19 @@ sub jitar_send_warning_email {
 				courseID => $courseID, setID => $setID, problemID => $problemID), params=>{effectiveUser=>$userID}, use_abs_url=>1);
 
 
-	my @recipients;
-        # send to all users with permission to score_sets an email address
-	# DBFIXME iterator?
-	foreach my $rcptName ($db->listUsers()) {
-		if ($authz->hasPermissions($rcptName, "score_sets")) {
-			my $rcpt = $db->getUser($rcptName); # checked
-			next if $ce->{feedback_by_section} and defined $user
-			    and defined $rcpt->section and defined $user->section
-			    and $rcpt->section ne $user->section;
-			if ($rcpt and $rcpt->email_address) {
-			    push @recipients, $rcpt->rfc822_mailbox;
-			}
-		}
-	}
+	  my @recipients = $self->fetchEmailRecipients("score_sets", $user);
+        # send to all users with permission to score_sets and an email address
 
     my $sender;
     if ($user->email_address) {
+	# rfc822_mailbox was modified to use RFC 2047 "MIME-Header" encoding
+	# when the full_name is set.
 	$sender = $user->rfc822_mailbox;
     } elsif ($user->full_name) {
-	$sender = $user->full_name;
+	# Encode the user name using "MIME-Header" encoding, (RFC 2047) which
+	# allows UTF-8 encoded names to be encoded inside the mail header using
+	# a special format.
+	$sender = encode("MIME-Header", $user->full_name);
     } else {
 	$sender = $userID;
     }
@@ -690,19 +773,26 @@ sub jitar_send_warning_email {
     || "WeBWorK question from %c: %u set %s/prob %p"; # default if not entered
     $subject =~ s/%([$chars])/defined $subject_map{$1} ? $subject_map{$1} : ""/eg;
 
+    # If in the future any fields in the subject can contain non-ASCII characters
+    # then we will also need:
+    # $subject = encode("MIME-Header", $subject);
+    # at present, this does not seem to be necessary.
+
+
 # 		my $transport = Email::Sender::Transport::SMTP->new({
 # 			host => $ce->{mail}->{smtpServer},
 # 			ssl => $ce->{mail}->{tls_allowed}//1, ## turn on ssl security
 # 			timeout => $ce->{mail}->{smtpTimeout}
 # 		});
-# 
+#
 
 #           createEmailSenderTransportSMTP is defined in ContentGenerator
 		my $transport = $self->createEmailSenderTransportSMTP();
 		my $email = Email::Simple->create(header => [
 			"To" => join(",", @recipients),
 			"From" => $sender,
-			"Subject" => $subject
+			"Subject" => $subject,
+			"Content-Type" => "text/plain; charset=UTF-8"
 		]);
 
 		## extra headers
@@ -739,7 +829,8 @@ Recitation: $recitation
 Comment:    $comment
 /;
 
-  	$email->body_set($msg);
+	# Encode the body in UTF-8 when adding it.
+	$email->body_set(encode_utf8($msg));
 
 		## try to send the email
 

@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright � 2000-2012 The WeBWorK Project, http://github.com/openwebwork
+# Copyright &copy; 2000-2012 The WeBWorK Project, http://github.com/openwebwork
 # $CVSHeader: webwork2/lib/WeBWorK/ContentGenerator.pm,v 1.196 2009/06/04 01:33:15 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -59,7 +59,7 @@ use constant MP2 => ( exists $ENV{MOD_PERL_API_VERSION} and $ENV{MOD_PERL_API_VE
 use Scalar::Util qw(weaken);
 use HTML::Entities;
 use HTML::Scrubber;
-use WeBWorK::Utils qw(jitar_id_to_seq);
+use WeBWorK::Utils qw(jitar_id_to_seq fetchEmailRecipients generateURLs);
 use WeBWorK::Authen::LTIAdvanced::SubmitGrade;
 use Encode;
 
@@ -1718,8 +1718,6 @@ sub feedbackMacro_form {
 	my ($self, $feedbackFormURL, %params) = @_;
 	my $r = $self->r;
 	my $ce = $r->ce;
-	my $urlpath = $r->urlpath;
-	my $courseID = $urlpath->arg("courseID");
 
 	# feedback form url
 	my $feedbackName = $r->maketext($ce->{feedback_button_name}) || $r->maketext("Email instructor");
