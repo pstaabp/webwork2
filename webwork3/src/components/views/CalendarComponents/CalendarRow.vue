@@ -96,10 +96,12 @@ export default class CalendarRow extends Vue {
       // const _set = this.problem_sets.get(evt.added.element.set_id);
       // _set.set(evt.added.element.type + '_date', d.unix());
       const attrs: {[key: string]: any} = {};
-      attrs[evt.added.element.type + '_date'] = d.unix;
+      attrs[evt.added.element.type + '_date'] = d.unix();
       const _set = this.problem_sets.get(evt.added.element.set_id);
       if (_set) {
-        _set.set(attrs);
+        // tslint:disable-next-line
+        console.log("in assignChange");
+        Object.assign(_set,attrs);
         problem_set_store.updateProblemSet(_set);
       }
     }
