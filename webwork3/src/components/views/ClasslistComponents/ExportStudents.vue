@@ -34,22 +34,22 @@ import login_store from '@/store/modules/login';
 @Component
 export default class ImportStudentsFile extends Vue {
   private filename = '';
-	private clicked = false;
+  private clicked = false;
 
   private download() {
     const csv = unparse(users_store.users_array);
-		const blob = new Blob([csv], { type: 'text/csv' })
-		const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
     link.download = this.filename;
     link.click();
     URL.revokeObjectURL(link.href);
-		this.clicked = true;
+    this.clicked = true;
   }
 
-	private mounted() {
-		this.filename = login_store.login_info.course_id + '_classlist_'
-			+ moment.default().format('YYYY-MM-DD') + '.csv';
-	}
+  private mounted() {
+    this.filename = login_store.login_info.course_id + '_classlist_'
+      + moment.default().format('YYYY-MM-DD') + '.csv';
+  }
 }
 </script>

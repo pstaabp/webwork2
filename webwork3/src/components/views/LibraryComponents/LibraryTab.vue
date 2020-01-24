@@ -50,6 +50,8 @@ import LibraryTextbooks from './LibraryTextbooks.vue';
 import LocalLibrary from './LocalLibrary.vue';
 import ProblemView from '@/components/common_components/ProblemView.vue';
 
+import Common from '@/common';
+
 
 @Component({
   name: 'LibraryTab',
@@ -82,18 +84,17 @@ export default class LibraryTab extends Vue {
       return;
     }
 
-    const problem = {
-      source_file: _problem.source_file,
-      set_id: _set.set_id,
-      problem_id: _set.problems.length + 1,
-    };
+    const problem = Common.newProblem();
+    problem.source_file = _problem.source_file;
+    problem.set_id = _set.set_id;
+    problem.problem_id = _set.problems.length + 1;
+
     _set.problems.push(problem);
     problem_set_store.updateProblemSet(_set);
   }
 
   private go_to_set() {
-    this.$router.push(login_store.api_header + '/manager/set-details?set_id='
-                        + app_state.selected_set);
+    this.$router.push(login_store.api_header + '/manager/set-details?set_id=' + app_state.selected_set);
   }
 
   private valid_set_id() {

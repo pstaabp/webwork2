@@ -13,20 +13,27 @@ export interface UserPassword {
   course_id: string;
 }
 
+export interface RenderedProblem {
+  source: string;
+  source_file: string;
+  html: string;
+  text: string;
+}
 
 export interface Problem {
-  att_to_open_children?: string;
-  counts_parent_grade?: string[];
-  flags?: string;
-  max_attempts?: number;
-  prCount?: string;
-  prPeriod?: string;
+  att_to_open_children: string;
+  counts_parent_grade: string[];
+  flags: string;
+  max_attempts: number;
+  prCount: string;
+  prPeriod: string;
   problem_id: number;
-  set_id?: string;
-  showMeAnother?: string;
-  showMeAnotherCount?: number;
-  source_file?: string;
-  value?: number;
+  problem_source: string;
+  set_id: string;
+  showMeAnother: string;
+  showMeAnotherCount: number;
+  source_file: string;
+  value: number;
 }
 
 export interface ProblemSet {
@@ -84,20 +91,25 @@ export interface User {
 }
 
 export interface Setting {
-  var?: string;
-  type?: string;
-  doc?: string;
-  category?: string;
-  value?: string;
-  doc2?: string;
-  hashVar?: object;
-  values?: string[];
-  labels?: string[];
-  min?: number;
-  width?: number;
+  var: string;
+  type: string;
+  doc: string;
+  category: string;
+  value: string;
+  doc2: string;
+  hashVar: object;
+  values: string[];
+  labels: string[];
+  min: number;
+  width: number;
 }
 
 export interface Message {
   message_id: number;
   message?: string;
+}
+
+export interface FileInfo {
+  name: string;
+  type: string;
 }

@@ -28,8 +28,6 @@ export default class Manager extends Vue {
 
   @Watch('$route.path')
   private onRouteChanged(value: {path: string}) {
-    // tslint:disable-next-line
-//    console.log(this.$route.path.split('/')[4]);
     app_state.setCurrentView(this.$route.path.split('/')[4]);
   }
 
@@ -53,7 +51,7 @@ export default class Manager extends Vue {
   }
 
   private mounted() {
-    this.current_view = this.$route.fullPath.split('/').pop() || '';
+    app_state.setCurrentView(this.$route.fullPath.split('/').pop() || '');
   }
 }
 </script>

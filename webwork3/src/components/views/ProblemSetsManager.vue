@@ -19,8 +19,8 @@
               <b-btn v-b-modal.add-problem-set-modal>Add Problem Set</b-btn>
             </b-input-group-append>
             <b-dd variant="outline-dark" text="Action on Selected">
-              <b-dd-item :disabled="selected_sets.length == 0" v-b-modal.edit-problem-sets-modal>Edit Problem Sets</b-dd-item>
-              <b-dd-item :disabled="selected_sets.length == 0" @click="deleteSets">Delete Problem Sets</b-dd-item>
+              <b-dd-item :disabled="selected_sets.length === 0" v-b-modal.edit-problem-sets-modal>Edit Problem Sets</b-dd-item>
+              <b-dd-item :disabled="selected_sets.length === 0" @click="deleteSets">Delete Problem Sets</b-dd-item>
             </b-dd>
             <b-dd variant="outline-dark" text="Show Rows">
               <b-dd-item  default value="10">Show 10 rows</b-dd-item >
@@ -34,20 +34,23 @@
       <b-row>
         <b-table :items="problem_sets_as_array" :fields="fields" :small="true" :bordered="true"
         primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable >
-        <template slot="visible" slot-scope="data">
+        <template v-slot:cell(visible)="data" @row-dblclicked="editRow">
           <div class="mx-auto" width="100%">
-            <i class="fas fa-check-circle text-success" :class="data.value ? 'd-block' : 'd-none'"></i>
-            <i class="fas fa-times-circle text-danger" :class="data.value ? 'd-none' : 'd-block'"></i>
+            <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
+            <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
           </div>
         </template>
-        <template slot="enable_reduced_scoring" slot-scope="data">
-          <i class="fas fa-check-circle text-success" :class="data.value ? 'd-block' : 'd-none'"></i>
-          <i class="fas fa-times-circle text-danger" :class="data.value ? 'd-none' : 'd-block'"></i>
+        <template v-slot:cell(enable_reduced_scoring)="data">
+          <div class="mx-auto" width="100%">
+            <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
+            <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
+          </div>
         </template>
       </b-table>
     </b-row>
   </b-container>
-  <add-problem-set-modal :problem_sets="problem_sets" />
+  <!-- Note the @problem-set-added event is a hacky way to get rerending to work -->
+  <add-problem-set-modal :problem_sets="problem_sets" @problem-set-added="problem_set_tracker += 1" />
   <edit-problem-sets-modal :selected_sets="selected_sets" />
 </div>
 </template>
@@ -72,13 +75,16 @@ import ProblemSetMixin from '@/mixins/problem_set_mixin';
 
 @Component({
   name: 'ProblemSetsManager',
-  // mixins: [MessagesMixin, ProblemSetMixin ],
+  components: {
+    AddProblemSetModal,
+    EditProblemSetsModal,
+  }
 })
 export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSetMixin) {
   private fields = [
           {key: 'set_id', sortable: true, label: 'Name'},
           {key: 'assigned_users', sortable: true, label: 'Users', formatter: 'numUsers'},
-          {key: 'problems', sortable: true, label: 'Num. Probs.', formatter: 'numProbs'},
+          {key: 'problems', sortable: true, label: '# Probs.', formatter: 'numProbs'},
           {key: 'visible', sortable: true},
           {key: 'enable_reduced_scoring', label: 'RS'},
           {key: 'open_date', sortable: true, label: 'Open Date', formatter: 'formatDate'},
@@ -89,18 +95,21 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
   private selected_sets: ProblemSet[] = [];
   private show_time = false;
   private filter_string = '';
+  private problem_set_tracker = 1; // a hacky way to get reaction to adding/remove problem sets.
 
   private get problem_sets() {
     // tslint:disable-next-line
-    console.log(problem_sets_store.problem_sets);
-    return problem_sets_store.problem_sets;
+    console.log(this.problem_set_tracker);
+    return this.problem_set_tracker && problem_sets_store.problem_sets;
   }
 
   private get problem_sets_as_array() {
-    // tslint:disable-next-line
-//    console.log(Array.from(...problem_sets_store.problem_sets));
-
     return Array.from(problem_sets_store.problem_sets.values());
+  }
+
+  private editRow(item: ProblemSet) {
+    // tslint:disable-next-line
+    console.log(item);
   }
 
   private rowSelected(rows: ProblemSet[]) {
@@ -126,9 +135,11 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
 
     if (conf) {
       this.selected_sets.forEach( (_set) => {
-        this.$store.dispatch('removeProblemSet', _set);
+        problem_sets_store.removeProblemSet(_set);
       });
+      this.problem_set_tracker += 1;
     }
   }
+
 }
 </script>

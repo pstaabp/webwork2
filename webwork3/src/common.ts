@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 
-import {ProblemSet, User} from '@/store/models';
+import {ProblemSet, User, Problem} from '@/store/models';
 
 export interface ViewInfo {
   name: string;
@@ -110,8 +110,26 @@ export default class Common {
         displayMode: 'MathJax',
         section: '',
         showOldAnswers: false,
-        useWirisEditor: false
-      }
+        useWirisEditor: false,
+      };
+  }
+
+  public static newProblem(): Problem {
+    return {
+      att_to_open_children: '',
+      counts_parent_grade: [],
+      flags: '',
+      max_attempts: -1,
+      prCount: '',
+      prPeriod: '',
+      problem_id: 0,
+      set_id: '',
+      showMeAnother: '',
+      showMeAnotherCount: 0,
+      source_file: '',
+      value: 1,
+      problem_source: '',
+    };
   }
 
 } // class Constants

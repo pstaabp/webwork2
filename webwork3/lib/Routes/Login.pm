@@ -32,8 +32,7 @@ use Routes::User;
 #
 
 hook before => sub {
-
-	session course_id => route_parameters->{course_id} if defined(route_parameters->{course_id});
+	session course_id => route_parameters->{course_id};
 	setCourseEnvironment(session 'course_id') if defined (session 'course_id');
 };
 

@@ -1,10 +1,10 @@
 <template>
   <tr>
     <td><p><span v-html="setting.doc"></span>&nbsp;
-        <font-awesome-icon icon='question-circle' size='lg' @click="show_help = !show_help" /></i>
+        <b-icon icon='question-fill' size='lg' @click="show_help = !show_help" />
       </p>
-      <div v-if="show_help" class="help-box border p-2">
-        <font-awesome-icon class="float-right" icon="window-close" @click="show_help = false"/>
+      <div v-if="show_help" class="help-box border p-2 rounded">
+        <span class="float-right rounded border p-1"@click="show_help = false"> <b-icon  icon="x" /></span>
         <span v-html="setting.doc2" />
       </div>
     </td>
@@ -64,6 +64,7 @@ export default class SettingsRow extends Vue {
 <style scoped>
 .help-box {
   position: relative;
+  background: lightyellow;
 }
 .close {
     position: absolute;

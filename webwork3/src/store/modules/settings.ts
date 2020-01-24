@@ -48,7 +48,7 @@ export class SettingsModule extends VuexModule {
   @Action
   public async updateSetting(_setting: Setting) {
     const response = await axios.put(api_url + '/courses/' + loginModule.login_info.course_id + '/setting', _setting);
-    this.setSetting(response as Setting);
+    this.setSetting(response.data as Setting);
       // check that the response is the same as the _settting variable.
       // const keys = Object.keys(_setting.getChanges());
       // tslint:disable-next-line

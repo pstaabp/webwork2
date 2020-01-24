@@ -38,8 +38,7 @@
       <b-row>
         <b-table :items="users" :fields="fields" :small="true" :bordered="true"
           primary-key="set_id" @row-selected="rowSelected" :filter="filter_string"
-          :current-page="current_page" :per-page="num_rows" selectable
-          @row-dblclicked='editRow'>
+          :current-page="current_page" :per-page="num_rows" selectable>
         <!-- A custom formatted column -->
         <template slot="email_address" slot-scope="data">
           <a :href="data.value">Email</a>
@@ -83,7 +82,7 @@ import users_store from '@/store/modules/users';
     ImportStudentsFile,
     ImportStudentsManually,
     EditUsersModal,
-    ExportStudents
+    ExportStudents,
   },
 })
 export default class Manager extends Vue {
@@ -114,20 +113,16 @@ export default class Manager extends Vue {
 
   private rowSelected(rows: User[]): void {
     this.selected_users = rows;
-    // tslint:disable-next-line
-    console.log(this.$bvModal);
-    this.$bvModal.show('edit-users-modal');
   }
 
   get users(): User[] {
     return Array.from(users_store.users.values());
   }
 
-  private editRow(item,index,event){
+  private editRow(item: User) {
     // tslint:disable-next-line
     console.log(item);
     this.selected_users = [item];
-
   }
 
 

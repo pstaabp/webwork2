@@ -32,23 +32,19 @@ import settings_store from '@/store/modules/settings';
 
 @Component({
   name: 'AddProblemSetModal',
-  // mixins: [ProblemSetsMixin],
 })
 export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
   private problem_set: ProblemSet = this.emptySet();
-  private valid_name = true;
-  private set_not_defined = true;
 
   @Prop()
   private problem_sets!: Map<string, ProblemSet>;
 
-  private validSetName() {
-    this.valid_name = /^[A-Za-z_][\w_]*$/.test(this.problem_set.set_id);
-    return this.valid_name;
+  private get valid_name() {
+    return /^[A-Za-z_][\w_]*$/.test(this.problem_set.set_id);
   }
 
-  private setNotDefined(): boolean {
-    return this.problem_sets.get(this.problem_set.set_id) === undefined;
+  private get set_not_defined(): boolean {
+    return problem_sets_store.problem_sets.get(this.problem_set.set_id) === undefined;
   }
 
   private feedback(): string {
@@ -60,9 +56,9 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     return '';
   }
 
-  private addProblemSet(bvModalEvt: BvEvent) {
+  private async addProblemSet(bvModalEvt: BvEvent) {
     bvModalEvt.preventDefault();
-    if (!this.validSetName() || ! this.setNotDefined()) {
+    if (!this.valid_name || ! this.set_not_defined  ) {
       return;
     }
 
@@ -70,7 +66,8 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     const time_assign_due_setting = settings_store.settings.find( (_setting) => _setting.var === 'pg{timeAssignDue}');
     const time_assign_due_string = time_assign_due_setting ? time_assign_due_setting.value : '';
     const time_assign_due = moment.default(time_assign_due_string, 'hh:mma');
-    const open_date  = moment.default().add(7, 'days').hour(time_assign_due.hour()).minute(time_assign_due.minute());
+    const open_date  = moment.default().add(7, 'days').hour(time_assign_due.hour())
+                            .minute(time_assign_due.minute());
     const due_date = moment.default(open_date).add(10, 'days');
     const reduced_scoring_date = moment.default(open_date).add(7, 'days');
     const answer_date = moment.default(due_date).add(7, 'days');
@@ -82,13 +79,12 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
 
 
     // add to the store state:
-    // problem_sets_store.newProblemSet(this.problem_set);
-    this.problem_set = this.emptySet();
+    const _set = await problem_sets_store.addProblemSet(this.problem_set);
 
-    // Hide the modal manually
-    this.$nextTick(() => {
-      this.$bvModal.hide('bv-modal-example');
-    });
+    this.$emit('problem-set-added'); // this is a hacky way to get adding problem sets to update
+
+    this.$bvModal.hide('add-problem-set-modal');
+    this.problem_set = this.emptySet();
   }
 }
 
