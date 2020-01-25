@@ -35,26 +35,29 @@
         <b-table :items="problem_sets_as_array" :fields="fields" :small="true" :bordered="true"
         primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable
          @row-dblclicked="editRow" >
-        <template v-slot:cell(visible)="data">
-          <div class="mx-auto" width="100%">
-            <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
-            <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
-          </div>
-        </template>
-        <template v-slot:cell(enable_reduced_scoring)="data">
-          <div class="mx-auto" width="100%">
-            <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
-            <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
-          </div>
-        </template>
-        <template v-slot:cell(reduced_scoring_date)="data">
-          {{data.item.enable_reduced_scoring ? formatDate(data.item.reduced_scoring_date) : ''}}
-        </template>
-      </b-table>
+          <template v-slot:cell(set_id)="data">
+            <router-link :to='viewSetLink(data.item.set_id)'>{{data.item.set_id}}</router-link>
+          </template>
+          <template v-slot:cell(visible)="data">
+            <div class="mx-auto" width="100%">
+              <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
+              <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
+            </div>
+          </template>
+          <template v-slot:cell(enable_reduced_scoring)="data">
+            <div class="mx-auto" width="100%">
+              <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
+              <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
+            </div>
+          </template>
+          <template v-slot:cell(reduced_scoring_date)="data">
+            {{data.item.enable_reduced_scoring ? formatDate(data.item.reduced_scoring_date) : ''}}
+          </template>
+        </b-table>
     </b-row>
   </b-container>
   <!-- Note the @problem-set-added event is a hacky way to get rerending to work -->
-  <add-problem-set-modal :problem_sets="problem_sets" @problem-set-added="test" />
+  <add-problem-set-modal :problem_sets="problem_sets" @problem-set-added="problem_set_tracker += 1" />
   <edit-problem-sets-modal :selected_sets="selected_sets" @sets_updated="problem_set_tracker += 1" />
 </div>
 </template>
@@ -109,8 +112,8 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
     return this.problem_set_tracker && Array.from(problem_sets_store.problem_sets.values());
   }
 
-  private test() {
-    this.problem_set_tracker += 1;
+  private viewSetLink(set_id: string) {
+    return 'set-view/' + set_id;
   }
 
   private editRow(item: ProblemSet) {

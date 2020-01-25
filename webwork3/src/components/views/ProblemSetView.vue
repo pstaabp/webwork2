@@ -63,15 +63,28 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     // watch for changes in the selected set from the menu bar.
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'app_state/setSelectedSet') {
+        this.$router.push({name: 'setview', params: {set_id: app_state.selected_set}})
+          .catch( (err) => {  // if the route is the same, don't throw the error
+            if( err.name !== 'NavigationDuplicated') {
+              // tslint:disable-next-line
+              console.log(err);
+            }
+          });
         this.updateSet();
-     }
+      }
     });
-    this.updateSet();
+    //this.updateSet();
   }
 
   private mounted() {
     if (this.$route.query && this.$route.query.set_id) {
       app_state.setSelectedSet(this.$route.query.set_id as string);
+      this.updateSet();
+    }
+
+    if (this.$route.params && this.$route.params.set_id) {
+      app_state.setSelectedSet(this.$route.params.set_id as string);
+      this.updateSet();
     }
   }
 

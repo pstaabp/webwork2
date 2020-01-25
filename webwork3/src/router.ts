@@ -32,6 +32,7 @@ export default new VueRouter({
            { path: 'settings', component: Settings},
            { path: 'calendar', component: Calendar},
            { path: 'set-view', component: ProblemSetView},
+           { path: 'set-view/:set_id', component: ProblemSetView, name: 'setview'},
            { path: 'library', component: LibraryBrowser},
            { path: 'import-export', component: ImportExport},
            { path: 'editor', component: Editor},

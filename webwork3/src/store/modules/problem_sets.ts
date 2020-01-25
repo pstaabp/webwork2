@@ -1,4 +1,4 @@
-import {VuexModule, Module, Action, Mutation, MutationAction, getModule} from 'vuex-module-decorators';
+import {VuexModule, Module, Action, Mutation, getModule} from 'vuex-module-decorators';
 import {ProblemSet} from '@/store/models';
 import store from '@/store';
 
