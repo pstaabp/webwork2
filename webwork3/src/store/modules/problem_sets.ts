@@ -35,6 +35,16 @@ export class ProblemSetsModule extends VuexModule {
     _sets.forEach( (_set) => {this._problem_sets.set(_set.set_id, _set); });
   }
 
+  @Mutation
+  private ADD_SET(_set: ProblemSet) {
+    this._problem_sets.set(_set.set_id,_set);
+  }
+
+  @Mutation
+  private DELETE_SET(_set: ProblemSet) {
+    this._problem_sets.delete(_set.set_id);
+  }
+
   @Action({ rawError: true })
   public async fetchProblemSets() {
     const response = await axios.get(login_module.api_header + '/sets');
@@ -42,34 +52,31 @@ export class ProblemSetsModule extends VuexModule {
     this.setProblemSets(_sets);
   } // fetchProblemSets
 
-  @Mutation
+  @Action
   public async updateProblemSet(_set: ProblemSet) {
     const response = await axios.put(login_module.api_header + '/sets/' + _set.set_id, _set);
-    this._problem_sets.set(_set.set_id,_set);
-      // tslint:disable-next-line
-      console.log(response);
-      // we should check that this worked and add a message
-
+    this.ADD_SET(_set);
   }
 
-  @Mutation
+  @Action
   public async addProblemSet(_set: ProblemSet) {
     const response = await axios.post(login_module.api_header + '/sets/' + _set.set_id, _set);
 
     // add the new problem set to the _problem_sets;
-    this._problem_sets.set(_set.set_id,_set);
-    // tslint:disable-next-line
-    console.log(response);
+    this.ADD_SET(_set);
     // we should check that this worked and add a message
-
     return response.data as ProblemSet;
   }
 
-  @Mutation
+  @Action
   public async removeProblemSet(_set: ProblemSet) {
+    // tslint: disable-next-line
+    console.log("in removeProblemSet");
     const response = await axios.delete(login_module.api_header + '/sets/' + _set.set_id);
+    // tslint: disable-next-line
+    console.log("got response back");
 
-    this._problem_sets.delete(_set.set_id);
+    this.DELETE_SET(_set);
 
     return response.data as ProblemSet;
   }

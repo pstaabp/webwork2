@@ -61,6 +61,9 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     this.problem_set.reduced_scoring_date = Math.min(..._sets.map( (_set) => _set.reduced_scoring_date));
     this.problem_set.due_date = Math.min(..._sets.map( (_set) => _set.due_date));
     this.problem_set.answer_date = Math.min(..._sets.map( (_set) => _set.answer_date));
+
+    // tslint:disable-next-line
+    console.log(this.problem_set.open_date);
   }
 
   private get set_names() {
@@ -71,20 +74,21 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     this.selected_sets.forEach( (_set) => {
       // see if there is a better way to do this:
 
-      _set.enable_reduced_scoring = this.problem_set.enable_reduced_scoring;
-      _set.visible = this.problem_set.visible;
-      _set.open_date = this.problem_set.open_date;
-      _set.reduced_scoring_date = this.problem_set.reduced_scoring_date;
-      _set.due_date = this.problem_set.due_date;
-      _set.answer_date = this.problem_set.answer_date;
-      // const { enable_reduced_scoring, visible, open_date, reduced_scoring_date,
-      //     due_date, answer_date } = this.problem_set;
-      // Object.assign(_set, { enable_reduced_scoring, visible, open_date,
-      //                       reduced_scoring_date, due_date, answer_date });
+      // _set.enable_reduced_scoring = this.problem_set.enable_reduced_scoring;
+      // _set.visible = this.problem_set.visible;
+      // _set.open_date = this.problem_set.open_date;
+      // _set.reduced_scoring_date = this.problem_set.reduced_scoring_date;
+      // _set.due_date = this.problem_set.due_date;
+      // _set.answer_date = this.problem_set.answer_date;
+       const { enable_reduced_scoring, visible, open_date, reduced_scoring_date,
+           due_date, answer_date } = this.problem_set;
+      Object.assign(_set, { enable_reduced_scoring, visible, open_date,
+                             reduced_scoring_date, due_date, answer_date });
       problem_sets_store.updateProblemSet(_set);
     });
 
     this.$bvModal.hide('edit-problem-sets-modal');
+    this.$emit('update-set')
   }
 
 

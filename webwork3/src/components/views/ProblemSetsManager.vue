@@ -33,8 +33,9 @@
       </b-row>
       <b-row>
         <b-table :items="problem_sets_as_array" :fields="fields" :small="true" :bordered="true"
-        primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable >
-        <template v-slot:cell(visible)="data" @row-dblclicked="editRow">
+        primary-key="set_id" @row-selected="rowSelected" :filter="filter_string" selectable
+         @row-dblclicked="editRow" >
+        <template v-slot:cell(visible)="data">
           <div class="mx-auto" width="100%">
             <b-icon icon="check-circle" class="text-success" v-if="data.value"/>
             <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
@@ -46,12 +47,15 @@
             <b-icon icon="x-circle-fill" class="text-danger" v-if="!data.value" />
           </div>
         </template>
+        <template v-slot:cell(reduced_scoring_date)="data">
+          {{data.item.enable_reduced_scoring ? formatDate(data.item.reduced_scoring_date) : ''}}
+        </template>
       </b-table>
     </b-row>
   </b-container>
   <!-- Note the @problem-set-added event is a hacky way to get rerending to work -->
-  <add-problem-set-modal :problem_sets="problem_sets" @problem-set-added="problem_set_tracker += 1" />
-  <edit-problem-sets-modal :selected_sets="selected_sets" />
+  <add-problem-set-modal :problem_sets="problem_sets" @problem-set-added="test" />
+  <edit-problem-sets-modal :selected_sets="selected_sets" @sets_updated="problem_set_tracker += 1" />
 </div>
 </template>
 
@@ -78,7 +82,7 @@ import ProblemSetMixin from '@/mixins/problem_set_mixin';
   components: {
     AddProblemSetModal,
     EditProblemSetsModal,
-  }
+  },
 })
 export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSetMixin) {
   private fields = [
@@ -88,7 +92,7 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
           {key: 'visible', sortable: true},
           {key: 'enable_reduced_scoring', label: 'RS'},
           {key: 'open_date', sortable: true, label: 'Open Date', formatter: 'formatDate'},
-          {key: 'reduced_scoring_date', sortable: true, label: 'Red. Sc. Date', formatter: 'formatDate'},
+          {key: 'reduced_scoring_date', sortable: true, label: 'Red. Sc. Date'},
           {key: 'due_date', sortable: true, label: 'Due Date', formatter: 'formatDate'},
           {key: 'answer_date', sortable: true, label: 'Answer Date', formatter: 'formatDate'},
       ];
@@ -98,18 +102,21 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
   private problem_set_tracker = 1; // a hacky way to get reaction to adding/remove problem sets.
 
   private get problem_sets() {
-    // tslint:disable-next-line
-    console.log(this.problem_set_tracker);
-    return this.problem_set_tracker && problem_sets_store.problem_sets;
+    return  problem_sets_store.problem_sets;
   }
 
   private get problem_sets_as_array() {
-    return Array.from(problem_sets_store.problem_sets.values());
+    return this.problem_set_tracker && Array.from(problem_sets_store.problem_sets.values());
+  }
+
+  private test() {
+    this.problem_set_tracker += 1;
   }
 
   private editRow(item: ProblemSet) {
     // tslint:disable-next-line
-    console.log(item);
+    this.selected_sets = [item];
+    this.$bvModal.show('edit-problem-sets-modal');
   }
 
   private rowSelected(rows: ProblemSet[]) {
@@ -129,16 +136,19 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
     return data.length;
   }
 
-  private deleteSets() {
+  private async deleteSets() {
     const _sets = this.selected_sets.map( (_set) => _set.set_id);
     const conf = confirm('Are you sure you want to delete the following sets? ' + _sets);
 
+    // async can't be used in a forEach, so we use a map and wait for the map to finish
+
     if (conf) {
-      this.selected_sets.forEach( (_set) => {
-        problem_sets_store.removeProblemSet(_set);
-      });
+        const promises = this.selected_sets.map( async (_set) => {
+         return await problem_sets_store.removeProblemSet(_set);
+        });
+        const check_promises = await Promise.all(promises)
+      }
       this.problem_set_tracker += 1;
-    }
   }
 
 }

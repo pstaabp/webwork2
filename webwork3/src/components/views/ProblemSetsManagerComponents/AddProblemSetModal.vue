@@ -77,14 +77,13 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     this.problem_set.reduced_scoring_date = reduced_scoring_date.unix();
     this.problem_set.answer_date = answer_date.unix();
 
-
     // add to the store state:
-    const _set = await problem_sets_store.addProblemSet(this.problem_set);
-
-    this.$emit('problem-set-added'); // this is a hacky way to get adding problem sets to update
+    const _set = await problem_sets_store.addProblemSet(this.problem_set)
 
     this.$bvModal.hide('add-problem-set-modal');
     this.problem_set = this.emptySet();
+
+    this.$emit('problem-set-added'); // this is a hacky way to get adding problem sets to update
   }
 }
 
