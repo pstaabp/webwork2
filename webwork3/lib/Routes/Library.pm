@@ -298,12 +298,12 @@ get '/courses/:course_id/library/pending' => sub {
 
     debug 'in /courses/:course_id/local/**';
 
-    my @dirs = File::Find::Rule->directory
-                                  ->relative
-                                  ->maxdepth(1)
-                                  ->in('/opt/webwork/courses/test/templates/macros');
-
-                                  debug \@dirs;
+    # my @dirs = File::Find::Rule->directory
+    #                               ->relative
+    #                               ->maxdepth(1)
+    #                               ->in('/opt/webwork/courses/test/templates/macros');
+    #
+    #                               debug \@dirs;
 
     my ($dirs) = splat;
     my @dirs = @{$dirs};

@@ -201,5 +201,5 @@ export default class MenuBar extends Vue {
 <style scoped>
 #view-name { font-size: 140%}
 .view-link {color: black}
-#view-name-container {width: 300px;}
+#view-name-container {width: 325px;}
 </style>

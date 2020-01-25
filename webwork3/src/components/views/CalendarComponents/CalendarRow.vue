@@ -101,7 +101,7 @@ export default class CalendarRow extends Vue {
       if (_set) {
         // tslint:disable-next-line
         console.log("in assignChange");
-        Object.assign(_set,attrs);
+        Object.assign(_set, attrs);
         problem_set_store.updateProblemSet(_set);
       }
     }

@@ -10,6 +10,6 @@ export async function renderProblem(problem: Problem) {
 }
 
 export async function getLocalDirectory(path: string) {
-  const response = await axios.get(login_store.api_header + '/local' + (path ? '/' +path :''));
+  const response = await axios.get(login_store.api_header + '/local' + (path ? '/' + path : ''));
   return response.data as FileInfo[];
 }
