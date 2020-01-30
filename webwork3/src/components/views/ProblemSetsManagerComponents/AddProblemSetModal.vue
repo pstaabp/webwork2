@@ -56,14 +56,14 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     return '';
   }
 
-  private async addProblemSet(bvModalEvt: BvEvent) {
+  private async addProblemSet(bvModalEvt: BvModalEvent) {
     bvModalEvt.preventDefault();
     if (!this.valid_name || ! this.set_not_defined  ) {
       return;
     }
 
     // update all of the dates.
-    const time_assign_due_setting = settings_store.settings.find( (_setting) => _setting.var === 'pg{timeAssignDue}');
+    const time_assign_due_setting = settings_store.settings.get('pg{timeAssignDue}');
     const time_assign_due_string = time_assign_due_setting ? time_assign_due_setting.value : '';
     const time_assign_due = moment.default(time_assign_due_string, 'hh:mma');
     const open_date  = moment.default().add(7, 'days').hour(time_assign_due.hour())
@@ -72,13 +72,15 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     const reduced_scoring_date = moment.default(open_date).add(7, 'days');
     const answer_date = moment.default(due_date).add(7, 'days');
 
-    this.problem_set.open_date = open_date.unix();
-    this.problem_set.due_date = due_date.unix();
-    this.problem_set.reduced_scoring_date = reduced_scoring_date.unix();
-    this.problem_set.answer_date = answer_date.unix();
+    Object.assign(this.problem_set,
+      { open_date: open_date.unix(),
+        due_date: due_date.unix(),
+        reduced_scoring_date: reduced_scoring_date.unix(),
+        answer_date: answer_date.unix(),
+    });
 
     // add to the store state:
-    const _set = await problem_sets_store.addProblemSet(this.problem_set)
+    const _set = await problem_sets_store.addProblemSet(this.problem_set);
 
     this.$bvModal.hide('add-problem-set-modal');
     this.problem_set = this.emptySet();

@@ -146,12 +146,12 @@ export default class ProblemSetsManager extends mixins(MessagesMixin, ProblemSet
     // async can't be used in a forEach, so we use a map and wait for the map to finish
 
     if (conf) {
-        const promises = this.selected_sets.map( async (_set) => {
-         return await problem_sets_store.removeProblemSet(_set);
-        });
-        const check_promises = await Promise.all(promises)
-      }
-      this.problem_set_tracker += 1;
+      const promises = this.selected_sets.map( async (_set) => {
+       return await problem_sets_store.removeProblemSet(_set);
+      });
+      const check_promises = await Promise.all(promises);
+    }
+    this.problem_set_tracker += 1;
   }
 
 }

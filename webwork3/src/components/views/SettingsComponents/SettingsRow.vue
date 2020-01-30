@@ -56,6 +56,8 @@ export default class SettingsRow extends Vue {
 
   @Watch('setting', {deep: true })
   private onSettingChange(val: Setting, old_value: Setting) {
+    // tslint:disable-next-line
+    console.log("in setting change");
     settings_store.updateSetting(this.setting);
   }
 }

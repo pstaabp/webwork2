@@ -60,8 +60,10 @@ export default class Manager extends Vue {
     }
   }
 
+
+
   private mounted() { // give the login username focus on page load.
-    this.$refs['login-input'].$el.focus();
+    ((this.$refs['login-input'] as Vue).$el as HTMLInputElement).focus();
   }
 
   private cancel() {

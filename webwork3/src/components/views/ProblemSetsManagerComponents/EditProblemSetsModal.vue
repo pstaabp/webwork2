@@ -72,15 +72,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
 
   private save() {
     this.selected_sets.forEach( (_set) => {
-      // see if there is a better way to do this:
-
-      // _set.enable_reduced_scoring = this.problem_set.enable_reduced_scoring;
-      // _set.visible = this.problem_set.visible;
-      // _set.open_date = this.problem_set.open_date;
-      // _set.reduced_scoring_date = this.problem_set.reduced_scoring_date;
-      // _set.due_date = this.problem_set.due_date;
-      // _set.answer_date = this.problem_set.answer_date;
-       const { enable_reduced_scoring, visible, open_date, reduced_scoring_date,
+      const { enable_reduced_scoring, visible, open_date, reduced_scoring_date,
            due_date, answer_date } = this.problem_set;
       Object.assign(_set, { enable_reduced_scoring, visible, open_date,
                              reduced_scoring_date, due_date, answer_date });
@@ -88,7 +80,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     });
 
     this.$bvModal.hide('edit-problem-sets-modal');
-    this.$emit('update-set')
+    this.$emit('update-set');
   }
 
 

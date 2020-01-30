@@ -1,6 +1,6 @@
 <template>
   <div class="scrollable">
-    <draggable handle=".drag-handle" :move="reordered">
+    <draggable v-model="problems" handle=".drag-handle" :move="reordered">
       <ProblemView v-for="problem in problems" :key="problem.problem_id"
           :problem="problem" type="set"/>
     </draggable>
@@ -15,7 +15,7 @@ import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import ProblemView from '@/components/common_components/ProblemView.vue';
 import Draggable from 'vuedraggable';
 
-import {ProblemSet} from '@/store/models';
+import {ProblemSet, Problem} from '@/store/models';
 
 // set up the store
 import problem_sets_store from '@/store/modules/problem_sets';
@@ -36,9 +36,14 @@ export default class ProblemListView extends Vue {
     return this.problem_set === undefined ? [] : this.problem_set.problems;
   }
 
+  set problems(_problems: Problem []) {
+    this.problem_set.problems = _problems;
+  }
+
   private reordered() {
     // tslint:disable-next-line
-    console.log("reordering");
+    console.log("in reordered");
+    // problem_set_store.updateProblemSet(this.problem_set);
   }
 
 }

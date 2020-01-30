@@ -15,6 +15,8 @@ const api_url = '/webwork3/api';
 
 import axios from 'axios';
 
+export type SettingList = Map<string, Setting>;
+
 
 @Module({
   namespaced: true,
@@ -23,32 +25,32 @@ import axios from 'axios';
   dynamic: true,
 })
 export class SettingsModule extends VuexModule {
-  private _settings: Setting[] = [];
+  private _settings: SettingList = new Map();
 
-  @Mutation
-  public setSettings(_settings: Setting[]) {
-    this._settings = _settings;
-  }
 
-  @Mutation public setSetting(_setting: Setting) {
-    // find the setting in the settings array
-  }
-
-  public get settings() {
+  public get settings(): SettingList {
     return this._settings;
+  }
+
+  public get settings_array(): Setting[] {
+    return Array.from(this._settings.values());
   }
 
   // Settings actions
   @Action
   public async fetchSettings() {
     const response = await axios.get(api_url + '/courses/' + loginModule.login_info.course_id + '/settings');
-    this.setSettings(response.data as Setting[]);
+    const settings = response.data as Setting[];
+    settings.forEach( (setting) => {
+      this.SET_SETTING(setting);
+    });
+    return this.settings;
   } // fetchSettings
 
   @Action
   public async updateSetting(_setting: Setting) {
     const response = await axios.put(api_url + '/courses/' + loginModule.login_info.course_id + '/setting', _setting);
-    this.setSetting(response.data as Setting);
+    this.SET_SETTING(response.data as Setting);
       // check that the response is the same as the _settting variable.
       // const keys = Object.keys(_setting.getChanges());
       // tslint:disable-next-line
@@ -57,6 +59,18 @@ export class SettingsModule extends VuexModule {
       // this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
       //     message: _message}));
   }
+
+  @Mutation
+  private SET_SETTINGS(_settings: SettingList) {
+    this._settings = _settings;
+  }
+
+  @Mutation
+  private SET_SETTING(_setting: Setting) {
+    // find the setting in the settings array
+    this._settings.set(_setting.var, _setting);
+  }
+
 
 }
 

@@ -31,6 +31,10 @@ export class LoginModule extends VuexModule {
     return this._login_info;
   }
 
+  public get course_id() {
+    return this._login_info.course_id; 
+  }
+
   @Action
   public async checkPassword(login: UserPassword) {
     const login_info: LoginInfo = {logged_in: false, user_id: login.user_id,

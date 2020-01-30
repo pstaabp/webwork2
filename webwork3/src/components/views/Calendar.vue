@@ -1,29 +1,44 @@
 <template>
   <b-container>
-    <b-row>
-      <b-col cols="3"><span id="month-name"> {{monthName}}</span></b-col>
+    <b-row class="pb-2">
+      <b-col>
+        <span id="month-name"> {{monthName}}</span>
+      </b-col>
       <b-col>
         <b-btn-toolbar key-nav  aria-label="Toolbar with button groups">
-        <b-btn-group size="sm">
-          <b-btn variant="outline-dark" @click="changeWeek(-1)">Previous Week</b-btn>
-          <b-btn variant="outline-dark" @click="today()">Today</b-btn>
-          <b-btn variant="outline-dark" @click="changeWeek(1)">Next Week</b-btn>
-        </b-btn-group>
-      </b-btn-toolbar>
+          <b-btn-group size="sm">
+            <b-btn variant="outline-dark" @click="changeWeek(-1)">Previous Week</b-btn>
+            <b-btn variant="outline-dark" @click="today()">Today</b-btn>
+            <b-btn variant="outline-dark" @click="changeWeek(1)">Next Week</b-btn>
+          </b-btn-group>
+        </b-btn-toolbar>
+      </b-col>
+      <b-col>
+        <b-btn size="sm" variant="outline-dark"
+          @click="sidebar_shown = !sidebar_shown"
+          >{{(sidebar_shown ? "Hide " : "Show ") + "Problem Sets"}}
+        </b-btn>
       </b-col>
     </b-row>
     <b-row>
-      <table class="table table-bordered table-sm" id="cal-table">
-        <thead class="thead-light">
-          <th v-for="day in dayNames" :key="day">{{day}}</th>
-        </thead>
-        <tbody>
-          <CalendarRow v-for="day in first_days()"
-            :first_day_of_week="day"
-            :problem_sets="problem_sets"
-            :key="first_day_of_calendar.format('DD') + ':' + day.format('DD-MM-YYYY')"/>
-        </tbody>
-      </table>
+      <b-col>
+        <table class="table table-bordered table-sm" id="cal-table">
+          <thead class="thead-light">
+            <th v-for="day in dayNames" :key="day">{{day}}</th>
+          </thead>
+          <tbody>
+            <CalendarRow v-for="day in first_days()"
+              :first_day_of_week="day"
+              :problem_sets="problem_sets"
+              :key="first_day_of_calendar.format('DD') + ':' + day.format('DD-MM-YYYY')"/>
+          </tbody>
+        </table>
+      </b-col>
+      <b-col v-if="sidebar_shown" cols="2">
+        <b-button-group vertical v-for="set_id in problem_set_names" v-bind:key="set_id">
+          <b-btn variant="outline-primary" >{{set_id}}</b-btn>
+        </b-button-group>
+      </b-col>
     </b-row>
   </b-container>
 </template>
@@ -36,7 +51,7 @@ import * as moment from 'moment';
 
 import CalendarRow from './CalendarComponents/CalendarRow.vue';
 import problem_set_store from '@/store/modules/problem_sets';
-import {ProblemSet} from '@/store/models';
+import {ProblemSet, ProblemSetList} from '@/store/models';
 
 @Component({
   name: 'Calendar',
@@ -46,6 +61,7 @@ import {ProblemSet} from '@/store/models';
 })
 export default class Calendar extends Vue {
   private first_day_of_calendar: moment.Moment = moment.default();
+  private sidebar_shown = false;
 
   get monthName(): string {
     return moment.default().format('MMMM YYYY');
@@ -55,9 +71,15 @@ export default class Calendar extends Vue {
     return moment.weekdays();
   }
 
-  get problem_sets(): Map<string, ProblemSet> {
+  get problem_sets(): ProblemSetList {
     return problem_set_store.problem_sets;
   }
+
+  get problem_set_names(): string[] {
+    return problem_set_store.set_names;
+  }
+
+
 
   public created(): void {
     this.today();

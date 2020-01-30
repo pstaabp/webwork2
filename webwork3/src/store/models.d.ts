@@ -72,6 +72,8 @@ export interface ProblemSet {
   email_instructor: boolean;
 }
 
+export type ProblemSetList = Map<string, ProblemSet>;
+
 export interface User {
   user_id: string;
   first_name: string;
@@ -112,4 +114,10 @@ export interface Message {
 export interface FileInfo {
   name: string;
   type: string;
+}
+
+export interface UserSetScore {
+  user_id: string;
+  set_id: string;
+  set_score: number;
 }

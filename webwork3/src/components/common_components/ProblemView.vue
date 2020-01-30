@@ -56,7 +56,7 @@
         <b-col cols="1">
           <b-btn-group size="sm" class="float-right" v-if="prop.reorder">
             <b-btn class="drag-handle border border-dark rounded p-2" variant="outline-dark">
-              <b-icon icon="arrows-alt-v" />
+              <b-icon icon="arrow-up-down" />
             </b-btn>
           </b-btn-group>
         </b-col>
@@ -82,6 +82,8 @@ import { Vue, Component, Watch, Prop } from 'vue-property-decorator';
 import axios from 'axios';
 
 import login_module from '@/store/modules/login';
+
+import {ProblemViewOptions, LIB_PROB, SET_PROB} from '@/common';
 
 import Problem from '@/models/Problem';
 
@@ -159,50 +161,7 @@ export default class ProblemView extends Vue {
   }
 }
 
-interface ProblemViewOptions {
-  numbered: boolean;
-  reorder: boolean;
-  add: boolean;
-  value: boolean;
-  attempts: boolean;
-  edit: boolean;
-  randomize: boolean;
-  delete: boolean;
-  mark_all: boolean;
-  tags: boolean;
-  path: boolean;
-  target_set: boolean;
-}
 
-const LIB_PROB: ProblemViewOptions = { // define characteristics of a library problem.
-  numbered: false,
-  reorder: false,
-  add: true,
-  value: false,
-  attempts: false,
-  edit: true,
-  randomize: true,
-  delete: false,
-  mark_all: false,
-  tags: true,
-  path: true,
-  target_set: true,
-};
-
-const SET_PROB: ProblemViewOptions = { // define characteristics of a library problem.
-  numbered: true,
-  reorder: true,
-  add: false,
-  value: true,
-  attempts: true,
-  edit: true,
-  randomize: true,
-  delete: true,
-  mark_all: true,
-  tags: false,
-  path: false,
-  target_set: false,
-};
 </script>
 
 <style>

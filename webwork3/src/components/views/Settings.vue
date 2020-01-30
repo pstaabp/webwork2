@@ -39,7 +39,7 @@ import settings_store from '@/store/modules/settings';
 })
 export default class Settings extends Vue {
   private filterSettings(category: string): Setting[] {
-    return settings_store.settings.filter( (setting: Setting) =>  setting.category === category);
+    return settings_store.settings_array.filter( (setting: Setting) =>  setting.category === category);
   }
 }
 </script>

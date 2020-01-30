@@ -71,11 +71,11 @@ import login_store from '@/store/modules/login';
 export default class ProblemEditor extends Vue {
   private problem_type = '';
   private selected_set_id = '';
-  private selected_problem = '';
+  private selected_problem = 0;
   private problem_source = 'var x = 5;';
   private problem_path = '';
   private problem_html = '';
-  private cm: CodeMirror.Editor = null;
+  private cm: CodeMirror.Editor!;
 
   private get set_names() {
     return [...[{value: '', text: 'Select Set'}],

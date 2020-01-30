@@ -17,6 +17,51 @@ export interface SidebarInfo {
   comp: string;
 }
 
+export interface ProblemViewOptions {
+  numbered: boolean;
+  reorder: boolean;
+  add: boolean;
+  value: boolean;
+  attempts: boolean;
+  edit: boolean;
+  randomize: boolean;
+  delete: boolean;
+  mark_all: boolean;
+  tags: boolean;
+  path: boolean;
+  target_set: boolean;
+}
+
+export const LIB_PROB: ProblemViewOptions = { // define characteristics of a library problem.
+  numbered: false,
+  reorder: false,
+  add: true,
+  value: false,
+  attempts: false,
+  edit: true,
+  randomize: true,
+  delete: false,
+  mark_all: false,
+  tags: true,
+  path: true,
+  target_set: true,
+};
+
+export const SET_PROB: ProblemViewOptions = { // define characteristics of a library problem.
+  numbered: true,
+  reorder: true,
+  add: false,
+  value: true,
+  attempts: true,
+  edit: true,
+  randomize: true,
+  delete: true,
+  mark_all: true,
+  tags: false,
+  path: false,
+  target_set: false,
+};
+
 export default class Common {
   public static views(): ViewInfo[] {
     return [

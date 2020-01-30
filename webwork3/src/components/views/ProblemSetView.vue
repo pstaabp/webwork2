@@ -65,7 +65,7 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
       if (mutation.type === 'app_state/setSelectedSet') {
         this.$router.push({name: 'setview', params: {set_id: app_state.selected_set}})
           .catch( (err) => {  // if the route is the same, don't throw the error
-            if( err.name !== 'NavigationDuplicated') {
+            if (err.name !== 'NavigationDuplicated') {
               // tslint:disable-next-line
               console.log(err);
             }
@@ -73,7 +73,6 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
         this.updateSet();
       }
     });
-    //this.updateSet();
   }
 
   private mounted() {

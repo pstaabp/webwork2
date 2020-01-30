@@ -1,5 +1,5 @@
 import {VuexModule, Module, Action, Mutation, getModule} from 'vuex-module-decorators';
-import {ProblemSet} from '@/store/models';
+import {ProblemSet, ProblemSetList} from '@/store/models';
 import store from '@/store';
 
 import login_module from './login';
@@ -30,32 +30,18 @@ export class ProblemSetsModule extends VuexModule {
     return Array.from(this._problem_sets.keys());
   }
 
-  @Mutation
-  public setProblemSets(_sets: ProblemSet[]) {
-    _sets.forEach( (_set) => {this._problem_sets.set(_set.set_id, _set); });
-  }
-
-  @Mutation
-  private ADD_SET(_set: ProblemSet) {
-    this._problem_sets.set(_set.set_id,_set);
-  }
-
-  @Mutation
-  private DELETE_SET(_set: ProblemSet) {
-    this._problem_sets.delete(_set.set_id);
-  }
-
   @Action({ rawError: true })
   public async fetchProblemSets() {
     const response = await axios.get(login_module.api_header + '/sets');
     const _sets  = response.data as ProblemSet[];
-    this.setProblemSets(_sets);
+    _sets.forEach( (_set) => {this.SET_PROBLEM_SET(_set); });
+
   } // fetchProblemSets
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
     const response = await axios.put(login_module.api_header + '/sets/' + _set.set_id, _set);
-    this.ADD_SET(_set);
+    this.ADD_SET(response.data as ProblemSet);
   }
 
   @Action
@@ -70,16 +56,26 @@ export class ProblemSetsModule extends VuexModule {
 
   @Action
   public async removeProblemSet(_set: ProblemSet) {
-    // tslint: disable-next-line
-    console.log("in removeProblemSet");
     const response = await axios.delete(login_module.api_header + '/sets/' + _set.set_id);
-    // tslint: disable-next-line
-    console.log("got response back");
-
     this.DELETE_SET(_set);
-
     return response.data as ProblemSet;
   }
+
+  @Mutation
+  private SET_PROBLEM_SET(_set: ProblemSet) {
+    this._problem_sets.set(_set.set_id, _set);
+  }
+
+  @Mutation
+  private ADD_SET(_set: ProblemSet) {
+    this._problem_sets.set(_set.set_id, _set);
+  }
+
+  @Mutation
+  private DELETE_SET(_set: ProblemSet) {
+    this._problem_sets.delete(_set.set_id);
+  }
+
 }
 
 export default getModule(ProblemSetsModule, store);

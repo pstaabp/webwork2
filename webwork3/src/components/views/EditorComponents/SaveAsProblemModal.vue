@@ -14,7 +14,7 @@
     <b-row>
       <b-col>
         <b-list-group>
-          <b-list-group-item class="p-1" v-for="item in options1"
+          <b-list-group-item class="p-1" v-for="item in options1" v-key="item.name"
               :button="item.type==='dir'" :disabled="item.type==='file'" @click="selected1(item.name)">
             <b-icon v-if="item.type==='dir'" icon="folder" />
             <b-icon v-if="item.type==='file'" icon="document"/>
@@ -23,7 +23,7 @@
         </b-list-group>
       </b-col>
       <b-col>
-        <b-list-group-item class="p-1" v-for="item in options2"
+        <b-list-group-item class="p-1" v-for="item in options2" v-key="item.name"
             :button="item.type==='dir'" :disabled="item.type==='file'" @click="selected2(item.name)">
           <b-icon v-if="item.type==='dir'" icon="folder" />
           <b-icon v-if="item.type==='file'" icon="document"/>
