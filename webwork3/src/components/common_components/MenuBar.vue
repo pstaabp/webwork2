@@ -39,22 +39,13 @@
         <b-navbar-nav class='ml-auto'>
           <message-bar />
           <b-nav-item-dropdown right>
-            <template slot='button-content'>
-              Sidebar
-            </template>
-            <b-dd-item  href='#' @click="$emit('show-hide-sidebar')">Show/Hide Sidebar</b-dd-item>
-            <b-dd-divider/>
-            <b-dd-item v-for='sb in sidebars' href='#' @click="$emit('change-sb',sb.comp)"
-            :key='sb.comp'>{{sb.name}}</b-dd-item>
-          </b-nav-item-dropdown>
-          <b-nav-item-dropdown right>
             <!--Using button-content slot -->
             <template slot='button-content'>
-              <i class='fas fa-user-alt'></i>
+              <b-icon icon="person" />
             </template>
             <b-dropdown-text>{{fullname}}</b-dropdown-text>
-            <b-dropdown-item href='#' v-b-modal.settings><i class='fas fa-cog mr-2'></i>Settings</b-dropdown-item>
-            <b-dropdown-item @click="$emit('logout')"><i class='fas fa-sign-out-alt mr-2'></i>Logout</b-dropdown-item>
+            <b-dropdown-item href='#' v-b-modal.settings><b-icon icon="gear" />Settings</b-dropdown-item>
+            <b-dropdown-item @click="$emit('logout')"><b-icon icon="circle-slash" />Logout</b-dropdown-item>
           </b-nav-item-dropdown>
 
         </b-navbar-nav>
