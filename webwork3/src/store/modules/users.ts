@@ -1,5 +1,8 @@
 import {VuexModule, Module, Action, Mutation, getModule} from 'vuex-module-decorators';
-import {User} from '@/store/models';
+import axios from 'axios';
+
+
+import {User, UserList} from '@/store/models';
 import store from '@/store';
 
 import login_module from './login';
@@ -13,10 +16,6 @@ if (store.state[name]) {
   store.unregisterModule(name);
 }
 
-const api_url = '/webwork3/api';
-
-import axios from 'axios';
-
 
 @Module({
   namespaced: true,
@@ -25,7 +24,7 @@ import axios from 'axios';
   dynamic: true,
 })
 export class UsersModule extends VuexModule {
-  private _users: Map<string, User> = new Map();
+  private _users: UserList = new Map();
 
   get users() {
     return this._users;
@@ -35,26 +34,39 @@ export class UsersModule extends VuexModule {
     return Array.from(this._users.values());
   }
 
-  @Mutation
-  public async setUsers(_users: User[]) {
-    this._users = new Map();
-    _users.forEach( (_u) => {this._users.set(_u.user_id, _u); });
-  }
-  // Settings actions
-  @Action({ rawError: true })
+  @Action
   public async fetchUsers() {
     const response = await axios.get(login_module.api_header + '/users');
     const _users  = response.data as User[];
-    this.setUsers(_users);
+    this.SET_USERS(_users);
+  }
+
+  @Action
+  public async updateUser( _user: User) {
+    const response = await axios.put(login_module.api_header + '/users/' + _user.user_id, _user);
+    // check if everything is okay.
+    this.SET_USER(response.data);
+  }
+
+  @Action clearUsers() {
+    this.RESET_USERS();
+  }
+
+  // Mutations
+  @Mutation
+  private RESET_USERS() {
+    this._users = new Map();
   }
 
   @Mutation
-  public async updateUser( _user: User) {
-    const response = await axios.put(login_module.api_header + '/users/' + _user.user_id, _user);
-    // tslint:disable-next-line
-    console.log(response);
+  private async SET_USER( _user: User) {
     this._users.set(_user.user_id, _user);
+  }
 
+  @Mutation
+  private async SET_USERS(_users: User[]) {
+    this._users = new Map();
+    _users.forEach( (_u) => {this._users.set(_u.user_id, _u); });
   }
 }
 

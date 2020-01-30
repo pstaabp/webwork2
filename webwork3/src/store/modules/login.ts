@@ -23,8 +23,13 @@ export class LoginModule extends VuexModule {
   private _login_info: LoginInfo = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
 
   @Mutation
-  public setLoginInfo(_info: LoginInfo): void {
+  private setLoginInfo(_info: LoginInfo): void {
     this._login_info = _info;
+  }
+
+  @Mutation
+  private RESET_LOGIN(): void {
+    this._login_info = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
   }
 
   public get login_info() {
@@ -32,7 +37,7 @@ export class LoginModule extends VuexModule {
   }
 
   public get course_id() {
-    return this._login_info.course_id; 
+    return this._login_info.course_id;
   }
 
   @Action
@@ -50,6 +55,11 @@ export class LoginModule extends VuexModule {
     this.setLoginInfo(login_info);
     return login_info;
 
+  }
+
+  @Action
+  public clearLogin(){
+    this.RESET_LOGIN();
   }
 
   public get api_header() {

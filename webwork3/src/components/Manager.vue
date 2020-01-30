@@ -12,10 +12,10 @@ import Common from '@/common';
 import MenuBar from '@/components/common_components/MenuBar.vue';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 
-import login_module from '@/store/modules/login';
-import settings_module from '@/store/modules/settings';
-import users_module from '@/store/modules/users';
-import problem_sets_module from '@/store/modules/problem_sets';
+import login_store from '@/store/modules/login';
+import settings_store from '@/store/modules/settings';
+import users_store from '@/store/modules/users';
+import problem_sets_store from '@/store/modules/problem_sets';
 import app_state from '@/store/modules/app_state';
 
 @Component({
@@ -33,20 +33,25 @@ export default class Manager extends Vue {
 
   private async created() { // load all of the relevant data
 
-    if (login_module.login_info && login_module.login_info.logged_in) {
-      settings_module.fetchSettings();
-      users_module.fetchUsers();
-      problem_sets_module.fetchProblemSets();
+    if (login_store.login_info && login_store.login_info.logged_in) {
+      settings_store.fetchSettings();
+      users_store.fetchUsers();
+      problem_sets_store.fetchProblemSets();
     } else {
-      this.$router.replace('/courses/' + login_module.login_info.course_id + '/login');
+      this.$router.replace('/courses/' + login_store.login_info.course_id + '/login');
       }
   }
 
 
   private logout(): void {
-    axios.post('/webwork3/api/courses/' + login_module.login_info.course_id + '/logout').
+    const course_id = login_store.course_id;
+    axios.post(login_store.api_header + '/logout').
       then( () => {
-        this.$router.replace('/courses/' + login_module.login_info.course_id + '/login');
+        login_store.clearLogin();
+        settings_store.clearSettings();
+        users_store.clearUsers();
+        problem_sets_store.clearProblemSets();
+        this.$router.replace('/courses/' + course_id + '/login');
       });
   }
 

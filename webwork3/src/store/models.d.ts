@@ -92,6 +92,8 @@ export interface User {
   useWirisEditor: boolean;
 }
 
+export type UserList = Map<string,User>; 
+
 export interface Setting {
   var: string;
   type: string;

@@ -29,8 +29,6 @@ export default {
     };
   },
   mounted() {
-    // tslint:disable-next-line
-    console.log('in courselist');
     axios.get('/webwork3/api/courses')
       .then( (response) => {
         this.courses = response.data;

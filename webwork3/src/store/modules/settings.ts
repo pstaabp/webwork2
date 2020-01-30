@@ -60,6 +60,16 @@ export class SettingsModule extends VuexModule {
       //     message: _message}));
   }
 
+  @Action
+  public clearSettings(): void {
+    this.RESET_SETTINGS(); 
+  }
+
+  @Mutation
+  private RESET_SETTINGS(): void {
+    this._settings = new Map();
+  }
+
   @Mutation
   private SET_SETTINGS(_settings: SettingList) {
     this._settings = _settings;

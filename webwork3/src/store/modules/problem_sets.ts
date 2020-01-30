@@ -61,6 +61,11 @@ export class ProblemSetsModule extends VuexModule {
     return response.data as ProblemSet;
   }
 
+  @Action
+  public clearProblemSets() {
+    this.RESET_SETS(); 
+  }
+
   @Mutation
   private SET_PROBLEM_SET(_set: ProblemSet) {
     this._problem_sets.set(_set.set_id, _set);
@@ -74,6 +79,11 @@ export class ProblemSetsModule extends VuexModule {
   @Mutation
   private DELETE_SET(_set: ProblemSet) {
     this._problem_sets.delete(_set.set_id);
+  }
+
+  @Mutation
+  private RESET_SETS() {
+    this._problem_sets = new Map();
   }
 
 }

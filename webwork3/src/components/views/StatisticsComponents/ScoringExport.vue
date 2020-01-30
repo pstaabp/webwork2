@@ -73,8 +73,6 @@ export default class ScoringExport extends Vue {
     var row = {};
     Object.assign(row,{user_id: "MAX value", first_name: '', last_name: ''},
       this.set_values.reduce( (obj, item) => {obj[item.set_id] = item.value; return obj;},{}));
-    // tslint:disable-next-line
-    console.log(row);
     data.splice(0,0,row);
     const csv = unparse(data);
     const blob = new Blob([csv], { type: 'text/csv' });
