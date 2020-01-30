@@ -375,6 +375,41 @@ put '/courses/:course_id/sets/:set_id/users' => require_role professor => sub {
 
 };
 
+#######
+#
+# GET  /courses/:course_id/userproblems
+#
+#
+#  This getall all user problem information.  Helpful for scoring and
+#  other statistics for the Course Manager
+#
+##
+
+get '/courses/:course_id/usersetscores' => sub {
+  my @allproblems = ();
+  my @users = vars->{db}->listUsers;
+  my @sets = vars->{db}->listGlobalSets;
+  for my $user_id (@users) {
+    for my $set_id (@sets) {
+      my @problems = vars->{db}->getAllMergedUserProblems($user_id,$set_id);
+      my $set_score = 0;
+      for my $problem (@problems) {
+        $set_score += $problem->{status};
+      }
+      push @allproblems, {user_id => $user_id, set_id => $set_id, set_score => $set_score};
+    }
+  }
+  # foreach my $user_id (@users) {
+  #
+  #   foreach my $set_id (@sets) {
+  #     debug vars->{db}->getAllUserProblems($user_id, $set_id);
+  #     push @allproblems, vars->{db}->getAllUserProblems($user_id, $set_id);
+  #   }
+  # }
+  return \@allproblems;
+};
+
+
 ###
 #
 # We have two types of UserSets.  To clarify the next sets of CRUD calls, time to clarify
@@ -614,7 +649,7 @@ put '/courses/:course_id/sets/:set_id/problems' => require_role professor => sub
 #
 ####
 
-get '/courses/:course_id/sets/:set_id/users/all/problems' => require_role professor => sub {
+get '/courses/:course_id/sets/:set_id/users/all/problems' => sub {
 
     send_error("The set " . param('set_id'). " doesn't exist for course " . param("course_id"),404)
         unless vars->{db}->existsGlobalSet(params->{set_id});
