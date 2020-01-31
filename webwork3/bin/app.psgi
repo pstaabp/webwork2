@@ -10,6 +10,7 @@ my $pg_dir = "";
 
 BEGIN {
   $ENV{MOD_PERL_API_VERSION}=2;  # ensure that mod_perl2 is used.
+  $ENV{DANCER_ENVIRONMENT} = 'development';
   $webwork_dir = $ENV{WEBWORK_ROOT};
 
   die "The WEBWORK_ROOT env variable or webwork_dir in the webwork3 config file must be set" unless defined $webwork_dir;
@@ -26,7 +27,7 @@ use lib "$webwork_dir/webwork3/lib";
 use lib "$pg_dir/lib";
 
 
-
+use Dancer2; 
 use Routes::Templates;
 use Routes::Login;
 # use Routes::ProblemSets;

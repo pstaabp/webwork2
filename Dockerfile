@@ -41,7 +41,7 @@ FROM alpine/git AS base
 
 # build args specifying the branches for webwork2 and pg used to build the image
 
-# To use the master branches of webwork2 and pg 
+# To use the master branches of webwork2 and pg
 #ARG WEBWORK2_BRANCH=master
 #ARG PG_BRANCH=master
 # To use the 2.15 branches of webwork2 and pg from the "official" GitHub repositories
@@ -81,7 +81,7 @@ RUN git clone --single-branch --branch legacy-v2 --depth 1 https://github.com/ma
 
 # we need to change FROM before setting the ENV variables
 
-FROM ubuntu:18.04
+FROM ubuntu:19.10
 
 ENV WEBWORK_URL=/webwork2 \
     WEBWORK_ROOT_URL=http://localhost \
@@ -196,6 +196,9 @@ RUN apt-get update \
 	libtest-fatal-perl \
 	libjson-xs-perl \
 	libmoox-options-perl \
+  libplack-perl \
+  libdancer2-perl \
+  liblist-moreutils-perl \
 	make \
 	netpbm \
 	preview-latex-style \
@@ -273,6 +276,10 @@ RUN echo "PATH=$PATH:$APP_ROOT/webwork2/bin" >> /root/.bashrc \
 # Phase 6 - install additional Perl modules from CPAN (not packaged for Ubuntu or outdated in Ubuntu)
 
 RUN cpanm install Statistics::R::IO \
+    Dancer2::Plugin::Auth::Extensible \
+    Dancer2::Plugin::Database \
+    File::Slurp \
+    Data::Dump \
     && rm -fr ./cpanm /root/.cpanm /tmp/*
 
 # Now installed from Ubuntu packages:
@@ -319,6 +326,7 @@ RUN cd $APP_ROOT/webwork2/conf \
 EXPOSE 80
 WORKDIR $APP_ROOT
 
+
 # Enabling SSL is NOT done here.
 # Instead it is done by docker-entrypoint.sh at container startup when SSL=1
 #     is set in the environment, for example by docker-compose.yml.
@@ -337,7 +345,7 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # ==================================================================
 
-# Add enviroment variables to control some things during container startup
+# Add environment variables to control some things during container startup
 
 ENV SSL=0 \
     PAPERSIZE=letter \

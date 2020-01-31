@@ -3,8 +3,6 @@ package Routes::Login;
 use Dancer2;
 set serializer => 'JSON';
 
-
-
 use Dancer2::Plugin::Auth::Extensible;
 use Data::Dump qw/dump/;
 
@@ -20,12 +18,6 @@ use Routes::Library;
 use Routes::Settings;
 use Routes::User;
 
-###
-#
-# This is the main login route.  It validates the login and sets
-# the session variable.
-#
-##
 
 ## the following routes is called before any other /api route.   It is used to load the
 #  CourseEnvironment
@@ -35,6 +27,14 @@ hook before => sub {
 	session course_id => route_parameters->{course_id};
 	setCourseEnvironment(session 'course_id') if defined (session 'course_id');
 };
+
+###
+#
+# This is the main login route.  It validates the login and sets
+# the session variable.
+#
+##
+
 
 post '/courses/:course_id/login' => sub {
 
@@ -71,12 +71,6 @@ post '/courses/:course_id/login' => sub {
 
 
 get '/courses/:course_id/login'  => require_login sub {
-
-    # debug "here";
-		#
-    # debug session->read("logged_in_user");
-		#
-    # debug vars->{db}->getPermissionLevel(session->read("logged_in_user"));
 
     my $perm = vars->{db}->getPermissionLevel(session->read("logged_in_user"))->{permission};
     my $user = vars->{db}->getUser(session->read("logged_in_user"));

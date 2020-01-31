@@ -12,7 +12,7 @@ use Dancer2::FileUtils qw/read_file_content path/;
 use Data::Dump qw/dump dd/;
 use Path::Class;
 use File::Find::Rule;
-use File::Slurp;
+# use File::Slurp;
 use List::MoreUtils qw/uniq/;
 
 use Utils::Convert qw/convertObjectToHash convertArrayOfObjectsToHash/;

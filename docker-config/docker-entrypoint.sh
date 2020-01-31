@@ -211,4 +211,13 @@ if [ "$1" = 'apache2' ]; then
 
 fi
 
+## start webwork3 server
+
+echo "Determining whether or not to run webwork3"
+echo "Value of RUN_WW3 is $RUN_WW3"
+
+if [ $RUN_WW3 -eq 1 ]; then
+  $WEBWORK_ROOT/bin/startdancer &
+fi
+
 exec "$@"
