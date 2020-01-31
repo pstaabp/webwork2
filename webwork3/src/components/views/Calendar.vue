@@ -35,9 +35,20 @@
         </table>
       </b-col>
       <b-col v-if="sidebar_shown" cols="2">
-        <b-button-group vertical v-for="set_id in problem_set_names" v-bind:key="set_id">
-          <b-btn variant="outline-primary" >{{set_id}}</b-btn>
-        </b-button-group>
+        <h4>Problem Sets</h4>
+        <draggable
+        :list="problem_set_names"
+        class="list-group"
+        ghost-class="ghost"
+        :move="checkMove"
+        @start="dragging = true"
+        @end="dragging = false"
+      >
+        <div class="list-group-item" v-for="set_id in problem_set_names"
+          :key="set_id">
+          {{ set_id }}
+        </div>
+      </draggable>
       </b-col>
     </b-row>
   </b-container>
@@ -49,6 +60,8 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import * as moment from 'moment';
 
+import Draggable, {MoveEvent} from 'vuedraggable';
+
 import CalendarRow from './CalendarComponents/CalendarRow.vue';
 import problem_set_store from '@/store/modules/problem_sets';
 import {ProblemSet, ProblemSetList} from '@/store/models';
@@ -57,6 +70,7 @@ import {ProblemSet, ProblemSetList} from '@/store/models';
   name: 'Calendar',
   components: {
     CalendarRow,
+    Draggable,
   },
 })
 export default class Calendar extends Vue {
@@ -79,9 +93,12 @@ export default class Calendar extends Vue {
     return problem_set_store.set_names;
   }
 
+  private checkMove() {
+    // tslint:disable-next-line
+    console.log("in checkMove");
+  }
 
-
-  public created(): void {
+  private created(): void {
     this.today();
   }
 

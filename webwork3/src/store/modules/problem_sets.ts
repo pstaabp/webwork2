@@ -63,7 +63,7 @@ export class ProblemSetsModule extends VuexModule {
 
   @Action
   public clearProblemSets() {
-    this.RESET_SETS(); 
+    this.RESET_SETS();
   }
 
   @Mutation
