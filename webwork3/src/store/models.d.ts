@@ -36,6 +36,29 @@ export interface Problem {
   value: number;
 }
 
+export interface UserProblem {
+  user_id: string;
+  set_id: string;
+  problem_id: number;
+  source_file: string;
+  value: number;
+  max_attempts: number;
+  showMeAnother: number;
+  showMeAnotherCount: number;
+  prPeriod: number;
+  prCount: number;
+  problem_seed: number;
+  status: number;
+  attempted: number;
+  last_answer: string;
+  num_correct: number;
+  num_incorrect: number;
+  att_to_open_children: number;
+  counts_parent_grade: number;
+  sub_status: number;
+  flags: string;
+}
+
 export interface ProblemSet {
   set_id: string;
   assigned_users: string[];
@@ -92,7 +115,9 @@ export interface User {
   useWirisEditor: boolean;
 }
 
-export type UserList = Map<string,User>; 
+
+
+export type UserList = Map<string,User>;
 
 export interface Setting {
   var: string;

@@ -48,7 +48,8 @@ export class UsersModule extends VuexModule {
     this.SET_USER(response.data);
   }
 
-  @Action clearUsers() {
+  @Action
+  public clearUsers() {
     this.RESET_USERS();
   }
 

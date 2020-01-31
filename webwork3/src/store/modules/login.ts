@@ -22,14 +22,8 @@ import axios from 'axios';
 export class LoginModule extends VuexModule {
   private _login_info: LoginInfo = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
 
-  @Mutation
-  private setLoginInfo(_info: LoginInfo): void {
-    this._login_info = _info;
-  }
-
-  @Mutation
-  private RESET_LOGIN(): void {
-    this._login_info = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
+  public get api_header() {
+    return '/webwork3/api/courses/' + this._login_info.course_id;
   }
 
   public get login_info() {
@@ -58,12 +52,18 @@ export class LoginModule extends VuexModule {
   }
 
   @Action
-  public clearLogin(){
+  public clearLogin() {
     this.RESET_LOGIN();
   }
 
-  public get api_header() {
-    return '/webwork3/api/courses/' + this._login_info.course_id;
+  @Mutation
+  private setLoginInfo(_info: LoginInfo): void {
+    this._login_info = _info;
+  }
+
+  @Mutation
+  private RESET_LOGIN(): void {
+    this._login_info = {user_id: '', logged_in: false, course_id: '', user: Common.newUser()};
   }
 
 }

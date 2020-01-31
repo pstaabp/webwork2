@@ -62,7 +62,7 @@ export class SettingsModule extends VuexModule {
 
   @Action
   public clearSettings(): void {
-    this.RESET_SETTINGS(); 
+    this.RESET_SETTINGS();
   }
 
   @Mutation
