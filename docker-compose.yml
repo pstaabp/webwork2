@@ -51,7 +51,7 @@ services:
       # either mount them from the webwork2 tree from which you start Docker:
       #- ".:/opt/webwork/webwork2"
       # OR mount it from a fixed external location
-      #- "/path_to/webwork2:/opt/webwork/webwork2"
+      - "/Volumes/Drobo/code/webwork_docker/webwork2:/opt/webwork/webwork2"
 
       # Shared main /pg repository - allows local PG development
       #- "/path_to_shared/pg:/opt/webwork/pg"
@@ -123,6 +123,7 @@ services:
     ports:
       # For a personal machine
       - "${WEBWORK2_HTTP_PORT_ON_HOST}:80"
+      - "${WEBWORK3_HTTP_PORT_ON_HOST}:5000
 
       # For a production machine
       #- "80:80"
@@ -183,11 +184,14 @@ services:
 
 #      WEBWORK_TIMEZONE: America/New_York
 
+      RUN_WW3: 1
+
   r:
     image: ubcctlt/rserve
 #    # The R server need not be available from outside the local Docker network.
 #    ports:
 #      - "6311:6311"
+
 
 volumes:
   oplVolume:
