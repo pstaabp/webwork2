@@ -36,6 +36,22 @@ declare module 'vuedraggable' {
     isTrusted: boolean;
   }
 
+  export interface ChangeEvent<T> {
+    added: {
+      newIndex: number;
+      element: T;
+    };
+    removed: {
+      oldIndex: number;
+      element: Element;
+    };
+    moved: {
+      newIndex: number;
+      oldIndex: number;
+      element: Element;
+    }
+  }
+
   const draggableComponent: ComponentOptions<Vue>;
 
   export default draggableComponent;

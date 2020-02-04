@@ -1,20 +1,38 @@
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
-import '../public/css/webwork.css';
+import "../public/css/webwork.css";
 
+import Vue from "vue";
+import * as moment from "moment";
 
-import Vue from 'vue';
-import * as moment from 'moment';
-
-import router from './router';
+import router from "./router";
 
 // import only the necessary element from bootstrap-vue
 
-import { NavbarPlugin, NavPlugin, LayoutPlugin, ListGroupPlugin, FormPlugin, FormGroupPlugin,
-         FormInputPlugin, ButtonPlugin, ButtonGroupPlugin, BadgePlugin, ModalPlugin,
-          ButtonToolbarPlugin, InputGroupPlugin, FormSelectPlugin, TablePlugin, PaginationPlugin,
-          TabsPlugin, FormCheckboxPlugin, SpinnerPlugin, FormFilePlugin, IconsPlugin } from 'bootstrap-vue';
+import {
+  NavbarPlugin,
+  NavPlugin,
+  LayoutPlugin,
+  ListGroupPlugin,
+  FormPlugin,
+  FormGroupPlugin,
+  FormInputPlugin,
+  ButtonPlugin,
+  ButtonGroupPlugin,
+  BadgePlugin,
+  ModalPlugin,
+  ButtonToolbarPlugin,
+  InputGroupPlugin,
+  FormSelectPlugin,
+  TablePlugin,
+  PaginationPlugin,
+  TabsPlugin,
+  FormCheckboxPlugin,
+  SpinnerPlugin,
+  FormFilePlugin,
+  IconsPlugin
+} from "bootstrap-vue";
 
 Vue.use(NavbarPlugin);
 Vue.use(NavPlugin);
@@ -40,40 +58,56 @@ Vue.use(IconsPlugin);
 
 // overall filters:
 
-import {ProblemSet} from '@/store/models';
+import { ProblemSet } from "@/store/models";
 
-Vue.filter('formatDateTime', (value: number) =>  moment.unix(value).format('YYYY-MM-DD[T]HH:mm'));
+Vue.filter("formatDateTime", (value: number) =>
+  moment.unix(value).format("YYYY-MM-DD[T]HH:mm")
+);
 
 function parseDatetimeForBrowser(dateString: string) {
-  return moment.default(dateString, 'YYYY-MM-DD[T]HH:mm').unix();
+  return moment.default(dateString, "YYYY-MM-DD[T]HH:mm").unix();
 }
 
+Vue.filter(
+  "setReducedScoringDate",
+  (_set: ProblemSet, date_string: string) =>
+    (_set.reduced_scoring_date = parseDatetimeForBrowser(date_string))
+);
 
-Vue.filter('setReducedScoringDate', (_set: ProblemSet, date_string: string) =>
-  _set.reduced_scoring_date = parseDatetimeForBrowser(date_string));
+Vue.filter(
+  "setDueDate",
+  (_set: ProblemSet, date_string: string) =>
+    (_set.due_date = parseDatetimeForBrowser(date_string))
+);
 
-Vue.filter('setDueDate', (_set: ProblemSet, date_string: string) =>
-  _set.due_date = parseDatetimeForBrowser(date_string));
+Vue.filter(
+  "setAnswerDate",
+  (_set: ProblemSet, date_string: string) =>
+    (_set.answer_date = parseDatetimeForBrowser(date_string))
+);
 
-Vue.filter('setAnswerDate', (_set: ProblemSet, date_string: string) =>
-  _set.answer_date = parseDatetimeForBrowser(date_string));
+Vue.filter("validReducedScoring", (_set: ProblemSet) =>
+  moment
+    .unix(_set.reduced_scoring_date!)
+    .isSameOrAfter(moment.unix(_set.open_date!))
+);
 
+Vue.filter("validDueDate", (_set: ProblemSet) =>
+  moment
+    .unix(_set.due_date!)
+    .isSameOrAfter(moment.unix(_set.reduced_scoring_date!))
+);
 
-Vue.filter('validReducedScoring', (_set: ProblemSet) =>
-  moment.unix(_set.reduced_scoring_date!).isSameOrAfter(moment.unix(_set.open_date!)));
+Vue.filter("validAnswerDate", (_set: ProblemSet) =>
+  moment.unix(_set.answer_date!).isSameOrAfter(moment.unix(_set.due_date!))
+);
 
-Vue.filter('validDueDate', (_set: ProblemSet) =>
-  moment.unix(_set.due_date!).isSameOrAfter(moment.unix(_set.reduced_scoring_date!)));
+import WeBWorKApp from "@/App.vue";
 
-Vue.filter('validAnswerDate', (_set: ProblemSet) =>
-   moment.unix(_set.answer_date!).isSameOrAfter(moment.unix(_set.due_date!)));
-
-import WeBWorKApp from '@/App.vue';
-
-import store from '@/store';
+import store from "@/store";
 
 new Vue({
   router,
   store,
-  render: (h) => h(WeBWorKApp),
-}).$mount('#app');
+  render: h => h(WeBWorKApp)
+}).$mount("#app");

@@ -1,23 +1,21 @@
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-    .BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//     .BundleAnalyzerPlugin;
 
 module.exports = {
   devServer: {
     proxy: {
-      '^/webwork3': {
-        target: 'http://localhost:5000',
-        pathRewrite: {'^/webwork3/' : ''}
+      "^/webwork3": {
+        target: "http://localhost:5000",
+        pathRewrite: { "^/webwork3/": "" }
       }
     },
     watchOptions: {
-        poll: true
+      poll: true
     }
   },
   // configureWebpack: {
   //     plugins: [new BundleAnalyzerPlugin()]
   // },
-  publicPath: '/webwork3/',
-  transpileDependencies: [
-    'vuex-module-decorators'
-  ]
-}
+  publicPath: "/webwork3/",
+  transpileDependencies: ["vuex-module-decorators"]
+};

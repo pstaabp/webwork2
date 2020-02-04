@@ -115,9 +115,7 @@ export interface User {
   useWirisEditor: boolean;
 }
 
-
-
-export type UserList = Map<string,User>;
+export type UserList = Map<string, User>;
 
 export interface Setting {
   var: string;
@@ -146,5 +144,8 @@ export interface FileInfo {
 export interface UserSetScore {
   user_id: string;
   set_id: string;
-  set_score: number;
+  scores: {
+    problem_id: number;
+    status: number;
+  }[];
 }

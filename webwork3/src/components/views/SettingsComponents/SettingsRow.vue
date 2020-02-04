@@ -1,22 +1,53 @@
 <template>
   <tr>
-    <td><p><span v-html="setting.doc"></span>&nbsp;
-        <b-icon icon='question-fill' size='lg' @click="show_help = !show_help" />
+    <td>
+      <p>
+        <span v-html="setting.doc"></span>&nbsp;
+        <b-icon
+          icon="question-fill"
+          size="lg"
+          @click="show_help = !show_help"
+        />
       </p>
       <div v-if="show_help" class="help-box border p-2 rounded">
-        <span class="float-right rounded border p-1"@click="show_help = false"> <b-icon  icon="x" /></span>
+        <span class="float-right rounded border p-1" @click="show_help = false">
+          <b-icon icon="x"
+        /></span>
         <span v-html="setting.doc2" />
       </div>
     </td>
     <td v-if="setting.type == 'text'">
-      <b-input size="sm" :value="setting.value" @blur="setting.value = $event.target.value"/></td>
+      <b-input
+        size="sm"
+        :value="setting.value"
+        @blur="setting.value = $event.target.value"
+      />
+    </td>
     <td v-if="setting.type == 'number'">
-      <b-input type="number" size="sm" :value="setting.value" @blur="setting.value = $event.target.value"/></td>
-    <td v-else-if="setting.type == 'popuplist'"><b-select size="sm" v-model="setting.value" :options="setting.values" /></td>
-    <td v-else-if="setting.type === 'boolean'"><b-checkbox v-model="setting.value" /></td>
-    <td v-else-if="setting.type === 'permission'"><b-select size="sm" v-model="setting.value" :options="permission_levels" /></td>
-    <td v-else-if="setting.type === 'timezone'">NEED TO FINISH </td>
-    <td v-else-if="setting.type === 'time'"><b-input type="time" size="sm" v-model="valueAsTime" /></td>
+      <b-input
+        type="number"
+        size="sm"
+        :value="setting.value"
+        @blur="setting.value = $event.target.value"
+      />
+    </td>
+    <td v-else-if="setting.type == 'popuplist'">
+      <b-select size="sm" v-model="setting.value" :options="setting.values" />
+    </td>
+    <td v-else-if="setting.type === 'boolean'">
+      <b-checkbox v-model="setting.value" />
+    </td>
+    <td v-else-if="setting.type === 'permission'">
+      <b-select
+        size="sm"
+        v-model="setting.value"
+        :options="permission_levels"
+      />
+    </td>
+    <td v-else-if="setting.type === 'timezone'">NEED TO FINISH</td>
+    <td v-else-if="setting.type === 'time'">
+      <b-input type="time" size="sm" v-model="valueAsTime" />
+    </td>
     <td v-else-if="setting.type === 'checkboxlist'">
       <b-checkbox-group :options="setting.values" v-model="selected" stacked />
     </td>
@@ -24,19 +55,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch} from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
-import {Setting} from '@/store/models';
+import { Setting } from "@/store/models";
 
-import * as moment from 'moment';
+import * as moment from "moment";
 
-import Constants from '@/common';
+import Constants from "@/common";
 
-import settings_store from '@/store/modules/settings';
-
+import settings_store from "@/store/modules/settings";
 
 @Component({
-  name: 'SettingsTab',
+  name: "SettingsTab"
 })
 export default class SettingsRow extends Vue {
   @Prop() public setting!: Setting;
@@ -47,17 +77,16 @@ export default class SettingsRow extends Vue {
     return Object.values(Constants.permissionLevels());
   }
   get valueAsTime() {
-    return moment.default(this.setting.value, ['hh:mmA']).format('HH:mm');
+    return moment.default(this.setting.value, ["hh:mmA"]).format("HH:mm");
   }
 
   set valueAsTime(value: string) {
-    this.setting.value = moment.default(value, ['HH:mm']).format('hh:mmA');
+    this.setting.value = moment.default(value, ["HH:mm"]).format("hh:mmA");
   }
 
-  @Watch('setting', {deep: true })
+  @Watch("setting", { deep: true })
   private onSettingChange(val: Setting, old_value: Setting) {
-    // tslint:disable-next-line
-    console.log("in setting change");
+    console.log("in setting change"); // eslint-disable-line no-console
     settings_store.updateSetting(this.setting);
   }
 }
@@ -69,8 +98,8 @@ export default class SettingsRow extends Vue {
   background: lightyellow;
 }
 .close {
-    position: absolute;
-    top: 2px;
-    right: 2px;
+  position: absolute;
+  top: 2px;
+  right: 2px;
 }
 </style>
