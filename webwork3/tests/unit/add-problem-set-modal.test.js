@@ -2,24 +2,22 @@
 
 // Import the `mount()` method from the test utils
 // and the component you want to test
-import BootstrapVue from 'bootstrap-vue'
-import { shallowMount, createLocalVue } from '@vue/test-utils'
+import BootstrapVue from "bootstrap-vue";
+import { shallowMount, createLocalVue } from "@vue/test-utils";
 
 // create an extended `Vue` constructor
-const Vue = createLocalVue()
-Vue.config.ignoredElements = ['b-modal','b-checkbox']
-Vue.use(BootstrapVue)
+const Vue = createLocalVue();
+Vue.config.ignoredElements = ["b-modal", "b-checkbox"];
+Vue.use(BootstrapVue);
 
+import AddProblemSetModal from "@/components/views/ProblemSetsManagerComponents/AddProblemSetModal.vue";
 
-import AddProblemSetModal from '@/components/views/ProblemSetsManagerComponents/AddProblemSetModal.vue'
-
-
-describe('AddProblemSetModal', () => {
+describe("AddProblemSetModal", () => {
   // Now mount the component and you have the wrapper
   //const wrapper = shallowMount(AddProblemSetModal,{Vue})
-  test('dummy test',() => {
-      expect(true).toBe(true)
-  })
+  test("dummy test", () => {
+    expect(true).toBe(true);
+  });
 
   //expect(wrapper.isVueInstance()).toBeTruthy()
   //
@@ -31,4 +29,4 @@ describe('AddProblemSetModal', () => {
   // it('has a button', () => {
   //   expect(wrapper.contains('button')).toBe(true)
   // })
-})
+});

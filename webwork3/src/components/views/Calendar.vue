@@ -2,21 +2,27 @@
   <b-container>
     <b-row class="pb-2">
       <b-col>
-        <span id="month-name"> {{monthName}}</span>
+        <span id="month-name"> {{ monthName }}</span>
       </b-col>
       <b-col>
-        <b-btn-toolbar key-nav  aria-label="Toolbar with button groups">
+        <b-btn-toolbar key-nav aria-label="Toolbar with button groups">
           <b-btn-group size="sm">
-            <b-btn variant="outline-dark" @click="changeWeek(-1)">Previous Week</b-btn>
+            <b-btn variant="outline-dark" @click="changeWeek(-1)"
+              >Previous Week</b-btn
+            >
             <b-btn variant="outline-dark" @click="today()">Today</b-btn>
-            <b-btn variant="outline-dark" @click="changeWeek(1)">Next Week</b-btn>
+            <b-btn variant="outline-dark" @click="changeWeek(1)"
+              >Next Week</b-btn
+            >
           </b-btn-group>
         </b-btn-toolbar>
       </b-col>
       <b-col>
-        <b-btn size="sm" variant="outline-dark"
+        <b-btn
+          size="sm"
+          variant="outline-dark"
           @click="sidebar_shown = !sidebar_shown"
-          >{{(sidebar_shown ? "Hide " : "Show ") + "Problem Sets"}}
+          >{{ (sidebar_shown ? "Hide " : "Show ") + "Problem Sets" }}
         </b-btn>
       </b-col>
     </b-row>
@@ -24,10 +30,11 @@
       <b-col>
         <table class="table table-bordered table-sm" id="cal-table">
           <thead class="thead-light">
-            <th v-for="day in dayNames" :key="day">{{day}}</th>
+            <th v-for="day in dayNames" :key="day">{{ day }}</th>
           </thead>
           <tbody>
-            <CalendarRow v-for="day in first_days()"
+            <CalendarRow
+              v-for="day in first_days()"
               :first_day_of_week="day"
               :problem_sets="problem_sets"
               :all_assignment_dates = "all_assignment_dates"
@@ -59,17 +66,15 @@
   </b-container>
 </template>
 
-
-
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import * as moment from 'moment';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import * as moment from "moment";
 
-import Draggable, {MoveEvent} from 'vuedraggable';
+import Draggable, { MoveEvent } from "vuedraggable";
 
-import CalendarRow from './CalendarComponents/CalendarRow.vue';
-import problem_set_store from '@/store/modules/problem_sets';
-import {ProblemSet, ProblemSetList} from '@/store/models';
+import CalendarRow from "./CalendarComponents/CalendarRow.vue";
+import problem_set_store from "@/store/modules/problem_sets";
+import { ProblemSet, ProblemSetList } from "@/store/models";
 
 interface AssignmentInfo {
   date: moment.Moment;
@@ -79,11 +84,11 @@ interface AssignmentInfo {
 
 
 @Component({
-  name: 'Calendar',
+  name: "Calendar",
   components: {
     CalendarRow,
-    Draggable,
-  },
+    Draggable
+  }
 })
 export default class Calendar extends Vue {
   private first_day_of_calendar: moment.Moment = moment.default();
@@ -92,7 +97,7 @@ export default class Calendar extends Vue {
   private dragging: boolean = false;
 
   get monthName(): string {
-    return moment.default().format('MMMM YYYY');
+    return moment.default().format("MMMM YYYY");
   }
 
   get dayNames(): string[] {
@@ -112,8 +117,7 @@ export default class Calendar extends Vue {
   }
 
   private checkMove() {
-    // tslint:disable-next-line
-    console.log("in checkMove");
+    console.log("in checkMove"); // eslint-disable-line no-console
   }
 
   private created(): void {
@@ -144,24 +148,28 @@ export default class Calendar extends Vue {
 
 
   private changeWeek(week: number) {
-    this.first_day_of_calendar = moment.default(this.first_day_of_calendar).add(week * 7, 'days');
+    this.first_day_of_calendar = moment
+      .default(this.first_day_of_calendar)
+      .add(week * 7, "days");
   }
 
   private today() {
-
     const now = moment.default();
-    this.first_day_of_calendar = moment.default().subtract(now.days(), 'days'); // first of the week from today
-    while (this.first_day_of_calendar.isSame(now, 'month')) {
-      this.first_day_of_calendar = this.first_day_of_calendar.subtract(7, 'days');
+    this.first_day_of_calendar = moment.default().subtract(now.days(), "days"); // first of the week from today
+    while (this.first_day_of_calendar.isSame(now, "month")) {
+      this.first_day_of_calendar = this.first_day_of_calendar.subtract(
+        7,
+        "days"
+      );
     }
-
   }
 
   // this produces an array of the days of the first of the week.
   private first_days() {
-    return [0, 1, 2, 3, 4, 5].map( (i) => moment.default(this.first_day_of_calendar).add(7 * i, 'days'));
+    return [0, 1, 2, 3, 4, 5].map(i =>
+      moment.default(this.first_day_of_calendar).add(7 * i, "days")
+    );
   }
-
 }
 </script>
 

@@ -1,16 +1,30 @@
 <template>
   <b-container>
-    <library-subjects v-if="tab_name == 'subjects'" @load-problems="loadProblems"/>
-    <library-directory v-if="tab_name == 'directory'" @load-problems="loadProblems"/>
-    <library-textbooks v-if="tab_name == 'textbooks'" @load-problems="loadProblems"/>
-    <local-library v-if="tab_name == 'local'" @load-problems="loadProblems"/>
+    <library-subjects
+      v-if="tab_name == 'subjects'"
+      @load-problems="loadProblems"
+    />
+    <library-directory
+      v-if="tab_name == 'directory'"
+      @load-problems="loadProblems"
+    />
+    <library-textbooks
+      v-if="tab_name == 'textbooks'"
+      @load-problems="loadProblems"
+    />
+    <local-library v-if="tab_name == 'local'" @load-problems="loadProblems" />
     <b-row v-if="num_problems > 0" class="mt-2">
       <b-col>
-        <b-pagination v-model="current_page" :total-rows="num_problems" :per-page="rows_per_page"
-        limit="10" size="sm"/>
+        <b-pagination
+          v-model="current_page"
+          :total-rows="num_problems"
+          :per-page="rows_per_page"
+          limit="10"
+          size="sm"
+        />
       </b-col>
       <b-col>
-        {{current_page}}
+        {{ current_page }}
       </b-col>
       <!-- <b-col cols="3">
         <b-form-group label="Target Set:" label-size="sm" label-cols="4"
@@ -28,43 +42,46 @@
     </b-row>
     <b-row>
       <div class="scrollable">
-        <problem-view v-for="problem in problems" :key="problem.problem_id" :problem="problem" type="library"
-          @add-problem="addProblem"/>
-        </div>
+        <problem-view
+          v-for="problem in problems"
+          :key="problem.problem_id"
+          :problem="problem"
+          type="library"
+          @add-problem="addProblem"
+        />
+      </div>
     </b-row>
   </b-container>
 </template>
 
-<script lang='ts'>
-import {Vue, Component, Prop} from 'vue-property-decorator';
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
 
-import {Problem, ProblemSet} from '@/store/models';
+import { Problem, ProblemSet } from "@/store/models";
 
-import login_store from '@/store/modules/login';
-import problem_set_store from '@/store/modules/problem_sets';
-import app_state from '@/store/modules/app_state';
+import login_store from "@/store/modules/login";
+import problem_set_store from "@/store/modules/problem_sets";
+import app_state from "@/store/modules/app_state";
 
-import LibrarySubjects from './LibrarySubjects.vue';
-import LibraryDirectory from './LibraryDirectory.vue';
-import LibraryTextbooks from './LibraryTextbooks.vue';
-import LocalLibrary from './LocalLibrary.vue';
-import ProblemView from '@/components/common_components/ProblemView.vue';
+import LibrarySubjects from "./LibrarySubjects.vue";
+import LibraryDirectory from "./LibraryDirectory.vue";
+import LibraryTextbooks from "./LibraryTextbooks.vue";
+import LocalLibrary from "./LocalLibrary.vue";
+import ProblemView from "@/components/common_components/ProblemView.vue";
 
-import Common from '@/common';
-
+import Common from "@/common";
 
 @Component({
-  name: 'LibraryTab',
+  name: "LibraryTab",
   components: {
     LibrarySubjects,
     LibraryDirectory,
     LibraryTextbooks,
     ProblemView,
-    LocalLibrary,
-  },
+    LocalLibrary
+  }
 })
 export default class LibraryTab extends Vue {
-
   @Prop()
   private problem_sets!: Map<string, ProblemSet>;
   @Prop()
@@ -94,7 +111,11 @@ export default class LibraryTab extends Vue {
   }
 
   private go_to_set() {
-    this.$router.push(login_store.api_header + '/manager/set-details?set_id=' + app_state.selected_set);
+    this.$router.push(
+      login_store.api_header +
+        "/manager/set-details?set_id=" +
+        app_state.selected_set
+    );
   }
 
   private valid_set_id() {
@@ -114,12 +135,18 @@ export default class LibraryTab extends Vue {
       return [];
     }
     const probs = [];
-    for (let i = (this.current_page - 1) * this.rows_per_page;
-        i < Math.min(this.all_problems.length, this.current_page * this.rows_per_page); i++) {
+    for (
+      let i = (this.current_page - 1) * this.rows_per_page;
+      i <
+      Math.min(
+        this.all_problems.length,
+        this.current_page * this.rows_per_page
+      );
+      i++
+    ) {
       probs.push(this.all_problems[i]);
     }
     return probs;
   }
 } // class LibraryTab
-
 </script>

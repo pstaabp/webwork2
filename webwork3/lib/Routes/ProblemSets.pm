@@ -392,11 +392,8 @@ get '/courses/:course_id/usersetscores' => sub {
   for my $user_id (@users) {
     for my $set_id (@sets) {
       my @problems = vars->{db}->getAllMergedUserProblems($user_id,$set_id);
-      my $set_score = 0;
-      for my $problem (@problems) {
-        $set_score += $problem->{status};
-      }
-      push @allproblems, {user_id => $user_id, set_id => $set_id, set_score => $set_score};
+      my @userscores = map { {problem_id => $_->{problem_id}, status=> $_->{status}}} @problems;
+      push @allproblems, {user_id => $user_id, set_id => $set_id, scores => \@userscores};
     }
   }
   # foreach my $user_id (@users) {

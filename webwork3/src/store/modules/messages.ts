@@ -1,12 +1,17 @@
-import {VuexModule, Module, Action, Mutation, getModule} from 'vuex-module-decorators';
-import {Message} from '@/store/models';
-import store from '@/store';
+import {
+  VuexModule,
+  Module,
+  Action,
+  Mutation,
+  getModule
+} from "vuex-module-decorators";
+import { Message } from "@/store/models";
+import store from "@/store";
 
-import {LoginModule} from './login';
+import { LoginModule } from "./login";
 const loginModule = getModule(LoginModule);
 
-
-const name = 'messages_module';
+const name = "messages_module";
 
 // this is to prevent an error occur with a hot reloading.
 
@@ -16,9 +21,9 @@ if (store.state[name]) {
 
 @Module({
   namespaced: true,
-  name: 'messages_module',
+  name: "messages_module",
   store,
-  dynamic: true,
+  dynamic: true
 })
 export class MessagesModule extends VuexModule {
   private _messages: Message[] = [];

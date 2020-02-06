@@ -1,6 +1,6 @@
-import Vue from 'vue';
-import {Store} from 'vuex';
-import Component from 'vue-class-component';
+import Vue from "vue";
+import { Store } from "vuex";
+import Component from "vue-class-component";
 
 @Component
 export default class MessagesMixin extends Vue {
@@ -10,9 +10,8 @@ export default class MessagesMixin extends Vue {
 
   public msgUpdateProblemSet(_oldParams: object, _newParams: object) {
     const msg = {
-        _messageShort:  'The set ', // + _oldParams.set_id + ' was updated.',
+      _messageShort: "The set " // + _oldParams.set_id + ' was updated.',
     };
-
 
     // const _keys: string[] = [];
     // Object.keys(this.problem_set).forEach( (_key) => {

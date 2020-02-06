@@ -1,72 +1,130 @@
 <template>
   <div>
-    <b-navbar toggleable='lg' type='dark' id='top-navbar' class='fixed-top'>
-      <b-navbar-brand href='#'><img id='wwlogo' src='/webwork3/images/webwork_square.svg'>WeBWorK</b-navbar-brand>
+    <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
+      <b-navbar-brand href="#"
+        ><img
+          id="wwlogo"
+          src="/webwork3/images/webwork_square.svg"
+        />WeBWorK</b-navbar-brand
+      >
 
-      <b-navbar-toggle target='nav_collapse' />
+      <b-navbar-toggle target="nav_collapse" />
 
-      <b-collapse is-nav id='nav_collapse'>
-        <b-navbar-nav id='view-name-container'>
-          <b-nav-text class="mr-2"><b-icon :icon='current_icon' variant='light' font-scale='2' /></b-nav-text>
-          <b-navbar-brand id='view-name'>  {{current_view | getName(views)}}
+      <b-collapse is-nav id="nav_collapse">
+        <b-navbar-nav id="view-name-container">
+          <b-nav-text class="mr-2"
+            ><b-icon :icon="current_icon" variant="light" font-scale="2"
+          /></b-nav-text>
+          <b-navbar-brand id="view-name">
+            {{ current_view | getName(views) }}
           </b-navbar-brand>
-          <b-nav-item-dropdown class='mt-1' variant='outline-primary'>
-            <b-dropdown-item v-for='view in views' :key='view.route'>
-              <router-link class='view-link' :to='path(view.route)'>
-                 <b-icon :icon='view.icon'/>
-                 <span class='pl-2'>{{view.name}}</span>
-               </router-link>
+          <b-nav-item-dropdown class="mt-1" variant="outline-primary">
+            <b-dropdown-item v-for="view in views" :key="view.route">
+              <router-link class="view-link" :to="path(view.route)">
+                <b-icon :icon="view.icon" />
+                <span class="pl-2">{{ view.name }}</span>
+              </router-link>
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
         <b-navbar-nav v-if="show_set" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light">Selected Set: {{selected_set || 'none'}}</b-nav-text>
-          <b-nav-item-dropdown variant='outline-primary'>
-            <b-dropdown-item v-for='set_id in set_names' :key='set_id'>
-              <b-dropdown-item @click="selected_set = set_id" href="#">{{set_id}}</b-dropdown-item>
-            </b-dropdown-item>
-          </b-nav-item-dropdown>
+          <b-nav-text class="font-weight-bold text-light mr-3"
+            >Selected Set:</b-nav-text
+          >
+          <Dropdown
+            id="set_options"
+            :options="set_names_for_dd"
+            :maxItem="100"
+            @selected="setSelectedSet"
+            placeholder="Select a set"
+          >
+          </Dropdown>
         </b-navbar-nav>
         <b-navbar-nav v-if="show_user" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light">Selected User: {{selected_user || 'none'}}</b-nav-text>
-          <b-nav-item-dropdown variant='outline-primary'>
-            <b-dropdown-item v-for='user_id in users' :key='user_id'>
-              <b-dropdown-item @click="selected_user = user_id" href="#">{{user_id}}</b-dropdown-item>
-            </b-dropdown-item>
-          </b-nav-item-dropdown>
+          <b-nav-text class="font-weight-bold text-light mr-3"
+            >Selected User:</b-nav-text
+          >
+          <Dropdown
+            id="user_options"
+            :options="user_names_for_dd"
+            :maxItem="100"
+            @selected="setSelectedUser"
+            placeholder="Select a User"
+          >
+          </Dropdown>
         </b-navbar-nav>
 
-        <b-navbar-nav class='ml-auto'>
+        <b-navbar-nav class="ml-auto">
           <message-bar />
           <b-nav-item-dropdown right>
             <!--Using button-content slot -->
-            <template slot='button-content'>
+            <template slot="button-content">
               <b-icon icon="person" />
             </template>
-            <b-dropdown-text>{{fullname}}</b-dropdown-text>
-            <b-dropdown-item href='#' v-b-modal.settings><b-icon icon="gear" />Settings</b-dropdown-item>
-            <b-dropdown-item @click="$emit('logout')"><b-icon icon="circle-slash" />Logout</b-dropdown-item>
+            <b-dropdown-text>{{ fullname }}</b-dropdown-text>
+            <b-dropdown-item href="#" v-b-modal.settings
+              ><b-icon icon="gear" />Settings</b-dropdown-item
+            >
+            <b-dropdown-item @click="$emit('logout')"
+              ><b-icon icon="circle-slash" />Logout</b-dropdown-item
+            >
           </b-nav-item-dropdown>
-
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <b-modal id='settings' size='lg' title='User Settings'>
-      <table class='table table-sm'>
+    <b-modal id="settings" size="lg" title="User Settings">
+      <table class="table table-sm">
         <tbody>
-          <tr><td>Name:</td><td>{{fullname}}</td></tr>
-          <tr><td>login name:</td><td>{{login_info.user_id}}</td></tr>
-          <tr><td>Email: </td><td>{{login_info}}</td></tr>
-          <tr><td>Password:</td>
-              <td><b-button variant='outline-primary' size='sm' @click='change_password = !change_password'>
-                {{change_password?'Cancel Change': 'Change Password'}}</b-button></td></tr>
-          <tr> <td colspan='2'><b-form-group v-if='change_password' label='Current Password' label-cols='5'>
-              <b-input type='password'></b-input></b-form-group></td> </tr>
-          <tr v-if='change_password'><td colspan='2'><b-form-group label='New Password:' label-cols='5'>
-              <b-input type='password'></b-input></b-form-group></td>
+          <tr>
+            <td>Name:</td>
+            <td>{{ fullname }}</td>
           </tr>
-          <tr v-if='change_password'><td colspan='2'><b-form-group label='Confirm Password:' label-cols='5'>
-              <b-input type='password'></b-input></b-form-group></td>
+          <tr>
+            <td>login name:</td>
+            <td>{{ login_info.user_id }}</td>
+          </tr>
+          <tr>
+            <td>Email:</td>
+            <td>{{ login_info }}</td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td>
+              <b-button
+                variant="outline-primary"
+                size="sm"
+                @click="change_password = !change_password"
+              >
+                {{
+                  change_password ? "Cancel Change" : "Change Password"
+                }}</b-button
+              >
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <b-form-group
+                v-if="change_password"
+                label="Current Password"
+                label-cols="5"
+              >
+                <b-input type="password"></b-input
+              ></b-form-group>
+            </td>
+          </tr>
+          <tr v-if="change_password">
+            <td colspan="2">
+              <b-form-group label="New Password:" label-cols="5">
+                <b-input type="password"></b-input
+              ></b-form-group>
+            </td>
+          </tr>
+          <tr v-if="change_password">
+            <td colspan="2">
+              <b-form-group label="Confirm Password:" label-cols="5">
+                <b-input type="password"></b-input
+              ></b-form-group>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -75,50 +133,49 @@
 </template>
 
 <script lang="ts">
-import { BNavbar } from 'bootstrap-vue';
+import { BNavbar } from "bootstrap-vue";
 
-import {Vue, Component, Prop, Watch} from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
-import Common from '@/common';
-import MessageBar from './MessageBar.vue';
+import Dropdown from "vue-simple-search-dropdown";
 
-import login_store from '@/store/modules/login';
-import problem_set_store from '@/store/modules/problem_sets';
-import app_state from '@/store/modules/app_state';
-import user_store from '@/store/modules/users';
+import Common from "@/common";
+import MessageBar from "./MessageBar.vue";
 
-import {LoginInfo} from '@/store/models';
+import login_store from "@/store/modules/login";
+import problem_set_store from "@/store/modules/problem_sets";
+import app_state from "@/store/modules/app_state";
+import user_store from "@/store/modules/users";
 
-
+import { LoginInfo } from "@/store/models";
 
 interface RouteObj {
   name: string;
   route: string;
 }
 
-
 @Component({
-  name: 'MenuBar',
+  name: "MenuBar",
   components: {
     MessageBar,
     BNavbar,
+    Dropdown
   },
   filters: {
-    getName: (route: string, arr: RouteObj[]): string =>  {
+    getName: (route: string, arr: RouteObj[]): string => {
       if (arr !== undefined) {
-        const obj = arr.find( (_obj: RouteObj) => _obj.route === route );
+        const obj = arr.find((_obj: RouteObj) => _obj.route === route);
         if (obj !== undefined) {
           return obj.name;
         }
       }
 
-      return 'Select View';
-    },
-  },
+      return "Select View";
+    }
+  }
 })
 export default class MenuBar extends Vue {
   private change_password: boolean = false;
-
   private views = Common.views();
   private sidebars = Common.sidebars();
 
@@ -127,70 +184,120 @@ export default class MenuBar extends Vue {
   }
 
   get current_icon() {
-    const view = Common.views().find( (_v) => _v.route === this.current_view);
-    return view ? view.icon : '';
+    const view = Common.views().find(_v => _v.route === this.current_view);
+    return view ? view.icon : "";
   }
 
-  get selected_set() {
-    return app_state.selected_set;
-  }
-
-  set selected_set(_set_id: string) {
-    app_state.setSelectedSet(_set_id);
-  }
-
-  get selected_user() {
+  get selected_user_id() {
     return app_state.selected_user;
   }
 
-  set selected_user(_user_id: string) {
-    app_state.setSelectedUser(_user_id);
+  get selected_user() {
+    return user_store.users.get(this.selected_user_id);
+  }
+
+  get selected_user_full_name() {
+    if (!this.selected_user) {
+      return "";
+    }
+    return this.selected_user.first_name + " " + this.selected_user.last_name;
   }
 
   get show_set() {
-    const view = this.views.find( (_v) => _v.route === this.current_view);
-    return view ? view.show_set : false;
+    return app_state.show_set_options;
   }
 
   get show_user() {
-    const view = this.views.find( (_v) => _v.route === this.current_view);
-    return view ? view.show_user : false;
+    return app_state.show_user_options;
   }
 
   get users() {
     return Array.from(user_store.users.keys());
   }
 
-  get set_names() {
-    return Array.from(problem_set_store.problem_sets.keys());
+  get set_names_for_dd() {
+    return Array.from(problem_set_store.problem_sets.keys())
+      .sort()
+      .map(_set_id => ({ name: _set_id, id: _set_id }));
   }
 
+  get user_names_for_dd() {
+    return Array.from(user_store.users.values()).map(_user => ({
+      name: _user.first_name + " " + _user.last_name,
+      id: _user.user_id
+    }));
+  }
 
   get login_info(): LoginInfo {
     return login_store.login_info;
   }
 
   get fullname(): string {
-    return login_store.login_info.user.first_name + ' ' +
-      login_store.login_info.user.last_name;
+    return (
+      login_store.login_info.user.first_name +
+      " " +
+      login_store.login_info.user.last_name
+    );
   }
 
   private path(route: string): string {
-    return '/courses/' + login_store.login_info.course_id + '/manager/' + route;
+    if (route === "set-view" && app_state.selected_set) {
+      return (
+        "/courses/" +
+        login_store.login_info.course_id +
+        "/manager/" +
+        route +
+        "/" +
+        app_state.selected_set
+      );
+    }
+    return "/courses/" + login_store.login_info.course_id + "/manager/" + route;
   }
 
-  // private created() { // watch for changes in the selected set from the menu bar.
-  //   this.$store.subscribe((mutation, state) => {
-  //     if (mutation.type === 'problem_set_store/setProblemSets') {
-  //       this.set_names = Array.from(problem_set_store.problem_sets.keys());
-  //    }
-  //  });
- // }
+  private setSelectedSet(_set: { name: string; id: string }) {
+    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
+    if (_set && _set.name) {
+      app_state.setSelectedSet(_set.name);
+    }
+
+    // this is a hack to get the set option to populate
+    setTimeout(() => {
+      const div = document.getElementById("set_options");
+      const input = (div && div.firstElementChild) as HTMLInputElement;
+      if (input) {
+        input.value = app_state.selected_set;
+        input.setAttribute("autocomplete", "off");
+      }
+    }, 200);
+  }
+
+  private setSelectedUser(_user: { name: string; id: string }) {
+    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
+    if (_user && _user.name) {
+      app_state.setSelectedUser(_user.id);
+    }
+
+    // this is a hack to get the set option to populate and turn off autocomplete
+    setTimeout(() => {
+      const div = document.getElementById("user_options");
+      const input = (div && div.firstElementChild) as HTMLInputElement;
+      if (input) {
+        input.value = this.fullname;
+        input.setAttribute("autocomplete", "off");
+      }
+    }, 200);
+  }
 } // class MenuBar
 </script>
 
 <style scoped>
-#view-name { font-size: 140%}
-.view-link {color: black}
-#view-name-container {width: 325px;}
+#view-name {
+  font-size: 140%;
+}
+.view-link {
+  color: black;
+}
+#view-name-container {
+  width: 325px;
+}
 </style>

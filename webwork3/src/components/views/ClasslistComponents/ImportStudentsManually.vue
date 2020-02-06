@@ -1,25 +1,61 @@
 <template>
-  <b-modal size="xl" id="import-students-manually" ref="addstudmodal" title="Import Students Manually">
+  <b-modal
+    size="xl"
+    id="import-students-manually"
+    ref="addstudmodal"
+    title="Import Students Manually"
+  >
     <b-container fluid>
       <b-row>
         <table class="table sm">
           <thead>
-            <th>User ID</th><th>First Name</th><th>Last Name</th>
-            <th>Email</th><th>Student ID</th><th>Stat.</th>
-            <th>Sect.</th><th>Rec.</th><th>Comment</th><th>Permission</th>
+            <th>User ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Student ID</th>
+            <th>Stat.</th>
+            <th>Sect.</th>
+            <th>Rec.</th>
+            <th>Comment</th>
+            <th>Permission</th>
           </thead>
           <tbody>
-            <tr v-for="i in num_students" :key="users[i-1].get('user_id')">
-              <td><b-input size="sm" v-model="users[i-1].get('user_id')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('first_name')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('last_name')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('email_address')" type="email" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('student_id')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('status')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('section')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('recitation')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('comment')" /></td>
-              <td><b-input size="sm" v-model="users[i-1].get('permission')" /></td>
+            <tr v-for="i in num_students" :key="users[i - 1].get('user_id')">
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('user_id')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('first_name')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('last_name')" />
+              </td>
+              <td>
+                <b-input
+                  size="sm"
+                  :value="users[i - 1].get('email_address')"
+                  type="email"
+                />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('student_id')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('status')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('section')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('recitation')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('comment')" />
+              </td>
+              <td>
+                <b-input size="sm" :value="users[i - 1].get('permission')" />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -27,29 +63,30 @@
     </b-container>
     <div slot="modal-footer" class="w-100">
       <b-btn-group size="sm" class="float-right">
-        <b-btn variant="outline-dark" @click="$bvModal.hide('import-students-manually')">Cancel</b-btn>
+        <b-btn
+          variant="outline-dark"
+          @click="$bvModal.hide('import-students-manually')"
+          >Cancel</b-btn
+        >
         <b-btn variant="primary" @click="addAll">Add Students</b-btn>
       </b-btn-group>
-     </div>
+    </div>
   </b-modal>
 </template>
 
-
-
 <script lang="ts">
-import User from '@/models/User';
+import { User } from "@/store/models";
 
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({
-  name: 'ImportStudentsFiles',
+  name: "ImportStudentsFiles"
 })
 export default class ImportStudentsFile extends Vue {
   private num_students: number = 0;
   private users: User[] = [];
 
   private addAll() {
-     // tslint:disable-next-line
-      console.log(this.users);
+    console.log(this.users); // eslint-disable-line no-console
   }
 }
 </script>

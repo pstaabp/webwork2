@@ -4,7 +4,7 @@
       <library-tab tab_name="subjects" :problem_set="problem_set" />
     </b-tab>
     <b-tab title="By Directory">
-      <library-tab tab_name="directory"/>
+      <library-tab tab_name="directory" />
     </b-tab>
     <b-tab title="Textbooks">
       <library-tab tab_name="textbooks" />
@@ -18,26 +18,22 @@
   </b-tabs>
 </template>
 
-
-
 <script lang="ts">
-import { Vue, Component, Prop} from 'vue-property-decorator';
+import { Vue, Component, Prop } from "vue-property-decorator";
 
-import LibraryTab from './LibraryComponents/LibraryTab.vue';
+import LibraryTab from "./LibraryComponents/LibraryTab.vue";
 
 // set up the store
-import problem_sets_store from '@/store/modules/problem_sets';
-import app_state from '@/store/modules/app_state';
-
+import problem_sets_store from "@/store/modules/problem_sets";
+import app_state from "@/store/modules/app_state";
 
 @Component({
-  name: 'SetDetails',
+  name: "SetDetails",
   components: {
-    LibraryTab,
-  },
+    LibraryTab
+  }
 })
 export default class LibraryBrowser extends Vue {
-
   private problem_set() {
     return problem_sets_store.problem_sets.get(app_state.selected_set);
   }

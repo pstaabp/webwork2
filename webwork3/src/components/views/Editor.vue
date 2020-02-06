@@ -4,34 +4,47 @@
       <b-row>
         <b-col cols="3">
           <b-form-group label="Select from" label-cols="6">
-          <b-select size="sm" v-model="problem_type">
-            <option value=""><em>Select...</em></option>
-            <option value="set">Existing Set</option>
-            <option value="library">Problem Library</option>
-            <option value="template">From Template</option>
-          </b-select></b-form-group>
+            <b-select size="sm" v-model="problem_type">
+              <option value=""><em>Select...</em></option>
+              <option value="set">Existing Set</option>
+              <option value="library">Problem Library</option>
+              <option value="template">From Template</option>
+            </b-select></b-form-group
+          >
         </b-col>
-        <b-col v-if="problem_type=='set'" cols="3">
+        <b-col v-if="problem_type == 'set'" cols="3">
           <b-form-group label="Set Name:" label-cols="4">
             <b-select size="sm" v-model="selected_set_id" :options="set_names">
-
             </b-select>
           </b-form-group>
         </b-col>
-        <b-col v-if="problem_type=='set'" cols="3">
+        <b-col v-if="problem_type == 'set'" cols="3">
           <b-form-group label="Problem:" label-cols="4">
-            <b-select size="sm" v-model="selected_problem" :options="problems"
-                @change="updateSource"/>
+            <b-select
+              size="sm"
+              v-model="selected_problem"
+              :options="problems"
+              @change="updateSource"
+            />
           </b-form-group>
         </b-col>
-        <b-col><b-btn size="sm" variant="outline-dark" v-b-modal.save-as-problem-modal>Save Problem As...</b-btn></b-col>
+        <b-col
+          ><b-btn
+            size="sm"
+            variant="outline-dark"
+            v-b-modal.save-as-problem-modal
+            >Save Problem As...</b-btn
+          ></b-col
+        >
       </b-row>
       <b-row>
         <b-tabs content-class="mt-3">
           <b-tab title="Problem Source" active>
-            <div v-if="not_editable">This problem is from the library and is read-only.  Please select "Save As..."
-              to create a local, editable copy.</div>
-              <textarea id="source" rows="10"> </textarea>
+            <div v-if="not_editable">
+              This problem is from the library and is read-only. Please select
+              "Save As..." to create a local, editable copy.
+            </div>
+            <textarea id="source" rows="10"> </textarea>
           </b-tab>
           <b-tab title="Rendered Problem" @click="renderProblem">
             <div v-html="problem_html" />
@@ -136,6 +149,6 @@ export default class ProblemEditor extends Vue {
 <style scoped>
 #source {
   border: 1px solid black;
-  width: 100%
+  width: 100%;
 }
 </style>

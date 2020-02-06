@@ -29,10 +29,10 @@ interface AssignmentInfo {
 }
 
 @Component({
-  name: 'CalendarRow',
+  name: "CalendarRow",
   components: {
-    Draggable,
-  },
+    Draggable
+  }
 })
 export default class CalendarRow extends Vue {
 
@@ -51,9 +51,10 @@ export default class CalendarRow extends Vue {
 
   // interface assign_info = {date: moment.Moment, type: string, set_id: string};
 
-
   get week(): moment.Moment[] {
-    return [0, 1, 2, 3, 4, 5, 6].map((i: number) => moment.default(this.first_day_of_week).add(i, 'days'));
+    return [0, 1, 2, 3, 4, 5, 6].map((i: number) =>
+      moment.default(this.first_day_of_week).add(i, "days")
+    );
   }
 
   private get assignment_info(): AssignmentInfo [] {
@@ -73,12 +74,17 @@ export default class CalendarRow extends Vue {
 
   // returns the class for proper coloring of the calendar
   private dayClass(day: moment.Moment) {
-    return this.today.isSame(day, 'day') ? 'today' :
-      (this.today.isSame(day, 'month') ? 'current-month' : 'extra-month');
+    return this.today.isSame(day, "day")
+      ? "today"
+      : this.today.isSame(day, "month")
+      ? "current-month"
+      : "extra-month";
   }
 
   private shortDate(day: moment.Moment): string {
-    return day.get('date') === 1 ? day.format('MMM D') : day.get('date').toString();
+    return day.get("date") === 1
+      ? day.format("MMM D")
+      : day.get("date").toString();
   }
 
   private assignChange(newDate: moment.Moment, evt: MoveEvent<any>) {
@@ -118,8 +124,7 @@ export default class CalendarRow extends Vue {
 
 
       if (_set) {
-        // tslint:disable-next-line
-        console.log("in assignChange");
+        console.log("in assignChange"); // eslint-disable-line no-console
         Object.assign(_set, attrs);
         problem_set_store.updateProblemSet(_set);
       }
