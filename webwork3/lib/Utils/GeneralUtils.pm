@@ -7,6 +7,9 @@ use strict;
 use warnings;
 use DateTime;
 use DateTime::TimeZone;
+use Scalar::Util qw/looks_like_number/;
+use JSON qw/to_json/;
+
 
 our @EXPORT    = ();
 
@@ -64,7 +67,7 @@ sub getCourseSettingsWW2 {
 
 sub writeConfigToFile {
 
-	my ($ce,$config) = @_;
+	my ($ce,$config,$debug) = @_;
 
 	my $filename = $ce->{courseDirs}->{root} . "/simple.conf";
 
@@ -92,11 +95,13 @@ sub writeConfigToFile {
 		chomp $line;
 	 	if ($line =~ /^\$/) {
 	 		my ($var,$value) = ($line =~ /^\$(.*)\s+=\s+(.*);$/);
-	 		if ($var eq $config->{var}){
-	 			$fileoutput .= writeLine($config->{var},$config->{value});
+	 		if ($var && $config->{var} && $var eq $config->{var}){
+	 			$fileoutput .= writeLine($config->{var},$config->{value},$config->{type});
+				# $fileoutput .= "\$" . $config->{var} . "=" . to_json(\{$config->{value}}) . ";\n";
 	 			$varFound = 1;
-	 		} else {
-	 			$fileoutput .= writeLine($var,$value);
+	 		} elsif ($var) {
+				# $fileoutput .= "\$" . $var . "=" . to_json(\$value) . ";\n";
+	 			$fileoutput .= $line ."\n";
 	 		}
 		}
 	}
@@ -130,10 +135,18 @@ sub writeConfigToFile {
 }
 
 sub writeLine {
-	my ($var,$value) = @_;
-	my $val = (ref($value) =~/ARRAY/) ? to_json($value,{pretty=>0}): $value;
-	$val = "'".$val . "'" if ($val =~ /^[\w\s\/]+$/);
-	#$val =~ s/'//g;
+	my ($var,$value,$type) = @_;
+	my $val = $value;
+	if($type && $type eq 'boolean') {
+		$val = $val ? '1' : '';
+	}
+
+	if( ! looks_like_number($val)) { # it is a string
+	  $val = "'".$val . "'";
+	}
+	$val =~ s/(\'+)([\w:]+)(\'+)/'$2'/g;
+	$val = (ref($value) =~/ARRAY/) ? '["' . join('","',@$value) .'"]' : $val;
+
 	return "\$" . $var . " = " . $val . ";\n";
 }
 

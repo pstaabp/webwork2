@@ -43,20 +43,16 @@ export class SettingsModule extends VuexModule {
   // Settings actions
   @Action
   public async fetchSettings() {
-    const response = await axios.get(
-      api_url + "/courses/" + loginModule.login_info.course_id + "/settings"
-    );
+    const response = await axios.get(loginModule.api_header + "/settings");
     const settings = response.data as Setting[];
-    settings.forEach(setting => {
-      this.SET_SETTING(setting);
-    });
+    settings.forEach(setting => this.SET_SETTING(setting));
     return this.settings;
   } // fetchSettings
 
   @Action
   public async updateSetting(_setting: Setting) {
     const response = await axios.put(
-      api_url + "/courses/" + loginModule.login_info.course_id + "/setting",
+      loginModule.api_header + "/settings/" + _setting.var,
       _setting
     );
     this.SET_SETTING(response.data as Setting);

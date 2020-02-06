@@ -122,7 +122,7 @@ export interface Setting {
   type: string;
   doc: string;
   category: string;
-  value: string;
+  value: string | number | string[];
   doc2: string;
   hashVar: object;
   values: string[];
