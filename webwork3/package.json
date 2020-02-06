@@ -9,12 +9,12 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "@babel/core": "^7.5.4",
-    "@types/codemirror": "^0.0.83",
+    "@babel/core": "^7.8.4",
+    "@types/codemirror": "^0.0.84",
     "@types/papaparse": "^5.0.1",
     "axios": "^0.19.0",
     "babel-plugin-transform-decorators": "^6.24.1",
-    "bootstrap-vue": "^2.0.0-rc.26",
+    "bootstrap-vue": "^2.3.0",
     "codemirror": "^5.51.0",
     "core-js": "^3.6.4",
     "moment": "^2.24.0",
@@ -28,7 +28,7 @@
     "vuex-module-decorators": "^0.11.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.9.1",
+    "@types/jest": "^25.1.1",
     "@vue/cli-plugin-babel": "^4.1.2",
     "@vue/cli-plugin-typescript": "^4.1.2",
     "@vue/cli-plugin-unit-jest": "^4.1.2",

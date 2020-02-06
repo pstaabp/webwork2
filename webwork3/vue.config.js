@@ -13,9 +13,9 @@ module.exports = {
         poll: true
     }
   },
-  // configureWebpack: {
-  //     plugins: [new BundleAnalyzerPlugin()]
-  // },
+  configureWebpack: {
+    devtool: 'source-map'
+  },
   publicPath: '/webwork3/',
   transpileDependencies: [
     'vuex-module-decorators'

@@ -20,7 +20,7 @@ import axios from 'axios';
   dynamic: true,
 })
 export class ProblemSetsModule extends VuexModule {
-  private _problem_sets: Map<string, ProblemSet> = new Map();
+  private _problem_sets: ProblemSetList = new Map();
 
   public get problem_sets() {
     return this._problem_sets;
@@ -41,7 +41,7 @@ export class ProblemSetsModule extends VuexModule {
   @Action
   public async updateProblemSet(_set: ProblemSet) {
     const response = await axios.put(login_module.api_header + '/sets/' + _set.set_id, _set);
-    this.ADD_SET(response.data as ProblemSet);
+    this.SET_PROBLEM_SET(response.data as ProblemSet);
   }
 
   @Action
@@ -49,7 +49,7 @@ export class ProblemSetsModule extends VuexModule {
     const response = await axios.post(login_module.api_header + '/sets/' + _set.set_id, _set);
 
     // add the new problem set to the _problem_sets;
-    this.ADD_SET(_set);
+    this.SET_PROBLEM_SET(_set);
     // we should check that this worked and add a message
     return response.data as ProblemSet;
   }
@@ -71,10 +71,6 @@ export class ProblemSetsModule extends VuexModule {
     this._problem_sets.set(_set.set_id, _set);
   }
 
-  @Mutation
-  private ADD_SET(_set: ProblemSet) {
-    this._problem_sets.set(_set.set_id, _set);
-  }
 
   @Mutation
   private DELETE_SET(_set: ProblemSet) {
