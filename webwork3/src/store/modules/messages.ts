@@ -8,10 +8,8 @@ import {
 import { Message } from "@/store/models";
 import store from "@/store";
 
-import { LoginModule } from "./login";
-const loginModule = getModule(LoginModule);
-
-const name = "messages_module";
+import login_store from "./login";
+const name = "messages_store";
 
 // this is to prevent an error occur with a hot reloading.
 
@@ -21,7 +19,7 @@ if (store.state[name]) {
 
 @Module({
   namespaced: true,
-  name: "messages_module",
+  name: "messages_store",
   store,
   dynamic: true
 })

@@ -5,19 +5,22 @@ import {
   Mutation,
   getModule
 } from "vuex-module-decorators";
+
+import { isEqual } from "lodash-es";
+
+import { difference } from '@/common';
 import { Setting } from "@/store/models";
 import store from "@/store";
 
-import { LoginModule } from "./login";
-const loginModule = getModule(LoginModule);
+import login_store from "./login";
+import messages_store from './messages';
+
 
 // this is to prevent an error occur with a hot reloading.
 
 if (store.state.settings) {
   store.unregisterModule("settings");
 }
-
-const api_url = "/webwork3/api";
 
 import axios from "axios";
 
@@ -36,6 +39,8 @@ export class SettingsModule extends VuexModule {
     return this._settings;
   }
 
+
+
   public get settings_array(): Setting[] {
     return Array.from(this._settings.values());
   }
@@ -43,7 +48,7 @@ export class SettingsModule extends VuexModule {
   // Settings actions
   @Action
   public async fetchSettings() {
-    const response = await axios.get(loginModule.api_header + "/settings");
+    const response = await axios.get(login_store.api_header + "/settings");
     const settings = response.data as Setting[];
     settings.forEach(setting => this.SET_SETTING(setting));
     return this.settings;
@@ -52,17 +57,25 @@ export class SettingsModule extends VuexModule {
   @Action
   public async updateSetting(_setting: Setting) {
     const response = await axios.put(
-      loginModule.api_header + "/settings/" + _setting.var,
+      login_store.api_header + "/settings/" + _setting.var,
       _setting
     );
-    this.SET_SETTING(response.data as Setting);
-    // check that the response is the same as the _settting variable.
-    // const keys = Object.keys(_setting.getChanges());
-    // tslint:disable-next-line
-    // console.log(keys);
-    // const _message = `The fields ${keys.join(', ')} have changed. `;
-    // this.context.commit('ADD_MESSAGE', new Message({message_id: Math.round(1000000 * Math.random()),
-    //     message: _message}));
+
+    const _updated_setting = response.data as Setting;
+    const _prev_setting = this._settings.get(_setting.var);
+
+    if (isEqual(_updated_setting, _setting)) {
+      const diff = difference(_setting,_prev_setting);
+      const _keys = Object.keys(diff);
+      const _message = {
+        short: `The setting for ${_setting.var} was changed`,
+        long: `The setting for ${_setting.var} was changed from ${_prev_setting.value} to ${_setting.value}.`
+      }
+      messages_store.addMessage(_message);
+      console.log(_message); // eslint-disable-line no-console
+
+      this.SET_SETTING(_setting);
+    }
   }
 
   @Action

@@ -97,10 +97,8 @@ sub writeConfigToFile {
 	 		my ($var,$value) = ($line =~ /^\$(.*)\s+=\s+(.*);$/);
 	 		if ($var && $config->{var} && $var eq $config->{var}){
 	 			$fileoutput .= writeLine($config->{var},$config->{value},$config->{type});
-				# $fileoutput .= "\$" . $config->{var} . "=" . to_json(\{$config->{value}}) . ";\n";
 	 			$varFound = 1;
 	 		} elsif ($var) {
-				# $fileoutput .= "\$" . $var . "=" . to_json(\$value) . ";\n";
 	 			$fileoutput .= $line ."\n";
 	 		}
 		}

@@ -43,7 +43,7 @@ get '/courses/:course_id/settings/:setting_id' => require_role professor => sub 
 	foreach my $oneConfig (@$ConfigValues) {
 		foreach my $hash (@$oneConfig) {
 			if (ref($hash)=~/HASH/){
-				if ($hash->{var} eq params->{setting_id}){
+				if ($hash->{var} eq route_parameters->{setting_id}){
 					if($hash->{type} eq 'boolean'){
 						$hash->{value} = $hash->{value} ? JSON::true : JSON::false;
 					}
@@ -73,6 +73,7 @@ put '/courses/:course_id/setting' => sub {
 					} else {
 						$hash->{value} = body_parameters->{value};
 					}
+					$hash->{category} = body_parameters->{category};
 					return writeConfigToFile(vars->{ce},$hash);
 				}
 			}
@@ -86,11 +87,6 @@ put '/courses/:course_id/setting' => sub {
 ## save one setting
 
 put '/courses/:course_id/settings/:setting_id' => sub {
-
-	debug body_parameters->{value};
-
-	debug to_json(body_parameters->{value});
-
 	my $ConfigValues = getCourseSettingsWW2(vars->{ce});
 	foreach my $oneConfig (@$ConfigValues) {
 		foreach my $hash (@$oneConfig) {
@@ -101,6 +97,7 @@ put '/courses/:course_id/settings/:setting_id' => sub {
 					} else {
 						$hash->{value} = params->{value};
 					}
+					$hash->{category} = body_parameters->{category};
 					return writeConfigToFile(vars->{ce},$hash,\&debug);
 				}
 			}
@@ -108,6 +105,7 @@ put '/courses/:course_id/settings/:setting_id' => sub {
 	}
 
 	return {};
+
 };
 
 

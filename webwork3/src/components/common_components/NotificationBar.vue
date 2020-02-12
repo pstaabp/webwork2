@@ -15,16 +15,16 @@
     </b-dropdown-text>
     <b-dropdown-divider class="message" />
     <b-dropdown-text
-      class="message"
+      class="message pr-3"
       v-for="(message, i) in messages"
       :key="i"
-      >{{ message.get("message") }}</b-dropdown-text
-    >
+      >
+      <notification :message="message" />
+      </b-dropdown-text>
   </b-nav-item-dropdown>
 </template>
 
 <script lang="ts">
-import MessagesMixin from "@/mixins/messages_mixin";
 
 import messages_store from "@/store/modules/messages";
 
@@ -33,11 +33,15 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 // set up the store
 import message_store from "@/store/modules/messages";
 
+import Notification from './Notification.vue';
+
 @Component({
-  name: "MessageBar",
-  mixins: [MessagesMixin]
+  name: "NotificationBar",
+  components: {
+    Notification
+  }
 })
-export default class MessageBar extends Vue {
+export default class NotificationBar extends Vue {
   private new_message: boolean = false;
   get messages() {
     return message_store.messages;
@@ -46,6 +50,7 @@ export default class MessageBar extends Vue {
   get num_messages() {
     return message_store.messages.length;
   }
+
 
   private clearMessages(): void {
     messages_store.clearMessages();
@@ -58,12 +63,13 @@ export default class MessageBar extends Vue {
       this.new_message = false;
     }, 4000);
   }
+
 }
 </script>
 
 <style scoped>
 .message {
-  width: 350px;
+  width: 400px;
 }
 .blinking {
   animation: blinkingText 2s 2;

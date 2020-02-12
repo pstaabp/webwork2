@@ -55,7 +55,7 @@
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
-          <message-bar />
+          <notification-bar />
           <b-nav-item-dropdown right>
             <!--Using button-content slot -->
             <template slot="button-content">
@@ -140,7 +140,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import Dropdown from "vue-simple-search-dropdown";
 
 import Common from "@/common";
-import MessageBar from "./MessageBar.vue";
+import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
 import problem_set_store from "@/store/modules/problem_sets";
@@ -157,7 +157,7 @@ interface RouteObj {
 @Component({
   name: "MenuBar",
   components: {
-    MessageBar,
+    NotificationBar,
     BNavbar,
     Dropdown
   },

@@ -112,8 +112,11 @@ export default class SettingsRow extends Vue {
   // Note: include "pg{ansEvalDefaults}{reducedScoringPeriod}"
 
   private get is_duration() {
-    return ["sessionKeyTimeout","pg{assignOpenPriorToDue}","pg{answersOpenAfterDueDate}"]
-              .includes(this.setting.var);
+    return [
+      "sessionKeyTimeout",
+      "pg{assignOpenPriorToDue}",
+      "pg{answersOpenAfterDueDate}"
+    ].includes(this.setting.var);
   }
 
   private get valid_duration() {
@@ -135,15 +138,18 @@ export default class SettingsRow extends Vue {
 
   private parseDuration(_value: string) {
     const _match = _value.match(/^(\d+):([0-5]\d):([0-5]\d)$/);
-    return _match ? parseInt(_match[1],10)*3600 + parseInt(_match[2],10)*60 + parseInt(_match[3],10) : 0;
+    return _match
+      ? parseInt(_match[1], 10) * 3600 +
+          parseInt(_match[2], 10) * 60 +
+          parseInt(_match[3], 10)
+      : 0;
   }
 
   private updateDuration() {
-    if(this.valid_duration) {
+    if (this.valid_duration) {
       this.updateSetting(this.parseDuration(this.duration));
     }
   }
-
 
   private updateTimeSetting(_value: string) {
     this.updateSetting(moment.default(_value, ["HH:mm"]).format("hh:mmA"));

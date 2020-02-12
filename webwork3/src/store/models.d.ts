@@ -132,8 +132,8 @@ export interface Setting {
 }
 
 export interface Message {
-  message_id: number;
-  message?: string;
+  long: string;
+  short: string;
 }
 
 export interface FileInfo {

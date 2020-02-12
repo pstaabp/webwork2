@@ -4,6 +4,8 @@ import moment from "moment";
 
 import { ProblemSet, User, Problem } from "@/store/models";
 
+import { transform, isEqual, isObject } from "lodash-es";
+
 export interface ViewInfo {
   name: string;
   icon: string;
@@ -63,6 +65,28 @@ export const SET_PROB: ProblemViewOptions = {
   path: false,
   target_set: false
 };
+
+/**
+ *  The following was taken from: https://gist.github.com/Yimiprod/7ee176597fef230d1451
+ *
+ * Deep diff between two object, using lodash
+ * @param  {Object} object Object compared
+ * @param  {Object} base   Object to compare with
+ * @return {Object}        Return a new object who represent the diff
+ */
+export function difference(object: { [key: string]: any }, base: { [key: string]: any }) {
+  function changes(object: { [key: string]: any }, base: { [key: string]: any }) {
+    return transform(object, function(result: { [key: string]: any }, value: { [key: string]: any }, key: string) {
+      if (!isEqual(value, base[key])) {
+        result[key] =
+          isObject(value) && isObject(base[key])
+            ? changes(value, base[key])
+            : value;
+      }
+    });
+  }
+  return changes(object, base);
+}
 
 export default class Common {
   public static views(): ViewInfo[] {
