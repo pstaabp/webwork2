@@ -8,13 +8,12 @@ import {
 
 import { isEqual } from "lodash-es";
 
-import { difference } from '@/common';
+import { difference } from "@/common";
 import { Setting } from "@/store/models";
 import store from "@/store";
 
 import login_store from "./login";
-import messages_store from './messages';
-
+import messages_store from "./messages";
 
 // this is to prevent an error occur with a hot reloading.
 
@@ -39,8 +38,6 @@ export class SettingsModule extends VuexModule {
     return this._settings;
   }
 
-
-
   public get settings_array(): Setting[] {
     return Array.from(this._settings.values());
   }
@@ -63,14 +60,18 @@ export class SettingsModule extends VuexModule {
 
     const _updated_setting = response.data as Setting;
     const _prev_setting = this._settings.get(_setting.var);
+    let value = "";
+    if (_prev_setting) {
+      value = "" + _prev_setting.value;
+    }
 
     if (isEqual(_updated_setting, _setting)) {
-      const diff = difference(_setting,_prev_setting);
-      const _keys = Object.keys(diff);
+      // const diff = difference(_setting, _prev_setting as {[key: string]: any});
+
       const _message = {
         short: `The setting for ${_setting.var} was changed`,
-        long: `The setting for ${_setting.var} was changed from ${_prev_setting.value} to ${_setting.value}.`
-      }
+        long: `The setting for ${_setting.var} was changed from ${value} to ${_setting.value}.`
+      };
       messages_store.addMessage(_message);
       console.log(_message); // eslint-disable-line no-console
 

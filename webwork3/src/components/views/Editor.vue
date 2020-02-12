@@ -57,50 +57,58 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch} from 'vue-property-decorator';
-import axios from 'axios';
-import * as CodeMirror from 'codemirror';
-import 'codemirror/mode/perl/perl.js';
-import 'codemirror/lib/codemirror.css';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import axios from "axios";
+import * as CodeMirror from "codemirror";
+import "codemirror/mode/perl/perl.js";
+import "codemirror/lib/codemirror.css";
 
+import SaveAsProblemModal from "./EditorComponents/SaveAsProblemModal.vue";
 
-import SaveAsProblemModal from './EditorComponents/SaveAsProblemModal.vue';
+import { Problem } from "@/store/models";
 
-import {Problem} from '@/store/models';
+import { renderProblem } from "@/store/api";
+import Common from "@/common";
 
-import {renderProblem} from '@/store/api';
-import Common from '@/common';
-
-import problem_sets_store from '@/store/modules/problem_sets';
-import login_store from '@/store/modules/login';
-
+import problem_sets_store from "@/store/modules/problem_sets";
+import login_store from "@/store/modules/login";
 
 @Component({
-  name: 'Editor',
+  name: "Editor",
   components: {
-    SaveAsProblemModal,
-  },
+    SaveAsProblemModal
+  }
 })
 export default class ProblemEditor extends Vue {
-  private problem_type = '';
-  private selected_set_id = '';
+  private problem_type = "";
+  private selected_set_id = "";
   private selected_problem = 0;
-  private problem_source = 'var x = 5;';
-  private problem_path = '';
-  private problem_html = '';
-  private cm: CodeMirror.Editor!;
+  private problem_source = "var x = 5;";
+  private problem_path = "";
+  private problem_html = "";
+  private cm!: CodeMirror.Editor;
 
   private get set_names() {
-    return [...[{value: '', text: 'Select Set'}],
-            ...problem_sets_store.set_names.map( (_set_id: string) => ({value: _set_id, text: _set_id}))];
-
+    return [
+      ...[{ value: "", text: "Select Set" }],
+      ...problem_sets_store.set_names.map((_set_id: string) => ({
+        value: _set_id,
+        text: _set_id
+      }))
+    ];
   }
 
   private get problems() {
     const _set = problem_sets_store.problem_sets.get(this.selected_set_id);
-    return _set ? [...[{value: '', text: 'Select Problem'}],
-                      ..._set.problems.map( (_prob) => ({value: _prob.problem_id, text: _prob.problem_id}) )] :
-                      [];
+    return _set
+      ? [
+          ...[{ value: "", text: "Select Problem" }],
+          ..._set.problems.map(_prob => ({
+            value: _prob.problem_id,
+            text: _prob.problem_id
+          }))
+        ]
+      : [];
   }
 
   private not_editable() {
@@ -110,16 +118,21 @@ export default class ProblemEditor extends Vue {
   private updateSource() {
     const _set = problem_sets_store.problem_sets.get(this.selected_set_id);
     if (_set) {
-      const _prob = _set.problems.find((prob: Problem) => prob.problem_id === this.selected_problem);
+      const _prob = _set.problems.find(
+        (prob: Problem) => prob.problem_id === this.selected_problem
+      );
       if (_prob) {
         this.problem_path = _prob.source_file;
-        axios.get(login_store.api_header + '/library/fullproblem', {params: _prob})
-              .then((response) => {
-                this.problem_source = response.data.problem_source;
-                this.cm.setValue(this.problem_source);
-              });
-            }
-          }
+        axios
+          .get(login_store.api_header + "/library/fullproblem", {
+            params: _prob
+          })
+          .then(response => {
+            this.problem_source = response.data.problem_source;
+            this.cm.setValue(this.problem_source);
+          });
+      }
+    }
   }
 
   private async renderProblem() {
@@ -133,15 +146,15 @@ export default class ProblemEditor extends Vue {
     const config: CodeMirror.EditorConfiguration = {
       tabSize: 2,
       lineNumbers: true,
-      mode: 'perl',
+      mode: "perl"
     };
-    const text_area = document.getElementById('source') as HTMLTextAreaElement;
+    const text_area = document.getElementById("source") as HTMLTextAreaElement;
     this.cm = CodeMirror.fromTextArea(text_area, config);
     this.cm.setValue(this.problem_source);
   }
 
   private updated() {
-    MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+    // MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
   }
 }
 </script>

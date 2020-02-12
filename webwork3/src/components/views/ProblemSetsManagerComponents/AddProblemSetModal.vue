@@ -68,8 +68,8 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     return "";
   }
 
-  private async addProblemSet(bvModalEvt: BvModalEvent) {
-    bvModalEvt.preventDefault();
+  private async addProblemSet() {
+    // bvModalEvt.preventDefault();
     if (!this.valid_name || !this.set_not_defined) {
       return;
     }

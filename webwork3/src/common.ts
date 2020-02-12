@@ -74,9 +74,19 @@ export const SET_PROB: ProblemViewOptions = {
  * @param  {Object} base   Object to compare with
  * @return {Object}        Return a new object who represent the diff
  */
-export function difference(object: { [key: string]: any }, base: { [key: string]: any }) {
-  function changes(object: { [key: string]: any }, base: { [key: string]: any }) {
-    return transform(object, function(result: { [key: string]: any }, value: { [key: string]: any }, key: string) {
+export function difference(
+  object: { [key: string]: any },
+  base: { [key: string]: any }
+) {
+  function changes(
+    object: { [key: string]: any },
+    base: { [key: string]: any }
+  ) {
+    return transform(object, function(
+      result: { [key: string]: any },
+      value: { [key: string]: any },
+      key: string
+    ) {
       if (!isEqual(value, base[key])) {
         result[key] =
           isObject(value) && isObject(base[key])

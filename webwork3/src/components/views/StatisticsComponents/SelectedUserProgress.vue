@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { UserSetScore, ProblemSet } from "@/store/models";
+import { UserSetScore, ProblemSet, Problem } from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";

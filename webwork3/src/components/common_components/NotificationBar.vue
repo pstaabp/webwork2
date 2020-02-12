@@ -18,14 +18,13 @@
       class="message pr-3"
       v-for="(message, i) in messages"
       :key="i"
-      >
+    >
       <notification :message="message" />
-      </b-dropdown-text>
+    </b-dropdown-text>
   </b-nav-item-dropdown>
 </template>
 
 <script lang="ts">
-
 import messages_store from "@/store/modules/messages";
 
 import { Vue, Component, Watch } from "vue-property-decorator";
@@ -33,7 +32,7 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 // set up the store
 import message_store from "@/store/modules/messages";
 
-import Notification from './Notification.vue';
+import Notification from "./Notification.vue";
 
 @Component({
   name: "NotificationBar",
@@ -51,7 +50,6 @@ export default class NotificationBar extends Vue {
     return message_store.messages.length;
   }
 
-
   private clearMessages(): void {
     messages_store.clearMessages();
   }
@@ -63,7 +61,6 @@ export default class NotificationBar extends Vue {
       this.new_message = false;
     }, 4000);
   }
-
 }
 </script>
 
