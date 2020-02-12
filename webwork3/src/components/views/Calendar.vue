@@ -37,33 +37,30 @@
               v-for="day in first_days()"
               :first_day_of_week="day"
               :problem_sets="problem_sets"
-              :key="
-                first_day_of_calendar.format('DD') +
-                  ':' +
-                  day.format('DD-MM-YYYY')
-              "
-            />
+              :all_assignment_dates = "all_assignment_dates"
+              :key="first_day_of_calendar.format('DD') + ':' + day.format('DD-MM-YYYY')"/>
           </tbody>
         </table>
       </b-col>
       <b-col v-if="sidebar_shown" cols="2">
+
         <h4>Problem Sets</h4>
-        <draggable
-          :list="problem_set_names"
-          class="list-group"
-          ghost-class="ghost"
-          :move="checkMove"
-          @start="dragging = true"
-          @end="dragging = false"
-        >
-          <div
-            class="list-group-item"
-            v-for="set_id in problem_set_names"
-            :key="set_id"
+        <b-list-group>
+          <draggable
+            v-model="problem_sets"
+            group="calendar"
+            :sort="false"
+            ghost-class="ghost"
+            @start="dragging = true"
+            @end="dragging = false"
           >
+          <b-list-group-item v-for="set_id in problem_set_names"
+            :key="set_id" class="assignment-list">
             {{ set_id }}
-          </div>
+          </b-list-group-item>
         </draggable>
+        </b-list-group>
+      </draggable>
       </b-col>
     </b-row>
   </b-container>
@@ -79,6 +76,13 @@ import CalendarRow from "./CalendarComponents/CalendarRow.vue";
 import problem_set_store from "@/store/modules/problem_sets";
 import { ProblemSet, ProblemSetList } from "@/store/models";
 
+interface AssignmentInfo {
+  date: moment.Moment;
+  type: string;
+  set_id: string;
+}
+
+
 @Component({
   name: "Calendar",
   components: {
@@ -88,7 +92,9 @@ import { ProblemSet, ProblemSetList } from "@/store/models";
 })
 export default class Calendar extends Vue {
   private first_day_of_calendar: moment.Moment = moment.default();
-  private sidebar_shown = false;
+  private all_assignment_dates: AssignmentInfo[] = [];
+  private sidebar_shown: boolean = false;
+  private dragging: boolean = false;
 
   get monthName(): string {
     return moment.default().format("MMMM YYYY");
@@ -98,8 +104,12 @@ export default class Calendar extends Vue {
     return moment.weekdays();
   }
 
-  get problem_sets(): ProblemSetList {
-    return problem_set_store.problem_sets;
+  get problem_sets(): ProblemSet [] {
+    return Array.from(problem_set_store.problem_sets.values());
+  }
+
+  set problem_sets(_sets: ProblemSet []) {
+    // dummy function to get draggable working
   }
 
   get problem_set_names(): string[] {
@@ -111,8 +121,31 @@ export default class Calendar extends Vue {
   }
 
   private created(): void {
-    this.today();
+    this.updateAssignmentDates();
+
+    this.$store.subscribe( (mutation, state) => {
+      // any change to the problem sets and update the assignment dates.
+      if (mutation && mutation.type.split('/')[0] === 'problem_set_store') {
+        this.updateAssignmentDates();
+      }
+    });
   }
+
+  private updateAssignmentDates() {
+    const _sets = this.problem_sets;
+
+    this.all_assignment_dates = this.problem_sets.flatMap( (_set) => [
+        {date: moment.unix(_set.answer_date), type: 'answer', set_id: _set.set_id},
+        {date: moment.unix(_set.due_date), type: 'due', set_id: _set.set_id},
+        {date: moment.unix(_set.reduced_scoring_date), type: 'reduced', set_id: _set.set_id},
+        {date: moment.unix(_set.open_date), type: 'open', set_id: _set.set_id}] )
+          .map( (d) => Object.assign(d, {id: d.set_id + '___' + d.type}) );
+
+    // tslint:disable-next-line
+    console.log(this.all_assignment_dates.filter( (_ai) => _ai.set_id === 'HW2' && _ai.type==="answer"));
+  }
+
+
 
   private changeWeek(week: number) {
     this.first_day_of_calendar = moment
@@ -141,11 +174,18 @@ export default class Calendar extends Vue {
 </script>
 
 <style>
-#month-name {
-  font-size: 120%;
-  font-weight: bold;
-}
-.cal-table {
-  width: 100%;
-}
+  #month-name { font-size: 120%; font-weight: bold;}
+  .cal-table {width: 100%}
+  .cal-day {height: 100px; width: 14.3%}
+  .current-month {background: lightyellow}
+  .extra-month {background: aliceblue}
+  .today {background: lightpink}
+  .open {background: lightgreen}
+  .reduced {background-color: orange}
+  .answer {background-color: lightblue}
+  .due {background-color: red}
+  .assign {font-size: 80%; cursor: move}
+  .assignments {min-height: 50px}
+  .nestable-item {margin-left: 0px}
+  ol.nestable-list {list-style-type: none; padding-left: 5px}
 </style>

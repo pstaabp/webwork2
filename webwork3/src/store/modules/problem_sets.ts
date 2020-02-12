@@ -25,7 +25,7 @@ import axios from "axios";
   dynamic: true
 })
 export class ProblemSetsModule extends VuexModule {
-  private _problem_sets: Map<string, ProblemSet> = new Map();
+  private _problem_sets: ProblemSetList = new Map();
 
   public get problem_sets() {
     return this._problem_sets;
@@ -61,7 +61,7 @@ export class ProblemSetsModule extends VuexModule {
     );
 
     // add the new problem set to the _problem_sets;
-    this.ADD_SET(_set);
+    this.SET_PROBLEM_SET(_set);
     // we should check that this worked and add a message
     return response.data as ProblemSet;
   }
@@ -85,10 +85,6 @@ export class ProblemSetsModule extends VuexModule {
     this._problem_sets.set(_set.set_id, _set);
   }
 
-  @Mutation
-  private ADD_SET(_set: ProblemSet) {
-    this._problem_sets.set(_set.set_id, _set);
-  }
 
   @Mutation
   private DELETE_SET(_set: ProblemSet) {
