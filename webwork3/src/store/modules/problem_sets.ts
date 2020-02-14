@@ -50,7 +50,7 @@ export class ProblemSetsModule extends VuexModule {
       login_module.api_header + "/sets/" + _set.set_id,
       _set
     );
-    this.ADD_SET(response.data as ProblemSet);
+    this.SET_PROBLEM_SET(response.data as ProblemSet);
   }
 
   @Action
@@ -84,7 +84,6 @@ export class ProblemSetsModule extends VuexModule {
   private SET_PROBLEM_SET(_set: ProblemSet) {
     this._problem_sets.set(_set.set_id, _set);
   }
-
 
   @Mutation
   private DELETE_SET(_set: ProblemSet) {
