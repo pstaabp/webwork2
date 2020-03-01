@@ -7,13 +7,13 @@
       <b-col>
         <b-btn-toolbar key-nav aria-label="Toolbar with button groups">
           <b-btn-group size="sm">
-            <b-btn variant="outline-dark" @click="changeWeek(-1)"
-              >Previous Week</b-btn
-            >
+            <b-btn variant="outline-dark" @click="changeWeek(-1)">
+              Previous Week
+            </b-btn>
             <b-btn variant="outline-dark" @click="today()">Today</b-btn>
-            <b-btn variant="outline-dark" @click="changeWeek(1)"
-              >Next Week</b-btn
-            >
+            <b-btn variant="outline-dark" @click="changeWeek(1)">
+              Next Week
+            </b-btn>
           </b-btn-group>
         </b-btn-toolbar>
       </b-col>
@@ -22,7 +22,8 @@
           size="sm"
           variant="outline-dark"
           @click="sidebar_shown = !sidebar_shown"
-          >{{ (sidebar_shown ? "Hide " : "Show ") + "Problem Sets" }}
+        >
+          {{ (sidebar_shown ? "Hide " : "Show ") + "Problem Sets" }}
         </b-btn>
       </b-col>
     </b-row>

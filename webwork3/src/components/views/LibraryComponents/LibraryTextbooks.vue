@@ -14,9 +14,9 @@
         v-model="chapter"
         v-if="chapters.length > 0"
       >
-        <template slot="first"
-          ><option :value="null" disabled>Select Chapter...</option></template
-        >
+        <template slot="first">
+          <option :value="null" disabled>Select Chapter...</option>
+        </template>
       </b-select>
     </b-col>
     <b-col>
@@ -26,9 +26,9 @@
         v-model="section"
         v-if="sections.length > 0"
       >
-        <template slot="first"
-          ><option :value="null" disabled>Select Section...</option></template
-        >
+        <template slot="first">
+          <option :value="null" disabled>Select Section...</option>
+        </template>
       </b-select>
     </b-col>
     <b-col>
@@ -37,8 +37,9 @@
         variant="outline-dark"
         @click="loadProblems"
         :disabled="textbook == null"
-        >Load {{ num_files }} Problems</b-btn
       >
+        Load {{ num_files }} Problems
+      </b-btn>
     </b-col>
   </b-row>
 </template>
@@ -93,6 +94,15 @@ export default {
       this.section = null;
     }
   },
+  mounted() {
+    axios.get("/webwork3/api/library/textbooks").then(response => {
+      this.textbook_data = response.data;
+      this.textbooks = this.textbook_data.map(_tb => ({
+        value: _tb.textbook_id,
+        text: _tb.name
+      }));
+    });
+  },
   methods: {
     loadProblems: () => {
       let url = "/webwork3/api/library/textbooks/";
@@ -107,15 +117,6 @@ export default {
         this.$emit("load-problems", response.data);
       });
     }
-  },
-  mounted() {
-    axios.get("/webwork3/api/library/textbooks").then(response => {
-      this.textbook_data = response.data;
-      this.textbooks = this.textbook_data.map(_tb => ({
-        value: _tb.textbook_id,
-        text: _tb.name
-      }));
-    });
   }
 }; // export default
 </script>

@@ -1,9 +1,9 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
-      <b-navbar-brand href="#"
-        ><img id="wwlogo" src="/webwork3/images/webwork_square.svg"
-      /></b-navbar-brand>
+      <b-navbar-brand href="#">
+        <img id="wwlogo" src="/webwork3/images/webwork_square.svg" />
+      </b-navbar-brand>
       <b-navbar-brand>WeBWorK</b-navbar-brand>
       <b-navbar-brand>List of Courses </b-navbar-brand>
     </b-navbar>
@@ -12,9 +12,9 @@
         <b-col cols="3">
           <b-list-group>
             <b-list-group-item v-for="course in courses" :key="course">
-              <router-link :to="'/courses/' + course + '/login'">{{
-                course
-              }}</router-link>
+              <router-link :to="'/courses/' + course + '/login'">
+                {{ course }}
+              </router-link>
             </b-list-group-item>
           </b-list-group>
         </b-col>

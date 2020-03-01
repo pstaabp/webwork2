@@ -8,10 +8,10 @@
     @ok="save"
   >
     <b-container fluid>
-      <b-row
-        ><b-col cols="5">Set Name(s)</b-col
-        ><b-col cols="5">{{ set_names }}</b-col></b-row
-      >
+      <b-row>
+        <b-col cols="5">Set Name(s)</b-col>
+        <b-col cols="5">{{ set_names }}</b-col>
+      </b-row>
       <b-form-group label-cols="5" label="Visible">
         <b-checkbox v-model="problem_set.visible" />
       </b-form-group>
@@ -71,7 +71,11 @@ import { mixins } from "vue-class-component";
 
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
-import Common from "@/common";
+import Common, {
+  validReducedScoring,
+  validAnswerDate,
+  validDueDate
+} from "@/common";
 import { ProblemSet } from "@/store/models";
 
 import problem_sets_store from "@/store/modules/problem_sets";
@@ -126,15 +130,15 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
   }
 
   get validReducedScoring() {
-    return Common.validReducedScoring(this.problem_set);
+    return validReducedScoring(this.problem_set);
   }
 
   get validDueDate() {
-    return Common.validDueDate(this.problem_set);
+    return validDueDate(this.problem_set);
   }
 
   get validAnswerDate() {
-    return Common.validAnswerDate(this.problem_set);
+    return validAnswerDate(this.problem_set);
   }
 }
 </script>

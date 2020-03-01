@@ -15,7 +15,10 @@
               size="sm"
               type="datetime-local"
               :value="problem_set.open_date | formatDateTime"
-              @blur="setOpenDate(problem_set, $event.target.value)"
+              @blur="
+                setOpenDate(problem_set, $event.target.value);
+                save();
+              "
             />
           </b-form-group>
         </td>
@@ -30,7 +33,10 @@
               :value="problem_set.reduced_scoring_date | formatDateTime"
               type="datetime-local"
               :state="validReducedScoring"
-              @blur="setReducedScoringDate(problem_set, $event.target.value)"
+              @blur="
+                setReducedScoringDate(problem_set, $event.target.value);
+                save();
+              "
             />
           </b-form-group>
         </td>
@@ -47,7 +53,10 @@
               :value="problem_set.due_date | formatDateTime"
               type="datetime-local"
               :state="validDueDate"
-              @blur="setDueDate(problem_set, $event.target.value)"
+              @blur="
+                setDueDate(problem_set, $event.target.value);
+                save();
+              "
             />
           </b-form-group>
         </td>
@@ -62,29 +71,43 @@
               :value="problem_set.answer_date | formatDateTime"
               type="datetime-local"
               :state="validAnswerDate"
-              @blur="setAnswerDate(problem_set, $event.target.value)"
+              @blur="
+                setAnswerDate(problem_set, $event.target.value);
+                save();
+              "
             />
           </b-form-group>
         </td>
       </tr>
       <tr>
         <td class="header">Problem Set Visible to Users</td>
-        <td><b-form-checkbox v-model="problem_set.visible" /></td>
+        <td>
+          <b-form-checkbox v-model="problem_set.visible" @change="save" />
+        </td>
       </tr>
       <tr>
         <td class="header">Reduced Scoring Enabled</td>
         <td>
-          <b-form-checkbox v-model="problem_set.enable_reduced_scoring" />
+          <b-form-checkbox
+            v-model="problem_set.enable_reduced_scoring"
+            @change="save"
+          />
         </td>
       </tr>
       <tr>
         <td class="header">Hide Hints from Users</td>
-        <td><b-form-checkbox v-model="problem_set.hide_hint" /></td>
+        <td>
+          <b-form-checkbox v-model="problem_set.hide_hint" @change="save" />
+        </td>
       </tr>
       <tr>
         <td class="header">Set Type</td>
         <td>
-          <b-form-select size="sm" v-model="problem_set.assignment_type">
+          <b-form-select
+            size="sm"
+            v-model="problem_set.assignment_type"
+            @change="save"
+          >
             <option value="set">Homework</option>
             <option value="gateway">Gateway/Quiz</option>
             <option value="proctored_gateway">Proctored Gateway/Quiz</option>
@@ -96,122 +119,17 @@
         <td>{{ problemsLength }}</td>
       </tr>
       <tr>
-        <td class="header">Users Assigned</td>
+        <td class="header">Users Assigned:</td>
         <td>
-          <b-btn size="sm" variant="outline-dark">Assign to All Users</b-btn>
-        </td>
-      </tr>
-      <tr v-if="proctored">
-        <td class="header" style="color: darkblue; font-style:italic">
-          Proctored Gateway/Quiz parameters
-        </td>
-        <td></td>
-      </tr>
-      <tr v-if="proctored">
-        <td colspan="2">
-          Proctored tests require proctor authorization to start and to grade.
-          Provide a password to have a single password for all students to start
-          a proctored test.
-        </td>
-      </tr>
-      <tr v-if="proctored">
-        <td class="w-50 header">
-          Password (Leave blank for regular proctoring)
-        </td>
-        <td class="w-25">
-          <b-form-input size="sm" v-model="pg_password" type="password" />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header" style="color: darkblue; font-style:italic">
-          Gateway/Quiz parameters
-        </td>
-        <td></td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Test Time Limit (min; 0=Due Date)</td>
-        <td>
-          <b-form-input
+          <span style="mr-3">{{ users_assigned }}/{{ num_users }}</span>
+          <b-btn
             size="sm"
-            type="text"
-            v-model="problem_set.version_time_limit"
-          />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Cap Test Time at Set Due Date?</td>
-        <td><b-form-checkbox v-model="problem_set.time_limit_cap" /></td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Number of Graded Submissions per Test (0=infty)</td>
-        <td>
-          <b-form-input
-            size="sm"
-            type="text"
-            v-model="problem_set.attempts_per_version"
-          />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">
-          Time Interval for New Test Versions (min; 0=infty)
-        </td>
-        <td>
-          <b-form-input
-            size="sm"
-            type="text"
-            v-model="problem_set.time_interval"
-          />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Number of Tests per Time Interval (0=infty)</td>
-        <td>
-          <b-form-input
-            size="sm"
-            type="text"
-            v-model="problem_set.version_per_interval"
-          />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Order Problems Randomly</td>
-        <td><b-form-checkbox v-model="problem_set.problem_random_order" /></td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Number of Problems per Page (0=all)</td>
-        <td>
-          <b-form-input
-            size="sm"
-            type="text"
-            v-model="problem_set.problems_per_page"
-          />
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Show Scores on Finished Assignments?</td>
-        <td>
-          <b-form-select size="sm">
-            <option value="N:">Yes</option>
-            <option value="Y:N">No</option>
-            <option value="BeforeAnswerDate:N"
-              >Only After Set Answer Date</option
-            >
-            <option value="Y:Y">Totals only (not problem scores)</option>
-            <option value="BeforeAnswerDate:Y"
-              >Totals only, only after answer date</option
-            >
-          </b-form-select>
-        </td>
-      </tr>
-      <tr v-if="gateway">
-        <td class="header">Show Problems on Finished Tests?</td>
-        <td>
-          <b-form-select size="sm">
-            <option value="N">Yes</option>
-            <option value="Y">No</option>
-            <option value="BeforeAnswerDate">Only After Set Answer Date</option>
-          </b-form-select>
+            class="float-right"
+            @click="assignAllUsers"
+            variant="outline-dark"
+          >
+            Assign to All Users
+          </b-btn>
         </td>
       </tr>
     </tbody>
@@ -227,10 +145,17 @@ import MessagesMixin from "@/mixins/messages_mixin";
 
 import { ProblemSet } from "@/store/models";
 
-import Common from "@/common";
+import {
+  difference,
+  newProblemSet,
+  validReducedScoring,
+  validDueDate,
+  validAnswerDate
+} from "@/common";
 
 // set up the store
 import problem_sets_store from "@/store/modules/problem_sets";
+import users_store from "@/store/modules/users";
 
 @Component({
   name: "SetInfo"
@@ -239,7 +164,9 @@ export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
   private pg_password: string = "";
 
   @Prop() private problem_sets!: Map<string, ProblemSet>;
-  @Prop() private problem_set!: ProblemSet;
+  @Prop() private selected_problem_set!: ProblemSet;
+
+  private problem_set = newProblemSet(); // local copy of the problem set
 
   get problemsLength(): number {
     return this.problem_set && this.problem_set.problems
@@ -247,39 +174,50 @@ export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
       : 0;
   }
 
-  get proctored(): boolean {
-    return this.problem_set.assignment_type === "proctored_gateway";
+  get users_assigned(): number {
+    return this.problem_set.assigned_users.length;
   }
 
-  get gateway(): boolean {
-    return (
-      this.problem_set.assignment_type === "gateway" ||
-      this.problem_set.assignment_type === "proctored_gateway"
-    );
+  get num_users(): number {
+    return users_store.users.size;
   }
 
   get validReducedScoring() {
-    return Common.validReducedScoring(this.problem_set);
+    return validReducedScoring(this.problem_set);
   }
 
   get validDueDate() {
-    return Common.validDueDate(this.problem_set);
+    return validDueDate(this.problem_set);
   }
 
   get validAnswerDate() {
-    return Common.validAnswerDate(this.problem_set);
+    return validAnswerDate(this.problem_set);
   }
 
-  @Watch("problem_set", { deep: true })
+  private save() {
+    if (
+      validDueDate(this.problem_set) &&
+      validReducedScoring(this.problem_set) &&
+      validAnswerDate(this.problem_set)
+    ) {
+      problem_sets_store.updateProblemSet(this.problem_set);
+    }
+  }
+
+  private assignAllUsers() {
+    console.log("in assignAllUsers"); // eslint-disable-line no-console
+    this.problem_set.assigned_users = Array.from(users_store.users.keys());
+    this.save();
+  }
+
+  @Watch("selected_problem_set", { deep: true })
   private problemSetChanged(new_set: ProblemSet, old_set: ProblemSet) {
-    if (new_set && old_set && new_set.set_id === old_set.set_id) {
-      if (
-        Common.validDueDate(this.problem_set) &&
-        Common.validReducedScoring(this.problem_set) &&
-        Common.validAnswerDate(this.problem_set)
-      ) {
-        problem_sets_store.updateProblemSet(this.problem_set);
+    if (new_set && old_set && new_set.set_id !== old_set.set_id) {
+      // the set has changed.
+      if (typeof this.problem_set === "undefined") {
+        this.problem_set = this.emptySet();
       }
+      Object.assign(this.problem_set, this.selected_problem_set);
     }
   }
 }

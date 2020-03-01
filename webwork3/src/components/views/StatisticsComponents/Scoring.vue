@@ -10,7 +10,7 @@
           label="Export Filename"
           label-for="filename-export"
         >
-          <b-form-input id="filename-export" v-model="filename"></b-form-input>
+          <b-form-input id="filename-export" v-model="filename" />
         </b-form-group>
       </b-col>
       <b-col>

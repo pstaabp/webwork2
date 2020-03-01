@@ -45,9 +45,9 @@
       </b-select>
     </b-col>
     <b-col>
-      <b-btn size="sm" variant="outline-dark" @click="selectProblems"
-        >Select {{ num_files }} Problems</b-btn
-      >
+      <b-btn size="sm" variant="outline-dark" @click="selectProblems">
+        Select {{ num_files }} Problems
+      </b-btn>
     </b-col>
   </b-row>
 </template>

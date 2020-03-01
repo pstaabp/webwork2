@@ -15,9 +15,9 @@
         v-if="dirs2.length > 0"
         @change="dir2Change"
       >
-        <template slot="first"
-          ><option :value="null" disabled>Select</option></template
-        >
+        <template slot="first">
+          <option :value="null" disabled>Select</option>
+        </template>
       </b-select>
     </b-col>
     <b-col>
@@ -28,9 +28,9 @@
         v-if="dirs3.length > 0"
         @change="dir3Change"
       >
-        <template slot="first"
-          ><option :value="null" disabled>Select</option></template
-        >
+        <template slot="first">
+          <option :value="null" disabled>Select</option>
+        </template>
       </b-select>
     </b-col>
     <b-col>
@@ -57,8 +57,9 @@
         variant="outline-dark"
         @click="loadProblems"
         :disabled="dir2 == null"
-        >Load {{ load_num }} Problems</b-btn
       >
+        Load {{ load_num }} Problems
+      </b-btn>
     </b-col>
   </b-row>
 </template>
@@ -86,6 +87,11 @@ export default {
       load_num: 0,
       OPL: []
     };
+  },
+  mounted() {
+    axios.get("/webwork3/api/library/directories").then(response => {
+      this.OPL = response.data;
+    });
   },
   methods: {
     dir1Change() {
@@ -124,11 +130,6 @@ export default {
         this.$emit("load-problems", response.data);
       });
     }
-  },
-  mounted() {
-    axios.get("/webwork3/api/library/directories").then(response => {
-      this.OPL = response.data;
-    });
   }
 };
 </script>

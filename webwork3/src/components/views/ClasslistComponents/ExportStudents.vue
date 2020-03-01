@@ -18,17 +18,17 @@
           </b-form-group>
         </b-col>
         <b-col>
-          <b-btn variant="primary" @click="download()" :disabled="clicked"
-            >Download Classlist File</b-btn
-          >
+          <b-btn variant="primary" @click="download()" :disabled="clicked">
+            Download Classlist File
+          </b-btn>
         </b-col>
       </b-row>
     </b-container>
     <div slot="modal-footer" class="w-100">
       <b-btn-group size="sm" class="float-right">
-        <b-btn variant="outline-dark" @click="$bvModal.hide('export-students')"
-          >Close</b-btn
-        >
+        <b-btn variant="outline-dark" @click="$bvModal.hide('export-students')">
+          Close
+        </b-btn>
       </b-btn-group>
     </div>
   </b-modal>

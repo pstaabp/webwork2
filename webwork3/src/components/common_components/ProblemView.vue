@@ -61,7 +61,8 @@
                 title="Mark this problem correct for all assigned users."
                 v-if="prop.mark_all"
                 disabled
-                ><b-icon icon="check" />
+              >
+                <b-icon icon="check" />
               </b-btn>
               <b-btn
                 variant="outline-dark"
@@ -75,7 +76,8 @@
                 title="show/hide path"
                 v-if="prop.path"
                 @click="show_path = !show_path"
-                ><b-icon icon="document-code" />
+              >
+                <b-icon icon="document-code" />
               </b-btn>
               <b-btn
                 variant="outline-dark"
@@ -103,7 +105,7 @@
         <div v-if="html == ''" class="text-center">
           <b-spinner variant="info" />
         </div>
-        <div v-else class="problem-tag-container" v-html="html"></div>
+        <div v-else class="problem-tag-container" v-html="html" />
       </b-row>
     </b-container>
   </li>

@@ -18,7 +18,7 @@
           <b-list-group-item
             class="p-1"
             v-for="item in options1"
-            v-bind:key="item.name"
+            :key="item.name"
             :button="item.type === 'dir'"
             :disabled="item.type === 'file'"
             @click="selected1(item.name)"
@@ -33,7 +33,7 @@
         <b-list-group-item
           class="p-1"
           v-for="item in options2"
-          v-bind:key="item.name"
+          :key="item.name"
           :button="item.type === 'dir'"
           :disabled="item.type === 'file'"
           @click="selected2(item.name)"
@@ -43,7 +43,7 @@
           <span class="pl-2">{{ item.name }}</span>
         </b-list-group-item>
       </b-col>
-      <b-col> </b-col>
+      <b-col />
     </b-row>
   </b-modal>
 </template>

@@ -2,7 +2,7 @@
   <tr>
     <td>
       <p>
-        <span v-html="setting.doc"></span>&nbsp;
+        <span v-html="setting.doc" />&nbsp;
         <b-icon
           icon="question-fill"
           size="lg"

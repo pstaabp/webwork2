@@ -104,7 +104,10 @@ export default class CalendarRow extends Vue {
       : day.get("date").toString();
   }
 
-  private assignChange(newDate: moment.Moment, evt: ChangeEvent<AssignmentInfo>) {
+  private assignChange(
+    newDate: moment.Moment,
+    evt: ChangeEvent<AssignmentInfo>
+  ) {
     console.log("dropping onto"); // eslint-disable-line no-console
     console.log(newDate.format("MM/DD/YYYY")); // eslint-disable-line no-console
 
@@ -133,10 +136,13 @@ export default class CalendarRow extends Vue {
       }
 
       console.log(attrs); // eslint-disable-line no-console
-      const tmp = Object.keys(attrs).reduce((obj: {[key: string]: string}, value: string) => {
-        obj[value] = moment.unix(attrs[value]).format("MM/DD/YYYY");
-        return obj;
-      }, {});
+      const tmp = Object.keys(attrs).reduce(
+        (obj: { [key: string]: string }, value: string) => {
+          obj[value] = moment.unix(attrs[value]).format("MM/DD/YYYY");
+          return obj;
+        },
+        {}
+      );
       console.log(tmp); // eslint-disable-line no-console
 
       if (_set) {

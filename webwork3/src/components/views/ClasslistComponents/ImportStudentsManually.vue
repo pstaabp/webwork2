@@ -66,8 +66,9 @@
         <b-btn
           variant="outline-dark"
           @click="$bvModal.hide('import-students-manually')"
-          >Cancel</b-btn
         >
+          Cancel
+        </b-btn>
         <b-btn variant="primary" @click="addAll">Add Students</b-btn>
       </b-btn-group>
     </div>

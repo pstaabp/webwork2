@@ -20,15 +20,16 @@
         </b-col>
         <b-col>
           <b-input-group>
-            <b-btn variant="outline-dark" size="sm" @click="loadFile"
-              >Load File</b-btn
-            >
+            <b-btn variant="outline-dark" size="sm" @click="loadFile">
+              Load File
+            </b-btn>
             <b-checkbox
               class="ml-3"
               v-model="ignoreFirstRow"
               @change="useFirstRow"
-              >Use first row as header</b-checkbox
             >
+              Use first row as header
+            </b-checkbox>
           </b-input-group>
         </b-col>
       </b-row>
@@ -63,11 +64,12 @@
         <b-btn
           variant="outline-dark"
           @click="$bvModal.hide('import-students-file')"
-          >Cancel</b-btn
         >
-        <b-btn variant="outline-dark" @click="addSelected"
-          >Add Selected Students</b-btn
-        >
+          Cancel
+        </b-btn>
+        <b-btn variant="outline-dark" @click="addSelected">
+          Add Selected Students
+        </b-btn>
         <b-btn variant="primary" @click="addAll">Add All Students</b-btn>
       </b-btn-group>
     </div>

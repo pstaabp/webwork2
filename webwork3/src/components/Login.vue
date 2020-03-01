@@ -1,9 +1,9 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
-      <b-navbar-brand href="#"
-        ><img id="wwlogo" src="/webwork3/images/webwork_square.svg"
-      /></b-navbar-brand>
+      <b-navbar-brand href="#">
+        <img id="wwlogo" src="/webwork3/images/webwork_square.svg" />
+      </b-navbar-brand>
       <b-navbar-brand>WeBWorK</b-navbar-brand>
       <b-navbar-brand>Login to {{ password_info.course_id }}</b-navbar-brand>
     </b-navbar>
@@ -26,7 +26,7 @@
                 id="login"
                 ref="login-input"
                 v-model="password_info.user_id"
-              ></b-form-input>
+              />
             </b-form-group>
             <b-form-group
               id="password-form"
@@ -41,13 +41,13 @@
                 type="password"
                 id="password"
                 v-model="password_info.password"
-              ></b-form-input>
+              />
             </b-form-group>
             <b-btn-group>
               <b-btn type="submit" variant="primary">Login</b-btn>
-              <b-btn variant="outline-dark" @click="cancel"
-                >Cancel and Return to Course List</b-btn
-              >
+              <b-btn variant="outline-dark" @click="cancel">
+                Cancel and Return to Course List
+              </b-btn>
             </b-btn-group>
           </form>
         </b-col>

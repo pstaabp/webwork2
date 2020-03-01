@@ -1,9 +1,7 @@
 <template>
   <b-container>
     <b-row v-if="user_set_scores.length == 0">
-      <span
-        >Loading data...<b-spinner variant="primary" label="Loading"></b-spinner
-      ></span>
+      <span>Loading data...<b-spinner variant="primary" label="Loading"/></span>
     </b-row>
     <b-row v-if="user_set_scores.length > 0">
       <b-tabs content-class="mt-3" @activate-tab="updateInputs">

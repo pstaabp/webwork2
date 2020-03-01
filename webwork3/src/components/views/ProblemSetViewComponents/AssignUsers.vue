@@ -18,21 +18,21 @@
         <b-form-group>
           <b-form-checkbox-group v-model="show_info">
             <b-form-checkbox value="section">Show Section</b-form-checkbox>
-            <b-form-checkbox value="recitation"
-              >Show Recitation</b-form-checkbox
-            >
+            <b-form-checkbox value="recitation">
+              Show Recitation
+            </b-form-checkbox>
           </b-form-checkbox-group>
         </b-form-group>
       </b-col>
       <b-col cols="2" v-if="list_type === 'unassigned'">
-        <b-btn variant="outline-dark" size="sm" @click="assignUsers"
-          >Assign to Selected Users</b-btn
-        >
+        <b-btn variant="outline-dark" size="sm" @click="assignUsers">
+          Assign to Selected Users
+        </b-btn>
       </b-col>
       <b-col cols="2" v-else>
-        <b-btn variant="outline-dark" size="sm" @click="save"
-          >Save Override Dates</b-btn
-        >
+        <b-btn variant="outline-dark" size="sm" @click="save">
+          Save Override Dates
+        </b-btn>
       </b-col>
     </b-row>
     <b-row v-if="list_type === 'assigned'">
@@ -137,7 +137,12 @@ import * as moment from "moment";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import { User, ProblemSet } from "@/store/models";
 
-import Common from "@/common";
+import {
+  validReducedScoring,
+  validDueDate,
+  validAnswerDate,
+  newProblemSet
+} from "@/common";
 
 // set up the store
 import users_store from "@/store/modules/users";
@@ -154,7 +159,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   private current_page: number = 1;
   private filter_text: string = "";
   private show_info: string[] = [];
-  private override_dates: ProblemSet = this.emptySet();
+  private override_dates: ProblemSet = newProblemSet();
   private list_type: string = "assigned";
 
   @Prop() private problem_set!: ProblemSet; // the problem set to assign users
@@ -174,15 +179,15 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   }
 
   get validReducedScoring() {
-    return Common.validReducedScoring(this.override_dates);
+    return validReducedScoring(this.override_dates);
   }
 
   get validDueDate() {
-    return Common.validDueDate(this.override_dates);
+    return validDueDate(this.override_dates);
   }
 
   get validAnswerDate() {
-    return Common.validAnswerDate(this.override_dates);
+    return validAnswerDate(this.override_dates);
   }
 
   // get either assigned, unassigned or all users;

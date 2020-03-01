@@ -6,9 +6,9 @@
           <b-input-group size="sm">
             <b-form-input placeholder="Filter" v-model="filter_string" />
             <b-input-group-append>
-              <b-button size="sm" text="Button" @click="filter_string = ''"
-                >X</b-button
-              >
+              <b-button size="sm" text="Button" @click="filter_string = ''">
+                X
+              </b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -24,13 +24,15 @@
               <b-dd-item
                 :disabled="selected_sets.length === 0"
                 v-b-modal.edit-problem-sets-modal
-                >Edit Problem Sets</b-dd-item
               >
+                Edit Problem Sets
+              </b-dd-item>
               <b-dd-item
                 :disabled="selected_sets.length === 0"
                 @click="deleteSets"
-                >Delete Problem Sets</b-dd-item
               >
+                Delete Problem Sets
+              </b-dd-item>
             </b-dd>
             <b-dd variant="outline-dark" text="Show Rows">
               <b-dd-item default value="10">Show 10 rows</b-dd-item>
@@ -54,9 +56,9 @@
           @row-dblclicked="editRow"
         >
           <template v-slot:cell(set_id)="data">
-            <router-link :to="viewSetLink(data.item.set_id)">{{
-              data.item.set_id
-            }}</router-link>
+            <router-link :to="viewSetLink(data.item.set_id)">
+              {{ data.item.set_id }}
+            </router-link>
           </template>
           <template v-slot:cell(visible)="data">
             <div class="mx-auto" width="100%">

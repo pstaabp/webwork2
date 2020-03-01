@@ -14,8 +14,11 @@
         </b-col>
         <b-col v-if="problem_type == 'set'" cols="3">
           <b-form-group label="Set Name:" label-cols="4">
-            <b-select size="sm" v-model="selected_set_id" :options="set_names">
-            </b-select>
+            <b-select
+              size="sm"
+              v-model="selected_set_id"
+              :options="set_names"
+            />
           </b-form-group>
         </b-col>
         <b-col v-if="problem_type == 'set'" cols="3">
@@ -28,14 +31,15 @@
             />
           </b-form-group>
         </b-col>
-        <b-col
-          ><b-btn
+        <b-col>
+          <b-btn
             size="sm"
             variant="outline-dark"
             v-b-modal.save-as-problem-modal
-            >Save Problem As...</b-btn
-          ></b-col
-        >
+          >
+            Save Problem As...
+          </b-btn>
+        </b-col>
       </b-row>
       <b-row>
         <b-tabs content-class="mt-3">
@@ -44,7 +48,7 @@
               This problem is from the library and is read-only. Please select
               "Save As..." to create a local, editable copy.
             </div>
-            <textarea id="source" rows="10"> </textarea>
+            <textarea id="source" rows="10" />
           </b-tab>
           <b-tab title="Rendered Problem" @click="renderProblem">
             <div v-html="problem_html" />

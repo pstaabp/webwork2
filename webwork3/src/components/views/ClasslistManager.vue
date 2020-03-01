@@ -12,7 +12,7 @@
             </b-input-group>
           </b-btn-toolbar>
         </b-col>
-        <b-col cols="3"> </b-col>
+        <b-col cols="3" />
         <b-col cols="6">
           <b-btn-group size="sm">
             <b-dd variant="outline-dark" text="Action on Selected">
@@ -21,15 +21,15 @@
               <b-dd-item href="#">Delete Users</b-dd-item>
             </b-dd>
             <b-dd variant="outline-dark" text="Import/Export Users">
-              <b-dd-item v-b-modal.import-students-file href="#"
-                >Add Students from a File</b-dd-item
-              >
-              <b-dd-item v-b-modal.import-students-manually href="#"
-                >Add Students Manually</b-dd-item
-              >
-              <b-dd-item v-b-modal.export-students href="#"
-                >Export Students to a File</b-dd-item
-              >
+              <b-dd-item v-b-modal.import-students-file href="#">
+                Add Students from a File
+              </b-dd-item>
+              <b-dd-item v-b-modal.import-students-manually href="#">
+                Add Students Manually
+              </b-dd-item>
+              <b-dd-item v-b-modal.export-students href="#">
+                Export Students to a File
+              </b-dd-item>
             </b-dd>
             <b-select v-model="num_rows">
               <option default value="10">Show 10 rows</option>
