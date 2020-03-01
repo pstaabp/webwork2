@@ -132,6 +132,7 @@ export interface Setting {
 }
 
 export interface Message {
+  id: number;
   long: string;
   short: string;
 }

@@ -66,14 +66,12 @@ export class SettingsModule extends VuexModule {
     }
 
     if (isEqual(_updated_setting, _setting)) {
-      // const diff = difference(_setting, _prev_setting as {[key: string]: any});
-
       const _message = {
+        id: -1,
         short: `The setting for ${_setting.var} was changed`,
         long: `The setting for ${_setting.var} was changed from ${value} to ${_setting.value}.`
       };
       messages_store.addMessage(_message);
-      console.log(_message); // eslint-disable-line no-console
 
       this.SET_SETTING(_setting);
     }
@@ -87,11 +85,6 @@ export class SettingsModule extends VuexModule {
   @Mutation
   private RESET_SETTINGS(): void {
     this._settings = new Map();
-  }
-
-  @Mutation
-  private SET_SETTINGS(_settings: SettingList) {
-    this._settings = _settings;
   }
 
   @Mutation

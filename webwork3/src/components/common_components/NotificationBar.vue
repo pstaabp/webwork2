@@ -1,25 +1,25 @@
 <template>
   <b-nav-item-dropdown right>
     <!-- Using 'button-content' slot -->
-    <template slot="button-content"
-      ><span class="mr-2" :class="{ blinking: new_message }">Messages</span>
-      <b-badge variant="light"
-        >{{ messages.length
-        }}<span class="sr-only">unread messages</span></b-badge
-      >
+    <template slot="button-content">
+      <span class="mr-2" :class="{ blinking: new_message }">Messages</span>
+      <b-badge variant="light">
+        {{ messages.length }}
+        <span class="sr-only">unread messages</span>
+      </b-badge>
     </template>
-    <b-dropdown-text class="message">
-      <b-btn size="sm" variant="primary" @click="clearMessages"
-        >Clear Messages</b-btn
-      >
+    <b-dropdown-text class="message px-1">
+      <b-btn size="sm" variant="primary" @click="clearMessages">
+        Clear Messages
+      </b-btn>
     </b-dropdown-text>
-    <b-dropdown-divider class="message" />
+    <b-dropdown-divider />
     <b-dropdown-text
-      class="message pr-3"
+      class="message px-1"
       v-for="(message, i) in messages"
       :key="i"
     >
-      <notification :message="message" />
+      <notification :message="message" @remove-message="remove" />
     </b-dropdown-text>
   </b-nav-item-dropdown>
 </template>
@@ -46,27 +46,32 @@ export default class NotificationBar extends Vue {
     return message_store.messages;
   }
 
-  get num_messages() {
-    return message_store.messages.length;
-  }
-
   private clearMessages(): void {
     messages_store.clearMessages();
   }
 
-  @Watch("num_messages")
-  private newMessage() {
-    this.new_message = true;
-    setTimeout(() => {
-      this.new_message = false;
-    }, 4000);
+  private remove(id: number) {
+    messages_store.removeMessageById(id);
+  }
+
+  private mounted() {
+    // watch for changes in messages
+    this.$store.subscribe((mutation, state) => {
+      // console.log(mutation.type); // eslint-disable-line no-console
+      if (mutation.type === "messages_store/ADD_MESSAGE") {
+        this.new_message = true;
+        setTimeout(() => {
+          this.new_message = false;
+        }, 4000);
+      }
+    });
   }
 }
 </script>
 
 <style scoped>
 .message {
-  width: 400px;
+  width: 600px;
 }
 .blinking {
   animation: blinkingText 2s 2;

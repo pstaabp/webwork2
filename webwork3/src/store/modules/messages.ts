@@ -8,11 +8,8 @@ import {
 import { Message } from "@/store/models";
 import store from "@/store";
 
-import login_store from "./login";
-const name = "messages_store";
-
 // this is to prevent an error occur with a hot reloading.
-
+const name = "messages_store";
 if (store.state[name]) {
   store.unregisterModule(name);
 }
@@ -32,11 +29,29 @@ export class MessagesModule extends VuexModule {
   // Messages
   @Action
   public addMessage(_msg: Message) {
-    this._messages.push(_msg);
+    _msg.id = this._messages.length;
+    this.ADD_MESSAGE(_msg);
   }
+  @Action
+  public removeMessageById(_id: number) {
+    let index = this._messages.findIndex(_msg => _msg.id === _id);
+    if (index > -1) {
+      this.REMOVE_MESSAGE_BY_INDEX(index);
+    }
+  }
+
   @Mutation
   public clearMessages() {
     this._messages = [];
+  }
+  @Mutation
+  private ADD_MESSAGE(_msg: Message) {
+    this._messages.push(_msg);
+  }
+
+  @Mutation
+  private REMOVE_MESSAGE_BY_INDEX(_index: number) {
+    this._messages.splice(_index, 1);
   }
 }
 

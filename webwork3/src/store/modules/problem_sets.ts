@@ -5,10 +5,16 @@ import {
   Mutation,
   getModule
 } from "vuex-module-decorators";
+
+import { isEqual } from "lodash-es";
+
+import Common, { difference, parseProblemSet } from "@/common";
+
 import { ProblemSet, ProblemSetList } from "@/store/models";
 import store from "@/store";
 
 import login_module from "./login";
+import messages_store from "./messages";
 
 // this is to prevent an error occur with a hot reloading.
 
@@ -40,17 +46,54 @@ export class ProblemSetsModule extends VuexModule {
     const response = await axios.get(login_module.api_header + "/sets");
     const _sets = response.data as ProblemSet[];
     _sets.forEach(_set => {
-      this.SET_PROBLEM_SET(_set);
+      this.SET_PROBLEM_SET(parseProblemSet(_set));
     });
   } // fetchProblemSets
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
+    console.log("in updateProblemSet"); // eslint-disable-line no-console
+    const _previous_set = this._problem_sets.get(_set.set_id);
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
     );
-    this.SET_PROBLEM_SET(response.data as ProblemSet);
+
+    const _updated_set = response.data as ProblemSet;
+
+    console.log(difference(_updated_set, _set)); // eslint-disable-line no-console
+    console.log(difference(_set, _updated_set)); // eslint-disable-line no-console
+
+    // check to make sure that the two sets are the same
+    if (isEqual(_updated_set, _set) && _previous_set) {
+      const diff = difference(_updated_set, _previous_set);
+      console.log(difference(_updated_set, _previous_set)); // eslint-disable-line no-console
+      console.log(difference(_previous_set, _updated_set)); // eslint-disable-line no-console
+      const _keys = Object.keys(diff);
+      const short = `The properties ${_keys} for problem sets ${_set.set_id} changed.`;
+      let long =
+        "The following properties changed:" +
+        _keys.reduce(
+          (msg: string, key: string) =>
+            msg +
+            " " +
+            key +
+            ": from " +
+            (/date$/.test(key)
+              ? Common.formatDateTime(_previous_set[key])
+              : _previous_set[key]) +
+            " to " +
+            (/date$/.test(key) ? Common.formatDateTime(_set[key]) : _set[key]),
+          ""
+        );
+      messages_store.addMessage({ id: -1, short: short, long: long });
+      this.SET_PROBLEM_SET(response.data as ProblemSet);
+    } else {
+      // eslint-disable-next-line no-console
+      console.error(
+        `There was an error saving the problem set: ${_set.set_id}`
+      );
+    }
   }
 
   @Action

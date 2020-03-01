@@ -1,20 +1,17 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
-      <b-navbar-brand href="#"
-        ><img
-          id="wwlogo"
-          src="/webwork3/images/webwork_square.svg"
-        />WeBWorK</b-navbar-brand
-      >
-
+      <b-navbar-brand href="#">
+        <img id="wwlogo" src="/webwork3/images/webwork_square.svg" />
+        WeBWorK
+      </b-navbar-brand>
       <b-navbar-toggle target="nav_collapse" />
 
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav id="view-name-container">
-          <b-nav-text class="mr-2"
-            ><b-icon :icon="current_icon" variant="light" font-scale="2"
-          /></b-nav-text>
+          <b-nav-text class="mr-2">
+            <b-icon :icon="current_icon" variant="light" font-scale="2" />
+          </b-nav-text>
           <b-navbar-brand id="view-name">
             {{ current_view | getName(views) }}
           </b-navbar-brand>
@@ -28,30 +25,28 @@
           </b-nav-item-dropdown>
         </b-navbar-nav>
         <b-navbar-nav v-if="show_set" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3"
-            >Selected Set:</b-nav-text
-          >
-          <Dropdown
+          <b-nav-text class="font-weight-bold text-light mr-3">
+            Selected Set:
+          </b-nav-text>
+          <dropdown
             id="set_options"
             :options="set_names_for_dd"
             :maxItem="100"
             @selected="setSelectedSet"
             placeholder="Select a set"
-          >
-          </Dropdown>
+          />
         </b-navbar-nav>
         <b-navbar-nav v-if="show_user" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3"
-            >Selected User:</b-nav-text
-          >
-          <Dropdown
+          <b-nav-text class="font-weight-bold text-light mr-3">
+            Selected User:
+          </b-nav-text>
+          <dropdown
             id="user_options"
             :options="user_names_for_dd"
             :maxItem="100"
             @selected="setSelectedUser"
             placeholder="Select a User"
-          >
-          </Dropdown>
+          />
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
@@ -62,12 +57,12 @@
               <b-icon icon="person" />
             </template>
             <b-dropdown-text>{{ fullname }}</b-dropdown-text>
-            <b-dropdown-item href="#" v-b-modal.settings
-              ><b-icon icon="gear" />Settings</b-dropdown-item
-            >
-            <b-dropdown-item @click="$emit('logout')"
-              ><b-icon icon="circle-slash" />Logout</b-dropdown-item
-            >
+            <b-dropdown-item href="#" v-b-modal.settings>
+              <b-icon icon="gear" /> Settings
+            </b-dropdown-item>
+            <b-dropdown-item @click="$emit('logout')">
+              <b-icon icon="circle-slash" /> Logout
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -95,10 +90,8 @@
                 size="sm"
                 @click="change_password = !change_password"
               >
-                {{
-                  change_password ? "Cancel Change" : "Change Password"
-                }}</b-button
-              >
+                {{ change_password ? "Cancel Change" : "Change Password" }}
+              </b-button>
             </td>
           </tr>
           <tr>
@@ -108,22 +101,22 @@
                 label="Current Password"
                 label-cols="5"
               >
-                <b-input type="password"></b-input
-              ></b-form-group>
+                <b-input type="password" />
+              </b-form-group>
             </td>
           </tr>
           <tr v-if="change_password">
             <td colspan="2">
               <b-form-group label="New Password:" label-cols="5">
-                <b-input type="password"></b-input
-              ></b-form-group>
+                <b-input type="password" />
+              </b-form-group>
             </td>
           </tr>
           <tr v-if="change_password">
             <td colspan="2">
               <b-form-group label="Confirm Password:" label-cols="5">
-                <b-input type="password"></b-input
-              ></b-form-group>
+                <b-input type="password" />
+              </b-form-group>
             </td>
           </tr>
         </tbody>
@@ -265,7 +258,7 @@ export default class MenuBar extends Vue {
       const div = document.getElementById("set_options");
       const input = (div && div.firstElementChild) as HTMLInputElement;
       if (input) {
-        input.value = app_state.selected_set;
+        // input.value = app_state.selected_set;
         input.setAttribute("autocomplete", "off");
       }
     }, 200);
