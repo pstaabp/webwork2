@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view> </router-view>
+    <router-view />
     <b-navbar id="footer" fixed="bottom">
       <b-navbar-nav :small="true">
         <b-nav-item href="http://webwork.maa.org">WeBWorK</b-nav-item>

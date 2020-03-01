@@ -82,7 +82,7 @@ any ['post', 'put'] => '/courses/:course_id/sets/:set_id' => sub {
   # set all of the new parameters sent from the client
   my $all_params = body_parameters->mixed;
 
-  debug $all_params;
+  debug dump $all_params;
 
   if (defined($all_params->{problems})) {
     $all_params->{problems} = [$all_params->{problems}] unless ref($all_params->{problems}) eq "ARRAY";
