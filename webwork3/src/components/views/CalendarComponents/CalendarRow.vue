@@ -117,7 +117,7 @@ export default class CalendarRow extends Vue {
     } else if (evt.hasOwnProperty("added")) {
       const date_dropped_onto = moment.default(newDate); // make a copy of the date object
       const attrs: { [key: string]: number } = {};
-      const _set = problem_set_store.problem_sets.get(evt.added.element.set_id);
+      const _set = Object.assign({},problem_set_store.problem_sets.get(evt.added.element.set_id));
       // adjust the time to be the same as the previous assignment time.
 
       if (evt.added.element.date) { // it was dragged/changed from another calendar

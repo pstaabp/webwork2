@@ -56,6 +56,8 @@ export class ProblemSetsModule extends VuexModule {
   public async updateProblemSet(_set: ProblemSet) {
     console.log("in updateProblemSet"); // eslint-disable-line no-console
     const _previous_set = this._problem_sets.get(_set.set_id);
+    console.log(moment.unix(_previous_set.answer_date).format("YYYY/MM/DD")); // eslint-disable-line no-console
+    console.log(moment.unix(_set.answer_date).format("YYYY/MM/DD")); // eslint-disable-line no-console
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
