@@ -8,6 +8,8 @@ import {
 
 import { isEqual } from "lodash-es";
 
+import * as moment from "moment"; // this is for testing only.  DELETE
+
 import Common, { difference, parseProblemSet } from "@/common";
 
 import { ProblemSet, ProblemSetList } from "@/store/models";
@@ -60,15 +62,9 @@ export class ProblemSetsModule extends VuexModule {
     );
 
     const _updated_set = response.data as ProblemSet;
-
-    console.log(difference(_updated_set, _set)); // eslint-disable-line no-console
-    console.log(difference(_set, _updated_set)); // eslint-disable-line no-console
-
     // check to make sure that the two sets are the same
     if (isEqual(_updated_set, _set) && _previous_set) {
       const diff = difference(_updated_set, _previous_set);
-      console.log(difference(_updated_set, _previous_set)); // eslint-disable-line no-console
-      console.log(difference(_previous_set, _updated_set)); // eslint-disable-line no-console
       const _keys = Object.keys(diff);
       const short = `The properties ${_keys} for problem sets ${_set.set_id} changed.`;
       let long =
@@ -81,13 +77,13 @@ export class ProblemSetsModule extends VuexModule {
             ": from " +
             (/date$/.test(key)
               ? Common.formatDateTime(_previous_set[key])
-              : _previous_set[key]) +
+              : "from " + _previous_set[key]) +
             " to " +
             (/date$/.test(key) ? Common.formatDateTime(_set[key]) : _set[key]),
           ""
         );
       messages_store.addMessage({ id: -1, short: short, long: long });
-      this.SET_PROBLEM_SET(response.data as ProblemSet);
+      this.SET_PROBLEM_SET(_updated_set);
     } else {
       // eslint-disable-next-line no-console
       console.error(

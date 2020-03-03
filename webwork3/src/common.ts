@@ -165,7 +165,7 @@ export function parseProblemSet(_set: ProblemSet) {
   _problem_set.version_creation_time = parseInteger(_set.version_creation_time);
   _problem_set.version_last_attempt_time = parseInteger(_set.version_last_attempt_time);
   _problem_set.problems_per_page = parseInteger(_set.problems_per_page);
-  console.log(difference(_set,_problem_set)); // eslint-disable-line no-console
+  // console.log(difference(_set,_problem_set)); // eslint-disable-line no-console
   return _problem_set;
 }
 

@@ -72,15 +72,18 @@
       "vue/html-end-tags": "error",
       "vue/html-indent": "error",
       "vue/html-quotes": "error",
-      "vue/html-self-closing": ["error", {
-        "html": {
-          "void": "always",
-          "normal": "always",
-          "component": "always"
-        },
-        "svg": "always",
-        "math": "always"
-      }],
+      "vue/html-self-closing": [
+        "error",
+        {
+          "html": {
+            "void": "always",
+            "normal": "always",
+            "component": "always"
+          },
+          "svg": "always",
+          "math": "always"
+        }
+      ],
       "vue/mustache-interpolation-spacing": "error",
       "vue/no-spaces-around-equal-signs-in-attribute": "error",
       "vue/v-bind-style": "error",

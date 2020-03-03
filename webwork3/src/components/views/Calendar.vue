@@ -122,47 +122,48 @@ export default class Calendar extends Vue {
     return problem_set_store.set_names;
   }
 
-  private checkMove() {
-    console.log("in checkMove"); // eslint-disable-line no-console
-  }
-
   private created(): void {
-    this.updateAssignmentDates();
+    this.all_assignment_dates = this.updateAssignmentDates(this.problem_sets);
 
     this.$store.subscribe((mutation, state) => {
       // any change to the problem sets and update the assignment dates.
-      if (mutation && mutation.type.split("/")[0] === "problem_set_store") {
-        this.updateAssignmentDates();
+      if (mutation.type === "problem_set_store/SET_PROBLEM_SET") {
+        const set = mutation.payload as ProblemSet;
+        this.all_assignment_dates = this.all_assignment_dates
+          .filter( _info => _info.set_id !== mutation.payload.set_id)
+          .concat(this.updateAssignmentDates([set]));
+        // console.log(this.all_assignment_dates); // eslint-disable-line no-console
       }
     });
   }
 
-  private updateAssignmentDates() {
-    const _sets = this.problem_sets;
+  // this method takes in sets and returns the individual dates (open, due, ...)
+  // for placing on the calendar.
 
-    this.all_assignment_dates = this.problem_sets
-      .flatMap(_set => [
+  private updateAssignmentDates(_sets: ProblemSet[]) {
+    return _sets.flatMap(_set => [
         {
           date: moment.unix(_set.answer_date),
           type: "answer",
           set_id: _set.set_id
         },
-        { date: moment.unix(_set.due_date), type: "due", set_id: _set.set_id },
+        {
+          date: moment.unix(_set.due_date),
+          type: "due", set_id:
+          _set.set_id
+        },
         {
           date: moment.unix(_set.reduced_scoring_date),
           type: "reduced",
           set_id: _set.set_id
         },
-        { date: moment.unix(_set.open_date), type: "open", set_id: _set.set_id }
+        {
+          date: moment.unix(_set.open_date),
+          type: "open",
+          set_id: _set.set_id
+        }
       ])
       .map(d => Object.assign(d, { id: d.set_id + "___" + d.type }));
-
-    // eslint-disable-next-line
-    console.log(
-      this.all_assignment_dates.filter(
-        _ai => _ai.set_id === "HW2" && _ai.type === "answer"
-      )
-    ); // eslint-disable-line no-console
   }
 
   private changeWeek(week: number) {

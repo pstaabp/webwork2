@@ -75,7 +75,7 @@ export default class CalendarRow extends Vue {
   }
 
   private get assignment_info(): AssignmentInfo[][] {
-    console.log("in get assignment_info"); // eslint-disable-line no-console
+    // console.log("in get assignment_info"); // eslint-disable-line no-console
     return this.week.map(_day =>
       this.all_assignment_dates.filter((_info: AssignmentInfo) =>
         _info.date.isSame(_day, "day")
@@ -85,8 +85,8 @@ export default class CalendarRow extends Vue {
 
   @Watch("assignment_info")
   private changin() {
-    console.log("assignment_info changed"); // eslint-disable-line no-console
-    console.log(this.assignment_info); // eslint-disable-line no-console
+    // console.log("assignment_info changed"); // eslint-disable-line no-console
+    // console.log(this.assignment_info); // eslint-disable-line no-console
   }
 
   // returns the class for proper coloring of the calendar
@@ -108,34 +108,35 @@ export default class CalendarRow extends Vue {
     newDate: moment.Moment,
     evt: ChangeEvent<AssignmentInfo>
   ) {
-    console.log("dropping onto"); // eslint-disable-line no-console
-    console.log(newDate.format("MM/DD/YYYY")); // eslint-disable-line no-console
-
-    if (evt.hasOwnProperty("added")) {
+    // console.log("dropping onto"); // eslint-disable-line no-console
+    // console.log(evt); // eslint-disable-line no-console
+    // console.log(newDate.format("MM/DD/YYYY")); // eslint-disable-line no-console
+    //
+    if (evt.hasOwnProperty("removed")) { // if the change event is fired but it is removed.
+      return;
+    } else if (evt.hasOwnProperty("added")) {
       const date_dropped_onto = moment.default(newDate); // make a copy of the date object
       const attrs: { [key: string]: number } = {};
       const _set = problem_set_store.problem_sets.get(evt.added.element.set_id);
       // adjust the time to be the same as the previous assignment time.
 
-      if (evt.added.element.date) {
-        // it was dragged from the calendar
+      if (evt.added.element.date) { // it was dragged/changed from another calendar
         date_dropped_onto.hours(evt.added.element.date.hours());
         date_dropped_onto.minutes(evt.added.element.date.minutes());
         attrs[evt.added.element.type + "_date"] = date_dropped_onto.unix();
-      } else if (evt.added.element.due_date) {
-        // it was dragged from the sidebar
-        const reduced_scoring_date = moment.default(date_dropped_onto);
-        const open_date = moment.default(date_dropped_onto);
-        open_date.subtract(7, "days");
-        const answer_date = moment.default(date_dropped_onto);
-        answer_date.add(7, "days");
+      } else if (evt.added.element.due_date) { // it was dragged from the sidebar
+
+        // const open_date = ;
+        // open_date.subtract(7, "days");
+        //const answer_date = moment.default(date_dropped_onto);
+        //answer_date.add(7, "days");
         attrs.due_date = date_dropped_onto.unix();
-        attrs.reduced_scoring_date = reduced_scoring_date.unix();
-        attrs.open_date = open_date.unix();
-        attrs.answer_date = answer_date.unix();
+        attrs.reduced_scoring_date = moment.default(date_dropped_onto).unix();
+        attrs.open_date = moment.default(date_dropped_onto).subtract(7,"days").unix();
+        attrs.answer_date = moment.default(date_dropped_onto).add(7,"days").unix();
       }
 
-      console.log(attrs); // eslint-disable-line no-console
+      // console.log(attrs); // eslint-disable-line no-console
       const tmp = Object.keys(attrs).reduce(
         (obj: { [key: string]: string }, value: string) => {
           obj[value] = moment.unix(attrs[value]).format("MM/DD/YYYY");
@@ -143,10 +144,10 @@ export default class CalendarRow extends Vue {
         },
         {}
       );
-      console.log(tmp); // eslint-disable-line no-console
+      // console.log(tmp); // eslint-disable-line no-console
 
       if (_set) {
-        console.log("in assignChange"); // eslint-disable-line no-console
+        // console.log("in assignChange"); // eslint-disable-line no-console
         Object.assign(_set, attrs);
         problem_set_store.updateProblemSet(_set);
       }
