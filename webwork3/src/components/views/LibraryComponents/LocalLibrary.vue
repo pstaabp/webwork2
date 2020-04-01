@@ -68,7 +68,7 @@ interface DirectoryType {
 }
 
 @Component({
-  name: "LocalLibrary"
+  name: "LocalLibrary",
 })
 export default class LocalLibrary extends Vue {
   private dir_info: DirectoryStructure = { base: "", files: [], subdirs: [] };
@@ -76,7 +76,7 @@ export default class LocalLibrary extends Vue {
   private selection: DirectoryType[] = [];
 
   public mounted() {
-    axios.get(login_store.api_header + "/library/local").then(response => {
+    axios.get(login_store.api_header + "/library/local").then((response) => {
       this.dir_info = response.data;
 
       console.log(this.dir_info); // eslint-disable-line no-console
@@ -121,13 +121,13 @@ export default class LocalLibrary extends Vue {
         ...(_dirsTmp.subdirs
           ? _dirsTmp.subdirs.map((_dir: DirectoryStructure) => ({
               type: "dir",
-              text: _dir.base
+              text: _dir.base,
             }))
           : []),
         ..._dirsTmp.files.map((_file: string) => ({
           type: "file",
-          text: _file
-        }))
+          text: _file,
+        })),
       ];
       this.dirs = dirs;
     } else if (item.type === "file") {
@@ -139,10 +139,10 @@ export default class LocalLibrary extends Vue {
       console.log(path); // eslint-disable-line no-console
       axios
         .get(login_store.api_header + "/problems/local" + path)
-        .then(response => {
+        .then((response) => {
           this.$emit("load-problems", response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error); // eslint-disable-line no-console
         });
     }

@@ -44,18 +44,18 @@ export default new VueRouter({
                 {
                   path: "set-view/:set_id",
                   component: ProblemSetView,
-                  name: "setview"
+                  name: "setview",
                 },
                 { path: "library", component: LibraryBrowser },
                 { path: "import-export", component: ImportExport },
                 { path: "editor", component: Editor },
-                { path: "statistics", component: Statistics }
-              ]
-            }
-          ]
-        }
-      ]
+                { path: "statistics", component: Statistics },
+              ],
+            },
+          ],
+        },
+      ],
     },
-    { path: "*", component: PageNotFound }
-  ]
+    { path: "*", component: PageNotFound },
+  ],
 });

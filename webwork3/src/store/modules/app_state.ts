@@ -4,7 +4,7 @@ import {
   VuexModule,
   Module,
   Mutation,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 import store from "@/store";
 
@@ -17,7 +17,7 @@ if (store.state.app_state) {
   namespaced: true,
   name: "app_state",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class AppStateModule extends VuexModule {
   private _selected_set: string = "";

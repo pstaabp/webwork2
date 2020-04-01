@@ -8,7 +8,7 @@
 <script lang="ts">
 import axios from "axios";
 
-import Common from "@/common";
+import { ww3Views } from "@/common";
 import MenuBar from "@/components/common_components/MenuBar.vue";
 import { Vue, Component, Watch } from "vue-property-decorator";
 
@@ -21,16 +21,14 @@ import app_state from "@/store/modules/app_state";
 @Component({
   name: "Manager",
   components: {
-    MenuBar
-  }
+    MenuBar,
+  },
 })
 export default class Manager extends Vue {
   @Watch("$route.path")
   private onRouteChanged(value: { path: string }) {
     app_state.setCurrentView(this.$route.path.split("/")[4]);
-    const _view = Common.views().find(
-      _v => _v.route === app_state.current_view
-    );
+    const _view = ww3Views().find((_v) => _v.route === app_state.current_view);
     if (_view) {
       app_state.setShowSetOptions(_view.show_set);
       app_state.setShowUserOptions(_view.show_user);

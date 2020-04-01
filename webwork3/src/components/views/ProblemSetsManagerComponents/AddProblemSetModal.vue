@@ -33,6 +33,8 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 import * as moment from "moment";
 
+import { newProblemSet } from "@/common";
+
 import { ProblemSet } from "@/store/models";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
@@ -41,10 +43,10 @@ import problem_sets_store from "@/store/modules/problem_sets";
 import settings_store from "@/store/modules/settings";
 
 @Component({
-  name: "AddProblemSetModal"
+  name: "AddProblemSetModal",
 })
 export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
-  private problem_set: ProblemSet = this.emptySet();
+  private problem_set: ProblemSet = newProblemSet();
 
   @Prop()
   private problem_sets!: Map<string, ProblemSet>;
@@ -95,14 +97,14 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
       open_date: open_date.unix(),
       due_date: due_date.unix(),
       reduced_scoring_date: reduced_scoring_date.unix(),
-      answer_date: answer_date.unix()
+      answer_date: answer_date.unix(),
     });
 
     // add to the store state:
     const _set = await problem_sets_store.addProblemSet(this.problem_set);
 
     this.$bvModal.hide("add-problem-set-modal");
-    this.problem_set = this.emptySet();
+    this.problem_set = newProblemSet();
 
     this.$emit("problem-set-added"); // this is a hacky way to get adding problem sets to update
   }

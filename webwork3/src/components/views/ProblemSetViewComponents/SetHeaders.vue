@@ -4,6 +4,6 @@
 
 <script>
 export default {
-  name: "SetHeaders"
+  name: "SetHeaders",
 };
 </script>

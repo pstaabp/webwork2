@@ -4,14 +4,14 @@
       <settings-row
         v-for="setting in settings"
         :setting="setting"
-        :key="setting.var"
+        :key="setting.var + new Date()"
       />
     </table>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
 import { Setting } from "@/store/models";
 
@@ -20,11 +20,16 @@ import SettingsRow from "./SettingsRow.vue";
 @Component({
   name: "SettingsTab",
   components: {
-    SettingsRow
-  }
+    SettingsRow,
+  },
 })
 export default class SettingsTab extends Vue {
   @Prop() public name!: string;
   @Prop() public settings!: Setting[];
+
+  @Watch("settings")
+  private settingsChanged() {
+    console.log("settings changed in settingsTab"); // eslint-disable-line no-console
+  }
 }
 </script>

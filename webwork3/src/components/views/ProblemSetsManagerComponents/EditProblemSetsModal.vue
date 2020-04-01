@@ -74,45 +74,48 @@ import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import Common, {
   validReducedScoring,
   validAnswerDate,
-  validDueDate
+  validDueDate,
+  newProblemSet,
 } from "@/common";
 import { ProblemSet } from "@/store/models";
 
 import problem_sets_store from "@/store/modules/problem_sets";
 
 @Component({
-  name: "EditProblemSetsModal"
+  name: "EditProblemSetsModal",
 })
 export default class SetInfo extends mixins(ProblemSetMixin) {
-  private problem_set: ProblemSet = this.emptySet();
+  private problem_set: ProblemSet = newProblemSet();
   @Prop() private selected_sets!: ProblemSet[];
 
   @Watch("selected_sets")
   private selectedSetsChanged() {
     const _sets = this.selected_sets || [];
-    this.problem_set.open_date = Math.min(..._sets.map(_set => _set.open_date));
-    this.problem_set.reduced_scoring_date = Math.min(
-      ..._sets.map(_set => _set.reduced_scoring_date)
+    this.problem_set.open_date = Math.min(
+      ..._sets.map((_set) => _set.open_date)
     );
-    this.problem_set.due_date = Math.min(..._sets.map(_set => _set.due_date));
+    this.problem_set.reduced_scoring_date = Math.min(
+      ..._sets.map((_set) => _set.reduced_scoring_date)
+    );
+    this.problem_set.due_date = Math.min(..._sets.map((_set) => _set.due_date));
     this.problem_set.answer_date = Math.min(
-      ..._sets.map(_set => _set.answer_date)
+      ..._sets.map((_set) => _set.answer_date)
     );
   }
 
   private get set_names() {
-    return this.selected_sets.map(_set => _set.set_id).join(", ");
+    return this.selected_sets.map((_set) => _set.set_id).join(", ");
   }
 
   private save() {
-    this.selected_sets.forEach(_set => {
+    this.selected_sets.forEach((_set) => {
       const {
         enable_reduced_scoring,
         visible,
         open_date,
         reduced_scoring_date,
         due_date,
-        answer_date
+        answer_date,
       } = this.problem_set;
       Object.assign(_set, {
         enable_reduced_scoring,
@@ -120,7 +123,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         open_date,
         reduced_scoring_date,
         due_date,
-        answer_date
+        answer_date,
       });
       problem_sets_store.updateProblemSet(_set);
     });

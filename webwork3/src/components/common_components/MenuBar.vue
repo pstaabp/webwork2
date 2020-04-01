@@ -31,7 +31,7 @@
           <dropdown
             id="set_options"
             :options="set_names_for_dd"
-            :maxItem="100"
+            :max-item="100"
             @selected="setSelectedSet"
             placeholder="Select a set"
           />
@@ -43,7 +43,7 @@
           <dropdown
             id="user_options"
             :options="user_names_for_dd"
-            :maxItem="100"
+            :max-item="100"
             @selected="setSelectedUser"
             placeholder="Select a User"
           />
@@ -132,7 +132,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
 import Dropdown from "vue-simple-search-dropdown";
 
-import Common from "@/common";
+import Common, { ww3Views } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
@@ -152,7 +152,7 @@ interface RouteObj {
   components: {
     NotificationBar,
     BNavbar,
-    Dropdown
+    Dropdown,
   },
   filters: {
     getName: (route: string, arr: RouteObj[]): string => {
@@ -164,12 +164,12 @@ interface RouteObj {
       }
 
       return "Select View";
-    }
-  }
+    },
+  },
 })
 export default class MenuBar extends Vue {
   private change_password: boolean = false;
-  private views = Common.views();
+  private views = ww3Views();
   private sidebars = Common.sidebars();
 
   get current_view() {
@@ -177,7 +177,7 @@ export default class MenuBar extends Vue {
   }
 
   get current_icon() {
-    const view = Common.views().find(_v => _v.route === this.current_view);
+    const view = this.views.find((_v) => _v.route === this.current_view);
     return view ? view.icon : "";
   }
 
@@ -211,13 +211,13 @@ export default class MenuBar extends Vue {
   get set_names_for_dd() {
     return Array.from(problem_set_store.problem_sets.keys())
       .sort()
-      .map(_set_id => ({ name: _set_id, id: _set_id }));
+      .map((_set_id) => ({ name: _set_id, id: _set_id }));
   }
 
   get user_names_for_dd() {
-    return Array.from(user_store.users.values()).map(_user => ({
+    return Array.from(user_store.users.values()).map((_user) => ({
       name: _user.first_name + " " + _user.last_name,
-      id: _user.user_id
+      id: _user.user_id,
     }));
   }
 
@@ -249,6 +249,8 @@ export default class MenuBar extends Vue {
 
   private setSelectedSet(_set: { name: string; id: string }) {
     // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
+
+    console.log("changing set in menu bar"); // eslint-disable-line no-console
     if (_set && _set.name) {
       app_state.setSelectedSet(_set.name);
     }

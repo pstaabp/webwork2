@@ -4,7 +4,7 @@
       <b-tab title="Set Details" active>
         <set-info
           :problem_sets="problem_sets_array"
-          :selected_problem_set="problem_set"
+          :selected_set="problem_set"
         />
       </b-tab>
       <b-tab title="Gateway Info" :disabled="!is_gateway">
@@ -49,8 +49,8 @@ import app_state from "@/store/modules/app_state";
     GatewayInfo,
     ProblemListView,
     AssignUsers,
-    SetHeaders
-  }
+    SetHeaders,
+  },
 })
 export default class ProblemSetView extends mixins(ProblemSetMixin) {
   private problem_set: ProblemSet = newProblemSet();
@@ -70,42 +70,34 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     );
   }
 
-  private updateSet(_set: ProblemSet) {
-    problem_sets_store.updateProblemSet(_set);
-  }
-
   private created() {
-    // watch for changes in the selected set from the menu bar.
+    // watch for changes in the selected set from the menu bar or as a link from another part of the app.
     this.$store.subscribe((mutation, state) => {
-      if (
-        app_state.current_view === "set-view" &&
-        mutation.type === "app_state/setSelectedSet"
-      ) {
-        this.$router
-          .push({ name: "setview", params: { set_id: app_state.selected_set } })
-          .catch(err => {
-            // if the route is the same, don't throw the error
-            if (err.name !== "NavigationDuplicated") {
-              console.error(err); // eslint-disable-line no-console
-            }
+      if (mutation.type === "app_state/setSelectedSet") {
+        if (
+          this.$route.params &&
+          this.$route.params.set_id !== app_state.selected_set
+        ) {
+          this.$router.push({
+            name: "setview",
+            params: { set_id: app_state.selected_set },
           });
-        const _set = problem_sets_store.problem_sets.get(
-          app_state.selected_set
-        );
-        if (_set) {
-          this.problem_set = _set;
         }
       }
     });
   }
 
-  @Watch("$route")
+  // handles changes to the route which is the set-view route.
+  @Watch("$route", { immediate: true, deep: true })
   private routeChanged(to: any, from: any) {
     if (to.name === "setview") {
-      const set_id =
-        (to.params && to.params.set_id) || (to.query && to.query.set_id);
+      const set_id = to.params && to.params.set_id;
       if (set_id) {
         app_state.setSelectedSet(set_id);
+        const _set = problem_sets_store.problem_sets.get(set_id);
+        if (_set) {
+          Object.assign(this.problem_set, _set);
+        }
       }
     }
   }

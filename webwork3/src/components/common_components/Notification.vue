@@ -26,7 +26,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import { Message } from "@/store/models";
 
 @Component({
-  name: "Notification"
+  name: "Notification",
 })
 export default class Notification extends Vue {
   @Prop()

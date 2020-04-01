@@ -4,7 +4,14 @@ import moment from "moment";
 
 import { ProblemSet, User, Problem } from "@/store/models";
 
-import { transform, isEqual, isObject, isString, isNumber, isInteger} from "lodash-es";
+import {
+  transform,
+  isEqual,
+  isObject,
+  isString,
+  isNumber,
+  isInteger,
+} from "lodash-es";
 
 export interface ViewInfo {
   name: string;
@@ -47,7 +54,7 @@ export const LIB_PROB: ProblemViewOptions = {
   mark_all: false,
   tags: true,
   path: true,
-  target_set: true
+  target_set: true,
 };
 
 export const SET_PROB: ProblemViewOptions = {
@@ -63,7 +70,7 @@ export const SET_PROB: ProblemViewOptions = {
   mark_all: true,
   tags: false,
   path: false,
-  target_set: false
+  target_set: false,
 };
 
 export function newProblemSet(): ProblemSet {
@@ -100,7 +107,7 @@ export function newProblemSet(): ProblemSet {
     restricted_login_proctor: "",
     hide_hint: true,
     restrict_prob_progression: false,
-    email_instructor: false
+    email_instructor: false,
   };
 }
 
@@ -120,7 +127,7 @@ export function difference(
     object: { [key: string]: any },
     base: { [key: string]: any }
   ) {
-    return transform(object, function(
+    return transform(object, function (
       result: { [key: string]: any },
       value: { [key: string]: any },
       key: string
@@ -138,12 +145,15 @@ export function difference(
 
 // this function takes in a problem set and parses out the numbers:
 
-function parseInteger(prop: number | string){
-  if (isNumber(prop) && ! isInteger(prop)) {
+function parseInteger(prop: number | string, default_value = 0) {
+  if (!prop) {
+    return default_value;
+  }
+  if (isNumber(prop) && !isInteger(prop)) {
     throw prop + " is not an integer";
   }
-  if (isString(prop)){
-    return parseInt(prop + "",10);
+  if (isString(prop)) {
+    return parseInt(prop + "", 10);
   }
   return prop;
 }
@@ -153,7 +163,7 @@ function parseInteger(prop: number | string){
 
 export function parseProblemSet(_set: ProblemSet) {
   const _problem_set = newProblemSet();
-  Object.assign(_problem_set,_set);
+  Object.assign(_problem_set, _set);
   _problem_set.open_date = parseInteger(_set.open_date);
   _problem_set.reduced_scoring_date = parseInteger(_set.reduced_scoring_date);
   _problem_set.due_date = parseInteger(_set.due_date);
@@ -163,9 +173,11 @@ export function parseProblemSet(_set: ProblemSet) {
   _problem_set.versions_per_interval = parseInteger(_set.versions_per_interval);
   _problem_set.version_time_limit = parseInteger(_set.version_time_limit);
   _problem_set.version_creation_time = parseInteger(_set.version_creation_time);
-  _problem_set.version_last_attempt_time = parseInteger(_set.version_last_attempt_time);
+  _problem_set.version_last_attempt_time = parseInteger(
+    _set.version_last_attempt_time
+  );
   _problem_set.problems_per_page = parseInteger(_set.problems_per_page);
-  // console.log(difference(_set,_problem_set)); // eslint-disable-line no-console
+  //  console.log(difference(_set, _problem_set)); // eslint-disable-line no-console
   return _problem_set;
 }
 
@@ -187,80 +199,80 @@ export function validAnswerDate(_set: ProblemSet) {
     .isSameOrAfter(moment.unix(_set.due_date));
 }
 
-export default class Common {
-  public static views(): ViewInfo[] {
-    return [
-      {
-        name: "Calendar",
-        icon: "calendar",
-        route: "calendar",
-        show_set: false,
-        show_user: false
-      },
-      {
-        name: "Classlist Manager",
-        icon: "people",
-        route: "classlist",
-        show_set: false,
-        show_user: false
-      },
-      {
-        name: "Problem Set Details",
-        icon: "info-square",
-        route: "set-view",
-        show_set: true,
-        show_user: false
-      },
-      {
-        name: "Library Browser",
-        icon: "book",
-        route: "library",
-        show_set: true,
-        show_user: false
-      },
-      {
-        name: "Problem Sets Manager",
-        icon: "list-ul",
-        route: "problem-sets",
-        show_set: false,
-        show_user: true
-      },
-      {
-        name: "Problem Editor",
-        icon: "pencil",
-        route: "editor",
-        show_set: false,
-        show_user: false
-      },
-      {
-        name: "Statistics",
-        icon: "bar-chart",
-        route: "statistics",
-        show_set: false,
-        show_user: false
-      },
-      {
-        name: "Import/Export Sets",
-        icon: "arrow-left-right",
-        route: "import-export",
-        show_set: false,
-        show_user: false
-      },
-      {
-        name: "Settings",
-        icon: "gear",
-        route: "settings",
-        show_set: false,
-        show_user: false
-      }
-    ];
-  }
+export function ww3Views(): ViewInfo[] {
+  return [
+    {
+      name: "Calendar",
+      icon: "calendar",
+      route: "calendar",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Classlist Manager",
+      icon: "people",
+      route: "classlist",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Problem Set Details",
+      icon: "info-square",
+      route: "set-view",
+      show_set: true,
+      show_user: false,
+    },
+    {
+      name: "Library Browser",
+      icon: "book",
+      route: "library",
+      show_set: true,
+      show_user: false,
+    },
+    {
+      name: "Problem Sets Manager",
+      icon: "list-ul",
+      route: "problem-sets",
+      show_set: false,
+      show_user: true,
+    },
+    {
+      name: "Problem Editor",
+      icon: "pencil",
+      route: "editor",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Statistics",
+      icon: "bar-chart",
+      route: "statistics",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Import/Export Sets",
+      icon: "arrow-left-right",
+      route: "import-export",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Settings",
+      icon: "gear",
+      route: "settings",
+      show_set: false,
+      show_user: false,
+    },
+  ];
+}
 
+export default class Common {
   public static sidebars(): SidebarInfo[] {
     return [
       { name: "Problem Sets", comp: "problem_sets" },
       { name: "Library Options", comp: "lib_opts" },
-      { name: "Messages", comp: "messages" }
+      { name: "Messages", comp: "messages" },
     ];
   }
 
@@ -269,7 +281,7 @@ export default class Common {
       C: "enrolled",
       P: "proctor",
       A: "audit",
-      D: "drop"
+      D: "drop",
     };
   }
 
@@ -281,7 +293,7 @@ export default class Common {
       "7": "grade_proctor",
       "6": "login_proctor",
       "0": "student",
-      "-5": "guest"
+      "-5": "guest",
     };
   }
 
@@ -324,7 +336,7 @@ export default class Common {
       displayMode: "MathJax",
       section: "",
       showOldAnswers: false,
-      useWirisEditor: false
+      useWirisEditor: false,
     };
   }
 
@@ -342,7 +354,7 @@ export default class Common {
       showMeAnotherCount: 0,
       source_file: "",
       value: 1,
-      problem_source: ""
+      problem_source: "",
     };
   }
 } // class Constants

@@ -61,7 +61,7 @@ interface UserProblemStatus {
 }
 
 @Component({
-  name: "Scoring"
+  name: "Scoring",
 })
 export default class Scoring extends Vue {
   private set_values: SetValue[] = []; // store the value of each set
@@ -83,7 +83,7 @@ export default class Scoring extends Vue {
     const row: StringMap = {
       user_id: "MAX value",
       first_name: "",
-      last_name: ""
+      last_name: "",
     };
     Object.assign(
       row,
@@ -125,7 +125,7 @@ export default class Scoring extends Vue {
         )
         .map((_set_score: UserSetScore) => ({
           set_id: _set_score.set_id,
-          total: (_set_score && this.userProblemsSum(_set_score.scores)) || 0
+          total: (_set_score && this.userProblemsSum(_set_score.scores)) || 0,
         }));
 
       const user_total = user_scores.reduce(
@@ -143,7 +143,7 @@ export default class Scoring extends Vue {
           user_id: _user.user_id,
           first_name: _user.first_name,
           last_name: _user.last_name,
-          total: user_total
+          total: user_total,
         }
       );
     });
@@ -160,19 +160,19 @@ export default class Scoring extends Vue {
       .map((_set_id: string) => ({
         key: _set_id,
         sortable: true,
-        formatter: "round2"
+        formatter: "round2",
       }));
     const info_fields = ["user_id", "first_name", "last_name"].map(
       (_str: string) => ({
         key: _str,
         sortable: true,
-        stickyColumn: true
+        stickyColumn: true,
       })
     );
     return [
       ...info_fields,
       ...name_fields,
-      ...[{ key: "total", formatter: "round2", sortable: true }]
+      ...[{ key: "total", formatter: "round2", sortable: true }],
     ];
   }
 

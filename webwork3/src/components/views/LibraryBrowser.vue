@@ -30,8 +30,8 @@ import app_state from "@/store/modules/app_state";
 @Component({
   name: "SetDetails",
   components: {
-    LibraryTab
-  }
+    LibraryTab,
+  },
 })
 export default class LibraryBrowser extends Vue {
   private problem_set() {

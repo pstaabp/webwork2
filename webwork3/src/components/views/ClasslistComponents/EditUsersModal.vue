@@ -59,7 +59,7 @@ export default class EditUsersModel extends Vue {
   // }
 
   private save(): void {
-    this.users.forEach(_user => users_store.updateUser(_user));
+    this.users.forEach((_user) => users_store.updateUser(_user));
     this.$bvModal.hide("edit-users-modal");
   }
 }

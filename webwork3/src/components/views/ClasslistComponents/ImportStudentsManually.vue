@@ -80,7 +80,7 @@ import { User } from "@/store/models";
 
 import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({
-  name: "ImportStudentsFiles"
+  name: "ImportStudentsFiles",
 })
 export default class ImportStudentsFile extends Vue {
   private num_students: number = 0;

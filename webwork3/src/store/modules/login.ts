@@ -5,7 +5,7 @@ import {
   Module,
   Mutation,
   Action,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 import { LoginInfo, UserPassword } from "@/store/models";
 import store from "@/store";
@@ -23,14 +23,14 @@ import axios from "axios";
   namespaced: true,
   name: "login",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class LoginModule extends VuexModule {
   private _login_info: LoginInfo = {
     user_id: "",
     logged_in: false,
     course_id: "",
-    user: Common.newUser()
+    user: Common.newUser(),
   };
 
   public get api_header() {
@@ -51,7 +51,7 @@ export class LoginModule extends VuexModule {
       logged_in: false,
       user_id: login.user_id,
       course_id: login.course_id,
-      user: Common.newUser()
+      user: Common.newUser(),
     };
 
     const response = await axios.post(
@@ -84,7 +84,7 @@ export class LoginModule extends VuexModule {
       user_id: "",
       logged_in: false,
       course_id: "",
-      user: Common.newUser()
+      user: Common.newUser(),
     };
   }
 }

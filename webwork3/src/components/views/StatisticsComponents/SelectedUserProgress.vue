@@ -30,7 +30,7 @@ interface UserProblemStatus {
 }
 
 @Component({
-  name: "SelectedUserProgress"
+  name: "SelectedUserProgress",
 })
 export default class SelectedUserProgress extends Vue {
   @Prop()
@@ -58,8 +58,8 @@ export default class SelectedUserProgress extends Vue {
   // figure out the range of problem numbers (problem_id) for all sets:
   private get max_problem_num() {
     return Math.max(
-      ...Array.from(problem_set_store.problem_sets.values()).map(_set => {
-        return Math.max(..._set.problems.map(_prob => _prob.problem_id));
+      ...Array.from(problem_set_store.problem_sets.values()).map((_set) => {
+        return Math.max(..._set.problems.map((_prob) => _prob.problem_id));
       })
     );
   }
@@ -77,7 +77,7 @@ export default class SelectedUserProgress extends Vue {
     );
 
     // an array from 1 to max_num
-    const prob_nums = [...Array(max_num).keys()].map(x => x + 1);
+    const prob_nums = [...Array(max_num).keys()].map((x) => x + 1);
 
     return sets.map((_set: ProblemSet) => {
       // get the problem score from the user with set_id _set.set_id
@@ -85,7 +85,7 @@ export default class SelectedUserProgress extends Vue {
         return { set_id: _set.set_id };
       }
       const user_set_score = user_scores.find(
-        _user_set => _set.set_id === _user_set.set_id
+        (_user_set) => _set.set_id === _user_set.set_id
       );
       const scores = user_set_score && user_set_score.scores;
 
@@ -95,11 +95,11 @@ export default class SelectedUserProgress extends Vue {
 
       const attrs = {
         set_id: _set.set_id,
-        score: scores.map(_sc => _sc.status).reduce((sum, x) => sum + x, 0),
+        score: scores.map((_sc) => _sc.status).reduce((sum, x) => sum + x, 0),
         max: _set.problems.reduce(
           (sum: number, _prob: Problem) => sum + _prob.value,
           0
-        )
+        ),
       };
 
       return prob_nums.reduce((_obj: StringMap, _num: number) => {
@@ -109,7 +109,7 @@ export default class SelectedUserProgress extends Vue {
         );
         _obj[_num] =
           (prob_info && prob_info.status) ||
-          (_set.problems.find(_s => _s.problem_id == _num) ? "." : "");
+          (_set.problems.find((_s) => _s.problem_id == _num) ? "." : "");
         return _obj;
       }, attrs);
     });
@@ -117,18 +117,18 @@ export default class SelectedUserProgress extends Vue {
 
   private get fields() {
     // an array from 1 to max_num
-    const prob_nums = [...Array(this.max_problem_num).keys()].map(x => x + 1);
+    const prob_nums = [...Array(this.max_problem_num).keys()].map((x) => x + 1);
 
-    const problems = prob_nums.map(_num => ({
+    const problems = prob_nums.map((_num) => ({
       key: "" + _num,
       sortable: true,
-      formatter: "round2"
+      formatter: "round2",
     }));
 
     const fields = [
       { key: "set_id", sortable: true },
       { key: "score", sortable: true, formatter: "round2" },
-      { key: "max", sortable: true, formatter: "round2" }
+      { key: "max", sortable: true, formatter: "round2" },
     ];
 
     return [...fields, ...problems];

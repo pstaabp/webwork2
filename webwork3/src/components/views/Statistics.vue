@@ -37,8 +37,8 @@ import app_state from "@/store/modules/app_state";
   components: {
     ScoringTab,
     SelectedSetProgress,
-    SelectedUserProgress
-  }
+    SelectedUserProgress,
+  },
 })
 export default class Statistics extends Vue {
   private user_set_scores: UserSetScore[] = [];

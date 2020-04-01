@@ -4,7 +4,7 @@
       <p>
         <span v-html="setting.doc" />&nbsp;
         <b-icon
-          icon="question-fill"
+          icon="question-circle-fill"
           size="lg"
           @click="show_help = !show_help"
         />
@@ -52,7 +52,7 @@
       />
     </td>
     <td v-else-if="setting.type === 'boolean'">
-      <b-checkbox :value="setting.value" @change="updateSetting($event)" />
+      <b-checkbox v-model="bool_value" />
     </td>
     <td v-else-if="setting.type === 'permission'">
       <b-select
@@ -91,16 +91,18 @@ import settings_store from "@/store/modules/settings";
 @Component({
   name: "SettingsTab",
   filters: {
-    valueAsTime: function(_value: string) {
+    valueAsTime: function (_value: string) {
       return moment.default(_value, ["hh:mmA"]).format("HH:mm");
-    }
-  }
+    },
+  },
 })
 export default class SettingsRow extends Vue {
   @Prop() public setting!: Setting;
   private selected: string[] = [];
   private show_help = false;
   private duration = "";
+  private bool_value = false;
+  private loading = true;
 
   private get permission_levels() {
     return Object.values(Constants.permissionLevels());
@@ -115,7 +117,7 @@ export default class SettingsRow extends Vue {
     return [
       "sessionKeyTimeout",
       "pg{assignOpenPriorToDue}",
-      "pg{answersOpenAfterDueDate}"
+      "pg{answersOpenAfterDueDate}",
     ].includes(this.setting.var);
   }
 
@@ -155,19 +157,56 @@ export default class SettingsRow extends Vue {
     this.updateSetting(moment.default(_value, ["HH:mm"]).format("hh:mmA"));
   }
 
-  private updateSetting(_value: string | number | string[]) {
-    const _setting = Object.assign({}, this.setting);
-    _setting.value = _value; // convert any number to a string
+  private updateSetting(_value: string | number | string[] | boolean) {
+    const _setting = Object.assign({}, this.setting, { value: _value });
+    // console.log(_setting); // eslint-disable-line no-console
     settings_store.updateSetting(_setting);
   }
 
-  private created() {
+  private beforeMount() {
     // for a checkbox group, we need to use the v-model to properly set and read it.
     if (this.setting.type === "checkboxlist") {
       this.selected = this.setting.value as string[];
     } else if (this.is_duration) {
       this.duration = this.formatDuration(this.setting.value as number);
+    } else if (this.setting.type === "boolean") {
+      this.bool_value = this.setting.value as boolean;
     }
+  }
+
+  private mounted() {
+    this.loading = false;
+  }
+
+  private created() {
+    this.$store.subscribe((mutation, state) => {
+      //  console.log(mutation); // eslint-disable-line no-console
+      if (
+        mutation.type === "settings/SET_SETTING" &&
+        mutation.payload &&
+        mutation.payload.var &&
+        mutation.payload.var === this.setting.var
+      ) {
+        console.log(mutation.payload.var); // eslint-disable-line no-console
+        console.log(settings_store.settings.get(this.setting.var)); // eslint-disable-line no-console
+        this.bool_value = settings_store.settings.get(this.setting.var);
+      }
+    });
+  }
+
+  @Watch("bool_value")
+  private boolValueChanged(_new: boolean, _old: boolean) {
+    // console.log([_new, _old]); // eslint-disable-line no-console
+    // console.log(this.setting); // eslint-disable-line no-console
+    if (!this.loading && this.setting.value !== _new) {
+      console.log(this.setting); // eslint-disable-line no-console
+      this.updateSetting(this.bool_value);
+    }
+  }
+
+  @Watch("setting")
+  private settingChanged() {
+    console.log("in watch setting"); // eslint-disable-line no-console
   }
 
   @Watch("selected")

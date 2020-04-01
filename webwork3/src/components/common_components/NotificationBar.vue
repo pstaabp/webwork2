@@ -37,8 +37,8 @@ import Notification from "./Notification.vue";
 @Component({
   name: "NotificationBar",
   components: {
-    Notification
-  }
+    Notification,
+  },
 })
 export default class NotificationBar extends Vue {
   private new_message: boolean = false;

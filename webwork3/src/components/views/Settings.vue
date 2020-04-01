@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-tabs content-class="mt-3">
-      <b-tab title="General" active>
+      <b-tab title="General" active lazy>
         <settings-tab name="General" :settings="filterSettings('General')" />
       </b-tab>
       <b-tab title="Optional Modules">
@@ -10,25 +10,25 @@
           :settings="filterSettings('Optional Modules')"
         />
       </b-tab>
-      <b-tab title="Permissions">
+      <b-tab title="Permissions" lazy>
         <settings-tab
           name="Permissions"
           :settings="filterSettings('Permissions')"
         />
       </b-tab>
-      <b-tab title="Problem Display">
+      <b-tab title="Problem Display" lazy>
         <settings-tab
           name="Problem Display"
           :settings="filterSettings('PG - Problem Display/Answer Checking')"
         />
       </b-tab>
-      <b-tab title="Email">
+      <b-tab title="Email" lazy>
         <settings-tab
           name="Permissions"
           :settings="filterSettings('Permissions')"
         />
       </b-tab>
-      <b-tab title="Editor">
+      <b-tab title="Editor" lazy>
         <settings-tab name="Editor" :settings="filterSettings('Editor')" />
       </b-tab>
       <b-tab title="WW3-UI">
@@ -51,14 +51,29 @@ import settings_store from "@/store/modules/settings";
 @Component({
   name: "Settings",
   components: {
-    SettingsTab
-  }
+    SettingsTab,
+  },
 })
 export default class Settings extends Vue {
+  private settings_change = 1;
+
+  private get settings() {
+    return this.settings_change && settings_store.settings_array;
+  }
   private filterSettings(category: string): Setting[] {
-    return settings_store.settings_array.filter(
+    return this.settings.filter(
       (setting: Setting) => setting.category === category
     );
+  }
+
+  private mounted() {
+    this.$store.subscribe((mutation, state) => {
+      // any change to the settings
+      if (mutation.type === "settings/SET_SETTING") {
+        console.log("setting changed!"); // eslint-disable-line no-console
+        this.settings_change += 1;
+      }
+    });
   }
 }
 </script>

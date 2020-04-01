@@ -98,7 +98,7 @@ export default class ImportStudentsFile extends Vue {
     { value: "section", text: "Sect.", regexp: "section" },
     { value: "recitation", text: "Rec.", regexp: "recitation" },
     { value: "comment", text: "Comment", regexp: "comment" },
-    { value: "permission", text: "Permission", regexp: "permission" }
+    { value: "permission", text: "Permission", regexp: "permission" },
   ];
   private firstRow: string[] = [];
   private data: any[] = [];
@@ -111,7 +111,7 @@ export default class ImportStudentsFile extends Vue {
       if (evt) {
         const file = readFileSync("sample.csv", "utf8");
         // tslint:disable-next-line
-        parse(file, { complete: result => console.dir(result.data) }); // eslint-disable-line no-console
+        parse(file, { complete: (result) => console.dir(result.data) }); // eslint-disable-line no-console
         // const users = Papa.parse(evt.target.result);
         // // change this to an array of an object:
         // this.data = users.data.map( (row) => Object.assign(...row.map((v, i) => ({['col' + i]: v}))));
@@ -126,9 +126,9 @@ export default class ImportStudentsFile extends Vue {
     // document.getElementById('import-table').rows[1].style.visibility = this.useFirstRow ? 'visible' : 'collapse';
     this.useFirstRow = !this.useFirstRow;
     // try to match the header fields
-    this.headers.forEach(header => {
+    this.headers.forEach((header) => {
       const re = new RegExp(header.regexp, "i");
-      const k = this.firstRow.findIndex(h => re.test(h));
+      const k = this.firstRow.findIndex((h) => re.test(h));
       if (k > -1) {
         this.headerValues[k] = header.value;
       }

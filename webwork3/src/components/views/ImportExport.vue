@@ -6,6 +6,6 @@
 import { ProblemSet } from "@/store/models";
 
 export default {
-  name: "ImportExport"
+  name: "ImportExport",
 };
 </script>

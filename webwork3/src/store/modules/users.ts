@@ -3,7 +3,7 @@ import {
   Module,
   Action,
   Mutation,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 import axios from "axios";
 
@@ -24,7 +24,7 @@ if (store.state[name]) {
   namespaced: true,
   name: "users",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class UsersModule extends VuexModule {
   private _users: UserList = new Map();
@@ -73,7 +73,7 @@ export class UsersModule extends VuexModule {
   @Mutation
   private async SET_USERS(_users: User[]) {
     this._users = new Map();
-    _users.forEach(_u => {
+    _users.forEach((_u) => {
       this._users.set(_u.user_id, _u);
     });
   }
