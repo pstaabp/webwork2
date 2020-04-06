@@ -26,7 +26,7 @@ import axios from "axios";
   dynamic: true,
 })
 export class LoginModule extends VuexModule {
-  private _login_info: LoginInfo = {
+  private login_info_state: LoginInfo = {
     user_id: "",
     logged_in: false,
     course_id: "",
@@ -34,15 +34,15 @@ export class LoginModule extends VuexModule {
   };
 
   public get api_header() {
-    return "/webwork3/api/courses/" + this._login_info.course_id;
+    return "/webwork3/api/courses/" + this.login_info_state.course_id;
   }
 
   public get login_info() {
-    return this._login_info;
+    return this.login_info_state;
   }
 
   public get course_id() {
-    return this._login_info.course_id;
+    return this.login_info_state.course_id;
   }
 
   @Action
@@ -75,12 +75,12 @@ export class LoginModule extends VuexModule {
 
   @Mutation
   private setLoginInfo(_info: LoginInfo): void {
-    this._login_info = _info;
+    this.login_info_state = _info;
   }
 
   @Mutation
   private RESET_LOGIN(): void {
-    this._login_info = {
+    this.login_info_state = {
       user_id: "",
       logged_in: false,
       course_id: "",

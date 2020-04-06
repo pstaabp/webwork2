@@ -1,3 +1,52 @@
+<!-- Settings.vue
+
+This is the main view for viewing/editing settings for the course. -->
+
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+
+import SettingsTab from "./SettingsComponents/SettingsTab.vue";
+
+import { Setting } from "@/store/models";
+
+// set up the store
+import settings_store from "@/store/modules/settings";
+
+@Component({
+  name: "Settings",
+  components: {
+    SettingsTab,
+  },
+})
+export default class Settings extends Vue {
+  private settings_change = 1;
+
+  private get settings() {
+    if (this.settings_change) {
+      // a hack to get an update for the SettingsList Map.
+      return settings_store.settings_array;
+    } else {
+      return settings_store.settings_array;
+    }
+  }
+  private filterSettings(category: string): Setting[] {
+    return this.settings.filter(
+      (setting: Setting) => setting.category === category
+    );
+  }
+
+  private mounted() {
+    this.$store.subscribe((mutation) => {
+      // any change to the settings
+      if (mutation.type === "settings/SET_SETTING") {
+        console.log("setting changed!"); // eslint-disable-line no-console
+        this.settings_change += 1;
+      }
+    });
+  }
+}
+</script>
+
 <template>
   <b-container>
     <b-tabs content-class="mt-3">
@@ -37,43 +86,3 @@
     </b-tabs>
   </b-container>
 </template>
-
-<script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
-
-import SettingsTab from "./SettingsComponents/SettingsTab.vue";
-
-import { Setting } from "@/store/models";
-
-// set up the store
-import settings_store from "@/store/modules/settings";
-
-@Component({
-  name: "Settings",
-  components: {
-    SettingsTab,
-  },
-})
-export default class Settings extends Vue {
-  private settings_change = 1;
-
-  private get settings() {
-    return this.settings_change && settings_store.settings_array;
-  }
-  private filterSettings(category: string): Setting[] {
-    return this.settings.filter(
-      (setting: Setting) => setting.category === category
-    );
-  }
-
-  private mounted() {
-    this.$store.subscribe((mutation, state) => {
-      // any change to the settings
-      if (mutation.type === "settings/SET_SETTING") {
-        console.log("setting changed!"); // eslint-disable-line no-console
-        this.settings_change += 1;
-      }
-    });
-  }
-}
-</script>

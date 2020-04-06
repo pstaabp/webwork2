@@ -1,14 +1,6 @@
-<template>
-  <div>
-    <table class="table table-sm bordered">
-      <settings-row
-        v-for="setting in settings"
-        :setting="setting"
-        :key="setting.var + new Date()"
-      />
-    </table>
-  </div>
-</template>
+<!-- SettingsTab.vue
+
+This is the basic component for an individual settings tab. -->
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
@@ -33,3 +25,15 @@ export default class SettingsTab extends Vue {
   }
 }
 </script>
+
+<template>
+  <div>
+    <table class="table table-sm bordered">
+      <settings-row
+        v-for="setting in settings"
+        :key="setting.var + new Date()"
+        :setting="setting"
+      />
+    </table>
+  </div>
+</template>

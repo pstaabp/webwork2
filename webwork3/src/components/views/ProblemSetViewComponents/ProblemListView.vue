@@ -1,26 +1,14 @@
-<template>
-  <div class="scrollable">
-    <draggable v-model="problems" handle=".drag-handle" :move="reordered">
-      <ProblemView
-        v-for="problem in problems"
-        :key="problem.problem_id"
-        :problem="problem"
-        type="set"
-      />
-    </draggable>
-  </div>
-</template>
+<!-- ProblemListView.vue
+
+This is a tab within the ProblemSetView that allows the viewing/editing of the problems. -->
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 import ProblemView from "@/components/common_components/ProblemView.vue";
 import Draggable from "vuedraggable";
 
 import { ProblemSet, Problem } from "@/store/models";
-
-// set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
 
 @Component({
   name: "ProblemListView",
@@ -46,3 +34,16 @@ export default class ProblemListView extends Vue {
   }
 }
 </script>
+
+<template>
+  <div class="scrollable">
+    <draggable v-model="problems" handle=".drag-handle" :move="reordered">
+      <ProblemView
+        v-for="problem in problems"
+        :key="problem.problem_id"
+        :problem="problem"
+        type="set"
+      />
+    </draggable>
+  </div>
+</template>

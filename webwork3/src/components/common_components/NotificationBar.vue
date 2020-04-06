@@ -1,33 +1,7 @@
-<template>
-  <b-nav-item-dropdown right>
-    <!-- Using 'button-content' slot -->
-    <template slot="button-content">
-      <span class="mr-2" :class="{ blinking: new_message }">Messages</span>
-      <b-badge variant="light">
-        {{ messages.length }}
-        <span class="sr-only">unread messages</span>
-      </b-badge>
-    </template>
-    <b-dropdown-text class="message px-1">
-      <b-btn size="sm" variant="primary" @click="clearMessages">
-        Clear Messages
-      </b-btn>
-    </b-dropdown-text>
-    <b-dropdown-divider />
-    <b-dropdown-text
-      class="message px-1"
-      v-for="(message, i) in messages"
-      :key="i"
-    >
-      <notification :message="message" @remove-message="remove" />
-    </b-dropdown-text>
-  </b-nav-item-dropdown>
-</template>
-
 <script lang="ts">
 import messages_store from "@/store/modules/messages";
 
-import { Vue, Component, Watch } from "vue-property-decorator";
+import { Vue, Component } from "vue-property-decorator";
 
 // set up the store
 import message_store from "@/store/modules/messages";
@@ -41,7 +15,7 @@ import Notification from "./Notification.vue";
   },
 })
 export default class NotificationBar extends Vue {
-  private new_message: boolean = false;
+  private new_message = false;
   get messages() {
     return message_store.messages;
   }
@@ -56,7 +30,7 @@ export default class NotificationBar extends Vue {
 
   private mounted() {
     // watch for changes in messages
-    this.$store.subscribe((mutation, state) => {
+    this.$store.subscribe((mutation) => {
       // console.log(mutation.type); // eslint-disable-line no-console
       if (mutation.type === "messages_store/ADD_MESSAGE") {
         this.new_message = true;
@@ -68,6 +42,32 @@ export default class NotificationBar extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-nav-item-dropdown right>
+    <!-- Using 'button-content' slot -->
+    <template #button-content>
+      <span class="mr-2" :class="{ blinking: new_message }">Messages</span>
+      <b-badge variant="light">
+        {{ messages.length }}
+        <span class="sr-only">unread messages</span>
+      </b-badge>
+    </template>
+    <b-dropdown-text class="message px-1">
+      <b-btn size="sm" variant="primary" @click="clearMessages">
+        Clear Messages
+      </b-btn>
+    </b-dropdown-text>
+    <b-dropdown-divider />
+    <b-dropdown-text
+      v-for="(message, i) in messages"
+      :key="i"
+      class="message px-1"
+    >
+      <notification :message="message" @remove-message="remove" />
+    </b-dropdown-text>
+  </b-nav-item-dropdown>
+</template>
 
 <style scoped>
 .message {

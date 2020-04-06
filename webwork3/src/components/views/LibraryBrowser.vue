@@ -1,3 +1,29 @@
+<!-- LibraryBrowser.vue
+
+This is the view that conains all library browser functionality -->
+
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+
+import LibraryTab from "./LibraryComponents/LibraryTab.vue";
+
+// set up the store
+import problem_sets_store from "@/store/modules/problem_sets";
+import app_state from "@/store/modules/app_state";
+
+@Component({
+  name: "SetDetails",
+  components: {
+    LibraryTab,
+  },
+})
+export default class LibraryBrowser extends Vue {
+  private get problem_set() {
+    return problem_sets_store.problem_sets.get(app_state.selected_set);
+  }
+}
+</script>
+
 <template>
   <b-tabs content-class="mt-3">
     <b-tab title="By Subj." active>
@@ -17,25 +43,3 @@
     <b-tab title="Pending"><h3>Browse pending problems</h3></b-tab>
   </b-tabs>
 </template>
-
-<script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-
-import LibraryTab from "./LibraryComponents/LibraryTab.vue";
-
-// set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
-
-@Component({
-  name: "SetDetails",
-  components: {
-    LibraryTab,
-  },
-})
-export default class LibraryBrowser extends Vue {
-  private problem_set() {
-    return problem_sets_store.problem_sets.get(app_state.selected_set);
-  }
-}
-</script>

@@ -4,7 +4,6 @@ import "bootstrap-vue/dist/bootstrap-vue.css";
 import "../public/css/webwork.css";
 
 import Vue from "vue";
-import * as moment from "moment";
 
 import router from "./router";
 
@@ -55,52 +54,6 @@ Vue.use(FormCheckboxPlugin);
 Vue.use(SpinnerPlugin);
 Vue.use(FormFilePlugin);
 Vue.use(IconsPlugin);
-
-// overall filters:
-
-import { ProblemSet } from "@/store/models";
-
-Vue.filter("formatDateTime", (value: number) =>
-  moment.unix(value).format("YYYY-MM-DD[T]HH:mm")
-);
-
-function parseDatetimeForBrowser(dateString: string) {
-  return moment.default(dateString, "YYYY-MM-DD[T]HH:mm").unix();
-}
-
-Vue.filter(
-  "setReducedScoringDate",
-  (_set: ProblemSet, date_string: string) =>
-    (_set.reduced_scoring_date = parseDatetimeForBrowser(date_string))
-);
-
-Vue.filter(
-  "setDueDate",
-  (_set: ProblemSet, date_string: string) =>
-    (_set.due_date = parseDatetimeForBrowser(date_string))
-);
-
-Vue.filter(
-  "setAnswerDate",
-  (_set: ProblemSet, date_string: string) =>
-    (_set.answer_date = parseDatetimeForBrowser(date_string))
-);
-
-Vue.filter("validReducedScoring", (_set: ProblemSet) =>
-  moment
-    .unix(_set.reduced_scoring_date!)
-    .isSameOrAfter(moment.unix(_set.open_date!))
-);
-
-Vue.filter("validDueDate", (_set: ProblemSet) =>
-  moment
-    .unix(_set.due_date!)
-    .isSameOrAfter(moment.unix(_set.reduced_scoring_date!))
-);
-
-Vue.filter("validAnswerDate", (_set: ProblemSet) =>
-  moment.unix(_set.answer_date!).isSameOrAfter(moment.unix(_set.due_date!))
-);
 
 import WeBWorKApp from "@/App.vue";
 

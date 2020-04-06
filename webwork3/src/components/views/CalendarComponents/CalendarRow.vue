@@ -1,41 +1,10 @@
-<template>
-  <tr>
-    <td
-      v-for="(day, index) in week"
-      class="cal-day"
-      :key="day.format('YYYY-MM-DD')"
-      :class="dayClass(day)"
-    >
-      {{ shortDate(day) }}
-      <draggable
-        v-model="assignment_info[index]"
-        group="calendar"
-        class="assignments"
-        @start="drag = true"
-        @end="drag = false"
-        @change="assignChange(day, $event)"
-      >
-        <div
-          v-for="assignment in assignment_info[index]"
-          :key="assignment.id"
-          :class="show(assignment)"
-          class="assign border rounded border-dark pl-1 p-0"
-        >
-          {{ assignment.set_id }}
-        </div>
-      </draggable>
-    </td>
-  </tr>
-</template>
-
 <script lang="ts">
 import Draggable, { ChangeEvent } from "vuedraggable";
 import * as moment from "moment";
-import Constants from "@/common";
 
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { ProblemSet, ProblemSetList } from "@/store/models";
+import { ProblemSetList } from "@/store/models";
 
 import problem_set_store from "@/store/modules/problem_sets";
 import settings_store from "@/store/modules/settings";
@@ -64,7 +33,7 @@ export default class CalendarRow extends Vue {
   private all_assignment_dates!: AssignmentInfo[];
 
   private today: moment.Moment = moment.default();
-  private drag: boolean = false;
+  private drag = false;
 
   get week(): moment.Moment[] {
     return [0, 1, 2, 3, 4, 5, 6].map((i: number) =>
@@ -83,7 +52,7 @@ export default class CalendarRow extends Vue {
 
   // determine if the reduced_scoring is enabled and show/hide accordingly.
 
-  private show(_assignment: object): string {
+  private show(_assignment: AssignmentInfo): string {
     const reduced_scoring_enabled = settings_store.settings.get(
       "pg{ansEvalDefaults}{enableReducedScoring}"
     );
@@ -110,22 +79,22 @@ export default class CalendarRow extends Vue {
   }
 
   private assignChange(
-    newDate: moment.Moment,
+    new_date: moment.Moment,
     evt: ChangeEvent<AssignmentInfo>
   ) {
     // console.log("dropping onto"); // eslint-disable-line no-console
     // console.log(evt); // eslint-disable-line no-console
     // console.log(newDate.format("MM/DD/YYYY")); // eslint-disable-line no-console
     //
-    if (evt.hasOwnProperty("removed")) {
+    if (Object.prototype.hasOwnProperty.call(evt, "removed")) {
       // if the change event is fired but it is removed.
       return;
-    } else if (evt.hasOwnProperty("added")) {
-      const date_dropped_onto = moment.default(newDate); // make a copy of the date object
+    } else if (Object.prototype.hasOwnProperty.call(evt, "added")) {
+      const date_dropped_onto = moment.default(new_date); // make a copy of the date object
       const attrs: { [key: string]: number } = {};
 
       // make a copy of the set
-      const _set = Object.assign(
+      const set = Object.assign(
         {},
         problem_set_store.problem_sets.get(evt.added.element.set_id)
       );
@@ -150,11 +119,41 @@ export default class CalendarRow extends Vue {
           .add(7, "days")
           .unix();
       }
-      if (_set) {
-        Object.assign(_set, attrs);
-        problem_set_store.updateProblemSet(_set);
+      if (set) {
+        Object.assign(set, attrs);
+        problem_set_store.updateProblemSet(set);
       }
     }
   }
 }
 </script>
+
+<template>
+  <tr>
+    <td
+      v-for="(day, index) in week"
+      :key="day.format('YYYY-MM-DD')"
+      class="cal-day"
+      :class="dayClass(day)"
+    >
+      {{ shortDate(day) }}
+      <draggable
+        v-model="assignment_info[index]"
+        group="calendar"
+        class="assignments"
+        @start="drag = true"
+        @end="drag = false"
+        @change="assignChange(day, $event)"
+      >
+        <div
+          v-for="assignment in assignment_info[index]"
+          :key="assignment.id"
+          :class="show(assignment)"
+          class="assign border rounded border-dark pl-1 p-0"
+        >
+          {{ assignment.set_id }}
+        </div>
+      </draggable>
+    </td>
+  </tr>
+</template>

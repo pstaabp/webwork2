@@ -1,81 +1,6 @@
-<template>
-  <tr>
-    <td>
-      <p>
-        <span v-html="setting.doc" />&nbsp;
-        <b-icon
-          icon="question-circle-fill"
-          size="lg"
-          @click="show_help = !show_help"
-        />
-      </p>
-      <div v-if="show_help" class="help-box border p-2 rounded">
-        <span class="float-right rounded border p-1" @click="show_help = false">
-          <b-icon icon="x" />
-        </span>
-        <span v-html="setting.doc2" />
-      </div>
-    </td>
-    <td v-if="is_duration">
-      <b-form-group label="hours:minutes:seconds">
-        <b-input
-          size="sm"
-          label-size="sm"
-          v-model="duration"
-          :state="valid_duration"
-          @blur="updateDuration"
-          trim
-        />
-      </b-form-group>
-    </td>
-    <td v-else-if="setting.type == 'text'">
-      <b-input
-        size="sm"
-        :value="setting.value"
-        @blur="updateSetting($event.target.value)"
-      />
-    </td>
-    <td v-else-if="setting.type == 'number'">
-      <b-input
-        type="number"
-        size="sm"
-        :value="setting.value"
-        @blur="updateSetting($event.target.value)"
-      />
-    </td>
-    <td v-else-if="setting.type == 'popuplist'">
-      <b-select
-        size="sm"
-        :value="setting.value"
-        :options="setting.values"
-        @change="updateSetting($event)"
-      />
-    </td>
-    <td v-else-if="setting.type === 'boolean'">
-      <b-checkbox v-model="bool_value" />
-    </td>
-    <td v-else-if="setting.type === 'permission'">
-      <b-select
-        size="sm"
-        :value="setting.value"
-        :options="permission_levels"
-        @change="updateSetting($event)"
-      />
-    </td>
-    <td v-else-if="setting.type === 'timezone'">NEED TO FINISH</td>
-    <td v-else-if="setting.type === 'time'">
-      <b-input
-        type="time"
-        size="sm"
-        :value="setting.value | valueAsTime"
-        @blur="updateTimeSetting($event.target.value)"
-      />
-    </td>
-    <td v-else-if="setting.type === 'checkboxlist'">
-      <b-checkbox-group :options="setting.values" v-model="selected" stacked />
-    </td>
-  </tr>
-</template>
+<!-- SettingsRow.vue
+
+The SettingsRow component handles the viewing/editing of an individual setting. -->
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
@@ -139,11 +64,11 @@ export default class SettingsRow extends Vue {
   }
 
   private parseDuration(_value: string) {
-    const _match = _value.match(/^(\d+):([0-5]\d):([0-5]\d)$/);
-    return _match
-      ? parseInt(_match[1], 10) * 3600 +
-          parseInt(_match[2], 10) * 60 +
-          parseInt(_match[3], 10)
+    const match = _value.match(/^(\d+):([0-5]\d):([0-5]\d)$/);
+    return match
+      ? parseInt(match[1], 10) * 3600 +
+          parseInt(match[2], 10) * 60 +
+          parseInt(match[3], 10)
       : 0;
   }
 
@@ -158,9 +83,9 @@ export default class SettingsRow extends Vue {
   }
 
   private updateSetting(_value: string | number | string[] | boolean) {
-    const _setting = Object.assign({}, this.setting, { value: _value });
-    // console.log(_setting); // eslint-disable-line no-console
-    settings_store.updateSetting(_setting);
+    settings_store.updateSetting(
+      Object.assign({}, this.setting, { value: _value })
+    );
   }
 
   private beforeMount() {
@@ -170,7 +95,7 @@ export default class SettingsRow extends Vue {
     } else if (this.is_duration) {
       this.duration = this.formatDuration(this.setting.value as number);
     } else if (this.setting.type === "boolean") {
-      this.bool_value = this.setting.value as boolean;
+      this.bool_value = (this.setting.value as unknown) as boolean;
     }
   }
 
@@ -179,9 +104,10 @@ export default class SettingsRow extends Vue {
   }
 
   private created() {
-    this.$store.subscribe((mutation, state) => {
+    this.$store.subscribe((mutation) => {
       //  console.log(mutation); // eslint-disable-line no-console
       if (
+        this.setting.type === "boolean" &&
         mutation.type === "settings/SET_SETTING" &&
         mutation.payload &&
         mutation.payload.var &&
@@ -189,19 +115,20 @@ export default class SettingsRow extends Vue {
       ) {
         console.log(mutation.payload.var); // eslint-disable-line no-console
         console.log(settings_store.settings.get(this.setting.var)); // eslint-disable-line no-console
-        this.bool_value = settings_store.settings.get(this.setting.var);
+        this.bool_value = (settings_store.settings.get(
+          this.setting.var
+        ) as unknown) as boolean;
       }
     });
   }
 
   @Watch("bool_value")
-  private boolValueChanged(_new: boolean, _old: boolean) {
-    // console.log([_new, _old]); // eslint-disable-line no-console
-    // console.log(this.setting); // eslint-disable-line no-console
-    if (!this.loading && this.setting.value !== _new) {
-      console.log(this.setting); // eslint-disable-line no-console
-      this.updateSetting(this.bool_value);
-    }
+  private boolValueChanged() {
+    this.updateSetting(this.bool_value);
+    // if (!this.loading && this.setting.value !== _new) {
+    //   console.log(this.setting); // eslint-disable-line no-console
+    //   this.updateSetting(this.bool_value);
+    // }
   }
 
   @Watch("setting")
@@ -210,13 +137,94 @@ export default class SettingsRow extends Vue {
   }
 
   @Watch("selected")
-  private selectedChange(_newValue: string[], _oldValue: string[]) {
-    if (JSON.stringify(_newValue) !== JSON.stringify(this.setting.value)) {
-      this.updateSetting(_newValue);
-    }
+  private selectedChange(_new_value: Setting) {
+    // if (JSON.stringify(_new_value) !== JSON.stringify(this.setting.value)) {
+    this.updateSetting(_new_value.value);
+    // }
   }
 }
 </script>
+
+<template>
+  <tr>
+    <td>
+      <p>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <span v-html="setting.doc" />&nbsp;
+        <b-icon
+          icon="question-circle-fill"
+          size="lg"
+          @click="show_help = !show_help"
+        />
+      </p>
+      <div v-if="show_help" class="help-box border p-2 rounded">
+        <span class="float-right rounded border p-1" @click="show_help = false">
+          <b-icon icon="x" />
+        </span>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <span v-html="setting.doc2" />
+      </div>
+    </td>
+    <td v-if="is_duration">
+      <b-form-group label="hours:minutes:seconds">
+        <b-input
+          v-model="duration"
+          size="sm"
+          label-size="sm"
+          :state="valid_duration"
+          trim
+          @blur="updateDuration"
+        />
+      </b-form-group>
+    </td>
+    <td v-else-if="setting.type == 'text'">
+      <b-input
+        size="sm"
+        :value="setting.value"
+        @blur="updateSetting($event.target.value)"
+      />
+    </td>
+    <td v-else-if="setting.type == 'number'">
+      <b-input
+        type="number"
+        size="sm"
+        :value="setting.value"
+        @blur="updateSetting($event.target.value)"
+      />
+    </td>
+    <td v-else-if="setting.type == 'popuplist'">
+      <b-select
+        size="sm"
+        :value="setting.value"
+        :options="setting.values"
+        @change="updateSetting($event)"
+      />
+    </td>
+    <td v-else-if="setting.type === 'boolean'">
+      <b-checkbox v-model="bool_value" />
+    </td>
+    <td v-else-if="setting.type === 'permission'">
+      <b-select
+        size="sm"
+        :value="setting.value"
+        :options="permission_levels"
+        @change="updateSetting($event)"
+      />
+    </td>
+    <td v-else-if="setting.type === 'timezone'">NEED TO FINISH</td>
+    <td v-else-if="setting.type === 'time'">
+      <b-input
+        type="time"
+        size="sm"
+        :value="valueAsTime(setting.value)"
+        @blur="updateTimeSetting($event.target.value)"
+      />
+    </td>
+    <td v-else-if="setting.type === 'checkboxlist'">
+      <b-checkbox-group v-model="selected" :options="setting.values" stacked />
+    </td>
+  </tr>
+</template>
 
 <style scoped>
 .help-box {

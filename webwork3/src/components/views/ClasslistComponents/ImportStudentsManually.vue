@@ -1,8 +1,29 @@
+<!-- ImportStudentsManually.vue
+
+This component is a modal that imports students manually (typing in individually).  -->
+
+<script lang="ts">
+import { User } from "@/store/models";
+
+import { Vue, Component } from "vue-property-decorator";
+@Component({
+  name: "ImportStudentsFiles",
+})
+export default class ImportStudentsFile extends Vue {
+  private num_students = 0;
+  private users: User[] = [];
+
+  private addAll() {
+    console.log(this.users); // eslint-disable-line no-console
+  }
+}
+</script>
+
 <template>
   <b-modal
-    size="xl"
     id="import-students-manually"
     ref="addstudmodal"
+    size="xl"
     title="Import Students Manually"
   >
     <b-container fluid>
@@ -61,33 +82,18 @@
         </table>
       </b-row>
     </b-container>
-    <div slot="modal-footer" class="w-100">
-      <b-btn-group size="sm" class="float-right">
-        <b-btn
-          variant="outline-dark"
-          @click="$bvModal.hide('import-students-manually')"
-        >
-          Cancel
-        </b-btn>
-        <b-btn variant="primary" @click="addAll">Add Students</b-btn>
-      </b-btn-group>
-    </div>
+    <template #modal-footer>
+      <div class="w-100">
+        <b-btn-group size="sm" class="float-right">
+          <b-btn
+            variant="outline-dark"
+            @click="$bvModal.hide('import-students-manually')"
+          >
+            Cancel
+          </b-btn>
+          <b-btn variant="primary" @click="addAll">Add Students</b-btn>
+        </b-btn-group>
+      </div>
+    </template>
   </b-modal>
 </template>
-
-<script lang="ts">
-import { User } from "@/store/models";
-
-import { Vue, Component, Prop } from "vue-property-decorator";
-@Component({
-  name: "ImportStudentsFiles",
-})
-export default class ImportStudentsFile extends Vue {
-  private num_students: number = 0;
-  private users: User[] = [];
-
-  private addAll() {
-    console.log(this.users); // eslint-disable-line no-console
-  }
-}
-</script>

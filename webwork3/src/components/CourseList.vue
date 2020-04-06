@@ -1,6 +1,22 @@
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      courses: [],
+    };
+  },
+  mounted() {
+    axios.get("/webwork3/api/courses").then((response) => {
+      this.courses = response.data;
+    });
+  },
+};
+</script>
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
+    <b-navbar id="top-navbar" toggleable="lg" type="dark" class="fixed-top">
       <b-navbar-brand href="#">
         <img id="wwlogo" src="/webwork3/images/webwork_square.svg" />
       </b-navbar-brand>
@@ -22,20 +38,3 @@
     </b-container>
   </div>
 </template>
-
-<script>
-import axios from "axios";
-
-export default {
-  data() {
-    return {
-      courses: [],
-    };
-  },
-  mounted() {
-    axios.get("/webwork3/api/courses").then((response) => {
-      this.courses = response.data;
-    });
-  },
-};
-</script>

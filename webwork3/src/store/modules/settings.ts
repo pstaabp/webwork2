@@ -8,7 +8,6 @@ import {
 
 import { isEqual } from "lodash-es";
 
-import { difference } from "@/common";
 import { Setting } from "@/store/models";
 import store from "@/store";
 
@@ -32,14 +31,14 @@ export type SettingList = Map<string, Setting>;
   dynamic: true,
 })
 export class SettingsModule extends VuexModule {
-  private _settings: SettingList = new Map();
+  private setting_list: SettingList = new Map();
 
   public get settings(): SettingList {
-    return this._settings;
+    return this.setting_list;
   }
 
   public get settings_array(): Setting[] {
-    return Array.from(this._settings.values());
+    return Array.from(this.setting_list.values());
   }
 
   // Settings actions
@@ -58,20 +57,20 @@ export class SettingsModule extends VuexModule {
       _setting
     );
 
-    const _updated_setting = response.data as Setting;
-    const _prev_setting = this._settings.get(_setting.var);
+    const updated_setting = response.data as Setting;
+    const prev_setting = this.setting_list.get(_setting.var);
     let value = "";
-    if (_prev_setting) {
-      value = "" + _prev_setting.value;
+    if (prev_setting) {
+      value = "" + prev_setting.value;
     }
 
-    if (isEqual(_updated_setting, _setting)) {
-      const _message = {
+    if (isEqual(updated_setting, _setting)) {
+      const message = {
         id: -1,
         short: `The setting for ${_setting.var} was changed`,
         long: `The setting for ${_setting.var} was changed from ${value} to ${_setting.value}.`,
       };
-      messages_store.addMessage(_message);
+      messages_store.addMessage(message);
 
       this.SET_SETTING(_setting);
     }
@@ -79,18 +78,18 @@ export class SettingsModule extends VuexModule {
 
   @Action
   public clearSettings(): void {
-    this.RESET_SETTINGS();
+    this.RESET_SETTING();
   }
 
   @Mutation
-  private RESET_SETTINGS(): void {
-    this._settings = new Map();
+  private RESET_SETTING(): void {
+    this.setting_list = new Map();
   }
 
   @Mutation
   private SET_SETTING(_setting: Setting) {
     // find the setting in the settings array
-    this._settings.set(_setting.var, _setting);
+    this.setting_list.set(_setting.var, _setting);
   }
 }
 

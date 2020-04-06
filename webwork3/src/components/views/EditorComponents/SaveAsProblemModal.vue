@@ -1,52 +1,6 @@
-<template>
-  <b-modal id="save-as-problem-modal" size="xl">
-    <b-row>
-      <b-col cols="6">
-        <b-form-group label-cols="auto" label="Directory:">
-          <b-input v-model="directory" />
-        </b-form-group>
-      </b-col>
-      <b-col>
-        <b-form-group label-cols="auto" label="Filename:">
-          <b-input v-model="file" />
-        </b-form-group>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col>
-        <b-list-group>
-          <b-list-group-item
-            class="p-1"
-            v-for="item in options1"
-            :key="item.name"
-            :button="item.type === 'dir'"
-            :disabled="item.type === 'file'"
-            @click="selected1(item.name)"
-          >
-            <b-icon v-if="item.type === 'dir'" icon="folder" />
-            <b-icon v-if="item.type === 'file'" icon="document" />
-            <span class="pl-2">{{ item.name }}</span>
-          </b-list-group-item>
-        </b-list-group>
-      </b-col>
-      <b-col>
-        <b-list-group-item
-          class="p-1"
-          v-for="item in options2"
-          :key="item.name"
-          :button="item.type === 'dir'"
-          :disabled="item.type === 'file'"
-          @click="selected2(item.name)"
-        >
-          <b-icon v-if="item.type === 'dir'" icon="folder" />
-          <b-icon v-if="item.type === 'file'" icon="document" />
-          <span class="pl-2">{{ item.name }}</span>
-        </b-list-group-item>
-      </b-col>
-      <b-col />
-    </b-row>
-  </b-modal>
-</template>
+<!-- SaveAsProblemModal.vue
+
+What is this for??  -->
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
@@ -56,13 +10,10 @@ import { FileInfo } from "@/store/models";
 
 @Component({
   name: "SaveAsProblemModal",
-  components: {
-    SaveAsProblemModal,
-  },
 })
 export default class SaveAsProblemModal extends Vue {
-  private file: string = "";
-  private dir: string = "";
+  private file = "";
+  private dir = "";
   private file1 = "";
   private options1: FileInfo[] = [];
   private file2 = "";
@@ -90,3 +41,53 @@ export default class SaveAsProblemModal extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-modal id="save-as-problem-modal" size="xl">
+    <b-row>
+      <b-col cols="6">
+        <b-form-group label-cols="auto" label="Directory:">
+          <b-input v-model="directory" />
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <b-form-group label-cols="auto" label="Filename:">
+          <b-input v-model="file" />
+        </b-form-group>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col>
+        <b-list-group>
+          <b-list-group-item
+            v-for="item in options1"
+            :key="item.name"
+            class="p-1"
+            :button="item.type === 'dir'"
+            :disabled="item.type === 'file'"
+            @click="selected1(item.name)"
+          >
+            <b-icon v-if="item.type === 'dir'" icon="folder" />
+            <b-icon v-if="item.type === 'file'" icon="document" />
+            <span class="pl-2">{{ item.name }}</span>
+          </b-list-group-item>
+        </b-list-group>
+      </b-col>
+      <b-col>
+        <b-list-group-item
+          v-for="item in options2"
+          :key="item.name"
+          class="p-1"
+          :button="item.type === 'dir'"
+          :disabled="item.type === 'file'"
+          @click="selected2(item.name)"
+        >
+          <b-icon v-if="item.type === 'dir'" icon="folder" />
+          <b-icon v-if="item.type === 'file'" icon="document" />
+          <span class="pl-2">{{ item.name }}</span>
+        </b-list-group-item>
+      </b-col>
+      <b-col />
+    </b-row>
+  </b-modal>
+</template>

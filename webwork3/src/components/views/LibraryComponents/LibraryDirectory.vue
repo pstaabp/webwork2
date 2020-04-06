@@ -1,68 +1,6 @@
-<template>
-  <b-row>
-    <b-col>
-      <b-select size="sm" :options="dirs1" v-model="dir1" @change="dir1Change">
-        <template slot="first">
-          <option :value="null" disabled>Select a Library</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-select
-        size="sm"
-        :options="dirs2"
-        v-model="dir2"
-        v-if="dirs2.length > 0"
-        @change="dir2Change"
-      >
-        <template slot="first">
-          <option :value="null" disabled>Select</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-select
-        size="sm"
-        :options="dirs3"
-        v-model="dir3"
-        v-if="dirs3.length > 0"
-        @change="dir3Change"
-      >
-        <template slot="first">
-          <option :value="null" disabled>Select</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-select
-        size="sm"
-        :options="dirs4"
-        v-model="dir4"
-        v-if="dirs4.length > 0"
-        @change="dir4Change"
-      />
-    </b-col>
-    <b-col>
-      <b-select
-        size="sm"
-        :options="dirs5"
-        v-model="dir5"
-        v-if="dirs5.length > 0"
-        @change="dir5Change"
-      />
-    </b-col>
-    <b-col>
-      <b-btn
-        size="sm"
-        variant="outline-dark"
-        @click="loadProblems"
-        :disabled="dir2 == null"
-      >
-        Load {{ load_num }} Problems
-      </b-btn>
-    </b-col>
-  </b-row>
-</template>
+<!-- LibraryDirectory.vue
+
+This is a tab in the LibraryBrowser that allows one to find problems by directory. -->
 
 <script>
 import axios from "axios";
@@ -106,23 +44,23 @@ export default {
     dir2Change() {
       this.dir3 = this.dir4 = this.dir5 = null;
       this.dirs4 = this.dirs5 = [];
-      const _dir2 = this.library[0].subfields.find(
+      const dir2 = this.library[0].subfields.find(
         (_s) => _s.name === this.dir2
       );
-      this.load_num = _dir2.num_files;
-      this.dirs3 = _dir2.subfields.map((_s) => _s.name);
+      this.load_num = dir2.num_files;
+      this.dirs3 = dir2.subfields.map((_s) => _s.name);
       this.dirs3.sort();
     },
     dir3Change() {
       this.dir4 = this.dir5 = null;
       this.dirs5 = [];
-      const _dir2 = this.library[0].subfields.find(
+      const dir2 = this.library[0].subfields.find(
         (_s) => _s.name === this.dir2
       );
-      const _dir3 = _dir2.subfields.find((_s) => _s.name === this.dir3);
-      this.load_num = _dir3.num_files;
-      if (_dir3.subfields !== undefined) {
-        this.dirs4 = _dir3.subfields.map((_s) => _s.name);
+      const dir3 = dir2.subfields.find((_s) => _s.name === this.dir3);
+      this.load_num = dir3.num_files;
+      if (dir3.subfields !== undefined) {
+        this.dirs4 = dir3.subfields.map((_s) => _s.name);
         this.dirs4.sort();
       }
     },
@@ -137,3 +75,75 @@ export default {
   },
 };
 </script>
+
+<template>
+  <b-row>
+    <b-col>
+      <b-select v-model="dir1" size="sm" :options="dirs1" @change="dir1Change">
+        <template #first>
+          <option :value="null" disabled>
+            Select a Library
+          </option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select
+        v-if="dirs2.length > 0"
+        v-model="dir2"
+        size="sm"
+        :options="dirs2"
+        @change="dir2Change"
+      >
+        <template #first>
+          <option :value="null" disabled>
+            Select
+          </option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select
+        v-if="dirs3.length > 0"
+        v-model="dir3"
+        size="sm"
+        :options="dirs3"
+        @change="dir3Change"
+      >
+        <template #first>
+          <option :value="null" disabled>
+            Select
+          </option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select
+        v-if="dirs4.length > 0"
+        v-model="dir4"
+        size="sm"
+        :options="dirs4"
+        @change="dir4Change"
+      />
+    </b-col>
+    <b-col>
+      <b-select
+        v-if="dirs5.length > 0"
+        v-model="dir5"
+        size="sm"
+        :options="dirs5"
+        @change="dir5Change"
+      />
+    </b-col>
+    <b-col>
+      <b-btn
+        size="sm"
+        variant="outline-dark"
+        :disabled="dir2 == null"
+        @click="loadProblems"
+      >
+        Load {{ load_num }} Problems
+      </b-btn>
+    </b-col>
+  </b-row>
+</template>

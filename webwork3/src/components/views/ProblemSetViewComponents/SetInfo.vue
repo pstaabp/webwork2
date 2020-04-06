@@ -1,7 +1,96 @@
+<!-- SetInfo.vue
+
+This is a tab within the ProblemSetView that allows the viewing/editing of the basic parameters of the set. -->
+
+<script lang="ts">
+import { Component, Prop } from "vue-property-decorator";
+import { mixins } from "vue-class-component";
+
+import ProblemSetMixin from "@/mixins/problem_set_mixin";
+
+import { ProblemSet, ProblemSetList } from "@/store/models";
+
+import { validReducedScoring, validDueDate, validAnswerDate } from "@/common";
+
+// set up the store
+import problem_sets_store from "@/store/modules/problem_sets";
+import users_store from "@/store/modules/users";
+import settings_store from "@/store/modules/settings";
+
+@Component({
+  name: "SetInfo",
+})
+export default class SetInfo extends mixins(ProblemSetMixin) {
+  @Prop()
+  private problem_sets!: ProblemSetList;
+  @Prop()
+  private selected_set!: ProblemSet;
+
+  private get problem_set() {
+    return this.selected_set;
+  }
+  //private problem_set = newProblemSet(); // local copy of the problem set
+
+  get num_problems(): number {
+    return this.problem_set && this.problem_set.problems
+      ? this.problem_set.problems.length
+      : 0;
+  }
+
+  get users_assigned(): number {
+    return this.problem_set.assigned_users.length;
+  }
+
+  get num_users(): number {
+    return users_store.users.size;
+  }
+
+  get valid_reduced_scoring() {
+    return validReducedScoring(this.problem_set);
+  }
+
+  get valid_due_date() {
+    return validDueDate(this.problem_set);
+  }
+
+  get valid_answer_date() {
+    return validAnswerDate(this.problem_set);
+  }
+
+  get reduced_scoring(): boolean {
+    console.log(settings_store.settings); // eslint-disable-line no-console
+    const setting = settings_store.settings.get(
+      "pg{ansEvalDefaults}{enableReducedScoring}"
+    );
+    if (setting) {
+      return ((setting.value as unknown) as boolean) || false;
+    } else {
+      return false;
+    }
+  }
+
+  private save() {
+    if (
+      validDueDate(this.problem_set) &&
+      validReducedScoring(this.problem_set) &&
+      validAnswerDate(this.problem_set)
+    ) {
+      problem_sets_store.updateProblemSet(this.problem_set);
+    }
+  }
+
+  private assignAllUsers() {
+    console.log("in assignAllUsers"); // eslint-disable-line no-console
+    this.problem_set.assigned_users = Array.from(users_store.users.keys());
+    this.save();
+  }
+}
+</script>
+
 <template>
   <table
-    class="table table-sm set-info-table"
     v-if="problem_set.set_id !== 'XXX'"
+    class="table table-sm set-info-table"
   >
     <tbody>
       <tr>
@@ -14,7 +103,7 @@
             <b-input
               size="sm"
               type="datetime-local"
-              :value="problem_set.open_date | formatDateTime"
+              :value="formatDateTime(problem_set.open_date)"
               @blur="
                 setOpenDate(problem_set, $event.target.value);
                 save();
@@ -31,9 +120,9 @@
           >
             <b-input
               size="sm"
-              :value="problem_set.reduced_scoring_date | formatDateTime"
+              :value="formatDateTime(problem_set.reduced_scoring_date)"
               type="datetime-local"
-              :state="validReducedScoring"
+              :state="valid_reduced_scoring"
               @blur="
                 setReducedScoringDate(problem_set, $event.target.value);
                 save();
@@ -51,9 +140,9 @@
           >
             <b-input
               size="sm"
-              :value="problem_set.due_date | formatDateTime"
+              :value="formatDateTime(problem_set.due_date)"
               type="datetime-local"
-              :state="validDueDate"
+              :state="valid_due_date"
               @blur="
                 setDueDate(problem_set, $event.target.value);
                 save();
@@ -69,9 +158,9 @@
           >
             <b-form-input
               size="sm"
-              :value="problem_set.answer_date | formatDateTime"
+              :value="formatDateTime(problem_set.answer_date)"
               type="datetime-local"
-              :state="validAnswerDate"
+              :state="valid_answer_date"
               @blur="
                 setAnswerDate(problem_set, $event.target.value);
                 save();
@@ -105,8 +194,8 @@
         <td class="header">Set Type</td>
         <td>
           <b-form-select
-            size="sm"
             v-model="problem_set.assignment_type"
+            size="sm"
             @change="save"
           >
             <option value="set">Homework</option>
@@ -117,7 +206,7 @@
       </tr>
       <tr>
         <td class="header">Number of Problems in Set</td>
-        <td>{{ problemsLength }}</td>
+        <td>{{ num_problems }}</td>
       </tr>
       <tr>
         <td class="header">Users Assigned:</td>
@@ -126,8 +215,8 @@
           <b-btn
             size="sm"
             class="float-right"
-            @click="assignAllUsers"
             variant="outline-dark"
+            @click="assignAllUsers"
           >
             Assign to All Users
           </b-btn>
@@ -136,93 +225,6 @@
     </tbody>
   </table>
 </template>
-
-<script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
-
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
-import MessagesMixin from "@/mixins/messages_mixin";
-
-import { ProblemSet, ProblemSetList } from "@/store/models";
-
-import {
-  difference,
-  newProblemSet,
-  validReducedScoring,
-  validDueDate,
-  validAnswerDate,
-} from "@/common";
-
-// set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
-import users_store from "@/store/modules/users";
-import settings_store from "@/store/modules/settings";
-
-@Component({
-  name: "SetInfo",
-})
-export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
-  @Prop()
-  private problem_sets!: ProblemSetList;
-  @Prop()
-  private selected_set!: ProblemSet;
-
-  private get problem_set() {
-    return this.selected_set;
-  }
-  //private problem_set = newProblemSet(); // local copy of the problem set
-
-  get problemsLength(): number {
-    return this.problem_set && this.problem_set.problems
-      ? this.problem_set.problems.length
-      : 0;
-  }
-
-  get users_assigned(): number {
-    return this.problem_set.assigned_users.length;
-  }
-
-  get num_users(): number {
-    return users_store.users.size;
-  }
-
-  get validReducedScoring() {
-    return validReducedScoring(this.problem_set);
-  }
-
-  get validDueDate() {
-    return validDueDate(this.problem_set);
-  }
-
-  get validAnswerDate() {
-    return validAnswerDate(this.problem_set);
-  }
-
-  get reduced_scoring(): boolean {
-    console.log(settings_store.settings); // eslint-disable-line no-console
-    return settings_store.settings.get(
-      "pg{ansEvalDefaults}{enableReducedScoring}"
-    ).value;
-  }
-
-  private save() {
-    if (
-      validDueDate(this.problem_set) &&
-      validReducedScoring(this.problem_set) &&
-      validAnswerDate(this.problem_set)
-    ) {
-      problem_sets_store.updateProblemSet(this.problem_set);
-    }
-  }
-
-  private assignAllUsers() {
-    console.log("in assignAllUsers"); // eslint-disable-line no-console
-    this.problem_set.assigned_users = Array.from(users_store.users.keys());
-    this.save();
-  }
-}
-</script>
 
 <style scope>
 .header {

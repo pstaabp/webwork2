@@ -1,30 +1,9 @@
-<template>
-  <b-container>
-    <b-tabs content-class="mt-3">
-      <b-tab title="Set Details" active>
-        <set-info
-          :problem_sets="problem_sets_array"
-          :selected_set="problem_set"
-        />
-      </b-tab>
-      <b-tab title="Gateway Info" :disabled="!is_gateway">
-        <gateway-info :selected_problem_set="problem_set" />
-      </b-tab>
-      <b-tab title="Problems">
-        <problem-list-view :problem_set="problem_set" />
-      </b-tab>
-      <b-tab title="Assign Users">
-        <assign-users :problem_set="problem_set" />
-      </b-tab>
-      <b-tab title="Set Headers">
-        <set-headers :problem_set="problem_set" />
-      </b-tab>
-    </b-tabs>
-  </b-container>
-</template>
+<!-- ProblemSetView.vue
+
+This is the View for a Problem Set.  It contains other compoents as tabs. -->
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 
 import SetInfo from "./ProblemSetViewComponents/SetInfo.vue";
@@ -72,7 +51,7 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
 
   private created() {
     // watch for changes in the selected set from the menu bar or as a link from another part of the app.
-    this.$store.subscribe((mutation, state) => {
+    this.$store.subscribe((mutation) => {
       if (mutation.type === "app_state/setSelectedSet") {
         if (
           this.$route.params &&
@@ -87,19 +66,47 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     });
   }
 
+  // TODO: changing "any" below to "Route" returns an error.  Why, not sure.
+
   // handles changes to the route which is the set-view route.
   @Watch("$route", { immediate: true, deep: true })
-  private routeChanged(to: any, from: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private routeChanged(to: any) {
     if (to.name === "setview") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
         app_state.setSelectedSet(set_id);
-        const _set = problem_sets_store.problem_sets.get(set_id);
-        if (_set) {
-          Object.assign(this.problem_set, _set);
+        const set = problem_sets_store.problem_sets.get(set_id);
+        if (set) {
+          Object.assign(this.problem_set, set);
         }
       }
     }
   }
 } // class SetDetails
 </script>
+
+<template>
+  <b-container>
+    <b-tabs content-class="mt-3">
+      <b-tab title="Set Details" active>
+        <set-info
+          :problem_sets="problem_sets_array"
+          :selected_set="problem_set"
+        />
+      </b-tab>
+      <b-tab title="Gateway Info" :disabled="!is_gateway">
+        <gateway-info :selected_problem_set="problem_set" />
+      </b-tab>
+      <b-tab title="Problems">
+        <problem-list-view :problem_set="problem_set" />
+      </b-tab>
+      <b-tab title="Assign Users">
+        <assign-users :problem_set="problem_set" />
+      </b-tab>
+      <b-tab title="Set Headers">
+        <set-headers :problem_set="problem_set" />
+      </b-tab>
+    </b-tabs>
+  </b-container>
+</template>

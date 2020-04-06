@@ -1,35 +1,9 @@
-<template>
-  <b-modal
-    id="add-problem-set-modal"
-    ref="add-prob-set-modal"
-    title="Add A Problem Set"
-    ok-title="Add Problem Set and Close"
-    @ok="addProblemSet"
-  >
-    <b-container>
-      <b-form-group
-        label-cols="4"
-        label="Problem Set Name"
-        :invalid-feedback="feedback()"
-      >
-        <b-form-input
-          ref="set_id"
-          v-model="problem_set.set_id"
-          :state="valid_name && set_not_defined"
-        />
-      </b-form-group>
-      <b-form-group label-cols="4" label="Visible">
-        <b-checkbox v-model="problem_set.visible" />
-      </b-form-group>
-      <b-form-group label-cols="4" label="Reduced Scoring">
-        <b-checkbox v-model="problem_set.enable_reduced_scoring" />
-      </b-form-group>
-    </b-container>
-  </b-modal>
-</template>
+<!-- AddProblemSetModal.vue
+
+This is modal from the ProblemSetManager to add a new problem set. -->
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 import * as moment from "moment";
 
@@ -101,7 +75,7 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     });
 
     // add to the store state:
-    const _set = await problem_sets_store.addProblemSet(this.problem_set);
+    await problem_sets_store.addProblemSet(this.problem_set);
 
     this.$bvModal.hide("add-problem-set-modal");
     this.problem_set = newProblemSet();
@@ -110,3 +84,33 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
   }
 }
 </script>
+
+<template>
+  <b-modal
+    id="add-problem-set-modal"
+    ref="add-prob-set-modal"
+    title="Add A Problem Set"
+    ok-title="Add Problem Set and Close"
+    @ok="addProblemSet"
+  >
+    <b-container>
+      <b-form-group
+        label-cols="4"
+        label="Problem Set Name"
+        :invalid-feedback="feedback()"
+      >
+        <b-form-input
+          ref="set_id"
+          v-model="problem_set.set_id"
+          :state="valid_name && set_not_defined"
+        />
+      </b-form-group>
+      <b-form-group label-cols="4" label="Visible">
+        <b-checkbox v-model="problem_set.visible" />
+      </b-form-group>
+      <b-form-group label-cols="4" label="Reduced Scoring">
+        <b-checkbox v-model="problem_set.enable_reduced_scoring" />
+      </b-form-group>
+    </b-container>
+  </b-modal>
+</template>

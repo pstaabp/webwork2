@@ -1,77 +1,14 @@
-<template>
-  <b-modal
-    id="edit-problem-sets-modal"
-    size="lg"
-    ref="sfmodal"
-    title="Edit Problem Sets"
-    ok-title="Save and Close"
-    @ok="save"
-  >
-    <b-container fluid>
-      <b-row>
-        <b-col cols="5">Set Name(s)</b-col>
-        <b-col cols="5">{{ set_names }}</b-col>
-      </b-row>
-      <b-form-group label-cols="5" label="Visible">
-        <b-checkbox v-model="problem_set.visible" />
-      </b-form-group>
-      <b-form-group label-cols="5" label="Reduced Scoring">
-        <b-checkbox v-model="problem_set.enable_reduced_scoring" />
-      </b-form-group>
-      <b-form-group label-cols="5" label="Open Date">
-        <b-form-input
-          :value="problem_set.open_date | formatDateTime"
-          type="datetime-local"
-          @blur="setOpenDate(problem_set, $event.target.value)"
-        />
-      </b-form-group>
-      <b-form-group
-        label-cols="5"
-        label="Reduced Scoring Date"
-        invalid-feedback="This date must be after the open date."
-      >
-        <b-form-input
-          :value="problem_set.reduced_scoring_date | formatDateTime"
-          type="datetime-local"
-          :state="validReducedScoring"
-          @blur="setReducedScoringDate(problem_set, $event.target.value)"
-        />
-      </b-form-group>
-      <b-form-group
-        label-cols="5"
-        label="Due Date"
-        invalid-feedback="This date must be after the reduced scoring date."
-      >
-        <b-form-input
-          :value="problem_set.due_date | formatDateTime"
-          type="datetime-local"
-          :state="validDueDate"
-          @blur="setDueDate(problem_set, $event.target.value)"
-        />
-      </b-form-group>
-      <b-form-group
-        label-cols="5"
-        label="Answer Date"
-        invalid-feedback="This date must be after the due date."
-      >
-        <b-form-input
-          :value="problem_set.answer_date | formatDateTime"
-          type="datetime-local"
-          :state="validAnswerDate"
-          @blur="setAnswerDate(problem_set, $event.target.value)"
-        />
-      </b-form-group>
-    </b-container>
-  </b-modal>
-</template>
+<!-- EditProblemSetModal.vue
+
+This is modal from the ProblemSetManager to edit a given problem set. -->
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Component, Watch, Prop } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
-import Common, {
+import {
   validReducedScoring,
   validAnswerDate,
   validDueDate,
@@ -90,16 +27,16 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
 
   @Watch("selected_sets")
   private selectedSetsChanged() {
-    const _sets = this.selected_sets || [];
+    const sets = this.selected_sets || [];
     this.problem_set.open_date = Math.min(
-      ..._sets.map((_set) => _set.open_date)
+      ...sets.map((_set) => _set.open_date)
     );
     this.problem_set.reduced_scoring_date = Math.min(
-      ..._sets.map((_set) => _set.reduced_scoring_date)
+      ...sets.map((_set) => _set.reduced_scoring_date)
     );
-    this.problem_set.due_date = Math.min(..._sets.map((_set) => _set.due_date));
+    this.problem_set.due_date = Math.min(...sets.map((_set) => _set.due_date));
     this.problem_set.answer_date = Math.min(
-      ..._sets.map((_set) => _set.answer_date)
+      ...sets.map((_set) => _set.answer_date)
     );
   }
 
@@ -132,16 +69,83 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     this.$emit("update-set");
   }
 
-  get validReducedScoring() {
+  get valid_reduced_scoring() {
     return validReducedScoring(this.problem_set);
   }
 
-  get validDueDate() {
+  get valid_due_date() {
     return validDueDate(this.problem_set);
   }
 
-  get validAnswerDate() {
+  get valid_answer_date() {
     return validAnswerDate(this.problem_set);
   }
 }
 </script>
+
+<template>
+  <b-modal
+    id="edit-problem-sets-modal"
+    ref="sfmodal"
+    size="lg"
+    title="Edit Problem Sets"
+    ok-title="Save and Close"
+    @ok="save"
+  >
+    <b-container fluid>
+      <b-row>
+        <b-col cols="5">Set Name(s)</b-col>
+        <b-col cols="5">{{ set_names }}</b-col>
+      </b-row>
+      <b-form-group label-cols="5" label="Visible">
+        <b-checkbox v-model="problem_set.visible" />
+      </b-form-group>
+      <b-form-group label-cols="5" label="Reduced Scoring">
+        <b-checkbox v-model="problem_set.enable_reduced_scoring" />
+      </b-form-group>
+      <b-form-group label-cols="5" label="Open Date">
+        <b-form-input
+          :value="formatDateTime(problem_set.open_date)"
+          type="datetime-local"
+          @blur="setOpenDate(problem_set, $event.target.value)"
+        />
+      </b-form-group>
+      <b-form-group
+        label-cols="5"
+        label="Reduced Scoring Date"
+        invalid-feedback="This date must be after the open date."
+      >
+        <b-form-input
+          :value="formatDateTime(problem_set.reduced_scoring_date)"
+          type="datetime-local"
+          :state="valid_reduced_scoring"
+          @blur="setReducedScoringDate(problem_set, $event.target.value)"
+        />
+      </b-form-group>
+      <b-form-group
+        label-cols="5"
+        label="Due Date"
+        invalid-feedback="This date must be after the reduced scoring date."
+      >
+        <b-form-input
+          :value="formatDateTime(problem_set.due_date)"
+          type="datetime-local"
+          :state="valid_due_date"
+          @blur="setDueDate(problem_set, $event.target.value)"
+        />
+      </b-form-group>
+      <b-form-group
+        label-cols="5"
+        label="Answer Date"
+        invalid-feedback="This date must be after the due date."
+      >
+        <b-form-input
+          :value="formatDateTime(problem_set.answer_date)"
+          type="datetime-local"
+          :state="valid_answer_date"
+          @blur="setAnswerDate(problem_set, $event.target.value)"
+        />
+      </b-form-group>
+    </b-container>
+  </b-modal>
+</template>

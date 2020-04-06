@@ -1,17 +1,10 @@
 // This file has common variables and objects needed throughout the ww3 interface
 
-import moment from "moment";
+import * as moment from "moment";
 
 import { ProblemSet, User, Problem } from "@/store/models";
 
-import {
-  transform,
-  isEqual,
-  isObject,
-  isString,
-  isNumber,
-  isInteger,
-} from "lodash-es";
+import { isString, isNumber, isInteger } from "lodash-es";
 
 export interface ViewInfo {
   name: string;
@@ -118,18 +111,18 @@ export function newProblemSet(): ProblemSet {
  * @param  {Object} object Object compared
  * @param  {Object} base   Object to compare with
  * @return {Object}        Return a new object who represent the diff
- */
+
 export function difference(
-  object: { [key: string]: any },
-  base: { [key: string]: any }
+  object: { [key: string]: number | string | object },
+  base: { [key: string]: number | string | object }
 ) {
   function changes(
-    object: { [key: string]: any },
-    base: { [key: string]: any }
+    object: { [key: string]: number | string | object },
+    base: { [key: string]: number | string | object }
   ) {
     return transform(object, function (
-      result: { [key: string]: any },
-      value: { [key: string]: any },
+      result: { [key: string]: number | string | object },
+      value: { [key: string]: number | string | object },
       key: string
     ) {
       if (!isEqual(value, base[key])) {
@@ -142,6 +135,7 @@ export function difference(
   }
   return changes(object, base);
 }
+*/
 
 // this function takes in a problem set and parses out the numbers:
 
@@ -162,23 +156,23 @@ function parseInteger(prop: number | string, default_value = 0) {
 // server are strings and should be integers.
 
 export function parseProblemSet(_set: ProblemSet) {
-  const _problem_set = newProblemSet();
-  Object.assign(_problem_set, _set);
-  _problem_set.open_date = parseInteger(_set.open_date);
-  _problem_set.reduced_scoring_date = parseInteger(_set.reduced_scoring_date);
-  _problem_set.due_date = parseInteger(_set.due_date);
-  _problem_set.answer_date = parseInteger(_set.answer_date);
-  _problem_set.attempts_per_version = parseInteger(_set.attempts_per_version);
-  _problem_set.time_interval = parseInteger(_set.time_interval);
-  _problem_set.versions_per_interval = parseInteger(_set.versions_per_interval);
-  _problem_set.version_time_limit = parseInteger(_set.version_time_limit);
-  _problem_set.version_creation_time = parseInteger(_set.version_creation_time);
-  _problem_set.version_last_attempt_time = parseInteger(
+  const problem_set = newProblemSet();
+  Object.assign(problem_set, _set);
+  problem_set.open_date = parseInteger(_set.open_date);
+  problem_set.reduced_scoring_date = parseInteger(_set.reduced_scoring_date);
+  problem_set.due_date = parseInteger(_set.due_date);
+  problem_set.answer_date = parseInteger(_set.answer_date);
+  problem_set.attempts_per_version = parseInteger(_set.attempts_per_version);
+  problem_set.time_interval = parseInteger(_set.time_interval);
+  problem_set.versions_per_interval = parseInteger(_set.versions_per_interval);
+  problem_set.version_time_limit = parseInteger(_set.version_time_limit);
+  problem_set.version_creation_time = parseInteger(_set.version_creation_time);
+  problem_set.version_last_attempt_time = parseInteger(
     _set.version_last_attempt_time
   );
-  _problem_set.problems_per_page = parseInteger(_set.problems_per_page);
-  //  console.log(difference(_set, _problem_set)); // eslint-disable-line no-console
-  return _problem_set;
+  problem_set.problems_per_page = parseInteger(_set.problems_per_page);
+  //  console.log(difference(_set, problem_set)); // eslint-disable-line no-console
+  return problem_set;
 }
 
 export function validReducedScoring(_set: ProblemSet) {
@@ -267,6 +261,41 @@ export function ww3Views(): ViewInfo[] {
   ];
 }
 
+export function formatDateTime(value: number) {
+  return moment.unix(value).format("YYYY-MM-DD[T]HH:mm");
+}
+
+export function parseDatetimeForBrowser(date_string: string) {
+  return moment.default(date_string, "YYYY-MM-DD[T]HH:mm").unix();
+}
+
+export function setOpenDate(_set: ProblemSet, date_string: string) {
+  _set.open_date = parseDatetimeForBrowser(date_string);
+}
+
+export function setReducedScoringDate(_set: ProblemSet, date_string: string) {
+  _set.reduced_scoring_date = parseDatetimeForBrowser(date_string);
+}
+
+export function setDueDate(_set: ProblemSet, date_string: string) {
+  _set.due_date = parseDatetimeForBrowser(date_string);
+}
+
+export function setAnswerDate(_set: ProblemSet, date_string: string) {
+  _set.answer_date = parseDatetimeForBrowser(date_string);
+}
+
+export function round2(value: number | string) {
+  if (typeof value === "string") {
+    return value;
+  }
+  return Math.round(100 * value) / 100;
+}
+
+export interface StringMap {
+  [key: string]: string | number;
+}
+
 export default class Common {
   public static sidebars(): SidebarInfo[] {
     return [
@@ -300,25 +329,21 @@ export default class Common {
   public static dateTypes(): string[] {
     return ["due_date", "reduced_scoring_date", "due_date", "answer_date"];
   }
-
-  public static formatDateTime(date_in_unix: number) {
-    return moment.unix(date_in_unix).format("MM/DD/YYYY [at] hh:mma");
-  }
-  public static formatDateForBrowser(dateInUnix: number) {
-    return moment.unix(dateInUnix).format("YYYY-MM-DD");
-  }
-
-  public static formatDatetimeForBrowser(dateInUnix: number) {
-    return moment.unix(dateInUnix).format("YYYY-MM-DD[T]hh:mma");
-  }
-
-  public static formatTimeForBrowser(dateInUnix: number) {
-    return moment.unix(dateInUnix).format("HH:mm");
-  }
-
-  public static parseDatetimeForBrowser(dateString: string) {
-    return moment(dateString, "YYYY-MM-DD[T]HH:mm").unix();
-  }
+  //
+  // public static formatDateTime(date_in_unix: number) {
+  //   return moment.unix(date_in_unix).format("MM/DD/YYYY [at] hh:mma");
+  // }
+  // public static formatDateForBrowser(date_in_unix: number) {
+  //   return moment.unix(date_in_unix).format("YYYY-MM-DD");
+  // }
+  //
+  // public static formatDatetimeForBrowser(date_in_unix: number) {
+  //   return moment.unix(date_in_unix).format("YYYY-MM-DD[T]hh:mma");
+  // }
+  //
+  // public static formatTimeForBrowser(date_in_unix: number) {
+  //   return moment.unix(date_in_unix).format("HH:mm");
+  // }
 
   public static newUser(): User {
     return {

@@ -1,41 +1,9 @@
-<template>
-  <b-container>
-    <b-row>
-      <b-col cols="2">
-        <b-checkbox v-model="all_users">Include All Users </b-checkbox>
-      </b-col>
-      <b-col>
-        <b-form-group
-          label-cols="auto"
-          label="Export Filename"
-          label-for="filename-export"
-        >
-          <b-form-input id="filename-export" v-model="filename" />
-        </b-form-group>
-      </b-col>
-      <b-col>
-        <b-btn @click="download" variant="outline-dark">Download</b-btn>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-table
-        sticky-header="600px"
-        :items="user_table"
-        :fields="fields"
-        striped
-        small
-        primary_key="user_id"
-      >
-        <template v-slot:head()="data">
-          {{ formatHead(data) }}
-        </template>
-      </b-table>
-    </b-row>
-  </b-container>
-</template>
+<!-- Scoring.vue
+
+This is the tab of the Statistics view that shows the scoring.  -->
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { unparse } from "papaparse";
 
@@ -45,14 +13,12 @@ import problem_sets_store from "@/store/modules/problem_sets";
 
 import { User, UserSetScore } from "@/store/models";
 
+import { StringMap } from "@/common";
+
 // Defintion for problem sets and the total value of the set
 interface SetValue {
   set_id: string;
   value: number;
-}
-
-interface StringMap {
-  [key: string]: string | number;
 }
 
 interface UserProblemStatus {
@@ -65,8 +31,8 @@ interface UserProblemStatus {
 })
 export default class Scoring extends Vue {
   private set_values: SetValue[] = []; // store the value of each set
-  private filename: string = "";
-  private all_users: boolean = false;
+  private filename = "";
+  private all_users = false;
   @Prop()
   private user_set_scores!: UserSetScore[];
 
@@ -105,7 +71,7 @@ export default class Scoring extends Vue {
 
   private get user_table() {
     let users = users_store.users_array;
-    const sets = problem_sets_store.problem_sets;
+    // const sets = problem_sets_store.problem_sets;
 
     // If the all_users checkbox is not selected remove admins/professors and dropped students:
     if (!this.all_users) {
@@ -186,3 +152,39 @@ export default class Scoring extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-container>
+    <b-row>
+      <b-col cols="2">
+        <b-checkbox v-model="all_users">Include All Users </b-checkbox>
+      </b-col>
+      <b-col>
+        <b-form-group
+          label-cols="auto"
+          label="Export Filename"
+          label-for="filename-export"
+        >
+          <b-form-input id="filename-export" v-model="filename" />
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <b-btn variant="outline-dark" @click="download">Download</b-btn>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-table
+        sticky-header="600px"
+        :items="user_table"
+        :fields="fields"
+        striped
+        small
+        primary_key="user_id"
+      >
+        <template #head()="data">
+          {{ formatHead(data) }}
+        </template>
+      </b-table>
+    </b-row>
+  </b-container>
+</template>

@@ -1,52 +1,6 @@
-<template>
-  <b-row>
-    <b-col>
-      <b-list-group class="border">
-        <b-list-group-item
-          class="pt-0 pb-0 pl-2"
-          v-for="item in dirs[0]"
-          :key="item.text"
-          button
-          @click="open(item, 1)"
-        >
-          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
-          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
-          {{ item.text }}
-        </b-list-group-item>
-      </b-list-group>
-    </b-col>
-    <b-col>
-      <b-list-group class="border" v-if="dirs[1] && dirs[1].length > 0">
-        <b-list-group-item
-          class="pt-0 pb-0 pl-2"
-          v-for="item in dirs[1]"
-          :key="item.text"
-          button
-          @click="open(item, 2)"
-        >
-          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
-          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
-          {{ item.text }}
-        </b-list-group-item>
-      </b-list-group>
-    </b-col>
-    <b-col>
-      <b-list-group class="border" v-if="dirs[2] && dirs[2].length > 0">
-        <b-list-group-item
-          class="pt-0 pb-0 pl-2"
-          v-for="item in dirs[2]"
-          :key="item.text"
-          button
-          @click="open(item, 2)"
-        >
-          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
-          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
-          {{ item.text }}
-        </b-list-group-item>
-      </b-list-group>
-    </b-col>
-  </b-row>
-</template>
+<!-- LocalLibrary.vue
+
+This is a tab in the LibraryBrowser that allows one to find problems in the local (course) library -->
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
@@ -98,33 +52,37 @@ export default class LocalLibrary extends Vue {
       for (let i = 0; i < level; i++) {
         dirs[i] = this.dirs[i];
       }
-      let _dirsTmp: DirectoryStructure = { base: "", files: [], subdirs: [] };
+      let directory_temp: DirectoryStructure = {
+        base: "",
+        files: [],
+        subdirs: [],
+      };
 
       // get the right level in the directory tree.  TODO: write recursively.
       if (level === 0) {
-        _dirsTmp = this.dir_info;
+        directory_temp = this.dir_info;
       } else if (level === 1) {
-        _dirsTmp = this.dir_info.subdirs.find(
+        directory_temp = this.dir_info.subdirs.find(
           (_dir: DirectoryStructure) => _dir.base === item.text
         ) || { base: "", files: [], subdirs: [] };
       } else if (level === 2) {
-        _dirsTmp = this.dir_info.subdirs.find(
+        directory_temp = this.dir_info.subdirs.find(
           (_dir: DirectoryStructure) => _dir.base === this.selection[1].text
         ) || { base: "", files: [], subdirs: [] };
-        _dirsTmp = _dirsTmp.subdirs.find(
+        directory_temp = directory_temp.subdirs.find(
           (_dir: DirectoryStructure) => _dir.base === this.selection[2].text
         ) || { base: "", files: [], subdirs: [] };
       }
 
       // get all of the directories and filenames at the given level.
       dirs[level] = [
-        ...(_dirsTmp.subdirs
-          ? _dirsTmp.subdirs.map((_dir: DirectoryStructure) => ({
+        ...(directory_temp.subdirs
+          ? directory_temp.subdirs.map((_dir: DirectoryStructure) => ({
               type: "dir",
               text: _dir.base,
             }))
           : []),
-        ..._dirsTmp.files.map((_file: string) => ({
+        ...directory_temp.files.map((_file: string) => ({
           type: "file",
           text: _file,
         })),
@@ -149,6 +107,56 @@ export default class LocalLibrary extends Vue {
   } // open
 } // class LocalLibrary
 </script>
+
+<template>
+  <b-row>
+    <b-col>
+      <b-list-group class="border">
+        <b-list-group-item
+          v-for="item in dirs[0]"
+          :key="item.text"
+          class="pt-0 pb-0 pl-2"
+          button
+          @click="open(item, 1)"
+        >
+          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
+          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
+          {{ item.text }}
+        </b-list-group-item>
+      </b-list-group>
+    </b-col>
+    <b-col>
+      <b-list-group v-if="dirs[1] && dirs[1].length > 0" class="border">
+        <b-list-group-item
+          v-for="item in dirs[1]"
+          :key="item.text"
+          class="pt-0 pb-0 pl-2"
+          button
+          @click="open(item, 2)"
+        >
+          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
+          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
+          {{ item.text }}
+        </b-list-group-item>
+      </b-list-group>
+    </b-col>
+    <b-col>
+      <b-list-group v-if="dirs[2] && dirs[2].length > 0" class="border">
+        <b-list-group-item
+          v-for="item in dirs[2]"
+          :key="item.text"
+          class="pt-0 pb-0 pl-2"
+          button
+          @click="open(item, 2)"
+        >
+          <i v-if="item.type == 'dir'" class="far fa-folder pr-2" />
+          <i v-if="item.type == 'file'" class="far fa-file pr-2" />
+          {{ item.text }}
+        </b-list-group-item>
+      </b-list-group>
+    </b-col>
+  </b-row>
+</template>
 
 <style scoped>
 .list-group {

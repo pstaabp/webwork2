@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
   moduleFileExtensions: ["js", "jsx", "json", "vue", "ts", "tsx"],
   transform: {

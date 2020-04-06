@@ -93,6 +93,7 @@ export interface ProblemSet {
   hide_hint: boolean;
   restrict_prob_progression: boolean;
   email_instructor: boolean;
+  [key: string]: string | number | boolean | Problem[] | string[];
 }
 
 export type ProblemSetList = Map<string, ProblemSet>;
@@ -113,6 +114,7 @@ export interface User {
   section: string;
   showOldAnswers: boolean;
   useWirisEditor: boolean;
+  [key: string]: string | boolean | number; 
 }
 
 export type UserList = Map<string, User>;

@@ -1,61 +1,11 @@
-<template>
-  <b-row class="mb-3">
-    <b-col>
-      <b-select
-        v-model="selected_subject"
-        :options="subjects"
-        value-field="name"
-        text-field="name"
-        @change="subjectChange"
-        size="sm"
-      >
-        <template slot="first">
-          <option :value="''" disabled>Select subject...</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-select
-        v-show="selected_subject != ''"
-        v-model="selected_chapter"
-        :options="chapters"
-        @change="chapterChange"
-        value-field="name"
-        text-field="name"
-        size="sm"
-      >
-        <template slot="first">
-          <option :value="null">Select chapter...</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-select
-        v-show="selected_chapter != ''"
-        v-model="selected_section"
-        :options="sections"
-        value-field="name"
-        text-field="name"
-        size="sm"
-        @change="sectionChange"
-      >
-        <template slot="first">
-          <option :value="null">Select section...</option>
-        </template>
-      </b-select>
-    </b-col>
-    <b-col>
-      <b-btn size="sm" variant="outline-dark" @click="selectProblems">
-        Select {{ num_files }} Problems
-      </b-btn>
-    </b-col>
-  </b-row>
-</template>
+<!-- LibrarySubjects.vue
+
+This is a tab in the LibraryBrowser that allows one to find problems by subject/chapter/section. -->
 
 <script lang="ts">
 import axios from "axios";
 
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component } from "vue-property-decorator";
 
 interface LibraryInfo {
   subfields: LibraryInfo[];
@@ -70,11 +20,11 @@ export default class LibrarySubjects extends Vue {
   private subjects: LibraryInfo[] = [];
   private chapters: LibraryInfo[] = [];
   private sections: LibraryInfo[] = [];
-  private selected_subject: string = "";
-  private selected_chapter: string = "";
-  private selected_section: string = "";
-  private num_files: number = 0;
-  private current_page: number = 0;
+  private selected_subject = "";
+  private selected_chapter = "";
+  private selected_section = "";
+  private num_files = 0;
+  private current_page = 0;
 
   private subjectChange(name: string) {
     this.selected_chapter = "";
@@ -144,3 +94,57 @@ export default class LibrarySubjects extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-row class="mb-3">
+    <b-col>
+      <b-select
+        v-model="selected_subject"
+        :options="subjects"
+        value-field="name"
+        text-field="name"
+        size="sm"
+        @change="subjectChange"
+      >
+        <template #first>
+          <option :value="''" disabled>Select subject...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select
+        v-show="selected_subject != ''"
+        v-model="selected_chapter"
+        :options="chapters"
+        value-field="name"
+        text-field="name"
+        size="sm"
+        @change="chapterChange"
+      >
+        <template #first>
+          <option :value="null">Select chapter...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-select
+        v-show="selected_chapter != ''"
+        v-model="selected_section"
+        :options="sections"
+        value-field="name"
+        text-field="name"
+        size="sm"
+        @change="sectionChange"
+      >
+        <template #first>
+          <option :value="null">Select section...</option>
+        </template>
+      </b-select>
+    </b-col>
+    <b-col>
+      <b-btn size="sm" variant="outline-dark" @click="selectProblems">
+        Select {{ num_files }} Problems
+      </b-btn>
+    </b-col>
+  </b-row>
+</template>
