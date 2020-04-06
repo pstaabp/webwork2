@@ -8,7 +8,7 @@
 import { Vue, Component, Watch } from "vue-property-decorator";
 import { parse } from "papaparse";
 
-import { StringMap } from "@/common";
+import { newUser } from "@/common";
 import { User } from "@/store/models";
 
 import users_store from "@/store/modules/users";
@@ -31,7 +31,7 @@ export default class ImportStudentsFile extends Vue {
   private numCols = 0;
   private header_values: string[] = [];
   private headers: HeaderType[] = [
-    { value: "selected", text: "", regexp: ""},
+    { value: "selected", text: "", regexp: "" },
     { value: "user_id", text: "Login", regexp: "login|user" },
     { value: "first_name", text: "First Name", regexp: "first" },
     { value: "last_name", text: "Last Name", regexp: "last" },
@@ -44,20 +44,21 @@ export default class ImportStudentsFile extends Vue {
     { value: "permission", text: "Permission", regexp: "permission" },
   ];
   private first_row: string[] = [];
-  private users: StringMap[] = [];
+  private users: string[][] = [];
 
   private loadFile() {
     const reader: FileReader = new FileReader();
 
     reader.readAsText(this.file);
     reader.onload = (evt: ProgressEvent) => {
-      if (evt) {
-        const results = parse(evt.target.result);
+      if (evt && evt.target) {
+        console.log(evt.target); // eslint-disable-line no-console
+        const reader = evt.target as FileReader;
+        const results = parse(reader.result as string);
         if (results.errors && results.errors.length > 0) {
           alert(results.errors);
         } else {
           this.users = results.data;
-
         }
       }
     };
@@ -65,10 +66,15 @@ export default class ImportStudentsFile extends Vue {
   @Watch("use_first_row")
   private useFirstRowChanged() {
     console.log(this.use_first_row); // eslint-disable-line no-console
-    if(this.use_first_row){
+    if (this.use_first_row) {
       this.first_row = Array.from(this.users[0]);
     }
-    document.getElementById('import-table').rows[1].style.visibility = this.use_first_row ? 'collapse': 'visible';
+    const table = document.getElementById("import-table") as HTMLTableElement;
+    if (table) {
+      table.rows[1].style.visibility = this.use_first_row
+        ? "collapse"
+        : "visible";
+    }
 
     console.log(this.first_row); // eslint-disable-line no-console
     // try to match the header fields
@@ -86,17 +92,14 @@ export default class ImportStudentsFile extends Vue {
 
   private async addAll() {
     if (this.use_first_row) {
-      this.data.shift();
+      this.users.shift();
     }
 
     const users = this.users.map((_u: string[]) =>
-      this.header_values.reduce(
-        (result: User, _val: string, i: number) => {
-          result[_val] = "" + _u[i];
-          return result;
-        },
-        {}
-      )
+      this.header_values.reduce((result: User, _val: string, i: number) => {
+        result[_val] = "" + _u[i];
+        return result;
+      }, newUser())
     );
 
     console.log(users); // eslint-disable-line no-console
@@ -153,8 +156,7 @@ export default class ImportStudentsFile extends Vue {
           :current-page="page"
           small
         >
-
-          <template v-slot:cell(selected)="{ rowSelected }">
+          <template #cell(selected)="{ rowSelected }">
             <template v-if="rowSelected">
               <span aria-hidden="true">&check;</span>
               <span class="sr-only">Selected</span>
@@ -165,7 +167,7 @@ export default class ImportStudentsFile extends Vue {
             </template>
           </template>
 
-          <template v-slot:head()="data">
+          <template #head()="data">
             <b-select
               v-model="header_values[data.column]"
               :options="headers"

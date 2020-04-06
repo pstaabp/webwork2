@@ -114,7 +114,7 @@ export interface User {
   section: string;
   showOldAnswers: boolean;
   useWirisEditor: boolean;
-  [key: string]: string | boolean | number; 
+  [key: string]: string | boolean | number;
 }
 
 export type UserList = Map<string, User>;

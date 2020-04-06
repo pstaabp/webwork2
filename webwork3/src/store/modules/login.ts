@@ -10,7 +10,7 @@ import {
 import { LoginInfo, UserPassword } from "@/store/models";
 import store from "@/store";
 
-import Common from "@/common";
+import { newUser } from "@/common";
 
 // this is to prevent an error occur with a hot reloading.
 if (store.state.login) {
@@ -30,7 +30,7 @@ export class LoginModule extends VuexModule {
     user_id: "",
     logged_in: false,
     course_id: "",
-    user: Common.newUser(),
+    user: newUser(),
   };
 
   public get api_header() {
@@ -51,7 +51,7 @@ export class LoginModule extends VuexModule {
       logged_in: false,
       user_id: login.user_id,
       course_id: login.course_id,
-      user: Common.newUser(),
+      user: newUser(),
     };
 
     const response = await axios.post(
@@ -84,7 +84,7 @@ export class LoginModule extends VuexModule {
       user_id: "",
       logged_in: false,
       course_id: "",
-      user: Common.newUser(),
+      user: newUser(),
     };
   }
 }

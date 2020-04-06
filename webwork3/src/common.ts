@@ -66,6 +66,26 @@ export const SET_PROB: ProblemViewOptions = {
   target_set: false,
 };
 
+export function newUser(): User {
+  return {
+    user_id: "__new_user",
+    first_name: "",
+    last_name: "",
+    status: "",
+    comment: "",
+    useMathView: false,
+    permission: -5,
+    recitation: "",
+    student_id: "",
+    lis_source_did: "",
+    email_address: "",
+    displayMode: "MathJax",
+    section: "",
+    showOldAnswers: false,
+    useWirisEditor: false,
+  };
+}
+
 export function newProblemSet(): ProblemSet {
   return {
     set_id: "XXX",
@@ -344,26 +364,6 @@ export default class Common {
   // public static formatTimeForBrowser(date_in_unix: number) {
   //   return moment.unix(date_in_unix).format("HH:mm");
   // }
-
-  public static newUser(): User {
-    return {
-      user_id: "__new_user",
-      first_name: "",
-      last_name: "",
-      status: "",
-      comment: "",
-      useMathView: false,
-      permission: -5,
-      recitation: "",
-      student_id: "",
-      lis_source_did: "",
-      email_address: "",
-      displayMode: "MathJax",
-      section: "",
-      showOldAnswers: false,
-      useWirisEditor: false,
-    };
-  }
 
   public static newProblem(): Problem {
     return {

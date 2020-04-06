@@ -10,7 +10,12 @@ import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 import { ProblemSet, ProblemSetList } from "@/store/models";
 
-import { validReducedScoring, validDueDate, validAnswerDate } from "@/common";
+import {
+  formatDateTime, // eslint-disable-line @typescript-eslint/no-unused-vars
+  validReducedScoring,
+  validDueDate,
+  validAnswerDate,
+} from "@/common";
 
 // set up the store
 import problem_sets_store from "@/store/modules/problem_sets";
