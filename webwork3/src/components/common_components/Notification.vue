@@ -19,7 +19,7 @@ export default class Notification extends Vue {
 </script>
 
 <template>
-  <b-dropdown-text>
+  <b-dd-text>
     <span style="font-size: 1.5rem;" @click="show_long = !show_long">
       <b-icon
         :icon="show_long ? 'chevron-down' : 'chevron-right'"
@@ -37,7 +37,7 @@ export default class Notification extends Vue {
     <div v-if="show_long" class="long border rounded p-2">
       {{ message.long }}
     </div>
-  </b-dropdown-text>
+  </b-dd-text>
 </template>
 
 <style scoped>

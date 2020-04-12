@@ -63,7 +63,6 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
   }
 
   get reduced_scoring(): boolean {
-    console.log(settings_store.settings); // eslint-disable-line no-console
     const setting = settings_store.settings.get(
       "pg{ansEvalDefaults}{enableReducedScoring}"
     );
@@ -72,6 +71,10 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     } else {
       return false;
     }
+  }
+
+  private formatDateAndTime(value: number){
+    return formatDateTime(value);
   }
 
   private save() {
@@ -108,7 +111,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
             <b-input
               size="sm"
               type="datetime-local"
-              :value="formatDateTime(problem_set.open_date)"
+              :value="formatDateAndTime(problem_set.open_date)"
               @blur="
                 setOpenDate(problem_set, $event.target.value);
                 save();
@@ -125,7 +128,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
           >
             <b-input
               size="sm"
-              :value="formatDateTime(problem_set.reduced_scoring_date)"
+              :value="formatDateAndTime(problem_set.reduced_scoring_date)"
               type="datetime-local"
               :state="valid_reduced_scoring"
               @blur="
@@ -145,7 +148,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
           >
             <b-input
               size="sm"
-              :value="formatDateTime(problem_set.due_date)"
+              :value="formatDateAndTime(problem_set.due_date)"
               type="datetime-local"
               :state="valid_due_date"
               @blur="
@@ -161,9 +164,9 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
             label="Answer Date"
             invalid-feedback="This date must be after the due date."
           >
-            <b-form-input
+            <b-input
               size="sm"
-              :value="formatDateTime(problem_set.answer_date)"
+              :value="formatDateAndTime(problem_set.answer_date)"
               type="datetime-local"
               :state="valid_answer_date"
               @blur="
@@ -177,13 +180,13 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
       <tr>
         <td class="header">Problem Set Visible to Users</td>
         <td>
-          <b-form-checkbox v-model="problem_set.visible" @change="save" />
+          <b-checkbox v-model="problem_set.visible" @change="save" />
         </td>
       </tr>
       <tr v-if="reduced_scoring">
         <td class="header">Reduced Scoring Enabled</td>
         <td>
-          <b-form-checkbox
+          <b-checkbox
             v-model="problem_set.enable_reduced_scoring"
             @change="save"
           />
@@ -192,13 +195,13 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
       <tr>
         <td class="header">Hide Hints from Users</td>
         <td>
-          <b-form-checkbox v-model="problem_set.hide_hint" @change="save" />
+          <b-checkbox v-model="problem_set.hide_hint" @change="save" />
         </td>
       </tr>
       <tr>
         <td class="header">Set Type</td>
         <td>
-          <b-form-select
+          <b-select
             v-model="problem_set.assignment_type"
             size="sm"
             @change="save"
@@ -206,7 +209,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
             <option value="set">Homework</option>
             <option value="gateway">Gateway/Quiz</option>
             <option value="proctored_gateway">Proctored Gateway/Quiz</option>
-          </b-form-select>
+          </b-select>
         </td>
       </tr>
       <tr>

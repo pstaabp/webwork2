@@ -66,7 +66,7 @@ export default class Manager extends Vue {
               label="Login Name"
               label-for="login"
             >
-              <b-form-input
+              <b-input
                 id="login"
                 ref="login-input"
                 v-model="password_info.user_id"
@@ -81,7 +81,7 @@ export default class Manager extends Vue {
               label="Password"
               label-for="password"
             >
-              <b-form-input
+              <b-input
                 id="password"
                 v-model="password_info.password"
                 type="password"

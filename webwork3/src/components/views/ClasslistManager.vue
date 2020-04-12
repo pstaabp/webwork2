@@ -10,7 +10,7 @@ import ImportStudentsFile from "./ClasslistComponents/ImportStudentsFile.vue";
 import ImportStudentsManually from "./ClasslistComponents/ImportStudentsManually.vue";
 import ExportStudents from "./ClasslistComponents/ExportStudents.vue";
 import EditUsersModal from "./ClasslistComponents/EditUsersModal.vue";
-import Constants from "@/common";
+import { permissionLevels, userTypes } from "@/common";
 import { User } from "@/store/models";
 
 // set up the store
@@ -49,11 +49,11 @@ export default class Manager extends Vue {
   private current_page = 1;
 
   private formatStatus(value: string): string {
-    return Constants.userTypes()[value];
+    return userTypes()[value];
   }
 
   private formatPermission(value: string): string {
-    return Constants.permissionLevels()[value];
+    return permissionLevels()[value];
   }
 
   private rowSelected(rows: User[]): void {

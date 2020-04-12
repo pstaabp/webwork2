@@ -13,6 +13,8 @@ import {
   validAnswerDate,
   validDueDate,
   newProblemSet,
+  formatDateTime,
+
 } from "@/common";
 import { ProblemSet } from "@/store/models";
 
@@ -38,6 +40,10 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     this.problem_set.answer_date = Math.min(
       ...sets.map((_set) => _set.answer_date)
     );
+  }
+
+  private formatDateAndTime(value: string) {
+    return formatDateTime(value);
   }
 
   private get set_names() {
@@ -104,8 +110,8 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         <b-checkbox v-model="problem_set.enable_reduced_scoring" />
       </b-form-group>
       <b-form-group label-cols="5" label="Open Date">
-        <b-form-input
-          :value="formatDateTime(problem_set.open_date)"
+        <b-input
+          :value="formatDateAndTime(problem_set.open_date)"
           type="datetime-local"
           @blur="setOpenDate(problem_set, $event.target.value)"
         />
@@ -115,8 +121,8 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         label="Reduced Scoring Date"
         invalid-feedback="This date must be after the open date."
       >
-        <b-form-input
-          :value="formatDateTime(problem_set.reduced_scoring_date)"
+        <b-input
+          :value="formatDateAndTime(problem_set.reduced_scoring_date)"
           type="datetime-local"
           :state="valid_reduced_scoring"
           @blur="setReducedScoringDate(problem_set, $event.target.value)"
@@ -127,8 +133,8 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         label="Due Date"
         invalid-feedback="This date must be after the reduced scoring date."
       >
-        <b-form-input
-          :value="formatDateTime(problem_set.due_date)"
+        <b-input
+          :value="formatDateAndTime(problem_set.due_date)"
           type="datetime-local"
           :state="valid_due_date"
           @blur="setDueDate(problem_set, $event.target.value)"
@@ -139,8 +145,8 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         label="Answer Date"
         invalid-feedback="This date must be after the due date."
       >
-        <b-form-input
-          :value="formatDateTime(problem_set.answer_date)"
+        <b-input
+          :value="formatDateAndTime(problem_set.answer_date)"
           type="datetime-local"
           :state="valid_answer_date"
           @blur="setAnswerDate(problem_set, $event.target.value)"

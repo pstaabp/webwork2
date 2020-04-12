@@ -49,7 +49,7 @@ export default class ImportStudentsFile extends Vue {
             label="Filename"
             label-for="filename-input"
           >
-            <b-form-input id="filename-input" v-model="filename" />
+            <b-input id="filename-input" v-model="filename" />
           </b-form-group>
         </b-col>
         <b-col>

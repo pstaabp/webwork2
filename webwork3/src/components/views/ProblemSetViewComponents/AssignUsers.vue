@@ -10,6 +10,7 @@ import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import { User, ProblemSet } from "@/store/models";
 
 import {
+  formatDateTime,
   validReducedScoring,
   validDueDate,
   validAnswerDate,
@@ -84,6 +85,10 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
     } else {
       this.users = Array.from(users_store.users.values());
     }
+  }
+
+  private formatDateAndTime(value: string){
+    return formatDateTime(value);
   }
 
   @Watch("problem_set", { deep: true })
@@ -169,12 +174,12 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
       </b-col>
       <b-col cols="4">
         <b-form-group>
-          <b-form-checkbox-group v-model="show_info">
-            <b-form-checkbox value="section">Show Section</b-form-checkbox>
-            <b-form-checkbox value="recitation">
+          <b-checkbox-group v-model="show_info">
+            <b-checkbox value="section">Show Section</b-checkbox>
+            <b-checkbox value="recitation">
               Show Recitation
-            </b-form-checkbox>
-          </b-form-checkbox-group>
+            </b-checkbox>
+          </b-checkbox-group>
         </b-form-group>
       </b-col>
       <b-col v-if="list_type === 'unassigned'" cols="2">
@@ -194,7 +199,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
           <b-input
             size="sm"
             type="datetime-local"
-            :value="formatDateTime(override_dates.open_date)"
+            :value="formatDateAndTime(override_dates.open_date)"
             @blur="setOpenDate(override_dates, $event.target.value)"
           />
         </b-form-group>
@@ -207,7 +212,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
         >
           <b-input
             size="sm"
-            :value="formatDateTime(override_dates.reduced_scoring_date)"
+            :value="formatDateAndTime(override_dates.reduced_scoring_date)"
             :state="valid_reduced_scoring"
             type="datetime-local"
             @blur="setReducedScoringDate(override_dates, $event.target.value)"
@@ -223,7 +228,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
         >
           <b-input
             size="sm"
-            :value="formatDateTime(override_dates.due_date)"
+            :value="formatDateAndTime(override_dates.due_date)"
             :state="valid_due_date"
             type="datetime-local"
             @blur="setDueDate(override_dates, $event.target.value)"
@@ -236,9 +241,9 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
           label="Answer Date"
           invalid-feedback="This date must be after the due date."
         >
-          <b-form-input
+          <b-input
             size="sm"
-            :value="formatDateTime(override_dates.answer_date)"
+            :value="formatDateAndTime(override_dates.answer_date)"
             type="datetime-local"
             :state="valid_answer_date"
             @blur="setAnswerDate(override_dates, $event.target.value)"

@@ -175,12 +175,12 @@ export default class MenuBar extends Vue {
             {{ getName(current_view, views) }}
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
-            <b-dropdown-item v-for="view in views" :key="view.route">
+            <b-dd-item v-for="view in views" :key="view.route">
               <router-link class="view-link" :to="path(view.route)">
                 <b-icon :icon="view.icon" />
                 <span class="pl-2">{{ view.name }}</span>
               </router-link>
-            </b-dropdown-item>
+            </b-dd-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
         <b-navbar-nav v-if="show_set" class="mr-3">
@@ -215,13 +215,13 @@ export default class MenuBar extends Vue {
             <template #button-content>
               <b-icon icon="person" />
             </template>
-            <b-dropdown-text>{{ fullname }}</b-dropdown-text>
-            <b-dropdown-item v-b-modal.settings href="#">
+            <b-dd-text>{{ fullname }}</b-dd-text>
+            <b-dd-item v-b-modal.settings href="#">
               <b-icon icon="gear" /> Settings
-            </b-dropdown-item>
-            <b-dropdown-item @click="$emit('logout')">
+            </b-dd-item>
+            <b-dd-item @click="$emit('logout')">
               <b-icon icon="circle-slash" /> Logout
-            </b-dropdown-item>
+            </b-dd-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>

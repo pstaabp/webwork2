@@ -165,7 +165,7 @@ export default class Scoring extends Vue {
           label="Export Filename"
           label-for="filename-export"
         >
-          <b-form-input id="filename-export" v-model="filename" />
+          <b-input id="filename-export" v-model="filename" />
         </b-form-group>
       </b-col>
       <b-col>

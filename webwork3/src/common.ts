@@ -332,7 +332,7 @@ export interface StringMap {
   [key: string]: string | number;
 }
 
-export function  permissionLevels(): { [key: string]: string } {
+export function permissionLevels(): { [key: string]: string } {
   return {
     "20": "admin",
     "10": "professor",
@@ -344,6 +344,15 @@ export function  permissionLevels(): { [key: string]: string } {
   };
 }
 
+export function userTypes(): { [key: string]: string } {
+  return {
+    C: "enrolled",
+    P: "proctor",
+    A: "audit",
+    D: "drop",
+  };
+}
+
 export default class Common {
   public static sidebars(): SidebarInfo[] {
     return [
@@ -351,15 +360,6 @@ export default class Common {
       { name: "Library Options", comp: "lib_opts" },
       { name: "Messages", comp: "messages" },
     ];
-  }
-
-  public static userTypes(): { [key: string]: string } {
-    return {
-      C: "enrolled",
-      P: "proctor",
-      A: "audit",
-      D: "drop",
-    };
   }
 
 

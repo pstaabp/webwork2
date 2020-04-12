@@ -99,7 +99,7 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
         label="Problem Set Name"
         :invalid-feedback="feedback()"
       >
-        <b-form-input
+        <b-input
           ref="set_id"
           v-model="problem_set.set_id"
           :state="valid_name && set_not_defined"

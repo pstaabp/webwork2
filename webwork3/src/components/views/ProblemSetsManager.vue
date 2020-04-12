@@ -132,11 +132,11 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
       <b-row class="pb-3">
         <b-col cols="3">
           <b-input-group size="sm">
-            <b-form-input v-model="filter_string" placeholder="Filter" />
+            <b-input v-model="filter_string" placeholder="Filter" />
             <b-input-group-append>
-              <b-button size="sm" text="Button" @click="filter_string = ''">
+              <b-btn size="sm" text="Button" @click="filter_string = ''">
                 X
-              </b-button>
+              </b-btn>
             </b-input-group-append>
           </b-input-group>
         </b-col>

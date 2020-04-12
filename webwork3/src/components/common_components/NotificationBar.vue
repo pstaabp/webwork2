@@ -53,19 +53,19 @@ export default class NotificationBar extends Vue {
         <span class="sr-only">unread messages</span>
       </b-badge>
     </template>
-    <b-dropdown-text class="message px-1">
+    <b-dd-text class="message px-1">
       <b-btn size="sm" variant="primary" @click="clearMessages">
         Clear Messages
       </b-btn>
-    </b-dropdown-text>
-    <b-dropdown-divider />
-    <b-dropdown-text
+    </b-dd-text>
+    <b-dd-divider />
+    <b-dd-text
       v-for="(message, i) in messages"
       :key="i"
       class="message px-1"
     >
       <notification :message="message" @remove-message="remove" />
-    </b-dropdown-text>
+    </b-dd-text>
   </b-nav-item-dropdown>
 </template>
 
