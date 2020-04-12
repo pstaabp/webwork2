@@ -19,15 +19,9 @@ import settings_store from "@/store/modules/settings";
   },
 })
 export default class Settings extends Vue {
-  private settings_change = 1;
 
   private get settings() {
-    if (this.settings_change) {
-      // a hack to get an update for the SettingsList Map.
       return settings_store.settings_array;
-    } else {
-      return settings_store.settings_array;
-    }
   }
   private filterSettings(category: string): Setting[] {
     return this.settings.filter(
@@ -35,15 +29,6 @@ export default class Settings extends Vue {
     );
   }
 
-  private mounted() {
-    this.$store.subscribe((mutation) => {
-      // any change to the settings
-      if (mutation.type === "settings/SET_SETTING") {
-        console.log("setting changed!"); // eslint-disable-line no-console
-        this.settings_change += 1;
-      }
-    });
-  }
 }
 </script>
 
@@ -53,7 +38,7 @@ export default class Settings extends Vue {
       <b-tab title="General" active lazy>
         <settings-tab name="General" :settings="filterSettings('General')" />
       </b-tab>
-      <b-tab title="Optional Modules">
+      <b-tab title="Optional Modules" lazy>
         <settings-tab
           name="Optional Modules"
           :settings="filterSettings('Optional Modules')"
@@ -80,7 +65,7 @@ export default class Settings extends Vue {
       <b-tab title="Editor" lazy>
         <settings-tab name="Editor" :settings="filterSettings('Editor')" />
       </b-tab>
-      <b-tab title="WW3-UI">
+      <b-tab title="WW3-UI" lazy>
         <settings-tab name="WW3-UI" :settings="filterSettings('WW3-UI')" />
       </b-tab>
     </b-tabs>

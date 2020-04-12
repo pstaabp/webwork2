@@ -19,10 +19,6 @@ export default class SettingsTab extends Vue {
   @Prop() public name!: string;
   @Prop() public settings!: Setting[];
 
-  @Watch("settings")
-  private settingsChanged() {
-    console.log("settings changed in settingsTab"); // eslint-disable-line no-console
-  }
 }
 </script>
 
@@ -31,8 +27,8 @@ export default class SettingsTab extends Vue {
     <table class="table table-sm bordered">
       <settings-row
         v-for="setting in settings"
-        :key="setting.var + new Date()"
-        :setting="setting"
+        :key="setting.var"
+        :var="setting.var"
       />
     </table>
   </div>

@@ -86,6 +86,22 @@ export function newUser(): User {
   };
 }
 
+export function emptySetting() {
+  return {
+    var: "",
+    type: "",
+    doc: "",
+    category: "",
+    value: 0,
+    doc2: "",
+    hashVar: {},
+    values: [],
+    labels: [],
+    min: 0,
+    width: 0
+  };
+}
+
 export function newProblemSet(): ProblemSet {
   return {
     set_id: "XXX",
@@ -316,6 +332,18 @@ export interface StringMap {
   [key: string]: string | number;
 }
 
+export function  permissionLevels(): { [key: string]: string } {
+  return {
+    "20": "admin",
+    "10": "professor",
+    "8": "ta",
+    "7": "grade_proctor",
+    "6": "login_proctor",
+    "0": "student",
+    "-5": "guest",
+  };
+}
+
 export default class Common {
   public static sidebars(): SidebarInfo[] {
     return [
@@ -334,17 +362,6 @@ export default class Common {
     };
   }
 
-  public static permissionLevels(): { [key: string]: string } {
-    return {
-      "20": "admin",
-      "10": "professor",
-      "8": "ta",
-      "7": "grade_proctor",
-      "6": "login_proctor",
-      "0": "student",
-      "-5": "guest",
-    };
-  }
 
   public static dateTypes(): string[] {
     return ["due_date", "reduced_scoring_date", "due_date", "answer_date"];

@@ -9,28 +9,24 @@ import { Setting } from "@/store/models";
 
 import * as moment from "moment";
 
-import Constants from "@/common";
+import {permissionLevels, emptySetting} from "@/common";
 
 import settings_store from "@/store/modules/settings";
 
 @Component({
   name: "SettingsTab",
-  filters: {
-    valueAsTime: function (_value: string) {
-      return moment.default(_value, ["hh:mmA"]).format("HH:mm");
-    },
-  },
 })
 export default class SettingsRow extends Vue {
-  @Prop() public setting!: Setting;
-  private selected: string[] = [];
+  @Prop() public var: string;
+
+  private setting: Setting = emptySetting();
+  private selected: string[] = []; // for checkbox lists
+  private bool_value = false; // for booleans
+  private duration = "";  // for duration types
   private show_help = false;
-  private duration = "";
-  private bool_value = false;
-  private loading = true;
 
   private get permission_levels() {
-    return Object.values(Constants.permissionLevels());
+    return Object.values(permissionLevels());
   }
 
   // determine based on setting name if this is a duration type:
@@ -72,6 +68,10 @@ export default class SettingsRow extends Vue {
       : 0;
   }
 
+  private valueAsTime(_value: string) {
+    return moment.default(_value, ["hh:mmA"]).format("HH:mm");
+  }
+
   private updateDuration() {
     if (this.valid_duration) {
       this.updateSetting(this.parseDuration(this.duration));
@@ -83,15 +83,19 @@ export default class SettingsRow extends Vue {
   }
 
   private updateSetting(_value: string | number | string[] | boolean) {
-    settings_store.updateSetting(
-      Object.assign({}, this.setting, { value: _value })
-    );
+    if (JSON.stringify(_value) !== JSON.stringify(this.setting.value)) {
+      settings_store.updateSetting(Object.assign({}, this.setting, { value: _value }));
+    }
   }
 
   private beforeMount() {
-    // for a checkbox group, we need to use the v-model to properly set and read it.
+    // it appears that things aren't synching well.
+    // this grabs the setting from the settings_store to set all values.
+
+    this.setting = settings_store.settings.get(this.var);
+
     if (this.setting.type === "checkboxlist") {
-      this.selected = this.setting.value as string[];
+        this.selected = this.setting.value as string[];
     } else if (this.is_duration) {
       this.duration = this.formatDuration(this.setting.value as number);
     } else if (this.setting.type === "boolean") {
@@ -99,49 +103,17 @@ export default class SettingsRow extends Vue {
     }
   }
 
-  private mounted() {
-    this.loading = false;
-  }
-
-  private created() {
-    this.$store.subscribe((mutation) => {
-      //  console.log(mutation); // eslint-disable-line no-console
-      if (
-        this.setting.type === "boolean" &&
-        mutation.type === "settings/SET_SETTING" &&
-        mutation.payload &&
-        mutation.payload.var &&
-        mutation.payload.var === this.setting.var
-      ) {
-        console.log(mutation.payload.var); // eslint-disable-line no-console
-        console.log(settings_store.settings.get(this.setting.var)); // eslint-disable-line no-console
-        this.bool_value = (settings_store.settings.get(
-          this.setting.var
-        ) as unknown) as boolean;
-      }
-    });
-  }
-
   @Watch("bool_value")
-  private boolValueChanged() {
+  private boolValueChanged(_new: boolean,_old:boolean) {
     this.updateSetting(this.bool_value);
-    // if (!this.loading && this.setting.value !== _new) {
-    //   console.log(this.setting); // eslint-disable-line no-console
-    //   this.updateSetting(this.bool_value);
-    // }
   }
 
-  @Watch("setting")
-  private settingChanged() {
-    console.log("in watch setting"); // eslint-disable-line no-console
-  }
 
   @Watch("selected")
-  private selectedChange(_new_value: Setting) {
-    // if (JSON.stringify(_new_value) !== JSON.stringify(this.setting.value)) {
-    this.updateSetting(_new_value.value);
-    // }
+  private selectedChange(_new_value: string[]) {
+    this.updateSetting(_new_value);
   }
+
 }
 </script>
 
