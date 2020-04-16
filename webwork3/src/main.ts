@@ -48,46 +48,46 @@ import {
   BTab,
   BTabs,
   BFormFile,
-  BSpinner
+  BSpinner,
 } from "bootstrap-vue";
 
-Vue.component('b-navbar', BNavbar);
-Vue.component('b-navbar-nav', BNavbarNav);
-Vue.component('b-navbar-brand', BNavbarBrand);
-Vue.component('b-navbar-toggle', BNavbarToggle);
-Vue.component('b-nav-item', BNavItem);
-Vue.component('b-nav-text', BNavText);
-Vue.component('b-nav-item-dropdown',BNavItemDropdown);
-Vue.component('b-collapse', BCollapse);
-Vue.component('b-form-group', BFormGroup);
-Vue.component('b-container',BContainer);
-Vue.component('b-col',BCol);
-Vue.component('b-row',BRow);
-Vue.component('b-list-group', BListGroup);
-Vue.component('b-list-group-item', BListGroupItem);
-Vue.component('b-text', BFormText);
-Vue.component('b-textarea', BFormTextarea);
-Vue.component('b-select',BFormSelect);
-Vue.component('b-checkbox',BFormCheckbox);
-Vue.component('b-checkbox-group',BFormCheckboxGroup);
-Vue.component('b-input',BFormInput);
-Vue.component('b-input-group',BInputGroup);
-Vue.component('b-input-group-text',BInputGroupText);
-Vue.component('b-input-group-append',BInputGroupAppend);
-Vue.component('b-btn-group',BButtonGroup);
-Vue.component('b-btn',BButton);
-Vue.component('b-btn-toolbar',BButtonToolbar);
-Vue.component('b-dd', BDropdown);
-Vue.component('b-dd-item', BDropdownItem);
-Vue.component('b-dd-text', BDropdownText);
-Vue.component('b-dd-divider',BDropdownDivider);
-Vue.component('b-badge',BBadge);
-Vue.component('b-table', BTable);
-Vue.component('b-pagination', BPagination);
-Vue.component('b-tabs', BTabs);
-Vue.component('b-tab', BTab);
-Vue.component('b-form-file',BFormFile);
-Vue.component('b-spinner',BSpinner);
+Vue.component("BNavbar", BNavbar);
+Vue.component("BNavbarNav", BNavbarNav);
+Vue.component("BNavbarBrand", BNavbarBrand);
+Vue.component("BNavbarToggle", BNavbarToggle);
+Vue.component("BNavItem", BNavItem);
+Vue.component("BNavText", BNavText);
+Vue.component("BNavItemDropdown", BNavItemDropdown);
+Vue.component("BCollapse", BCollapse);
+Vue.component("BFormGroup", BFormGroup);
+Vue.component("BContainer", BContainer);
+Vue.component("BCol", BCol);
+Vue.component("BRow", BRow);
+Vue.component("BListGroup", BListGroup);
+Vue.component("BListGroupItem", BListGroupItem);
+Vue.component("BText", BFormText);
+Vue.component("BTextarea", BFormTextarea);
+Vue.component("BSelect", BFormSelect);
+Vue.component("BCheckbox", BFormCheckbox);
+Vue.component("BCheckboxGroup", BFormCheckboxGroup);
+Vue.component("BInput", BFormInput);
+Vue.component("BInputGroup", BInputGroup);
+Vue.component("BInputGroupText", BInputGroupText);
+Vue.component("BInputGroupAppend", BInputGroupAppend);
+Vue.component("BBtnGroup", BButtonGroup);
+Vue.component("BBtn", BButton);
+Vue.component("BBtnToolbar", BButtonToolbar);
+Vue.component("BDd", BDropdown);
+Vue.component("BDdItem", BDropdownItem);
+Vue.component("BDdText", BDropdownText);
+Vue.component("BDdDivider", BDropdownDivider);
+Vue.component("BBadge", BBadge);
+Vue.component("BTable", BTable);
+Vue.component("BPagination", BPagination);
+Vue.component("BTabs", BTabs);
+Vue.component("BTab", BTab);
+Vue.component("BFormFile", BFormFile);
+Vue.component("BSpinner", BSpinner);
 
 Vue.use(ModalPlugin);
 Vue.use(IconsPlugin);

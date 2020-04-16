@@ -9,7 +9,7 @@ import { Setting } from "@/store/models";
 
 import * as moment from "moment";
 
-import {permissionLevels, emptySetting} from "@/common";
+import { permissionLevels, emptySetting } from "@/common";
 
 import settings_store from "@/store/modules/settings";
 
@@ -17,12 +17,12 @@ import settings_store from "@/store/modules/settings";
   name: "SettingsTab",
 })
 export default class SettingsRow extends Vue {
-  @Prop() public var: string;
+  @Prop() public var!: string;
 
   private setting: Setting = emptySetting();
   private selected: string[] = []; // for checkbox lists
   private bool_value = false; // for booleans
-  private duration = "";  // for duration types
+  private duration = ""; // for duration types
   private show_help = false;
 
   private get permission_levels() {
@@ -84,7 +84,9 @@ export default class SettingsRow extends Vue {
 
   private updateSetting(_value: string | number | string[] | boolean) {
     if (JSON.stringify(_value) !== JSON.stringify(this.setting.value)) {
-      settings_store.updateSetting(Object.assign({}, this.setting, { value: _value }));
+      settings_store.updateSetting(
+        Object.assign({}, this.setting, { value: _value })
+      );
     }
   }
 
@@ -92,10 +94,11 @@ export default class SettingsRow extends Vue {
     // it appears that things aren't synching well.
     // this grabs the setting from the settings_store to set all values.
 
-    this.setting = settings_store.settings.get(this.var);
+    const setting = settings_store.settings.get(this.var);
+    this.setting = setting ? setting : emptySetting();
 
     if (this.setting.type === "checkboxlist") {
-        this.selected = this.setting.value as string[];
+      this.selected = this.setting.value as string[];
     } else if (this.is_duration) {
       this.duration = this.formatDuration(this.setting.value as number);
     } else if (this.setting.type === "boolean") {
@@ -104,22 +107,20 @@ export default class SettingsRow extends Vue {
   }
 
   @Watch("bool_value")
-  private boolValueChanged(_new: boolean,_old:boolean) {
+  private boolValueChanged() {
     this.updateSetting(this.bool_value);
   }
-
 
   @Watch("selected")
   private selectedChange(_new_value: string[]) {
     this.updateSetting(_new_value);
   }
-
 }
 </script>
 
 <template>
   <tr>
-    <td>
+    <td class="left-column">
       <p>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-html="setting.doc" />&nbsp;
@@ -137,7 +138,7 @@ export default class SettingsRow extends Vue {
         <span v-html="setting.doc2" />
       </div>
     </td>
-    <td v-if="is_duration">
+    <td v-if="is_duration" class="right-column">
       <b-form-group label="hours:minutes:seconds">
         <b-input
           v-model="duration"
@@ -149,14 +150,20 @@ export default class SettingsRow extends Vue {
         />
       </b-form-group>
     </td>
-    <td v-else-if="setting.type == 'text'">
+    <td v-else-if="(setting.type == 'text' && setting.width >20)" class="right-column">
+      <b-textarea :value="setting.value" @blur="updateSetting($event.target.value)" rows="5"/>
+    </td>
+    <td v-else-if="setting.type == 'list'" class="right-column">
+      <b-textarea :value="setting.value.join(',')" @blur="updateList($event.target.value)" rows="5" />
+    </td>
+    <td v-else-if="setting.type == 'text'" class="right-column">
       <b-input
         size="sm"
         :value="setting.value"
         @blur="updateSetting($event.target.value)"
       />
     </td>
-    <td v-else-if="setting.type == 'number'">
+    <td v-else-if="setting.type == 'number'" class="right-column">
       <b-input
         type="number"
         size="sm"
@@ -164,7 +171,7 @@ export default class SettingsRow extends Vue {
         @blur="updateSetting($event.target.value)"
       />
     </td>
-    <td v-else-if="setting.type == 'popuplist'">
+    <td v-else-if="setting.type == 'popuplist'" class="right-column">
       <b-select
         size="sm"
         :value="setting.value"
@@ -172,10 +179,10 @@ export default class SettingsRow extends Vue {
         @change="updateSetting($event)"
       />
     </td>
-    <td v-else-if="setting.type === 'boolean'">
+    <td v-else-if="setting.type === 'boolean'" class="right-column">
       <b-checkbox v-model="bool_value" />
     </td>
-    <td v-else-if="setting.type === 'permission'">
+    <td v-else-if="setting.type === 'permission'" class="right-column">
       <b-select
         size="sm"
         :value="setting.value"
@@ -183,8 +190,8 @@ export default class SettingsRow extends Vue {
         @change="updateSetting($event)"
       />
     </td>
-    <td v-else-if="setting.type === 'timezone'">NEED TO FINISH</td>
-    <td v-else-if="setting.type === 'time'">
+    <td v-else-if="setting.type === 'timezone'" class="right-column">NEED TO FINISH</td>
+    <td v-else-if="setting.type === 'time'" class="right-column">
       <b-input
         type="time"
         size="sm"
@@ -192,13 +199,19 @@ export default class SettingsRow extends Vue {
         @blur="updateTimeSetting($event.target.value)"
       />
     </td>
-    <td v-else-if="setting.type === 'checkboxlist'">
+    <td v-else-if="setting.type === 'checkboxlist'" class="right-column">
       <b-checkbox-group v-model="selected" :options="setting.values" stacked />
     </td>
   </tr>
 </template>
 
 <style scoped>
+.left-column {
+  width: 60%;
+}
+.right-column {
+  width: 40%;
+}
 .help-box {
   position: relative;
   background: lightyellow;

@@ -59,11 +59,7 @@ export default class NotificationBar extends Vue {
       </b-btn>
     </b-dd-text>
     <b-dd-divider />
-    <b-dd-text
-      v-for="(message, i) in messages"
-      :key="i"
-      class="message px-1"
-    >
+    <b-dd-text v-for="(message, i) in messages" :key="i" class="message px-1">
       <notification :message="message" @remove-message="remove" />
     </b-dd-text>
   </b-nav-item-dropdown>

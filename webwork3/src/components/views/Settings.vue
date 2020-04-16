@@ -19,16 +19,14 @@ import settings_store from "@/store/modules/settings";
   },
 })
 export default class Settings extends Vue {
-
   private get settings() {
-      return settings_store.settings_array;
+    return settings_store.settings_array;
   }
   private filterSettings(category: string): Setting[] {
     return this.settings.filter(
       (setting: Setting) => setting.category === category
     );
   }
-
 }
 </script>
 
@@ -59,7 +57,7 @@ export default class Settings extends Vue {
       <b-tab title="Email" lazy>
         <settings-tab
           name="Permissions"
-          :settings="filterSettings('Permissions')"
+          :settings="filterSettings('E-Mail')"
         />
       </b-tab>
       <b-tab title="Editor" lazy>

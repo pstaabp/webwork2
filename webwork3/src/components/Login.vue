@@ -22,8 +22,9 @@ export default class Manager extends Vue {
   private async checkPassword() {
     const login_info = await login_store.checkPassword(this.password_info);
 
+    console.log(login_info); // eslint-disable-line no-console
     if (login_info && login_info.logged_in) {
-      if (login_info && login_info.user && login_info.user.permission >= 10) {
+      if (login_info && login_info.permission >= 10) {
         this.$router.replace(
           "/courses/" + login_store.login_info.course_id + "/manager"
         );

@@ -14,7 +14,6 @@ import {
   validDueDate,
   newProblemSet,
   formatDateTime,
-
 } from "@/common";
 import { ProblemSet } from "@/store/models";
 
@@ -42,7 +41,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     );
   }
 
-  private formatDateAndTime(value: string) {
+  private formatDateAndTime(value: number) {
     return formatDateTime(value);
   }
 

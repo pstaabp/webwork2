@@ -87,7 +87,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
     }
   }
 
-  private formatDateAndTime(value: string){
+  private formatDateAndTime(value: number) {
     return formatDateTime(value);
   }
 

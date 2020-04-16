@@ -98,7 +98,7 @@ export function emptySetting() {
     values: [],
     labels: [],
     min: 0,
-    width: 0
+    width: 0,
   };
 }
 
@@ -361,7 +361,6 @@ export default class Common {
       { name: "Messages", comp: "messages" },
     ];
   }
-
 
   public static dateTypes(): string[] {
     return ["due_date", "reduced_scoring_date", "due_date", "answer_date"];

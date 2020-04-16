@@ -5,7 +5,7 @@ import { Vue, Component } from "vue-property-decorator";
 
 import Dropdown from "vue-simple-search-dropdown";
 
-import Common, { ww3Views } from "@/common";
+import { ww3Views, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
@@ -13,7 +13,7 @@ import problem_set_store from "@/store/modules/problem_sets";
 import app_state from "@/store/modules/app_state";
 import user_store from "@/store/modules/users";
 
-import { LoginInfo } from "@/store/models";
+import { LoginInfo, User } from "@/store/models";
 
 interface RouteObj {
   name: string;
@@ -31,7 +31,6 @@ interface RouteObj {
 export default class MenuBar extends Vue {
   private change_password = false;
   private views = ww3Views();
-  private sidebars = Common.sidebars();
 
   get current_view() {
     return app_state.current_view;
@@ -86,22 +85,22 @@ export default class MenuBar extends Vue {
     return login_store.login_info;
   }
 
-  get fullname(): string {
-    return (
-      login_store.login_info.user.first_name +
-      " " +
-      login_store.login_info.user.last_name
-    );
+  get login_user(): User {
+    const user = user_store.users.get(this.login_info.user_id);
+    return user || newUser();
   }
 
-  private getName(route: string, arr: RouteObj[]) {
+  get fullname(): string {
+    return this.login_user.first_name + " " + this.login_user.last_name;
+  }
+
+  private getName(route: string, arr: RouteObj[]): string {
     if (arr !== undefined) {
       const obj = arr.find((_obj: RouteObj) => _obj.route === route);
       if (obj !== undefined) {
         return obj.name;
       }
     }
-
     return "Select View";
   }
 
@@ -220,7 +219,7 @@ export default class MenuBar extends Vue {
               <b-icon icon="gear" /> Settings
             </b-dd-item>
             <b-dd-item @click="$emit('logout')">
-              <b-icon icon="circle-slash" /> Logout
+              <b-icon icon="x-octagon" /> Logout
             </b-dd-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -239,18 +238,18 @@ export default class MenuBar extends Vue {
           </tr>
           <tr>
             <td>Email:</td>
-            <td>{{ login_info }}</td>
+            <td>{{ login_user.email_address }}</td>
           </tr>
           <tr>
             <td>Password:</td>
             <td>
-              <b-button
+              <b-btn
                 variant="outline-primary"
                 size="sm"
                 @click="change_password = !change_password"
               >
                 {{ change_password ? "Cancel Change" : "Change Password" }}
-              </b-button>
+              </b-btn>
             </td>
           </tr>
           <tr>

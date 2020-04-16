@@ -7,10 +7,9 @@ import {
   Action,
   getModule,
 } from "vuex-module-decorators";
+
 import { LoginInfo, UserPassword } from "@/store/models";
 import store from "@/store";
-
-import { newUser } from "@/common";
 
 // this is to prevent an error occur with a hot reloading.
 if (store.state.login) {
@@ -30,7 +29,7 @@ export class LoginModule extends VuexModule {
     user_id: "",
     logged_in: false,
     course_id: "",
-    user: newUser(),
+    permission: -5
   };
 
   public get api_header() {
@@ -51,7 +50,7 @@ export class LoginModule extends VuexModule {
       logged_in: false,
       user_id: login.user_id,
       course_id: login.course_id,
-      user: newUser(),
+      permission: -5
     };
 
     const response = await axios.post(
@@ -60,9 +59,7 @@ export class LoginModule extends VuexModule {
     );
     if (response.data.logged_in === 1) {
       login_info.logged_in = true;
-      login_info.user.permission = response.data.permission;
-      login_info.user.first_name = response.data.first_name;
-      login_info.user.last_name = response.data.last_name;
+      login_info.permission = response.data.permission;
     }
     this.setLoginInfo(login_info);
     return login_info;
@@ -84,7 +81,7 @@ export class LoginModule extends VuexModule {
       user_id: "",
       logged_in: false,
       course_id: "",
-      user: newUser(),
+      permission: -5
     };
   }
 }

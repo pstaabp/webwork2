@@ -73,7 +73,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
     }
   }
 
-  private formatDateAndTime(value: number){
+  private formatDateAndTime(value: number) {
     return formatDateTime(value);
   }
 

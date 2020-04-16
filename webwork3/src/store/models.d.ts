@@ -4,7 +4,7 @@ export interface LoginInfo {
   user_id: string;
   course_id: string;
   logged_in: boolean;
-  user: User;
+  permission: number;
 }
 
 export interface UserPassword {

@@ -11,8 +11,6 @@ import { parse } from "papaparse";
 import { newUser } from "@/common";
 import { User } from "@/store/models";
 
-import users_store from "@/store/modules/users";
-
 interface ResultType {
   [index: string]: { message: string };
 }
