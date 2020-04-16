@@ -1,25 +1,3 @@
-<template>
-  <b-dropdown-text>
-    <span style="font-size: 1.5rem;" @click="show_long = !show_long">
-      <b-icon
-        :icon="show_long ? 'chevron-down' : 'chevron-right'"
-        class="border rounded"
-      />
-    </span>
-    <span class="px-3">{{ message.short }}</span>
-    <span
-      class="float-right"
-      style="font-size: 1.5rem;"
-      @click="$emit('remove-message', message.id)"
-    >
-      <b-icon icon="x-circle-fill" class="border rounded" variant="danger" />
-    </span>
-    <div class="long border rounded p-2" v-if="show_long">
-      {{ message.long }}
-    </div>
-  </b-dropdown-text>
-</template>
-
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
@@ -39,6 +17,28 @@ export default class Notification extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-dd-text>
+    <span style="font-size: 1.5rem;" @click="show_long = !show_long">
+      <b-icon
+        :icon="show_long ? 'chevron-down' : 'chevron-right'"
+        class="border rounded"
+      />
+    </span>
+    <span class="px-3">{{ message.short }}</span>
+    <span
+      class="float-right"
+      style="font-size: 1.5rem;"
+      @click="$emit('remove-message', message.id)"
+    >
+      <b-icon icon="x-circle-fill" class="border rounded" variant="danger" />
+    </span>
+    <div v-if="show_long" class="long border rounded p-2">
+      {{ message.long }}
+    </div>
+  </b-dd-text>
+</template>
 
 <style scoped>
 .long {

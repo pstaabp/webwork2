@@ -1,41 +1,5 @@
-<template>
-  <b-modal
-    size="xl"
-    id="export-students"
-    ref="sfmodal"
-    title="Export Students to a File"
-  >
-    <b-container fluid>
-      <b-row>
-        <b-col>
-          <b-form-group
-            label-cols="4"
-            label-cols-lg="2"
-            label="Filename"
-            label-for="filename-input"
-          >
-            <b-form-input id="filename-input" v-model="filename" />
-          </b-form-group>
-        </b-col>
-        <b-col>
-          <b-btn variant="primary" @click="download()" :disabled="clicked">
-            Download Classlist File
-          </b-btn>
-        </b-col>
-      </b-row>
-    </b-container>
-    <div slot="modal-footer" class="w-100">
-      <b-btn-group size="sm" class="float-right">
-        <b-btn variant="outline-dark" @click="$bvModal.hide('export-students')">
-          Close
-        </b-btn>
-      </b-btn-group>
-    </div>
-  </b-modal>
-</template>
-
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component } from "vue-property-decorator";
 import { unparse } from "papaparse";
 
 import * as moment from "moment";
@@ -68,3 +32,44 @@ export default class ImportStudentsFile extends Vue {
   }
 }
 </script>
+
+<template>
+  <b-modal
+    id="export-students"
+    ref="sfmodal"
+    size="xl"
+    title="Export Students to a File"
+  >
+    <b-container fluid>
+      <b-row>
+        <b-col>
+          <b-form-group
+            label-cols="4"
+            label-cols-lg="2"
+            label="Filename"
+            label-for="filename-input"
+          >
+            <b-input id="filename-input" v-model="filename" />
+          </b-form-group>
+        </b-col>
+        <b-col>
+          <b-btn variant="primary" :disabled="clicked" @click="download()">
+            Download Classlist File
+          </b-btn>
+        </b-col>
+      </b-row>
+    </b-container>
+    <template #modal-footer>
+      <div class="w-100">
+        <b-btn-group size="sm" class="float-right">
+          <b-btn
+            variant="outline-dark"
+            @click="$bvModal.hide('export-students')"
+          >
+            Close
+          </b-btn>
+        </b-btn-group>
+      </div>
+    </template>
+  </b-modal>
+</template>

@@ -1,87 +1,12 @@
-<template>
-  <b-container>
-    <b-row class="pb-2">
-      <b-col>
-        <span id="month-name"> {{ monthName }}</span>
-      </b-col>
-      <b-col>
-        <b-btn-toolbar key-nav aria-label="Toolbar with button groups">
-          <b-btn-group size="sm">
-            <b-btn variant="outline-dark" @click="changeWeek(-1)">
-              Previous Week
-            </b-btn>
-            <b-btn variant="outline-dark" @click="today()">Today</b-btn>
-            <b-btn variant="outline-dark" @click="changeWeek(1)">
-              Next Week
-            </b-btn>
-          </b-btn-group>
-        </b-btn-toolbar>
-      </b-col>
-      <b-col>
-        <b-btn
-          size="sm"
-          variant="outline-dark"
-          @click="sidebar_shown = !sidebar_shown"
-        >
-          {{ (sidebar_shown ? "Hide " : "Show ") + "Problem Sets" }}
-        </b-btn>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col>
-        <table class="table table-bordered table-sm" id="cal-table">
-          <thead class="thead-light">
-            <th v-for="day in dayNames" :key="day">{{ day }}</th>
-          </thead>
-          <tbody>
-            <CalendarRow
-              v-for="day in first_days()"
-              :first_day_of_week="day"
-              :problem_sets="problem_sets"
-              :all_assignment_dates="all_assignment_dates"
-              :key="
-                first_day_of_calendar.format('DD') +
-                  ':' +
-                  day.format('DD-MM-YYYY')
-              "
-            />
-          </tbody>
-        </table>
-      </b-col>
-      <b-col v-if="sidebar_shown" cols="2">
-        <h4>Problem Sets</h4>
-        <b-list-group>
-          <draggable
-            v-model="problem_sets"
-            group="calendar"
-            :sort="false"
-            ghost-class="ghost"
-            @start="dragging = true"
-            @end="dragging = false"
-          >
-            <b-list-group-item
-              v-for="set_id in problem_set_names"
-              :key="set_id"
-              class="assignment-list"
-            >
-              {{ set_id }}
-            </b-list-group-item>
-          </draggable>
-        </b-list-group>
-      </b-col>
-    </b-row>
-  </b-container>
-</template>
-
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component } from "vue-property-decorator";
 import * as moment from "moment";
 
-import Draggable, { MoveEvent } from "vuedraggable";
+import Draggable from "vuedraggable";
 
 import CalendarRow from "./CalendarComponents/CalendarRow.vue";
 import problem_set_store from "@/store/modules/problem_sets";
-import { ProblemSet, ProblemSetList } from "@/store/models";
+import { ProblemSet } from "@/store/models";
 
 interface AssignmentInfo {
   date: moment.Moment;
@@ -99,14 +24,14 @@ interface AssignmentInfo {
 export default class Calendar extends Vue {
   private first_day_of_calendar: moment.Moment = moment.default();
   private all_assignment_dates: AssignmentInfo[] = [];
-  private sidebar_shown: boolean = false;
-  private dragging: boolean = false;
+  private sidebar_shown = false;
+  private dragging = false;
 
-  get monthName(): string {
+  get month_name(): string {
     return moment.default().format("MMMM YYYY");
   }
 
-  get dayNames(): string[] {
+  get day_names(): string[] {
     return moment.weekdays();
   }
 
@@ -125,7 +50,7 @@ export default class Calendar extends Vue {
   private created(): void {
     this.all_assignment_dates = this.updateAssignmentDates(this.problem_sets);
 
-    this.$store.subscribe((mutation, state) => {
+    this.$store.subscribe((mutation) => {
       // any change to the problem sets and update the assignment dates.
       if (mutation.type === "problem_set_store/SET_PROBLEM_SET") {
         const set = mutation.payload as ProblemSet;
@@ -185,13 +110,88 @@ export default class Calendar extends Vue {
   }
 
   // this produces an array of the days of the first of the week.
-  private first_days() {
+  private get first_days() {
     return [0, 1, 2, 3, 4, 5].map((i) =>
       moment.default(this.first_day_of_calendar).add(7 * i, "days")
     );
   }
 }
 </script>
+
+<template>
+  <b-container>
+    <b-row class="pb-2">
+      <b-col>
+        <span id="month-name"> {{ month_name }}</span>
+      </b-col>
+      <b-col>
+        <b-btn-toolbar key-nav aria-label="Toolbar with button groups">
+          <b-btn-group size="sm">
+            <b-btn variant="outline-dark" @click="changeWeek(-1)">
+              Previous Week
+            </b-btn>
+            <b-btn variant="outline-dark" @click="today()">Today</b-btn>
+            <b-btn variant="outline-dark" @click="changeWeek(1)">
+              Next Week
+            </b-btn>
+          </b-btn-group>
+        </b-btn-toolbar>
+      </b-col>
+      <b-col>
+        <b-btn
+          size="sm"
+          variant="outline-dark"
+          @click="sidebar_shown = !sidebar_shown"
+        >
+          {{ (sidebar_shown ? "Hide " : "Show ") + "Problem Sets" }}
+        </b-btn>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col>
+        <table id="cal-table" class="table table-bordered table-sm">
+          <thead class="thead-light">
+            <th v-for="day in day_names" :key="day">{{ day }}</th>
+          </thead>
+          <tbody>
+            <CalendarRow
+              v-for="day in first_days"
+              :key="
+                first_day_of_calendar.format('DD') +
+                ':' +
+                day.format('DD-MM-YYYY')
+              "
+              :first_day_of_week="day"
+              :problem_sets="problem_sets"
+              :all_assignment_dates="all_assignment_dates"
+            />
+          </tbody>
+        </table>
+      </b-col>
+      <b-col v-if="sidebar_shown" cols="2">
+        <h4>Problem Sets</h4>
+        <b-list-group>
+          <draggable
+            v-model="problem_sets"
+            group="calendar"
+            :sort="false"
+            ghost-class="ghost"
+            @start="dragging = true"
+            @end="dragging = false"
+          >
+            <b-list-group-item
+              v-for="set_id in problem_set_names"
+              :key="set_id"
+              class="assignment-list"
+            >
+              {{ set_id }}
+            </b-list-group-item>
+          </draggable>
+        </b-list-group>
+      </b-col>
+    </b-row>
+  </b-container>
+</template>
 
 <style>
 #month-name {

@@ -20,55 +20,55 @@ if (store.state.app_state) {
   dynamic: true,
 })
 export class AppStateModule extends VuexModule {
-  private _selected_set: string = "";
-  private _selected_user: string = "";
-  private _current_view: string = "";
-  private _show_set_options = false;
-  private _show_user_options = false;
+  private selected_set_state = "";
+  private selected_user_state = "";
+  private current_view_state = "";
+  private show_set_options_state = false;
+  private show_user_options_state = false;
 
   get selected_set() {
-    return this._selected_set;
+    return this.selected_set_state;
   }
 
   get selected_user() {
-    return this._selected_user;
+    return this.selected_user_state;
   }
 
   get current_view() {
-    return this._current_view;
+    return this.current_view_state;
   }
 
   get show_set_options() {
-    return this._show_set_options;
+    return this.show_set_options_state;
   }
 
   get show_user_options() {
-    return this._show_user_options;
+    return this.show_user_options_state;
   }
 
   @Mutation
   public setSelectedSet(_set_id: string) {
-    this._selected_set = _set_id;
+    this.selected_set_state = _set_id;
   }
 
   @Mutation
   public setSelectedUser(_user_id: string) {
-    this._selected_user = _user_id;
+    this.selected_user_state = _user_id;
   }
 
   @Mutation
   public setCurrentView(_current_view: string) {
-    this._current_view = _current_view;
+    this.current_view_state = _current_view;
   }
 
   @Mutation
   public setShowSetOptions(_show: boolean) {
-    this._show_set_options = _show;
+    this.show_set_options_state = _show;
   }
 
   @Mutation
   public setShowUserOptions(_show: boolean) {
-    this._show_user_options = _show;
+    this.show_user_options_state = _show;
   }
 }
 

@@ -1,14 +1,3 @@
-<template>
-  <b-container>
-    <b-row>
-      <h4>Student Progress for: {{ full_name }}</h4>
-    </b-row>
-    <b-row>
-      <b-table :items="set_scores" :fields="fields" striped small />
-    </b-row>
-  </b-container>
-</template>
-
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
@@ -18,11 +7,8 @@ import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
 import problem_set_store from "@/store/modules/problem_sets";
 
-// put these in a common file
-
-interface StringMap {
-  [key: string]: string | number;
-}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { round2, StringMap } from "@/common";
 
 interface UserProblemStatus {
   problem_id: number;
@@ -133,12 +119,16 @@ export default class SelectedUserProgress extends Vue {
 
     return [...fields, ...problems];
   }
-
-  private round2(value: number | string) {
-    if (typeof value === "string") {
-      return value;
-    }
-    return Math.round(100 * value) / 100;
-  }
 }
 </script>
+
+<template>
+  <b-container>
+    <b-row>
+      <h4>Student Progress for: {{ full_name }}</h4>
+    </b-row>
+    <b-row>
+      <b-table :items="set_scores" :fields="fields" striped small />
+    </b-row>
+  </b-container>
+</template>

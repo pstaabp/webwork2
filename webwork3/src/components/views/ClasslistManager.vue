@@ -1,3 +1,76 @@
+<!-- ClasslistManager.vue
+
+View for the classlist manager, which handles all users in a course -->
+
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+
+// components
+import ImportStudentsFile from "./ClasslistComponents/ImportStudentsFile.vue";
+import ImportStudentsManually from "./ClasslistComponents/ImportStudentsManually.vue";
+import ExportStudents from "./ClasslistComponents/ExportStudents.vue";
+import EditUsersModal from "./ClasslistComponents/EditUsersModal.vue";
+import { permissionLevels, userTypes } from "@/common";
+import { User } from "@/store/models";
+
+// set up the store
+import users_store from "@/store/modules/users";
+
+@Component({
+  name: "ClasslistManager",
+  components: {
+    ImportStudentsFile,
+    ImportStudentsManually,
+    EditUsersModal,
+    ExportStudents,
+  },
+})
+export default class Manager extends Vue {
+  private fields = [
+    { key: "user_id", sortable: true, label: "Login" },
+    { key: "first_name", sortable: true, label: "First Name" },
+    { key: "last_name", sortable: true, label: "Last Name" },
+    { key: "email_address", sortable: false, label: "Email" },
+    { key: "student_id", sortable: true, label: "Student ID" },
+    { key: "status", sortable: true, formatter: "formatStatus" },
+    { key: "section", sortable: true, label: "Sect." },
+    { key: "recitation", sortable: true, label: "Rec." },
+    { key: "comment", sortable: true, label: "Comment" },
+    {
+      key: "permission",
+      sortable: true,
+      label: "Permission",
+      formatter: "formatPermission",
+    },
+  ];
+  private selected_users: object[] = [];
+  private filter_string = "";
+  private num_rows = 10;
+  private current_page = 1;
+
+  private formatStatus(value: string): string {
+    return userTypes()[value];
+  }
+
+  private formatPermission(value: string): string {
+    return permissionLevels()[value];
+  }
+
+  private rowSelected(rows: User[]): void {
+    this.selected_users = rows;
+  }
+
+  get users(): User[] {
+    return Array.from(users_store.users.values());
+  }
+
+  private editRow(item: User) {
+    console.log(item); // eslint-disable-line no-console
+    this.selected_users = [item];
+  }
+}
+</script>
+
 <template>
   <div>
     <b-container>
@@ -6,7 +79,7 @@
           <b-btn-toolbar>
             <b-input-group size="sm">
               <b-input v-model="filter_string" placeholder="Filter" />
-              <template v-slot:append>
+              <template #append>
                 <b-btn @click="filter_string = ''"><b-icon icon="x" /></b-btn>
               </template>
             </b-input-group>
@@ -47,14 +120,14 @@
           :small="true"
           :bordered="true"
           primary-key="set_id"
-          @row-selected="rowSelected"
           :filter="filter_string"
           :current-page="current_page"
           :per-page="num_rows"
           selectable
+          @row-selected="rowSelected"
         >
           <!-- A custom formatted column -->
-          <template slot="email_address" slot-scope="data">
+          <template #email_address="data">
             <a :href="data.value">Email</a>
           </template>
         </b-table>
@@ -76,72 +149,3 @@
     <export-students />
   </div>
 </template>
-
-<script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-
-// components
-import ImportStudentsFile from "./ClasslistComponents/ImportStudentsFile.vue";
-import ImportStudentsManually from "./ClasslistComponents/ImportStudentsManually.vue";
-import ExportStudents from "./ClasslistComponents/ExportStudents.vue";
-import EditUsersModal from "./ClasslistComponents/EditUsersModal.vue";
-import Constants from "@/common";
-import { User } from "@/store/models";
-
-// set up the store
-import users_store from "@/store/modules/users";
-
-@Component({
-  name: "ClasslistManager",
-  components: {
-    ImportStudentsFile,
-    ImportStudentsManually,
-    EditUsersModal,
-    ExportStudents,
-  },
-})
-export default class Manager extends Vue {
-  private fields = [
-    { key: "user_id", sortable: true, label: "Login" },
-    { key: "first_name", sortable: true, label: "First Name" },
-    { key: "last_name", sortable: true, label: "Last Name" },
-    { key: "email_address", sortable: false, label: "Email" },
-    { key: "student_id", sortable: true, label: "Student ID" },
-    { key: "status", sortable: true, formatter: "formatStatus" },
-    { key: "section", sortable: true, label: "Sect." },
-    { key: "recitation", sortable: true, label: "Rec." },
-    { key: "comment", sortable: true, label: "Comment" },
-    {
-      key: "permission",
-      sortable: true,
-      label: "Permission",
-      formatter: "formatPermission",
-    },
-  ];
-  private selected_users: object[] = [];
-  private filter_string = "";
-  private num_rows = 10;
-  private current_page = 1;
-
-  private formatStatus(value: string): string {
-    return Constants.userTypes()[value];
-  }
-
-  private formatPermission(value: string): string {
-    return Constants.permissionLevels()[value];
-  }
-
-  private rowSelected(rows: User[]): void {
-    this.selected_users = rows;
-  }
-
-  get users(): User[] {
-    return Array.from(users_store.users.values());
-  }
-
-  private editRow(item: User) {
-    console.log(item); // eslint-disable-line no-console
-    this.selected_users = [item];
-  }
-}
-</script>

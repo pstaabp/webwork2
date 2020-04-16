@@ -1,10 +1,3 @@
-<template>
-  <div>
-    <menu-bar @logout="logout" />
-    <b-container><router-view /></b-container>
-  </div>
-</template>
-
 <script lang="ts">
 import axios from "axios";
 
@@ -26,12 +19,12 @@ import app_state from "@/store/modules/app_state";
 })
 export default class Manager extends Vue {
   @Watch("$route.path")
-  private onRouteChanged(value: { path: string }) {
+  private onRouteChanged() {
     app_state.setCurrentView(this.$route.path.split("/")[4]);
-    const _view = ww3Views().find((_v) => _v.route === app_state.current_view);
-    if (_view) {
-      app_state.setShowSetOptions(_view.show_set);
-      app_state.setShowUserOptions(_view.show_user);
+    const view = ww3Views().find((_v) => _v.route === app_state.current_view);
+    if (view) {
+      app_state.setShowSetOptions(view.show_set);
+      app_state.setShowUserOptions(view.show_user);
     }
   }
 
@@ -65,6 +58,13 @@ export default class Manager extends Vue {
   }
 }
 </script>
+
+<template>
+  <div>
+    <menu-bar @logout="logout" />
+    <b-container><router-view /></b-container>
+  </div>
+</template>
 
 <style>
 #sidebar {

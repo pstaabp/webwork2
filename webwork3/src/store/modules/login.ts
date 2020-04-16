@@ -7,10 +7,9 @@ import {
   Action,
   getModule,
 } from "vuex-module-decorators";
+
 import { LoginInfo, UserPassword } from "@/store/models";
 import store from "@/store";
-
-import Common from "@/common";
 
 // this is to prevent an error occur with a hot reloading.
 if (store.state.login) {
@@ -26,23 +25,23 @@ import axios from "axios";
   dynamic: true,
 })
 export class LoginModule extends VuexModule {
-  private _login_info: LoginInfo = {
+  private login_info_state: LoginInfo = {
     user_id: "",
     logged_in: false,
     course_id: "",
-    user: Common.newUser(),
+    permission: -5
   };
 
   public get api_header() {
-    return "/webwork3/api/courses/" + this._login_info.course_id;
+    return "/webwork3/api/courses/" + this.login_info_state.course_id;
   }
 
   public get login_info() {
-    return this._login_info;
+    return this.login_info_state;
   }
 
   public get course_id() {
-    return this._login_info.course_id;
+    return this.login_info_state.course_id;
   }
 
   @Action
@@ -51,7 +50,7 @@ export class LoginModule extends VuexModule {
       logged_in: false,
       user_id: login.user_id,
       course_id: login.course_id,
-      user: Common.newUser(),
+      permission: -5
     };
 
     const response = await axios.post(
@@ -60,9 +59,7 @@ export class LoginModule extends VuexModule {
     );
     if (response.data.logged_in === 1) {
       login_info.logged_in = true;
-      login_info.user.permission = response.data.permission;
-      login_info.user.first_name = response.data.first_name;
-      login_info.user.last_name = response.data.last_name;
+      login_info.permission = response.data.permission;
     }
     this.setLoginInfo(login_info);
     return login_info;
@@ -75,16 +72,16 @@ export class LoginModule extends VuexModule {
 
   @Mutation
   private setLoginInfo(_info: LoginInfo): void {
-    this._login_info = _info;
+    this.login_info_state = _info;
   }
 
   @Mutation
   private RESET_LOGIN(): void {
-    this._login_info = {
+    this.login_info_state = {
       user_id: "",
       logged_in: false,
       course_id: "",
-      user: Common.newUser(),
+      permission: -5
     };
   }
 }

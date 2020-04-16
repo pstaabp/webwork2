@@ -1,11 +1,13 @@
-<template>
-  <h3>Import-Export Manager</h3>
-</template>
+<!-- ImportExport.vue
+
+This is the view that allows the import and export of courses -->
 
 <script lang="ts">
-import { ProblemSet } from "@/store/models";
-
 export default {
   name: "ImportExport",
 };
 </script>
+
+<template>
+  <h3>Import-Export Manager</h3>
+</template>

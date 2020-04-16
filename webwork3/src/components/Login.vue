@@ -1,6 +1,51 @@
+<script lang="ts">
+import { UserPassword } from "@/store/models";
+
+import { Vue, Component } from "vue-property-decorator";
+import login_store from "@/store/modules/login";
+
+@Component({
+  name: "Login",
+})
+export default class Manager extends Vue {
+  private password_info: UserPassword = {
+    course_id: "",
+    user_id: "",
+    password: "",
+  };
+  private password_state = false;
+
+  public created() {
+    this.password_info.course_id = this.$route.params.course_id;
+  }
+
+  private async checkPassword() {
+    const login_info = await login_store.checkPassword(this.password_info);
+
+    console.log(login_info); // eslint-disable-line no-console
+    if (login_info && login_info.logged_in) {
+      if (login_info && login_info.permission >= 10) {
+        this.$router.replace(
+          "/courses/" + login_store.login_info.course_id + "/manager"
+        );
+      }
+    }
+  }
+
+  private mounted() {
+    // give the login username focus on page load.
+    ((this.$refs["login-input"] as Vue).$el as HTMLInputElement).focus();
+  }
+
+  private cancel() {
+    this.$router.push("/courses");
+  }
+}
+</script>
+
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" id="top-navbar" class="fixed-top">
+    <b-navbar id="top-navbar" toggleable="lg" type="dark" class="fixed-top">
       <b-navbar-brand href="#">
         <img id="wwlogo" src="/webwork3/images/webwork_square.svg" />
       </b-navbar-brand>
@@ -22,7 +67,7 @@
               label="Login Name"
               label-for="login"
             >
-              <b-form-input
+              <b-input
                 id="login"
                 ref="login-input"
                 v-model="password_info.user_id"
@@ -37,10 +82,10 @@
               label="Password"
               label-for="password"
             >
-              <b-form-input
-                type="password"
+              <b-input
                 id="password"
                 v-model="password_info.password"
+                type="password"
               />
             </b-form-group>
             <b-btn-group>
@@ -55,48 +100,3 @@
     </b-container>
   </div>
 </template>
-
-<script lang="ts">
-import axios from "axios";
-import { LoginInfo, UserPassword, User } from "@/store/models";
-
-import { Vue, Component, Watch } from "vue-property-decorator";
-import login_store from "@/store/modules/login";
-
-@Component({
-  name: "Login",
-})
-export default class Manager extends Vue {
-  private password_info: UserPassword = {
-    course_id: "",
-    user_id: "",
-    password: "",
-  };
-  private password_state: boolean = false;
-
-  public created() {
-    this.password_info.course_id = this.$route.params.course_id;
-  }
-
-  private async checkPassword(evt: Event) {
-    const login_info = await login_store.checkPassword(this.password_info);
-
-    if (login_info && login_info.logged_in) {
-      if (login_info && login_info.user && login_info.user.permission >= 10) {
-        this.$router.replace(
-          "/courses/" + login_store.login_info.course_id + "/manager"
-        );
-      }
-    }
-  }
-
-  private mounted() {
-    // give the login username focus on page load.
-    ((this.$refs["login-input"] as Vue).$el as HTMLInputElement).focus();
-  }
-
-  private cancel() {
-    this.$router.push("/courses");
-  }
-}
-</script>

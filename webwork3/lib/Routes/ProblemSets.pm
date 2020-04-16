@@ -9,7 +9,7 @@ package Routes::ProblemSets;
 use Dancer2 appname => "Routes::Login";
 
 use Dancer2::Plugin::Auth::Extensible;
-use Dancer2::FileUtils qw/read_file_content dirname/;
+use Dancer2::FileUtils qw/read_file_content dirname path/;
 use File::Slurp qw/write_file/;
 use WeBWorK::Utils::Tasks qw(fake_set fake_problem);
 use Utils::LibraryUtils qw/render/;
@@ -1141,7 +1141,9 @@ get '/courses/:course_id/pgeditor' => sub {
 #
 ####
 
-get '/courses/:course_id/headers' => require_role professor => sub {
+#get '/courses/:course_id/headers' => require_role professor => sub {
+
+get '/courses/:course_id/headers' => sub {
 
     my $templateDir = vars->{ce}->{courseDirs}->{templates};
     my $include = qr/header.*\.pg$/i;
@@ -1157,7 +1159,21 @@ get '/courses/:course_id/headers' => require_role professor => sub {
     return \@relativeFiles;
 };
 
+###
+#
+# get /courses/:course_id/headers/**
+#
+#  returns the source of the file in **
+#
+###
 
+get '/courses/:course_id/sets/:set_id/header/**' => sub {
+  my ($info) = splat;
+  my $templateDir = vars->{ce}->{courseDirs}->{templates};
+  my $path = path(dirname($templateDir),'templates',@{$info});
+  my $content = read_file_content($path);
+  return {header_content => $content};
+};
 
 ####
 #

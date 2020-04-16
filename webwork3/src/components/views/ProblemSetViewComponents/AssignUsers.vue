@@ -1,143 +1,16 @@
-<template>
-  <b-container>
-    <b-row>
-      <b-col cols="2">
-        <b-select size="sm" variant="outline-dark" v-model="list_type">
-          <option value="assigned">Assigned Users</option>
-          <option value="unassigned">Unassigned Users</option>
-          <option value="all">All Users</option>
-        </b-select>
-      </b-col>
-      <b-col cols="3">
-        <b-input-group size="sm">
-          <b-input-group-text slot="prepend">Filter:</b-input-group-text>
-          <b-input v-model="filter_text" debounce="250" />
-        </b-input-group>
-      </b-col>
-      <b-col cols="4">
-        <b-form-group>
-          <b-form-checkbox-group v-model="show_info">
-            <b-form-checkbox value="section">Show Section</b-form-checkbox>
-            <b-form-checkbox value="recitation">
-              Show Recitation
-            </b-form-checkbox>
-          </b-form-checkbox-group>
-        </b-form-group>
-      </b-col>
-      <b-col cols="2" v-if="list_type === 'unassigned'">
-        <b-btn variant="outline-dark" size="sm" @click="assignUsers">
-          Assign to Selected Users
-        </b-btn>
-      </b-col>
-      <b-col cols="2" v-else>
-        <b-btn variant="outline-dark" size="sm" @click="save">
-          Save Override Dates
-        </b-btn>
-      </b-col>
-    </b-row>
-    <b-row v-if="list_type === 'assigned'">
-      <b-col cols="3">
-        <b-form-group label="Open Date" class="header">
-          <b-input
-            size="sm"
-            type="datetime-local"
-            :value="override_dates.open_date | formatDateTime"
-            @blur="setOpenDate(override_dates, $event.target.value)"
-          />
-        </b-form-group>
-      </b-col>
-      <b-col cols="3">
-        <b-form-group
-          class="header"
-          label="Reduced Scoring Date"
-          invalid-feedback="This date must be after the open date."
-        >
-          <b-input
-            size="sm"
-            :value="override_dates.reduced_scoring_date | formatDateTime"
-            :state="validReducedScoring"
-            type="datetime-local"
-            @blur="setReducedScoringDate(override_dates, $event.target.value)"
-          />
-        </b-form-group>
-      </b-col>
+<!-- AssignUsers.vue
 
-      <b-col cols="3">
-        <b-form-group
-          label="Due Date"
-          class="header"
-          invalid-feedback="This date must be after the reduced scoring date."
-        >
-          <b-input
-            size="sm"
-            :value="override_dates.due_date | formatDateTime"
-            :state="validDueDate"
-            type="datetime-local"
-            @blur="setDueDate(override_dates, $event.target.value)"
-          />
-        </b-form-group>
-      </b-col>
-      <b-col cols="3">
-        <b-form-group
-          class="header"
-          label="Answer Date"
-          invalid-feedback="This date must be after the due date."
-        >
-          <b-form-input
-            size="sm"
-            :value="override_dates.answer_date | formatDateTime"
-            type="datetime-local"
-            :state="validAnswerDate"
-            @blur="setAnswerDate(override_dates, $event.target.value)"
-          />
-        </b-form-group>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col>
-        <b-table
-          small
-          :items="users"
-          :fields="fields"
-          selectable
-          select-mode="range"
-          @row-selected="rowSelected"
-          :filter="filter_text"
-          :current-page="current_page"
-          :per-page="per_page"
-        >
-          <template slot="assigned" slot-scope="row">
-            <b-checkbox
-              v-model="assigned[row.index]"
-              @change="toggleAssigned(row.index)"
-            />
-          </template>
-        </b-table>
-      </b-col>
-    </b-row>
-
-    <b-row>
-      <b-col>
-        <b-pagination
-          v-model="current_page"
-          limit="10"
-          :total-rows="users.length"
-          :per-page="per_page"
-        />
-      </b-col>
-    </b-row>
-  </b-container>
-</template>
+This is a tab within the ProblemSetView that allows fine-grained assignment of users. -->
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Component, Watch, Prop } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
-import * as moment from "moment";
 
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import { User, ProblemSet } from "@/store/models";
 
 import {
+  formatDateTime,
   validReducedScoring,
   validDueDate,
   validAnswerDate,
@@ -155,17 +28,17 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   private fields: string[] = ["user_id", "first_name", "last_name"];
   private selected_users: User[] = []; // which rows are selected
   private users: User[] = [];
-  private per_page: number = 10;
-  private current_page: number = 1;
-  private filter_text: string = "";
+  private per_page = 10;
+  private current_page = 1;
+  private filter_text = "";
   private show_info: string[] = [];
   private override_dates: ProblemSet = newProblemSet();
-  private list_type: string = "assigned";
+  private list_type = "assigned";
 
   @Prop() private problem_set!: ProblemSet; // the problem set to assign users
 
   @Watch("show_info", { deep: true })
-  private showTogglesChanged(_old: string[], _new: string[]) {
+  private showTogglesChanged() {
     this.fields = [
       ...["user_id", "first_name", "last_name"],
       ...this.show_info,
@@ -173,20 +46,20 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   }
 
   private assignUsers() {
-    const _users = this.selected_users.map((_u) => _u.user_id);
-    const _assigned_users = this.problem_set.assigned_users || [];
-    this.problem_set.assigned_users = [..._assigned_users, ..._users];
+    const users = this.selected_users.map((_u) => _u.user_id);
+    const assigned_users = this.problem_set.assigned_users || [];
+    this.problem_set.assigned_users = [...assigned_users, ...users];
   }
 
-  get validReducedScoring() {
+  private get valid_reduced_scoring() {
     return validReducedScoring(this.override_dates);
   }
 
-  get validDueDate() {
+  private get valid_due_date() {
     return validDueDate(this.override_dates);
   }
 
-  get validAnswerDate() {
+  private get valid_answer_date() {
     return validAnswerDate(this.override_dates);
   }
 
@@ -214,14 +87,18 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
     }
   }
 
+  private formatDateAndTime(value: number) {
+    return formatDateTime(value);
+  }
+
   @Watch("problem_set", { deep: true })
-  private probSetChanged(_new_set: ProblemSet, _old_set: ProblemSet) {
+  private probSetChanged() {
     this.setUsers();
     Object.assign(this.override_dates, this.problem_set);
   }
 
   @Watch("list_type")
-  private listChanged(_new: ProblemSet, _old: ProblemSet) {
+  private listChanged() {
     this.setUsers();
   }
 
@@ -265,14 +142,147 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   //
   private setSelectedCheckboxes() {
     // get the users shown in the table:
-    const users = users_store.users_array.filter(
-      (_u: User, i: number) =>
-        i < this.current_page * this.per_page &&
-        i >= (this.current_page - 1) * this.per_page
-    );
+    // const users = users_store.users_array.filter(
+    //   (_u: User, i: number) =>
+    //     i < this.current_page * this.per_page &&
+    //     i >= (this.current_page - 1) * this.per_page
+    // );
     // this.problem_set.assigned_users = users.map(
     //   (_u: User) => this.problem_set.assigned_users ? this.problem_set.assigned_users.includes(_u.user_id) : '');
     this.setUsers();
   }
 }
 </script>
+
+<template>
+  <b-container>
+    <b-row>
+      <b-col cols="2">
+        <b-select v-model="list_type" size="sm" variant="outline-dark">
+          <option value="assigned">Assigned Users</option>
+          <option value="unassigned">Unassigned Users</option>
+          <option value="all">All Users</option>
+        </b-select>
+      </b-col>
+      <b-col cols="3">
+        <b-input-group size="sm">
+          <template #prepend>
+            <b-input-group-text>Filter:</b-input-group-text>
+          </template>
+          <b-input v-model="filter_text" debounce="250" />
+        </b-input-group>
+      </b-col>
+      <b-col cols="4">
+        <b-form-group>
+          <b-checkbox-group v-model="show_info">
+            <b-checkbox value="section">Show Section</b-checkbox>
+            <b-checkbox value="recitation">
+              Show Recitation
+            </b-checkbox>
+          </b-checkbox-group>
+        </b-form-group>
+      </b-col>
+      <b-col v-if="list_type === 'unassigned'" cols="2">
+        <b-btn variant="outline-dark" size="sm" @click="assignUsers">
+          Assign to Selected Users
+        </b-btn>
+      </b-col>
+      <b-col v-else cols="2">
+        <b-btn variant="outline-dark" size="sm" @click="save">
+          Save Override Dates
+        </b-btn>
+      </b-col>
+    </b-row>
+    <b-row v-if="list_type === 'assigned'">
+      <b-col cols="3">
+        <b-form-group label="Open Date" class="header">
+          <b-input
+            size="sm"
+            type="datetime-local"
+            :value="formatDateAndTime(override_dates.open_date)"
+            @blur="setOpenDate(override_dates, $event.target.value)"
+          />
+        </b-form-group>
+      </b-col>
+      <b-col cols="3">
+        <b-form-group
+          class="header"
+          label="Reduced Scoring Date"
+          invalid-feedback="This date must be after the open date."
+        >
+          <b-input
+            size="sm"
+            :value="formatDateAndTime(override_dates.reduced_scoring_date)"
+            :state="valid_reduced_scoring"
+            type="datetime-local"
+            @blur="setReducedScoringDate(override_dates, $event.target.value)"
+          />
+        </b-form-group>
+      </b-col>
+
+      <b-col cols="3">
+        <b-form-group
+          label="Due Date"
+          class="header"
+          invalid-feedback="This date must be after the reduced scoring date."
+        >
+          <b-input
+            size="sm"
+            :value="formatDateAndTime(override_dates.due_date)"
+            :state="valid_due_date"
+            type="datetime-local"
+            @blur="setDueDate(override_dates, $event.target.value)"
+          />
+        </b-form-group>
+      </b-col>
+      <b-col cols="3">
+        <b-form-group
+          class="header"
+          label="Answer Date"
+          invalid-feedback="This date must be after the due date."
+        >
+          <b-input
+            size="sm"
+            :value="formatDateAndTime(override_dates.answer_date)"
+            type="datetime-local"
+            :state="valid_answer_date"
+            @blur="setAnswerDate(override_dates, $event.target.value)"
+          />
+        </b-form-group>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col>
+        <b-table
+          small
+          :items="users"
+          :fields="fields"
+          selectable
+          select-mode="range"
+          :filter="filter_text"
+          :current-page="current_page"
+          :per-page="per_page"
+          @row-selected="rowSelected"
+        >
+          <template #assigned="row">
+            <b-checkbox
+              v-model="assigned[row.index]"
+              @change="toggleAssigned(row.index)"
+            />
+          </template>
+        </b-table>
+      </b-col>
+    </b-row>
+
+    <b-row>
+      <b-col>
+        <b-pagination
+          v-model="current_page"
+          limit="10"
+          :total-rows="users.length"
+          :per-page="per_page"
+        />
+      </b-col>
+    </b-row>
+  </b-container>
+</template>

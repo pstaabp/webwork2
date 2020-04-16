@@ -8,7 +8,9 @@ import {
 
 import { isEqual } from "lodash-es";
 
-import Common, { difference, parseProblemSet } from "@/common";
+import { diff } from "deep-object-diff";
+
+import { parseProblemSet, formatDateTime, StringMap } from "@/common";
 
 import { ProblemSet, ProblemSetList } from "@/store/models";
 import store from "@/store";
@@ -24,6 +26,10 @@ if (store.state.problem_set_store) {
 
 import axios from "axios";
 
+function getProperty<T, K extends keyof T>(o: T, _prop_name: K): T[K] {
+  return o[_prop_name]; // o[propertyName] is of type T[K]
+}
+
 @Module({
   namespaced: true,
   name: "problem_set_store",
@@ -31,61 +37,65 @@ import axios from "axios";
   dynamic: true,
 })
 export class ProblemSetsModule extends VuexModule {
-  private _problem_sets: ProblemSetList = new Map();
+  private problem_sets_list: ProblemSetList = new Map();
 
   public get problem_sets() {
-    return this._problem_sets;
+    return this.problem_sets_list;
   }
 
   public get set_names() {
-    return Array.from(this._problem_sets.keys());
+    return Array.from(this.problem_sets_list.keys());
   }
 
   @Action({ rawError: true })
   public async fetchProblemSets() {
     const response = await axios.get(login_module.api_header + "/sets");
-    const _sets = response.data as ProblemSet[];
-    _sets.forEach((_set) => {
+    const sets = response.data as ProblemSet[];
+    sets.forEach((_set) => {
       this.SET_PROBLEM_SET(parseProblemSet(_set));
     });
   } // fetchProblemSets
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
-    const _previous_set = this._problem_sets.get(_set.set_id);
+    const previous_set = (this.problem_sets_list.get(
+      _set.set_id
+    ) as unknown) as StringMap;
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
     );
 
-    const _updated_set = response.data as ProblemSet;
+    const updated_set = response.data as ProblemSet;
     // check to make sure that the two sets are the same
-    if (isEqual(_updated_set, _set) && _previous_set) {
-      const diff = difference(_updated_set, _previous_set);
-      const _keys = Object.keys(diff);
-      const short = `The properties ${_keys} for problem sets ${_set.set_id} changed.`;
-      let long =
+    if (isEqual(updated_set, _set) && previous_set) {
+      const obj_diff = diff(updated_set, previous_set);
+      const keys = Object.keys(obj_diff);
+      const short = `The properties ${keys} for problem sets ${_set.set_id} changed.`;
+      const long =
         "The following properties changed:" +
-        _keys.reduce(
+        keys.reduce(
           (msg: string, key: string) =>
             msg +
             " " +
             key +
             ": from " +
             (/date$/.test(key)
-              ? Common.formatDateTime(_previous_set[key])
-              : "from " + _previous_set[key]) +
+              ? formatDateTime(previous_set[key] as number)
+              : "from " + previous_set[key]) +
             " to " +
-            (/date$/.test(key) ? Common.formatDateTime(_set[key]) : _set[key]),
+            (/date$/.test(key)
+              ? formatDateTime(getProperty(_set, key) as number)
+              : getProperty(_set, key)),
           ""
         );
       messages_store.addMessage({ id: -1, short: short, long: long });
-      this.SET_PROBLEM_SET(_updated_set);
+      this.SET_PROBLEM_SET(updated_set);
     } else {
-      console.log(_updated_set); // eslint-disable-line no-console
+      console.log(updated_set); // eslint-disable-line no-console
       console.log(_set); // eslint-disable-line no-console
-      console.log(difference(_updated_set, _set)); // eslint-disable-line no-console
-      console.log(difference(_set, _updated_set)); // eslint-disable-line no-console
+      console.log(diff(updated_set, _set)); // eslint-disable-line no-console
+      console.log(diff(_set, updated_set)); // eslint-disable-line no-console
       // eslint-disable-next-line no-console
       console.error(
         `There was an error saving the problem set: ${_set.set_id}`
@@ -100,7 +110,7 @@ export class ProblemSetsModule extends VuexModule {
       _set
     );
 
-    // add the new problem set to the _problem_sets;
+    // add the new problem set to the problem_sets_list;
     this.SET_PROBLEM_SET(_set);
     // we should check that this worked and add a message
     return response.data as ProblemSet;
@@ -122,17 +132,17 @@ export class ProblemSetsModule extends VuexModule {
 
   @Mutation
   private SET_PROBLEM_SET(_set: ProblemSet) {
-    this._problem_sets.set(_set.set_id, _set);
+    this.problem_sets_list.set(_set.set_id, _set);
   }
 
   @Mutation
   private DELETE_SET(_set: ProblemSet) {
-    this._problem_sets.delete(_set.set_id);
+    this.problem_sets_list.delete(_set.set_id);
   }
 
   @Mutation
   private RESET_SETS() {
-    this._problem_sets = new Map();
+    this.problem_sets_list = new Map();
   }
 }
 

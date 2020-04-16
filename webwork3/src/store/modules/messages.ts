@@ -21,20 +21,20 @@ if (store.state[name]) {
   dynamic: true,
 })
 export class MessagesModule extends VuexModule {
-  private _messages: Message[] = [];
+  private messages_array: Message[] = [];
 
   public get messages() {
-    return this._messages;
+    return this.messages_array;
   }
   // Messages
   @Action
   public addMessage(_msg: Message) {
-    _msg.id = this._messages.length;
+    _msg.id = this.messages_array.length;
     this.ADD_MESSAGE(_msg);
   }
   @Action
   public removeMessageById(_id: number) {
-    let index = this._messages.findIndex((_msg) => _msg.id === _id);
+    const index = this.messages_array.findIndex((_msg) => _msg.id === _id);
     if (index > -1) {
       this.REMOVE_MESSAGE_BY_INDEX(index);
     }
@@ -42,16 +42,16 @@ export class MessagesModule extends VuexModule {
 
   @Mutation
   public clearMessages() {
-    this._messages = [];
+    this.messages_array = [];
   }
   @Mutation
   private ADD_MESSAGE(_msg: Message) {
-    this._messages.push(_msg);
+    this.messages_array.push(_msg);
   }
 
   @Mutation
   private REMOVE_MESSAGE_BY_INDEX(_index: number) {
-    this._messages.splice(_index, 1);
+    this.messages_array.splice(_index, 1);
   }
 }
 
