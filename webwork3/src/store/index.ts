@@ -12,5 +12,5 @@ const init_state: StateMap = {};
 export default new Vuex.Store({
   state: init_state,
   mutations: {},
-  actions: {}
+  actions: {},
 });

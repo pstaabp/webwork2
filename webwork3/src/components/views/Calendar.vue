@@ -93,8 +93,8 @@ interface AssignmentInfo {
   name: "Calendar",
   components: {
     CalendarRow,
-    Draggable
-  }
+    Draggable,
+  },
 })
 export default class Calendar extends Vue {
   private first_day_of_calendar: moment.Moment = moment.default();
@@ -130,7 +130,7 @@ export default class Calendar extends Vue {
       if (mutation.type === "problem_set_store/SET_PROBLEM_SET") {
         const set = mutation.payload as ProblemSet;
         this.all_assignment_dates = this.all_assignment_dates
-          .filter( _info => _info.set_id !== mutation.payload.set_id)
+          .filter((_info) => _info.set_id !== mutation.payload.set_id)
           .concat(this.updateAssignmentDates([set]));
         // console.log(this.all_assignment_dates); // eslint-disable-line no-console
       }
@@ -141,29 +141,30 @@ export default class Calendar extends Vue {
   // for placing on the calendar.
 
   private updateAssignmentDates(_sets: ProblemSet[]) {
-    return _sets.flatMap(_set => [
+    return _sets
+      .flatMap((_set) => [
         {
           date: moment.unix(_set.answer_date),
           type: "answer",
-          set_id: _set.set_id
+          set_id: _set.set_id,
         },
         {
           date: moment.unix(_set.due_date),
-          type: "due", set_id:
-          _set.set_id
+          type: "due",
+          set_id: _set.set_id,
         },
         {
           date: moment.unix(_set.reduced_scoring_date),
-          type: "reduced",
-          set_id: _set.set_id
+          type: "reduced_scoring",
+          set_id: _set.set_id,
         },
         {
           date: moment.unix(_set.open_date),
           type: "open",
-          set_id: _set.set_id
-        }
+          set_id: _set.set_id,
+        },
       ])
-      .map(d => Object.assign(d, { id: d.set_id + "___" + d.type }));
+      .map((d) => Object.assign(d, { id: d.set_id + "___" + d.type }));
   }
 
   private changeWeek(week: number) {
@@ -185,7 +186,7 @@ export default class Calendar extends Vue {
 
   // this produces an array of the days of the first of the week.
   private first_days() {
-    return [0, 1, 2, 3, 4, 5].map(i =>
+    return [0, 1, 2, 3, 4, 5].map((i) =>
       moment.default(this.first_day_of_calendar).add(7 * i, "days")
     );
   }
@@ -216,7 +217,7 @@ export default class Calendar extends Vue {
 .open {
   background: lightgreen;
 }
-.reduced {
+.reduced_scoring {
   background-color: orange;
 }
 .answer {

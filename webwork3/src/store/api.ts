@@ -6,12 +6,12 @@ import {
   RenderedProblem,
   Problem,
   FileInfo,
-  UserSetScore
+  UserSetScore,
 } from "@/store/models";
 
 export async function renderProblem(problem: Problem) {
   const response = await axios.post("/webwork3/api/renderer", {
-    source: problem.problem_source
+    source: problem.problem_source,
   });
   return response.data as RenderedProblem;
 }

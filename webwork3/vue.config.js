@@ -6,16 +6,16 @@ module.exports = {
     proxy: {
       "^/webwork3": {
         target: "http://localhost:5000",
-        pathRewrite: { "^/webwork3/": "" }
-      }
+        pathRewrite: { "^/webwork3/": "" },
+      },
     },
     watchOptions: {
-      poll: true
-    }
+      poll: true,
+    },
   },
   // configureWebpack: {
   //     plugins: [new BundleAnalyzerPlugin()]
   // },
   publicPath: "/webwork3/",
-  transpileDependencies: ["vuex-module-decorators"]
+  transpileDependencies: ["vuex-module-decorators"],
 };

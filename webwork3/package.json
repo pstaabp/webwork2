@@ -5,12 +5,12 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
+    "lint": "vue-cli-service lint --fix",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
     "@babel/core": "^7.5.4",
-    "@types/codemirror": "^0.0.83",
+    "@types/codemirror": "^0.0.89",
     "@types/lodash-es": "^4.17.3",
     "@types/papaparse": "^5.0.1",
     "axios": "^0.19.0",
@@ -28,26 +28,28 @@
     "vue-simple-search-dropdown": "^1.0.1",
     "vuedraggable": "^2.23.0",
     "vuex": "^3.0.1",
-    "vuex-module-decorators": "^0.11.0"
+    "vuex-module-decorators": "^0.16.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.9.1",
+    "@types/jest": "^25.0.0",
+    "@typescript-eslint/parser": "^2.7.0",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-typescript": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.1.2",
     "@vue/cli-service": "^4.1.0",
-    "@vue/eslint-config-prettier": "^5.0.0",
-    "@vue/eslint-config-typescript": "^4.0.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@vue/eslint-config-typescript": "^5.0.0",
     "@vue/test-utils": "1.0.0-beta.31",
     "babel-core": "7.0.0-bridge.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-vue": "^5.0.0",
-    "jest": "25.1.0",
-    "prettier": "^1.19.1",
+    "eslint": "6.8.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-vue": "^6.0.0",
+    "jest": "^25.1.0",
+    "prettier": "^2.0.0",
     "ts-jest": "^25.0.0",
-    "typescript": "~3.5.3",
+    "typescript": "^3.8.3",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.10"
@@ -66,12 +68,12 @@
       "parser": "@typescript-eslint/parser"
     },
     "rules": {
-      "vue/attribute-hyphenation": "warning",
-      "vue/html-closing-bracket-newline": "warning",
-      "vue/html-closing-bracket-spacing": "warning",
-      "vue/html-end-tags": "error",
-      "vue/html-indent": "error",
-      "vue/html-quotes": "error",
+      "vue/attribute-hyphenation": 1,
+      "vue/html-closing-bracket-newline": 1,
+      "vue/html-closing-bracket-spacing": 1,
+      "vue/html-end-tags": 2,
+      "vue/html-indent": 2,
+      "vue/html-quotes": 2,
       "vue/html-self-closing": [
         "error",
         {

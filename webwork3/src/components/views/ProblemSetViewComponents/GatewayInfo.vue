@@ -5,7 +5,7 @@
   >
     <tbody>
       <tr v-if="proctored">
-        <td class="header" style="color: darkblue; font-style:italic">
+        <td class="header" style="color: darkblue; font-style: italic;">
           Proctored Gateway/Quiz parameters
         </td>
         <td />
@@ -141,7 +141,7 @@ import { ProblemSet } from "@/store/models";
 import problem_sets_store from "@/store/modules/problem_sets";
 
 @Component({
-  name: "GatewayInfo"
+  name: "GatewayInfo",
 })
 export default class GatewayInfo extends Vue {
   @Prop()

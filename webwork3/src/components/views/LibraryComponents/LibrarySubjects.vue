@@ -64,7 +64,7 @@ interface LibraryInfo {
 }
 
 @Component({
-  name: "LibrarySubjects"
+  name: "LibrarySubjects",
 })
 export default class LibrarySubjects extends Vue {
   private subjects: LibraryInfo[] = [];
@@ -124,10 +124,10 @@ export default class LibrarySubjects extends Vue {
 
     axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         this.$emit("load-problems", response.data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err); // eslint-disable-line no-console
       });
   }
@@ -135,10 +135,10 @@ export default class LibrarySubjects extends Vue {
   private created() {
     axios
       .get("/webwork3/api/library/subjects")
-      .then(response => {
+      .then((response) => {
         this.subjects = response.data;
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err); // eslint-disable-line no-console
       });
   }

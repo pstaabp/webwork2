@@ -26,8 +26,8 @@ import problem_sets_store from "@/store/modules/problem_sets";
   name: "ProblemListView",
   components: {
     ProblemView,
-    Draggable
-  }
+    Draggable,
+  },
 })
 export default class ProblemListView extends Vue {
   @Prop()

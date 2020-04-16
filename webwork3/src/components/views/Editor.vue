@@ -9,8 +9,8 @@
               <option value="set">Existing Set</option>
               <option value="library">Problem Library</option>
               <option value="template">From Template</option>
-            </b-select></b-form-group
-          >
+            </b-select>
+          </b-form-group>
         </b-col>
         <b-col v-if="problem_type == 'set'" cols="3">
           <b-form-group label="Set Name:" label-cols="4">
@@ -80,8 +80,8 @@ import login_store from "@/store/modules/login";
 @Component({
   name: "Editor",
   components: {
-    SaveAsProblemModal
-  }
+    SaveAsProblemModal,
+  },
 })
 export default class ProblemEditor extends Vue {
   private problem_type = "";
@@ -97,8 +97,8 @@ export default class ProblemEditor extends Vue {
       ...[{ value: "", text: "Select Set" }],
       ...problem_sets_store.set_names.map((_set_id: string) => ({
         value: _set_id,
-        text: _set_id
-      }))
+        text: _set_id,
+      })),
     ];
   }
 
@@ -107,10 +107,10 @@ export default class ProblemEditor extends Vue {
     return _set
       ? [
           ...[{ value: "", text: "Select Problem" }],
-          ..._set.problems.map(_prob => ({
+          ..._set.problems.map((_prob) => ({
             value: _prob.problem_id,
-            text: _prob.problem_id
-          }))
+            text: _prob.problem_id,
+          })),
         ]
       : [];
   }
@@ -129,9 +129,9 @@ export default class ProblemEditor extends Vue {
         this.problem_path = _prob.source_file;
         axios
           .get(login_store.api_header + "/library/fullproblem", {
-            params: _prob
+            params: _prob,
           })
-          .then(response => {
+          .then((response) => {
             this.problem_source = response.data.problem_source;
             this.cm.setValue(this.problem_source);
           });
@@ -150,7 +150,7 @@ export default class ProblemEditor extends Vue {
     const config: CodeMirror.EditorConfiguration = {
       tabSize: 2,
       lineNumbers: true,
-      mode: "perl"
+      mode: "perl",
     };
     const text_area = document.getElementById("source") as HTMLTextAreaElement;
     this.cm = CodeMirror.fromTextArea(text_area, config);

@@ -24,6 +24,7 @@
         </td>
         <td>
           <b-form-group
+            v-if="reduced_scoring"
             class="header"
             label="Reduced Scoring Date"
             invalid-feedback="This date must be after the open date."
@@ -85,7 +86,7 @@
           <b-form-checkbox v-model="problem_set.visible" @change="save" />
         </td>
       </tr>
-      <tr>
+      <tr v-if="reduced_scoring">
         <td class="header">Reduced Scoring Enabled</td>
         <td>
           <b-form-checkbox
@@ -143,30 +144,34 @@ import { mixins } from "vue-class-component";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import MessagesMixin from "@/mixins/messages_mixin";
 
-import { ProblemSet } from "@/store/models";
+import { ProblemSet, ProblemSetList } from "@/store/models";
 
 import {
   difference,
   newProblemSet,
   validReducedScoring,
   validDueDate,
-  validAnswerDate
+  validAnswerDate,
 } from "@/common";
 
 // set up the store
 import problem_sets_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
+import settings_store from "@/store/modules/settings";
 
 @Component({
-  name: "SetInfo"
+  name: "SetInfo",
 })
 export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
-  private pg_password: string = "";
+  @Prop()
+  private problem_sets!: ProblemSetList;
+  @Prop()
+  private selected_set!: ProblemSet;
 
-  @Prop() private problem_sets!: Map<string, ProblemSet>;
-  @Prop() private selected_problem_set!: ProblemSet;
-
-  private problem_set = newProblemSet(); // local copy of the problem set
+  private get problem_set() {
+    return this.selected_set;
+  }
+  //private problem_set = newProblemSet(); // local copy of the problem set
 
   get problemsLength(): number {
     return this.problem_set && this.problem_set.problems
@@ -194,6 +199,13 @@ export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
     return validAnswerDate(this.problem_set);
   }
 
+  get reduced_scoring(): boolean {
+    console.log(settings_store.settings); // eslint-disable-line no-console
+    return settings_store.settings.get(
+      "pg{ansEvalDefaults}{enableReducedScoring}"
+    ).value;
+  }
+
   private save() {
     if (
       validDueDate(this.problem_set) &&
@@ -208,17 +220,6 @@ export default class SetInfo extends mixins(MessagesMixin, ProblemSetMixin) {
     console.log("in assignAllUsers"); // eslint-disable-line no-console
     this.problem_set.assigned_users = Array.from(users_store.users.keys());
     this.save();
-  }
-
-  @Watch("selected_problem_set", { deep: true })
-  private problemSetChanged(new_set: ProblemSet, old_set: ProblemSet) {
-    if (new_set && old_set && new_set.set_id !== old_set.set_id) {
-      // the set has changed.
-      if (typeof this.problem_set === "undefined") {
-        this.problem_set = this.emptySet();
-      }
-      Object.assign(this.problem_set, this.selected_problem_set);
-    }
   }
 }
 </script>

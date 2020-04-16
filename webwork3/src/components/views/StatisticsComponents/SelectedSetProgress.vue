@@ -28,7 +28,7 @@ interface UserProblemStatus {
 }
 
 @Component({
-  name: "SelectedSetProgress"
+  name: "SelectedSetProgress",
 })
 export default class SelectedSetProgress extends Vue {
   @Prop()
@@ -47,11 +47,11 @@ export default class SelectedSetProgress extends Vue {
 
     // the following is the all of the user scores for a given set
     const user_sets = this.user_set_scores.filter(
-      _set => _set.set_id === this.selected_set
+      (_set) => _set.set_id === this.selected_set
     );
 
     return users_store.users_array.map((_user: User) => {
-      const user_set = user_sets.find(_set => _set.user_id === _user.user_id);
+      const user_set = user_sets.find((_set) => _set.user_id === _user.user_id);
       if (!user_set) {
         return {};
       }
@@ -61,7 +61,7 @@ export default class SelectedSetProgress extends Vue {
         last_name: _user.last_name,
         total_score: user_set.scores
           .map((_sc: UserProblemStatus) => _sc.status)
-          .reduce((sum, x) => sum + x, 0)
+          .reduce((sum, x) => sum + x, 0),
       };
       return set.problems.reduce(
         (_obj: StringMap, _prob: Problem, i: number) => {
@@ -82,17 +82,17 @@ export default class SelectedSetProgress extends Vue {
     if (!set) {
       return [];
     }
-    const problems = set.problems.map(_prob => ({
+    const problems = set.problems.map((_prob) => ({
       key: "" + _prob.problem_id,
       sortable: true,
-      formatter: "round2"
+      formatter: "round2",
     }));
 
     const fields = [
       { key: "user_id", sortable: true },
       { key: "first_name", sortable: true },
       { key: "last_name", sortable: true },
-      { key: "total_score", sortable: true, formatter: "round2" }
+      { key: "total_score", sortable: true, formatter: "round2" },
     ];
 
     return [...fields, ...problems];

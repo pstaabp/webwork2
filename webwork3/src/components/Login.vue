@@ -64,13 +64,13 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 import login_store from "@/store/modules/login";
 
 @Component({
-  name: "Login"
+  name: "Login",
 })
 export default class Manager extends Vue {
   private password_info: UserPassword = {
     course_id: "",
     user_id: "",
-    password: ""
+    password: "",
   };
   private password_state: boolean = false;
 

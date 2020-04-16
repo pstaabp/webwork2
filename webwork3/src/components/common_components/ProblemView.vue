@@ -122,7 +122,7 @@ import { ProblemViewOptions, LIB_PROB, SET_PROB } from "@/common";
 import { Problem } from "@/store/models";
 
 @Component({
-  name: "ProblemView" // name of the view
+  name: "ProblemView", // name of the view
 })
 export default class ProblemView extends Vue {
   private html: string = "";
@@ -145,7 +145,7 @@ export default class ProblemView extends Vue {
           "/problems/0",
         { params: Object.assign({}, this.problem, otherParams) }
       )
-      .then(response => {
+      .then((response) => {
         this.html = response.data.text;
       });
   }

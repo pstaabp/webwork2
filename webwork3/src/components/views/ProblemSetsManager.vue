@@ -132,8 +132,8 @@ import ProblemSetMixin from "@/mixins/problem_set_mixin";
   name: "ProblemSetsManager",
   components: {
     AddProblemSetModal,
-    EditProblemSetsModal
-  }
+    EditProblemSetsModal,
+  },
 })
 export default class ProblemSetsManager extends mixins(
   MessagesMixin,
@@ -145,13 +145,13 @@ export default class ProblemSetsManager extends mixins(
       key: "assigned_users",
       sortable: true,
       label: "Users",
-      formatter: "numUsers"
+      formatter: "numUsers",
     },
     {
       key: "problems",
       sortable: true,
       label: "# Probs.",
-      formatter: "numProbs"
+      formatter: "numProbs",
     },
     { key: "visible", sortable: true },
     { key: "enable_reduced_scoring", label: "RS" },
@@ -159,21 +159,21 @@ export default class ProblemSetsManager extends mixins(
       key: "open_date",
       sortable: true,
       label: "Open Date",
-      formatter: "formatDate"
+      formatter: "formatDate",
     },
     { key: "reduced_scoring_date", sortable: true, label: "Red. Sc. Date" },
     {
       key: "due_date",
       sortable: true,
       label: "Due Date",
-      formatter: "formatDate"
+      formatter: "formatDate",
     },
     {
       key: "answer_date",
       sortable: true,
       label: "Answer Date",
-      formatter: "formatDate"
-    }
+      formatter: "formatDate",
+    },
   ];
   private selected_sets: ProblemSet[] = [];
   private show_time = false;
@@ -220,7 +220,7 @@ export default class ProblemSetsManager extends mixins(
   }
 
   private async deleteSets() {
-    const _sets = this.selected_sets.map(_set => _set.set_id);
+    const _sets = this.selected_sets.map((_set) => _set.set_id);
     const conf = confirm(
       "Are you sure you want to delete the following sets? " + _sets
     );
@@ -228,7 +228,7 @@ export default class ProblemSetsManager extends mixins(
     // async can't be used in a forEach, so we use a map and wait for the map to finish
 
     if (conf) {
-      const promises = this.selected_sets.map(async _set => {
+      const promises = this.selected_sets.map(async (_set) => {
         return await problem_sets_store.removeProblemSet(_set);
       });
       const check_promises = await Promise.all(promises);

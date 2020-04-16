@@ -141,14 +141,14 @@ import {
   validReducedScoring,
   validDueDate,
   validAnswerDate,
-  newProblemSet
+  newProblemSet,
 } from "@/common";
 
 // set up the store
 import users_store from "@/store/modules/users";
 
 @Component({
-  name: "AssignUsers"
+  name: "AssignUsers",
   // mixins: [ProblemSetMixin],
 })
 export default class AssignUsers extends mixins(ProblemSetMixin) {
@@ -168,12 +168,12 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
   private showTogglesChanged(_old: string[], _new: string[]) {
     this.fields = [
       ...["user_id", "first_name", "last_name"],
-      ...this.show_info
+      ...this.show_info,
     ];
   }
 
   private assignUsers() {
-    const _users = this.selected_users.map(_u => _u.user_id);
+    const _users = this.selected_users.map((_u) => _u.user_id);
     const _assigned_users = this.problem_set.assigned_users || [];
     this.problem_set.assigned_users = [..._assigned_users, ..._users];
   }
@@ -198,15 +198,15 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
         : [];
     const all_user_ids = Array.from(users_store.users.keys());
     const unassigned_users_ids = all_user_ids.filter(
-      _id => !assigned_users_ids.includes(_id)
+      (_id) => !assigned_users_ids.includes(_id)
     );
 
     if (this.list_type === "assigned") {
-      this.users = Array.from(users_store.users.values()).filter(_u =>
+      this.users = Array.from(users_store.users.values()).filter((_u) =>
         assigned_users_ids.includes(_u.user_id)
       );
     } else if (this.list_type === "unassigned") {
-      this.users = Array.from(users_store.users.values()).filter(_u =>
+      this.users = Array.from(users_store.users.values()).filter((_u) =>
         unassigned_users_ids.includes(_u.user_id)
       );
     } else {

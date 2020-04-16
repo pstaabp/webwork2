@@ -29,13 +29,13 @@ import axios from "axios";
 export default {
   data() {
     return {
-      courses: []
+      courses: [],
     };
   },
   mounted() {
-    axios.get("/webwork3/api/courses").then(response => {
+    axios.get("/webwork3/api/courses").then((response) => {
       this.courses = response.data;
     });
-  }
+  },
 };
 </script>

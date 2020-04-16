@@ -78,8 +78,8 @@ import Common from "@/common";
     LibraryDirectory,
     LibraryTextbooks,
     ProblemView,
-    LocalLibrary
-  }
+    LocalLibrary,
+  },
 })
 export default class LibraryTab extends Vue {
   @Prop()

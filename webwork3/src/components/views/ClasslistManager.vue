@@ -7,7 +7,7 @@
             <b-input-group size="sm">
               <b-input v-model="filter_string" placeholder="Filter" />
               <template v-slot:append>
-                <b-btn @click="filter_string = ''"><b-icon icon="x"/></b-btn>
+                <b-btn @click="filter_string = ''"><b-icon icon="x" /></b-btn>
               </template>
             </b-input-group>
           </b-btn-toolbar>
@@ -97,8 +97,8 @@ import users_store from "@/store/modules/users";
     ImportStudentsFile,
     ImportStudentsManually,
     EditUsersModal,
-    ExportStudents
-  }
+    ExportStudents,
+  },
 })
 export default class Manager extends Vue {
   private fields = [
@@ -115,8 +115,8 @@ export default class Manager extends Vue {
       key: "permission",
       sortable: true,
       label: "Permission",
-      formatter: "formatPermission"
-    }
+      formatter: "formatPermission",
+    },
   ];
   private selected_users: object[] = [];
   private filter_string = "";

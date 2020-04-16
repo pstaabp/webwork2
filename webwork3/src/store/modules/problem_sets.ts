@@ -3,12 +3,10 @@ import {
   Module,
   Action,
   Mutation,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 
 import { isEqual } from "lodash-es";
-
-import * as moment from "moment"; // this is for testing only.  DELETE
 
 import Common, { difference, parseProblemSet } from "@/common";
 
@@ -30,7 +28,7 @@ import axios from "axios";
   namespaced: true,
   name: "problem_set_store",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class ProblemSetsModule extends VuexModule {
   private _problem_sets: ProblemSetList = new Map();
@@ -47,17 +45,14 @@ export class ProblemSetsModule extends VuexModule {
   public async fetchProblemSets() {
     const response = await axios.get(login_module.api_header + "/sets");
     const _sets = response.data as ProblemSet[];
-    _sets.forEach(_set => {
+    _sets.forEach((_set) => {
       this.SET_PROBLEM_SET(parseProblemSet(_set));
     });
   } // fetchProblemSets
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
-    console.log("in updateProblemSet"); // eslint-disable-line no-console
     const _previous_set = this._problem_sets.get(_set.set_id);
-    console.log(moment.unix(_previous_set.answer_date).format("YYYY/MM/DD")); // eslint-disable-line no-console
-    console.log(moment.unix(_set.answer_date).format("YYYY/MM/DD")); // eslint-disable-line no-console
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
@@ -87,6 +82,10 @@ export class ProblemSetsModule extends VuexModule {
       messages_store.addMessage({ id: -1, short: short, long: long });
       this.SET_PROBLEM_SET(_updated_set);
     } else {
+      console.log(_updated_set); // eslint-disable-line no-console
+      console.log(_set); // eslint-disable-line no-console
+      console.log(difference(_updated_set, _set)); // eslint-disable-line no-console
+      console.log(difference(_set, _updated_set)); // eslint-disable-line no-console
       // eslint-disable-next-line no-console
       console.error(
         `There was an error saving the problem set: ${_set.set_id}`

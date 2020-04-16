@@ -57,8 +57,8 @@ import { FileInfo } from "@/store/models";
 @Component({
   name: "SaveAsProblemModal",
   components: {
-    SaveAsProblemModal
-  }
+    SaveAsProblemModal,
+  },
 })
 export default class SaveAsProblemModal extends Vue {
   private file: string = "";

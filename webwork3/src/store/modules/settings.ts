@@ -3,7 +3,7 @@ import {
   Module,
   Action,
   Mutation,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 
 import { isEqual } from "lodash-es";
@@ -29,7 +29,7 @@ export type SettingList = Map<string, Setting>;
   namespaced: true,
   name: "settings",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class SettingsModule extends VuexModule {
   private _settings: SettingList = new Map();
@@ -47,7 +47,7 @@ export class SettingsModule extends VuexModule {
   public async fetchSettings() {
     const response = await axios.get(login_store.api_header + "/settings");
     const settings = response.data as Setting[];
-    settings.forEach(setting => this.SET_SETTING(setting));
+    settings.forEach((setting) => this.SET_SETTING(setting));
     return this.settings;
   } // fetchSettings
 
@@ -69,7 +69,7 @@ export class SettingsModule extends VuexModule {
       const _message = {
         id: -1,
         short: `The setting for ${_setting.var} was changed`,
-        long: `The setting for ${_setting.var} was changed from ${value} to ${_setting.value}.`
+        long: `The setting for ${_setting.var} was changed from ${value} to ${_setting.value}.`,
       };
       messages_store.addMessage(_message);
 

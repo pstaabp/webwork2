@@ -31,7 +31,7 @@ import {
   FormCheckboxPlugin,
   SpinnerPlugin,
   FormFilePlugin,
-  IconsPlugin
+  IconsPlugin,
 } from "bootstrap-vue";
 
 Vue.use(NavbarPlugin);
@@ -109,5 +109,5 @@ import store from "@/store";
 new Vue({
   router,
   store,
-  render: h => h(WeBWorKApp)
+  render: (h) => h(WeBWorKApp),
 }).$mount("#app");

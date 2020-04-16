@@ -3,7 +3,7 @@ import {
   Module,
   Action,
   Mutation,
-  getModule
+  getModule,
 } from "vuex-module-decorators";
 import { Message } from "@/store/models";
 import store from "@/store";
@@ -18,7 +18,7 @@ if (store.state[name]) {
   namespaced: true,
   name: "messages_store",
   store,
-  dynamic: true
+  dynamic: true,
 })
 export class MessagesModule extends VuexModule {
   private _messages: Message[] = [];
@@ -34,7 +34,7 @@ export class MessagesModule extends VuexModule {
   }
   @Action
   public removeMessageById(_id: number) {
-    let index = this._messages.findIndex(_msg => _msg.id === _id);
+    let index = this._messages.findIndex((_msg) => _msg.id === _id);
     if (index > -1) {
       this.REMOVE_MESSAGE_BY_INDEX(index);
     }
