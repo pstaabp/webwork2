@@ -8,13 +8,13 @@ import { ProblemSet } from "@/store/models";
 
 import login_store from "@/store/modules/login";
 
-import axios from 'axios';
+import axios from "axios";
 
 @Component({
   name: "SetHeaders",
 })
 export default class AssignUsers extends Vue {
-  @Prop() private problem_set!:ProblemSet;
+  @Prop() private problem_set!: ProblemSet;
   private headers: string[] = [];
   private screen_header = "";
   private screen_header_content = "";
@@ -30,8 +30,13 @@ export default class AssignUsers extends Vue {
 
   @Watch("screen_header")
   private async screenHeaderChanged() {
-    const response = await axios.get(login_store.api_header + "/sets/" +
-        this.problem_set.set_id + "/header/" + this.screen_header);
+    const response = await axios.get(
+      login_store.api_header +
+        "/sets/" +
+        this.problem_set.set_id +
+        "/header/" +
+        this.screen_header
+    );
     console.log(response.data); // eslint-disable-line no-console
     this.screen_header_content = response.data.header_content;
   }
@@ -48,11 +53,11 @@ export default class AssignUsers extends Vue {
         <b-container class="pt-3">
           <b-row>
             <b-form-group label-cols="4" label="Screen Header File">
-              <b-select :options="headers" v-model="screen_header" />
+              <b-select v-model="screen_header" :options="headers" />
             </b-form-group>
           </b-row>
           <b-row>
-            <b-textarea :value="screen_header_content" rows="15"/>
+            <b-textarea :value="screen_header_content" rows="15" />
           </b-row>
         </b-container>
       </b-tab>

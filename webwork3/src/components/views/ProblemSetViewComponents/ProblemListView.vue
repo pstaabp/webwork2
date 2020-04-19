@@ -37,6 +37,9 @@ export default class ProblemListView extends Vue {
 
 <template>
   <div class="scrollable">
+    <div
+      v-if="problem_set.problems.length==0"
+      style="width: 400px; font-size: 150%" class="mx-auto">There are no problems in this set.</div>
     <draggable v-model="problems" handle=".drag-handle" :move="reordered">
       <ProblemView
         v-for="problem in problems"

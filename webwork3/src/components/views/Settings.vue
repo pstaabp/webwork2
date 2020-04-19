@@ -55,10 +55,7 @@ export default class Settings extends Vue {
         />
       </b-tab>
       <b-tab title="Email" lazy>
-        <settings-tab
-          name="Permissions"
-          :settings="filterSettings('E-Mail')"
-        />
+        <settings-tab name="Permissions" :settings="filterSettings('E-Mail')" />
       </b-tab>
       <b-tab title="Editor" lazy>
         <settings-tab name="Editor" :settings="filterSettings('Editor')" />

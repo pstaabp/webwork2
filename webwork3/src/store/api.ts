@@ -2,6 +2,8 @@ import axios from "axios";
 
 import login_store from "@/store/modules/login";
 
+import { StringMap } from "@/common";
+
 import {
   RenderedProblem,
   Problem,
@@ -13,6 +15,16 @@ export async function renderProblem(problem: Problem) {
   const response = await axios.post("/webwork3/api/renderer", {
     source: problem.problem_source,
   });
+  return response.data as RenderedProblem;
+}
+
+export async function fetchProblem(props: StringMap) {
+  const response = await axios.get(
+    "/webwork3/api/renderer/courses/" +
+      login_store.login_info.course_id +
+      "/problems/0",
+    { params: Object.assign({}, props) }
+  );
   return response.data as RenderedProblem;
 }
 

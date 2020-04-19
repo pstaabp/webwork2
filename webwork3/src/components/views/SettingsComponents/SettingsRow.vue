@@ -150,11 +150,22 @@ export default class SettingsRow extends Vue {
         />
       </b-form-group>
     </td>
-    <td v-else-if="(setting.type == 'text' && setting.width >20)" class="right-column">
-      <b-textarea :value="setting.value" @blur="updateSetting($event.target.value)" rows="5"/>
+    <td
+      v-else-if="(setting.type == 'text' && setting.width >20)"
+      class="right-column"
+    >
+      <b-textarea
+        :value="setting.value"
+        rows="5"
+        @blur="updateSetting($event.target.value)"
+      />
     </td>
     <td v-else-if="setting.type == 'list'" class="right-column">
-      <b-textarea :value="setting.value.join(',')" @blur="updateList($event.target.value)" rows="5" />
+      <b-textarea
+        :value="setting.value.join(',')"
+        rows="5"
+        @blur="updateList($event.target.value)"
+      />
     </td>
     <td v-else-if="setting.type == 'text'" class="right-column">
       <b-input
@@ -190,7 +201,9 @@ export default class SettingsRow extends Vue {
         @change="updateSetting($event)"
       />
     </td>
-    <td v-else-if="setting.type === 'timezone'" class="right-column">NEED TO FINISH</td>
+    <td v-else-if="setting.type === 'timezone'" class="right-column">
+      NEED TO FINISH
+    </td>
     <td v-else-if="setting.type === 'time'" class="right-column">
       <b-input
         type="time"

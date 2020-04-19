@@ -1,7 +1,9 @@
 <script lang="ts">
+/* eslint-disable */
+// @ts-nocheck
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
-import axios from "axios";
 
+import { fetchProblem } from "@/store/api";
 import login_module from "@/store/modules/login";
 
 import { ProblemViewOptions, LIB_PROB, SET_PROB } from "@/common";
@@ -20,50 +22,18 @@ export default class ProblemView extends Vue {
   @Prop() private type!: string;
 
   public mounted() {
-    this.fetchProblem();
+    this.fetch({});
   }
 
-  private fetchProblem(other_params?: { [key: string]: number | string }) {
-    this.html = "";
-    axios
-      .get(
-        "/webwork3/api/renderer/courses/" +
-          login_module.login_info.course_id +
-          "/problems/0",
-        { params: Object.assign({}, this.problem, other_params) }
-      )
-      .then((response) => {
-        this.html = response.data.text;
-      });
+  private async fetch(other_params: StringMap){
+    const problem = await fetchProblem(Object.assign({}, this.problem, other_params));
+    this.html = problem.text;
+    this.renderProblem();
   }
 
   get prop(): ProblemViewOptions {
     return this.type === "library" ? LIB_PROB : SET_PROB;
   }
-  //
-  // get value(): number {
-  //   return this.problem.value;
-  // }
-  //
-  // set value(value: number) {
-  //   if (value !== this.problem.value) {
-  //     // update the problem.
-  //     // tslint:disable-next-line
-  //     console.log(value);
-  //   }
-  // }
-
-  // get max_attempts(): number {
-  //   return this.problem.max_attempts;
-  // }
-  //
-  // set max_attempts(value: number) {
-  //   if (value !== this.problem.max_attempts) {
-  //     // update the problem.
-  //     // tslint:disable-next-line
-  //     console.log(value + ":" + this.problem.max_attempts);
-  //   }
-  // }
 
   private addProblem(evt: Event): void {
     console.log(evt); // eslint-disable-line no-console
@@ -76,12 +46,13 @@ export default class ProblemView extends Vue {
   @Watch("problem")
   private problemChange(): void {
     console.log("in problem changed"); // eslint-disable-line no-console
-    this.fetchProblem();
+    this.fetch();
   }
 
-  private updated(): void {
-    // MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+  private renderProblem() {
+    window.MathJax.typeset();
   }
+
 }
 </script>
 
@@ -166,7 +137,7 @@ export default class ProblemView extends Vue {
                 title="show/hide path"
                 @click="show_path = !show_path"
               >
-                <b-icon icon="document-code" />
+                <b-icon icon="folder" />
               </b-btn>
               <b-btn
                 v-if="prop.target_set"
@@ -194,8 +165,9 @@ export default class ProblemView extends Vue {
         <div v-if="html == ''" class="text-center">
           <b-spinner variant="info" />
         </div>
-        <!-- eslint-disable vue/no-v-html -->
-        <div v-else class="problem-tag-container" v-html="html" />
+        <div v-else class="problem-tag-container">
+          <div id="problem-output" v-html="html"/>
+        </div>
       </b-row>
     </b-container>
   </li>

@@ -29,7 +29,7 @@ export class LoginModule extends VuexModule {
     user_id: "",
     logged_in: false,
     course_id: "",
-    permission: -5
+    permission: -5,
   };
 
   public get api_header() {
@@ -50,7 +50,7 @@ export class LoginModule extends VuexModule {
       logged_in: false,
       user_id: login.user_id,
       course_id: login.course_id,
-      permission: -5
+      permission: -5,
     };
 
     const response = await axios.post(
@@ -81,7 +81,7 @@ export class LoginModule extends VuexModule {
       user_id: "",
       logged_in: false,
       course_id: "",
-      permission: -5
+      permission: -5,
     };
   }
 }

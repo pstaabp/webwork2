@@ -36,9 +36,20 @@ export default class Manager extends Vue {
       users_store.fetchUsers();
       problem_sets_store.fetchProblemSets();
     } else {
-      this.$router.replace(
-        "/courses/" + login_store.login_info.course_id + "/login"
-      );
+      this.$router.replace("/courses");
+    }
+
+    // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
+    if (document.getElementById("mathjax-scr")) {
+      return; // was already loaded
+    }
+    const scriptTag = document.createElement("script");
+    scriptTag.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js";
+    scriptTag.async = true;
+    scriptTag.id = "mathjax-scr";
+    document.getElementsByTagName("head")[0].appendChild(scriptTag);
+    if (this.$route.fullPath === "/") {
+      this.$router.replace("/courses");
     }
   }
 

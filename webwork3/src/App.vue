@@ -6,15 +6,6 @@ import { Vue, Component } from "vue-property-decorator";
 })
 export default class WeBWorKApp extends Vue {
   private mounted() {
-    // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
-    if (document.getElementById("mathjax-scr")) {
-      return; // was already loaded
-    }
-    const scriptTag = document.createElement("script");
-    scriptTag.src =
-      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML";
-    scriptTag.id = "mathjax-scr";
-    document.getElementsByTagName("head")[0].appendChild(scriptTag);
     if (this.$route.fullPath === "/") {
       this.$router.replace("/courses");
     }
