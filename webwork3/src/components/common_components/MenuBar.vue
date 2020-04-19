@@ -120,8 +120,6 @@ export default class MenuBar extends Vue {
 
   private setSelectedSet(_set: { name: string; id: string }) {
     // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
-
-    console.log("changing set in menu bar"); // eslint-disable-line no-console
     if (_set && _set.name) {
       app_state.setSelectedSet(_set.name);
     }

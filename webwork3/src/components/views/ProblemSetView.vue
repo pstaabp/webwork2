@@ -49,6 +49,11 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     );
   }
 
+  @Watch("problem_set")
+  private problemSetChanged(){
+    console.log("in ProblemSetView set changed"); // eslint-disable-line no-console
+  }
+
   private created() {
     // watch for changes in the selected set from the menu bar or as a link from another part of the app.
     this.$store.subscribe((mutation) => {
@@ -96,7 +101,7 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
         />
       </b-tab>
       <b-tab title="Gateway Info" :disabled="!is_gateway">
-        <gateway-info :selected_problem_set="problem_set" />
+        <gateway-info :selected_set="problem_set" />
       </b-tab>
       <b-tab title="Problems">
         <problem-list-view :problem_set="problem_set" />

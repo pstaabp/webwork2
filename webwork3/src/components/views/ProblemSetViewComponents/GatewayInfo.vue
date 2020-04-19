@@ -5,7 +5,7 @@ This is a tab within the ProblemSetView that allows the setting of Gateway Quiz 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
-import { newProblemSet } from "@/common";
+import { newProblemSet, parseProblemSet } from "@/common";
 import { ProblemSet } from "@/store/models";
 
 import problem_sets_store from "@/store/modules/problem_sets";
@@ -15,27 +15,29 @@ import problem_sets_store from "@/store/modules/problem_sets";
 })
 export default class GatewayInfo extends Vue {
   @Prop()
-  private selected_problem_set!: ProblemSet;
+  private selected_set!: ProblemSet;
 
   // store the selected_set as a local copy
   private problem_set: ProblemSet = newProblemSet();
 
   private save() {
-    problem_sets_store.updateProblemSet(this.problem_set);
+    problem_sets_store.updateProblemSet(parseProblemSet(this.problem_set));
   }
 
   private get proctored(): boolean {
     return this.problem_set.assignment_type === "proctored_gateway";
   }
 
-  @Watch("selected_problem_set", { deep: true })
-  private selectedSetChanged(new_set: ProblemSet, old_set: ProblemSet) {
-    if (new_set && old_set && new_set.set_id !== old_set.set_id) {
+  @Watch("selected_set", { deep: true })
+  private selectedSetChanged(new_set: ProblemSet) {
+    console.log("in GatwayInfo select_set_changed"); // eslint-disable-line no-console
+    // console.log([new_set.set_id,old_set.set_id]); // eslint-disable-line no-console
+    if (new_set &&  new_set.set_id !== this.problem_set.set_id) {
       // the set has changed.
       if (typeof this.problem_set === "undefined") {
         this.problem_set = newProblemSet();
       }
-      Object.assign(this.problem_set, this.selected_problem_set);
+      Object.assign(this.problem_set, this.selected_set);
     }
   }
 }
@@ -144,7 +146,7 @@ export default class GatewayInfo extends Vue {
       <tr>
         <td class="header">Show Scores on Finished Assignments?</td>
         <td>
-          <b-form-select
+          <b-select
             v-model="problem_set.hide_score"
             size="sm"
             @change="save"
@@ -154,13 +156,13 @@ export default class GatewayInfo extends Vue {
             <option value="BeforeAnswerDate">
               Only After Set Answer Date
             </option>
-          </b-form-select>
+          </b-select>
         </td>
       </tr>
       <tr>
         <td class="header">Show Problems on Finished Tests?</td>
         <td>
-          <b-form-select
+          <b-select
             v-model="problem_set.hide_work"
             size="sm"
             @change="save"
@@ -168,7 +170,7 @@ export default class GatewayInfo extends Vue {
             <option value="N">Yes</option>
             <option value="Y">No</option>
             <option value="BeforeAnswerDate">Only After Set Answer Date</option>
-          </b-form-select>
+          </b-select>
         </td>
       </tr>
     </tbody>
