@@ -129,7 +129,6 @@ export default class MenuBar extends Vue {
       const div = document.getElementById("set_options");
       const input = (div && div.firstElementChild) as HTMLInputElement;
       if (input) {
-        // input.value = app_state.selected_set;
         input.setAttribute("autocomplete", "off");
       }
     }, 200);

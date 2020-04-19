@@ -57,14 +57,6 @@ export default class LibraryTab extends Vue {
     problem_set_store.updateProblemSet(set);
   }
 
-  // private goToSet() {
-  //   this.$router.push(
-  //     login_store.api_header +
-  //       "/manager/set-details?set_id=" +
-  //       app_state.selected_set
-  //   );
-  // }
-
   private get valid_set_id() {
     return app_state.selected_set !== undefined;
   }

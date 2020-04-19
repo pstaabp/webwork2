@@ -55,10 +55,11 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
   }
 
   private created() {
-    // watch for changes in the selected set from the menu bar or as a link from another part of the app.
+    // if the selectedSet in the menu bar is given, then switch the route. 
     this.$store.subscribe((mutation) => {
       if (mutation.type === "app_state/setSelectedSet") {
         if (
+          this.$route.name === "setview" &&
           this.$route.params &&
           this.$route.params.set_id !== app_state.selected_set
         ) {
