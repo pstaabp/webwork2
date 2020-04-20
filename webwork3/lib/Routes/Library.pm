@@ -158,7 +158,7 @@ get '/library/directories/**' => sub {
 sub get_pg_files_in_dir {
   my $dir = shift;
 
-  debug $dir;
+  # debug $dir;
 
   my @files = File::Find::Rule->file()->relative()->name("*.pg")->maxdepth(1)->in($dir);
   if(scalar(@files)==0){
@@ -171,7 +171,7 @@ sub get_pg_files_in_dir {
   ->not_name("Pending")
   ->not_name("Library")
   ->in($dir);
-  debug \@subdirs;
+  # debug \@subdirs;
 
   my @other = ();
 
@@ -181,7 +181,7 @@ sub get_pg_files_in_dir {
       push(@other,$fred);
     }
   }
-  debug \@other;
+  # debug \@other;
   if (scalar(@other)>0){
     return {base=>dir($dir)->basename, files=>\@files, subdirs=>\@other}
   } else {
@@ -268,12 +268,12 @@ get '/courses/:course_id/library/pending' => sub {
   sub getFilesDirectories {
     my $path = shift;
 
-    debug $path;
+    # debug $path;
     my @subdirs = File::Find::Rule->directory
                                   ->relative
                                   ->maxdepth(1)
                                   ->in($path);
-    debug \@subdirs;
+    # debug \@subdirs;
 
     my @files = File::Find::Rule->file
                                   ->relative
@@ -282,13 +282,13 @@ get '/courses/:course_id/library/pending' => sub {
     my @alldirs =  map { {name=>$_, type=>"dir"};} @subdirs;
     my @allfiles = map { {name=>$_, type=>"file"};} @files;
     push @alldirs, @allfiles;
-    debug \@alldirs;
+    # debug \@alldirs;
     return \@alldirs;
   }
 
   get '/courses/:course_id/local' => sub {
 
-    debug 'in /courses/:course_id/local';
+    # debug 'in /courses/:course_id/local';
 
     return getFilesDirectories(vars->{ce}->{courseDirs}{templates});
 
@@ -296,20 +296,20 @@ get '/courses/:course_id/library/pending' => sub {
 
   get '/courses/:course_id/local/**' => sub {
 
-    debug 'in /courses/:course_id/local/**';
+    # debug 'in /courses/:course_id/local/**';
 
     # my @dirs = File::Find::Rule->directory
     #                               ->relative
     #                               ->maxdepth(1)
     #                               ->in('/opt/webwork/courses/test/templates/macros');
     #
-    #                               debug \@dirs;
+    #                               # debug \@dirs;
 
     my ($dirs) = splat;
     my @dirs = @{$dirs};
     my $path = path(vars->{ce}->{courseDirs}{templates},@dirs);
 
-    debug $path;
+    # debug $path;
 
     return getFilesDirectories($path);
   };
@@ -367,7 +367,7 @@ get '/courses/:course_id/library/pending' => sub {
           }
         }
       } else {
-        debug("oops");
+        # debug("oops");
       }
     }
 
@@ -387,12 +387,12 @@ get '/courses/:course_id/library/pending' => sub {
 
   get '/library/textbooks' => sub {
 
-    debug 'in /library/textbooks';
+    # debug 'in /library/textbooks';
 
     my $webwork_dir = config->{webwork_dir};
     my $file = "$webwork_dir/htdocs/DATA/textbook-tree.json";
 
-    debug $file;
+    # debug $file;
 
     my $json_text = do {
       open(my $json_fh, "<:encoding(UTF-8)", $file)  or send_error("The file $file does not exist.",404);
@@ -420,7 +420,7 @@ get '/courses/:course_id/library/pending' => sub {
 
     return searchLibrary(database,{
       chapter_id=>route_parameters->{chapter_id}
-    },\&debug);
+    },\& debug);
 
   };
 
@@ -497,8 +497,14 @@ get '/courses/:course_id/library/pending' => sub {
   #
   ##
 
-  get '/library/courses/:course_id/problems/:problem_id/tags' => sub {
-    my $pgfile = path(vars->{ce}->{courseDirs}->{templates}, params->{source_file});
+  get '/library/courses/:course_id/problems/tags/**' => sub {
+    # my $pgfile_id = route_parameters->get('problem_id');
+    # debug $pgfile_id;
+    my ($problem_path) = splat;
+    # debug dump $problem_path;
+    # debug join("/",@$problem_path);
+    my $pgfile = path(vars->{ce}->{courseDirs}->{templates}, @$problem_path);
+    debug $pgfile;
     return convertObjectToHash(getProblemTags($pgfile));
   };
 
@@ -574,7 +580,7 @@ get '/courses/:course_id/library/pending' => sub {
     $renderParams->{problem}->{source_file} = file("Library" ,$path_header , $problem_info->{filename})->stringify;
   }
 
-  my $rp = render(vars->{ce},vars->{db},$renderParams,\&debug);
+  my $rp = render(vars->{ce},vars->{db},$renderParams,\& debug);
   my $filepath = file(vars->{ce}->{problemLibrary}->{root}, $renderParams->{problem}->{source_file});
   #$rp->{tags} = getProblemTags($renderParams->{problem}->{source_file});  # lookup the tags using the source_file.
   #$rp->{tags} = getProblemTagsFromDB(-1);
@@ -706,7 +712,7 @@ post '/renderer' => sub {
     source => defined($source)?\$source: undef
   };
 
-  return render(vars->{ce},vars->{db},$renderParams,\&debug);
+  return render(vars->{ce},vars->{db},$renderParams,\& debug);
 };
 
 ####

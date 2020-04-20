@@ -50,12 +50,12 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
   }
 
   @Watch("problem_set")
-  private problemSetChanged(){
+  private problemSetChanged() {
     console.log("in ProblemSetView set changed"); // eslint-disable-line no-console
   }
 
   private created() {
-    // if the selectedSet in the menu bar is given, then switch the route. 
+    // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
       if (mutation.type === "app_state/setSelectedSet") {
         if (

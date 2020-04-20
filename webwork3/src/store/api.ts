@@ -28,6 +28,14 @@ export async function fetchProblem(props: StringMap) {
   return response.data as RenderedProblem;
 }
 
+export async function fetchProblemTags(path: string) {
+  const response = await axios.get(
+    "/webwork3/api/library/courses/" +
+      login_store.login_info.course_id +
+      "/problems/tags/"+ path);
+  return response.data as StringMap;
+}
+
 export async function getLocalDirectory(path: string) {
   const response = await axios.get(
     login_store.api_header + "/local" + (path ? "/" + path : "")

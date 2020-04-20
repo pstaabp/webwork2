@@ -3,7 +3,7 @@
 // @ts-nocheck
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
-import { fetchProblem } from "@/store/api";
+import { fetchProblem, fetchProblemTags } from "@/store/api";
 import login_module from "@/store/modules/login";
 
 import { ProblemViewOptions, LIB_PROB, SET_PROB } from "@/common";
@@ -17,6 +17,7 @@ export default class ProblemView extends Vue {
   private html = "";
   private show_tags = false;
   private show_path = false;
+  private tags = {};
 
   @Prop() private problem!: Problem;
   @Prop() private type!: string;
@@ -25,10 +26,14 @@ export default class ProblemView extends Vue {
     this.fetch({});
   }
 
+  private get tags_loaded() {
+    return Object.keys(this.tags).length > 0;
+  }
+
   private async fetch(other_params: StringMap){
     const problem = await fetchProblem(Object.assign({}, this.problem, other_params));
     this.html = problem.text;
-    this.renderProblem();
+    window.MathJax.typeset();
   }
 
   get prop(): ProblemViewOptions {
@@ -49,8 +54,16 @@ export default class ProblemView extends Vue {
     this.fetch();
   }
 
-  private renderProblem() {
-    window.MathJax.typeset();
+  @Watch("show_tags")
+  private async showTagsChanged() {
+    if (!this.tags_loaded) { // the tags object is empty
+      this.tags = await fetchProblemTags(this.problem.source_file);
+    }
+  }
+
+  private edit(){
+    console.log("in edit"); // eslint-disable-line no-console
+    this.$router.push({name: "editor", params: {problem: this.problem}});
   }
 
 }
@@ -97,7 +110,7 @@ export default class ProblemView extends Vue {
                 v-if="prop.edit"
                 variant="outline-dark"
                 title="edit"
-                disabled
+                @click="edit"
               >
                 <b-icon icon="pencil" />
               </b-btn>
@@ -126,7 +139,8 @@ export default class ProblemView extends Vue {
               </b-btn>
               <b-btn
                 v-if="prop.tags"
-                variant="outline-dark"
+                :variant="show_tags? 'success' : 'outline-dark'"
+                @click="show_tags = ! show_tags"
                 title="show/hide tags"
               >
                 <b-icon icon="tag" />
@@ -161,6 +175,55 @@ export default class ProblemView extends Vue {
         </b-col>
       </b-row>
       <b-row v-if="show_path"> Path: {{ problem.source_file }} </b-row>
+      <b-row v-if="show_tags && tags_loaded">
+        <table class="table table-sm table-bordered">
+          <tr>
+            <td class="header">DBsubject:</td><td>{{tags.DBsubject}}</td>
+            <td class="header">DBchapter:</td><td>{{tags.DBchapter}}</td>
+            <td class="header">DBsection:</td><td>{{tags.DBsection}}</td>
+          </tr>
+          <tr>
+            <td class="header">Author:</td><td>{{tags.Author}}</td>
+            <td class="header">Institution:</td><td>{{tags.Institution}}</td>
+            <td class="header">Date:</td><td>{{tags.Date}}</td>
+          </tr>
+          <tr>
+            <td class="header">Level:</td><td>{{tags.Level}}</td>
+            <td class="header">MLT:</td><td>{{tags.MLT}}</td>
+            <td class="header">MLTleader:</td><td>{{tags.MLTleader}}</td>
+          </tr>
+          <tr>
+            <td class="header">keywords:</td><td colspan="5">{{tags.keywords.join(", ")}}</td>
+          </tr>
+          <tr>
+            <td class="header">Language:</td><td>{{tags.Language}}</td>
+            <td class="header">Status:</td><td>{{tags.Status}}</td>
+            <td class="header">isPlaceholder:</td><td>{{tags.isPlaceholder}}</td>
+          </tr>
+          <tr>
+            <td class="header">MO:</td><td>{{tags.MO}}</td>
+            <td class="header">lasttagline:</td><td>{{tags.lasttagline}}</td>
+            <td class="header">static:</td><td>{{tags.static}}</td>
+          </tr>
+          <tr>
+            <td class="header">modified:</td><td>{{tags.modified}}</td>
+            <td class="header">resources:</td><td colspan="3">{{tags.resources.join(", ")}}</td>
+          </tr>
+          <tr><td class="header" colspan="6">Textbook Info</td></tr>
+          <template v-for="textbook in tags.textinfo">
+            <tr>
+              <td class="header">TitleText:</td><td>{{textbook.TitleText}}</td>
+              <td class="header">AuthorText:</td><td>{{textbook.AuthorText}}</td>
+              <td class="header">EditionText:</td><td>{{textbook.EditionText}}</td>
+            </tr>
+            <tr>
+              <td class="header">chapter:</td><td>{{textbook.chapter}}</td>
+              <td class="header">section:</td><td>{{textbook.section}}</td>
+              <td class="header">problems:</td><td>{{textbook.problems}}</td>
+            </tr>
+          </template>
+        </table>
+      </b-row>
       <b-row>
         <div v-if="html == ''" class="text-center">
           <b-spinner variant="info" />
@@ -174,14 +237,17 @@ export default class ProblemView extends Vue {
 </template>
 
 <style>
-.problem-id {
+.header {
   font-weight: bold;
-  font-size: 120%;
-  padding-right: 1ex;
 }
 .problem {
   list-style: none;
   border: 1px black solid;
   width: 100%;
+}
+.problem-id {
+  font-weight: bold;
+  font-size: 120%;
+  padding-right: 1ex;
 }
 </style>

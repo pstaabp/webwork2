@@ -32,7 +32,7 @@ export default class GatewayInfo extends Vue {
   private selectedSetChanged(new_set: ProblemSet) {
     console.log("in GatwayInfo select_set_changed"); // eslint-disable-line no-console
     // console.log([new_set.set_id,old_set.set_id]); // eslint-disable-line no-console
-    if (new_set &&  new_set.set_id !== this.problem_set.set_id) {
+    if (new_set && new_set.set_id !== this.problem_set.set_id) {
       // the set has changed.
       if (typeof this.problem_set === "undefined") {
         this.problem_set = newProblemSet();
@@ -146,11 +146,7 @@ export default class GatewayInfo extends Vue {
       <tr>
         <td class="header">Show Scores on Finished Assignments?</td>
         <td>
-          <b-select
-            v-model="problem_set.hide_score"
-            size="sm"
-            @change="save"
-          >
+          <b-select v-model="problem_set.hide_score" size="sm" @change="save">
             <option value="Y">Yes</option>
             <option value="N">No</option>
             <option value="BeforeAnswerDate">
@@ -162,11 +158,7 @@ export default class GatewayInfo extends Vue {
       <tr>
         <td class="header">Show Problems on Finished Tests?</td>
         <td>
-          <b-select
-            v-model="problem_set.hide_work"
-            size="sm"
-            @change="save"
-          >
+          <b-select v-model="problem_set.hide_work" size="sm" @change="save">
             <option value="N">Yes</option>
             <option value="Y">No</option>
             <option value="BeforeAnswerDate">Only After Set Answer Date</option>
