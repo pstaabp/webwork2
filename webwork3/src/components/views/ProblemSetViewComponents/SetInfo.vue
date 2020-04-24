@@ -26,10 +26,8 @@ import settings_store from "@/store/modules/settings";
   name: "SetInfo",
 })
 export default class SetInfo extends mixins(ProblemSetMixin) {
-  @Prop()
-  private problem_sets!: ProblemSetList;
-  @Prop()
-  private selected_set!: ProblemSet;
+  @Prop() private problem_sets!: ProblemSetList;
+  @Prop() private selected_set!: ProblemSet;
 
   private get problem_set() {
     return this.selected_set;

@@ -2,7 +2,7 @@
 import { Vue, Component } from "vue-property-decorator";
 import { unparse } from "papaparse";
 
-import * as moment from "moment";
+import dayjs from "dayjs";
 
 import users_store from "@/store/modules/users";
 import login_store from "@/store/modules/login";
@@ -27,7 +27,7 @@ export default class ImportStudentsFile extends Vue {
     this.filename =
       login_store.login_info.course_id +
       "_classlist_" +
-      moment.default().format("YYYY-MM-DD") +
+      dayjs().format("YYYY-MM-DD") +
       ".csv";
   }
 }

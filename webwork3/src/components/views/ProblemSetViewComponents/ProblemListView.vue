@@ -54,11 +54,3 @@ export default class ProblemListView extends Vue {
     </draggable>
   </div>
 </template>
-
-<style>
-.problem {
-  list-style: none;
-  border: 1px black solid;
-  width: 100%;
-}
-</style>

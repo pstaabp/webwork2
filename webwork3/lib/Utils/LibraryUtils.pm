@@ -613,8 +613,6 @@ sub render {
 
   my ($ce,$db,$renderParams,$debug) = @_;  # if debug is passed in, one can use the following:
 
-	#&$debug(dump $renderParams);
-
   my $form_data = {
   	displayMode => $renderParams->{displayMode} || $ce->{pg}{options}{displayMode},
   	outputformat => 'standard',

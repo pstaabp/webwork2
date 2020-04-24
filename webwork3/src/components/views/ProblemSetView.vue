@@ -58,13 +58,14 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
       if (mutation.type === "app_state/setSelectedSet") {
+        const name = this.$route.name as string;
         if (
-          this.$route.name === "setview" &&
+          /^set-view/.test(name) &&
           this.$route.params &&
           this.$route.params.set_id !== app_state.selected_set
         ) {
           this.$router.push({
-            name: "setview",
+            name: "set-view-set-id",
             params: { set_id: app_state.selected_set },
           });
         }
@@ -78,7 +79,8 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
   @Watch("$route", { immediate: true, deep: true })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private routeChanged(to: any) {
-    if (to.name === "setview") {
+    console.log(to); // eslint-disable-line no-console
+    if (to.name === "set-view-set-id") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
         app_state.setSelectedSet(set_id);

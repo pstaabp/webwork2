@@ -1,6 +1,10 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
-import * as moment from "moment";
+import dayjs from "dayjs";
+
+// TODO: allow other locales.
+// import localeData from "dayjs/plugin/localeData";
+// dayjs.extend(localeData);
 
 import Draggable from "vuedraggable";
 
@@ -9,7 +13,7 @@ import problem_set_store from "@/store/modules/problem_sets";
 import { ProblemSet } from "@/store/models";
 
 interface AssignmentInfo {
-  date: moment.Moment;
+  date: dayjs.Dayjs;
   type: string;
   set_id: string;
 }
@@ -22,17 +26,26 @@ interface AssignmentInfo {
   },
 })
 export default class Calendar extends Vue {
-  private first_day_of_calendar: moment.Moment = moment.default();
+  private first_day_of_calendar: dayjs.Dayjs = dayjs();
   private all_assignment_dates: AssignmentInfo[] = [];
   private sidebar_shown = false;
   private dragging = false;
 
   get month_name(): string {
-    return moment.default().format("MMMM YYYY");
+    return dayjs().format("MMMM YYYY");
   }
 
   get day_names(): string[] {
-    return moment.weekdays();
+    // TODO: add locale data.
+    return [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
   }
 
   get problem_sets(): ProblemSet[] {
@@ -69,22 +82,22 @@ export default class Calendar extends Vue {
     return _sets
       .flatMap((_set) => [
         {
-          date: moment.unix(_set.answer_date),
+          date: dayjs.unix(_set.answer_date),
           type: "answer",
           set_id: _set.set_id,
         },
         {
-          date: moment.unix(_set.due_date),
+          date: dayjs.unix(_set.due_date),
           type: "due",
           set_id: _set.set_id,
         },
         {
-          date: moment.unix(_set.reduced_scoring_date),
+          date: dayjs.unix(_set.reduced_scoring_date),
           type: "reduced_scoring",
           set_id: _set.set_id,
         },
         {
-          date: moment.unix(_set.open_date),
+          date: dayjs.unix(_set.open_date),
           type: "open",
           set_id: _set.set_id,
         },
@@ -93,18 +106,19 @@ export default class Calendar extends Vue {
   }
 
   private changeWeek(week: number) {
-    this.first_day_of_calendar = moment
-      .default(this.first_day_of_calendar)
-      .add(week * 7, "days");
+    this.first_day_of_calendar = this.first_day_of_calendar.add(
+      week * 7,
+      "day"
+    );
   }
 
   private today() {
-    const now = moment.default();
-    this.first_day_of_calendar = moment.default().subtract(now.days(), "days"); // first of the week from today
+    const now = dayjs();
+    this.first_day_of_calendar = dayjs().subtract(now.date(), "day"); // first of the week from today
     while (this.first_day_of_calendar.isSame(now, "month")) {
       this.first_day_of_calendar = this.first_day_of_calendar.subtract(
         7,
-        "days"
+        "day"
       );
     }
   }
@@ -112,7 +126,7 @@ export default class Calendar extends Vue {
   // this produces an array of the days of the first of the week.
   private get first_days() {
     return [0, 1, 2, 3, 4, 5].map((i) =>
-      moment.default(this.first_day_of_calendar).add(7 * i, "days")
+      dayjs(this.first_day_of_calendar).add(7 * i, "day")
     );
   }
 }
@@ -159,7 +173,7 @@ export default class Calendar extends Vue {
               :key="
                 first_day_of_calendar.format('DD') +
                 ':' +
-                day.format('DD-MM-YYYY')
+                day.format('YYYY-MM-DD')
               "
               :first_day_of_week="day"
               :problem_sets="problem_sets"

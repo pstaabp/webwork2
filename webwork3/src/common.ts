@@ -1,6 +1,8 @@
 // This file has common variables and objects needed throughout the ww3 interface
 
-import * as moment from "moment";
+import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+dayjs.extend(isSameOrAfter);
 
 import { ProblemSet, User, Problem } from "@/store/models";
 
@@ -140,39 +142,6 @@ export function newProblemSet(): ProblemSet {
   };
 }
 
-/**
- *  The following was taken from: https://gist.github.com/Yimiprod/7ee176597fef230d1451
- *
- * Deep diff between two object, using lodash
- * @param  {Object} object Object compared
- * @param  {Object} base   Object to compare with
- * @return {Object}        Return a new object who represent the diff
-
-export function difference(
-  object: { [key: string]: number | string | object },
-  base: { [key: string]: number | string | object }
-) {
-  function changes(
-    object: { [key: string]: number | string | object },
-    base: { [key: string]: number | string | object }
-  ) {
-    return transform(object, function (
-      result: { [key: string]: number | string | object },
-      value: { [key: string]: number | string | object },
-      key: string
-    ) {
-      if (!isEqual(value, base[key])) {
-        result[key] =
-          isObject(value) && isObject(base[key])
-            ? changes(value, base[key])
-            : value;
-      }
-    });
-  }
-  return changes(object, base);
-}
-*/
-
 // this function takes in a problem set and parses out the numbers:
 
 function parseInteger(prop: number | string, default_value = 0) {
@@ -212,21 +181,15 @@ export function parseProblemSet(_set: ProblemSet) {
 }
 
 export function validReducedScoring(_set: ProblemSet) {
-  return moment
-    .unix(_set.reduced_scoring_date)
-    .isSameOrAfter(moment.unix(_set.open_date));
+  return dayjs(_set.reduced_scoring_date).isSameOrAfter(dayjs(_set.open_date));
 }
 
 export function validDueDate(_set: ProblemSet) {
-  return moment
-    .unix(_set.due_date)
-    .isSameOrAfter(moment.unix(_set.reduced_scoring_date));
+  return dayjs(_set.due_date).isSameOrAfter(dayjs(_set.reduced_scoring_date));
 }
 
 export function validAnswerDate(_set: ProblemSet) {
-  return moment
-    .unix(_set.answer_date)
-    .isSameOrAfter(moment.unix(_set.due_date));
+  return dayjs(_set.answer_date).isSameOrAfter(dayjs(_set.due_date));
 }
 
 export function ww3Views(): ViewInfo[] {
@@ -298,11 +261,11 @@ export function ww3Views(): ViewInfo[] {
 }
 
 export function formatDateTime(value: number) {
-  return moment.unix(value).format("YYYY-MM-DD[T]HH:mm");
+  return dayjs.unix(value).format("YYYY-MM-DD[T]HH:mm");
 }
 
 export function parseDatetimeForBrowser(date_string: string) {
-  return moment.default(date_string, "YYYY-MM-DD[T]HH:mm").unix();
+  return dayjs(date_string, "YYYY-MM-DD[T]HH:mm").unix();
 }
 
 export function setOpenDate(_set: ProblemSet, date_string: string) {

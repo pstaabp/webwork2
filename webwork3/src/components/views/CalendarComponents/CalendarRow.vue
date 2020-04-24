@@ -1,6 +1,6 @@
 <script lang="ts">
 import Draggable, { ChangeEvent } from "vuedraggable";
-import * as moment from "moment";
+import dayjs from "dayjs";
 
 import { Vue, Component, Prop } from "vue-property-decorator";
 
@@ -10,10 +10,10 @@ import problem_set_store from "@/store/modules/problem_sets";
 import settings_store from "@/store/modules/settings";
 
 interface AssignmentInfo {
-  date: moment.Moment;
+  date: dayjs.Dayjs;
   type: string;
   set_id: string;
-  due_date?: moment.Moment;
+  due_date?: dayjs.Dayjs;
 }
 
 @Component({
@@ -23,26 +23,20 @@ interface AssignmentInfo {
   },
 })
 export default class CalendarRow extends Vue {
-  @Prop()
-  private first_day_of_week!: moment.Moment;
+  @Prop() private first_day_of_week!: dayjs.Dayjs;
+  @Prop() private problem_sets!: ProblemSetList;
+  @Prop() private all_assignment_dates!: AssignmentInfo[];
 
-  @Prop()
-  private problem_sets!: ProblemSetList;
-
-  @Prop()
-  private all_assignment_dates!: AssignmentInfo[];
-
-  private today: moment.Moment = moment.default();
+  private today: dayjs.Dayjs = dayjs();
   private drag = false;
 
-  get week(): moment.Moment[] {
+  get week() {
     return [0, 1, 2, 3, 4, 5, 6].map((i: number) =>
-      moment.default(this.first_day_of_week).add(i, "days")
+      dayjs(this.first_day_of_week).add(i, "day")
     );
   }
 
   private get assignment_info(): AssignmentInfo[][] {
-    // console.log("in get assignment_info"); // eslint-disable-line no-console
     return this.week.map((_day) =>
       this.all_assignment_dates.filter((_info: AssignmentInfo) =>
         _info.date.isSame(_day, "day")
@@ -64,7 +58,8 @@ export default class CalendarRow extends Vue {
   }
 
   // returns the class for proper coloring of the calendar
-  private dayClass(day: moment.Moment): string {
+  private dayClass(day: dayjs.Dayjs): string {
+    // console.log(day.format("MM-DD")); // eslint-disable-line no-console
     return this.today.isSame(day, "day")
       ? "today"
       : this.today.isSame(day, "month")
@@ -72,14 +67,14 @@ export default class CalendarRow extends Vue {
       : "extra-month";
   }
 
-  private shortDate(day: moment.Moment): string {
+  private shortDate(day: dayjs.Dayjs): string {
     return day.get("date") === 1
       ? day.format("MMM D")
       : day.get("date").toString();
   }
 
   private assignChange(
-    new_date: moment.Moment,
+    new_date: dayjs.Dayjs,
     evt: ChangeEvent<AssignmentInfo>
   ) {
     // console.log("dropping onto"); // eslint-disable-line no-console
@@ -90,7 +85,7 @@ export default class CalendarRow extends Vue {
       // if the change event is fired but it is removed.
       return;
     } else if (Object.prototype.hasOwnProperty.call(evt, "added")) {
-      const date_dropped_onto = moment.default(new_date); // make a copy of the date object
+      const date_dropped_onto = dayjs(new_date); // make a copy of the date object
       const attrs: { [key: string]: number } = {};
 
       // make a copy of the set
@@ -102,22 +97,16 @@ export default class CalendarRow extends Vue {
 
       if (evt.added.element.date) {
         // it was dragged/changed from another calendar
-        date_dropped_onto.hours(evt.added.element.date.hours());
-        date_dropped_onto.minutes(evt.added.element.date.minutes());
+        date_dropped_onto.hour(evt.added.element.date.hour());
+        date_dropped_onto.minute(evt.added.element.date.minute());
         attrs[evt.added.element.type + "_date"] = date_dropped_onto.unix();
       } else if (evt.added.element.due_date) {
         // it was dragged from the sidebar
 
         attrs.due_date = date_dropped_onto.unix();
-        attrs.reduced_scoring_date = moment.default(date_dropped_onto).unix();
-        attrs.open_date = moment
-          .default(date_dropped_onto)
-          .subtract(7, "days")
-          .unix();
-        attrs.answer_date = moment
-          .default(date_dropped_onto)
-          .add(7, "days")
-          .unix();
+        attrs.reduced_scoring_date = dayjs(date_dropped_onto).unix();
+        attrs.open_date = dayjs(date_dropped_onto).subtract(7, "day").unix();
+        attrs.answer_date = dayjs(date_dropped_onto).add(7, "day").unix();
       }
       if (set) {
         Object.assign(set, attrs);

@@ -36,7 +36,6 @@ import {
   BButtonGroup,
   BButton,
   BButtonToolbar,
-  IconsPlugin,
   BDropdown,
   BDropdownItem,
   BDropdownText,
@@ -90,7 +89,6 @@ Vue.component("BFormFile", BFormFile);
 Vue.component("BSpinner", BSpinner);
 
 Vue.use(ModalPlugin);
-Vue.use(IconsPlugin);
 
 import WeBWorKApp from "@/App.vue";
 

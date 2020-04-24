@@ -5,9 +5,14 @@ The SettingsRow component handles the viewing/editing of an individual setting. 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
+// icons
+import { BIconQuestionCircleFill, BIconX } from "bootstrap-vue";
+Vue.component("BIconQuestionCircleFill", BIconQuestionCircleFill);
+Vue.component("BIconX", BIconX);
+
 import { Setting } from "@/store/models";
 
-import * as moment from "moment";
+import dayjs from "dayjs";
 
 import { permissionLevels, emptySetting } from "@/common";
 
@@ -69,7 +74,7 @@ export default class SettingsRow extends Vue {
   }
 
   private valueAsTime(_value: string) {
-    return moment.default(_value, ["hh:mmA"]).format("HH:mm");
+    return dayjs(_value, "hh:mmA").format("HH:mm");
   }
 
   private updateDuration() {
@@ -79,7 +84,7 @@ export default class SettingsRow extends Vue {
   }
 
   private updateTimeSetting(_value: string) {
-    this.updateSetting(moment.default(_value, ["HH:mm"]).format("hh:mmA"));
+    this.updateSetting(dayjs(_value, "HH:mm").format("hh:mmA"));
   }
 
   private updateSetting(_value: string | number | string[] | boolean) {
@@ -124,15 +129,14 @@ export default class SettingsRow extends Vue {
       <p>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-html="setting.doc" />&nbsp;
-        <b-icon
-          icon="question-circle-fill"
+        <b-icon-question-circle-fill
           size="lg"
           @click="show_help = !show_help"
         />
       </p>
       <div v-if="show_help" class="help-box border p-2 rounded">
         <span class="float-right rounded border p-1" @click="show_help = false">
-          <b-icon icon="x" />
+          <b-icon-x />
         </span>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-html="setting.doc2" />

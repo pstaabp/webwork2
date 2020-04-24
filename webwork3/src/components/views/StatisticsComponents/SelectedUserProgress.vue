@@ -63,7 +63,8 @@ export default class SelectedUserProgress extends Vue {
     );
 
     // an array from 1 to max_num
-    const prob_nums = [...Array(max_num).keys()].map((x) => x + 1);
+
+    const prob_nums = Array.from(Array(max_num).keys()).map((i) => i + 1);
 
     return sets.map((_set: ProblemSet) => {
       // get the problem score from the user with set_id _set.set_id
@@ -103,7 +104,9 @@ export default class SelectedUserProgress extends Vue {
 
   private get fields() {
     // an array from 1 to max_num
-    const prob_nums = [...Array(this.max_problem_num).keys()].map((x) => x + 1);
+    const prob_nums = Array.from(Array(this.max_problem_num).keys()).map(
+      (i) => i + 1
+    );
 
     const problems = prob_nums.map((_num) => ({
       key: "" + _num,

@@ -538,7 +538,7 @@ get '/courses/:course_id/library/pending' => sub {
   #
   ###
 
-  any ['get', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
+  any ['get', 'put', 'post'] => '/renderer/courses/:course_id/problems/:problem_id' => sub {
 
     my $renderParams = {
       displayMode => query_parameters->get('displayMode') || body_parameters->get("displayMode")
@@ -613,39 +613,40 @@ any ['get', 'post'] => '/renderer/courses/:course_id/users/:user_id/sets/:set_id
 
   my $renderParams = {};
 
-  $renderParams->{displayMode} = query_parameters->get('displayMode') || body_parameters->get('displayMode')
-  || vars->{ce}->{pg}{options}{displayMode};
+  $renderParams->{displayMode} = query_parameters->get('displayMode') ||
+                                  body_parameters->get('displayMode') ||
+                                  vars->{ce}->{pg}{options}{displayMode};
 
   ### The user is not a professor
 
   if(session->{permission} < 10){  ### check that the user belongs to the course and set.
 
-  send_error("You are a student and must be assigned to the set " . params->{set_id},404)
-  unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
+    send_error("You are a student and must be assigned to the set " . params->{set_id},404)
+    unless (vars->{db}->existsUser(param('user_id')) &&  vars->{db}->existsUserSet(param('user_id'), params->{set_id}));
 
-  # these should vary depending on number of attempts or due_date or ???
-  $renderParams->{showHints} = 0;
-  $renderParams->{showSolutions} = 0;
-  $renderParams->{showAnswers} = 0;
+    # these should vary depending on number of attempts or due_date or ???
+    $renderParams->{showHints} = 0;
+    $renderParams->{showSolutions} = 0;
+    $renderParams->{showAnswers} = 0;
 
-} else {
-  $renderParams->{showHints} = defined(param('show_hints'))? int(param('show_hints')) : 0;
-  $renderParams->{showSolutions} = defined(param('show_solutions'))? int(param('show_solutions')) : 0;
-  $renderParams->{showAnswers} = defined(param('show_answers'))? int(param('show_answers')) : 0;
-}
+  } else {
+    $renderParams->{showHints} = defined(param('show_hints'))? int(param('show_hints')) : 0;
+    $renderParams->{showSolutions} = defined(param('show_solutions'))? int(param('show_solutions')) : 0;
+    $renderParams->{showAnswers} = defined(param('show_answers'))? int(param('show_answers')) : 0;
+  }
 
-$renderParams->{problem} = vars->{db}->getMergedProblem(params->{user_id},params->{set_id},params->{problem_id});
-$renderParams->{user} = vars->{db}->getUser(params->{user_id});
-$renderParams->{set} = vars->{db}->getMergedSet(params->{user_id},params->{set_id});
+  $renderParams->{problem} = vars->{db}->getMergedProblem(params->{user_id},params->{set_id},params->{problem_id});
+  $renderParams->{user} = vars->{db}->getUser(params->{user_id});
+  $renderParams->{set} = vars->{db}->getMergedSet(params->{user_id},params->{set_id});
 
-my $results = render(vars->{ce},vars->{db},$renderParams);
+  my $results = render(vars->{ce},vars->{db},$renderParams);
 
-## if it was a post request, then we record the the results in the log file and in the past_answer database
-if(request->is_post){
-  $results->{recorded_msg} = record_results($renderParams,$results);
-}
+  ## if it was a post request, then we record the the results in the log file and in the past_answer database
+  if(request->is_post){
+    $results->{recorded_msg} = record_results($renderParams,$results);
+  }
 
-return $results;
+  return $results;
 
 
 };
@@ -661,7 +662,9 @@ return $results;
 
 get '/courses/:course_id/library/fullproblem' => sub {
 
+  debug params;
   my $fullpath = path(vars->{ce}->{courseDirs}{templates} , query_parameters->{source_file});
+  debug $fullpath;
   my $problemSource = read_file_content($fullpath);
   send_error("The problem with path " + params->{path} + " does not exist.",403) unless defined($problemSource);
   return {problem_source=>$problemSource};
@@ -691,14 +694,16 @@ put '/library/fullproblem' => sub {
 ###
 
 
-post '/renderer' => sub {
+any ['post', 'put'] => '/courses/:course_id/renderer' => sub {
 
+  debug dump body_parameters;
   my $source = decode_entities body_parameters->{source} if defined(body_parameters->{source});
 
   my $problem = fake_problem(vars->{db});
   $problem->{problem_seed} = params->{seed} || 1;
   $problem->{problem_id} = 1;
   $problem->{source_file} = params->{source_file} || "this_is_a_fake_path";
+
 
   my $renderParams = {
     displayMode=>"MathJax",

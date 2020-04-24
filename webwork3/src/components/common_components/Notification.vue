@@ -1,6 +1,15 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
+import {
+  BIconChevronDown,
+  BIconChevronRight,
+  BIconXCircleFill,
+} from "bootstrap-vue";
+Vue.component("BIconChevronDown", BIconChevronDown);
+Vue.component("BIconChevronRight", BIconChevronRight);
+Vue.component("BIconXCircleFill", BIconXCircleFill);
+
 import { Message } from "@/store/models";
 
 @Component({
@@ -10,7 +19,7 @@ export default class Notification extends Vue {
   @Prop()
   private message!: Message;
 
-  private show_long = false;
+  private open = false;
 
   private removeMessage() {
     console.log("hi"); // eslint-disable-line no-console
@@ -20,11 +29,9 @@ export default class Notification extends Vue {
 
 <template>
   <b-dd-text>
-    <span style="font-size: 1.5rem;" @click="show_long = !show_long">
-      <b-icon
-        :icon="show_long ? 'chevron-down' : 'chevron-right'"
-        class="border rounded"
-      />
+    <span style="font-size: 1.5rem;" @click="open = !open">
+      <b-icon-chevron-down v-if="open" class="border rounded" />
+      <b-icon-chevron-right v-else class="border rounded" />
     </span>
     <span class="px-3">{{ message.short }}</span>
     <span
@@ -32,9 +39,9 @@ export default class Notification extends Vue {
       style="font-size: 1.5rem;"
       @click="$emit('remove-message', message.id)"
     >
-      <b-icon icon="x-circle-fill" class="border rounded" variant="danger" />
+      <b-icon-x-circle-fill variant="danger" />
     </span>
-    <div v-if="show_long" class="long border rounded p-2">
+    <div v-if="open" class="long border rounded p-2">
       {{ message.long }}
     </div>
   </b-dd-text>

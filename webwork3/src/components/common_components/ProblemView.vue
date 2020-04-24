@@ -3,7 +3,31 @@
 // @ts-nocheck
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
-import { fetchProblem, fetchProblemTags } from "@/store/api";
+// icons
+import {
+  BIconPlus,
+  BIconPencil,
+  BIconArrowClockwise,
+  BIconTrash,
+  BIconCheck,
+  BIconTag,
+  BIconFolder,
+  BIconBullseye,
+  BIconArrowUpDown
+} from "bootstrap-vue";
+Vue.component("BIconPlus",BIconPlus);
+Vue.component("BIconPencil",BIconPencil);
+Vue.component("BIconArrowClockwise",BIconArrowClockwise);
+Vue.component("BIconTrash",BIconTrash);
+Vue.component("BIconCheck",BIconCheck);
+Vue.component("BIconTag",BIconTag);
+Vue.component("BIconFolder",BIconFolder);
+Vue.component("BIconBullseye",BIconBullseye);
+Vue.component("BIconArrowUpDown",BIconArrowUpDown);
+
+
+
+import { renderProblem, fetchProblemTags } from "@/store/api";
 import login_module from "@/store/modules/login";
 
 import { ProblemViewOptions, LIB_PROB, SET_PROB } from "@/common";
@@ -23,16 +47,17 @@ export default class ProblemView extends Vue {
   @Prop() private type!: string;
 
   public mounted() {
-    this.fetch({});
+    this.renderProblem({});
   }
 
   private get tags_loaded() {
     return Object.keys(this.tags).length > 0;
   }
 
-  private async fetch(other_params: StringMap){
-    const problem = await fetchProblem(Object.assign({}, this.problem, other_params));
+  private async renderProblem(other_params: StringMap){
+    const problem = await renderProblem(Object.assign({}, this.problem, other_params));
     this.html = problem.text;
+    // @ts-ignore
     window.MathJax.typeset();
   }
 
@@ -45,13 +70,13 @@ export default class ProblemView extends Vue {
   }
 
   private randomize(): void {
-    this.fetchProblem({ problem_seed: Math.floor(10000 * Math.random()) });
+    this.renderProblem({ problem_seed: Math.floor(10000 * Math.random()) });
   }
 
   @Watch("problem")
   private problemChange(): void {
     console.log("in problem changed"); // eslint-disable-line no-console
-    this.fetch();
+    this.renderProblem();
   }
 
   @Watch("show_tags")
@@ -104,7 +129,7 @@ export default class ProblemView extends Vue {
                 title="add problem"
                 @click="$emit('add-problem', problem)"
               >
-                <b-icon icon="plus" />
+                <b-icon-plus/>
               </b-btn>
               <b-btn
                 v-if="prop.edit"
@@ -112,7 +137,7 @@ export default class ProblemView extends Vue {
                 title="edit"
                 @click="edit"
               >
-                <b-icon icon="pencil" />
+                <b-icon-pencil />
               </b-btn>
               <b-btn
                 v-if="prop.randomize"
@@ -120,14 +145,14 @@ export default class ProblemView extends Vue {
                 title="randomize"
                 @click="randomize"
               >
-                <b-icon icon="arrow-clockwise" />
+                <b-icon-arrow-clockwise/>
               </b-btn>
               <b-btn
                 v-if="prop.delete"
                 variant="outline-dark"
                 title="delete problem"
               >
-                <b-icon icon="trash" />
+                <b-icon-trash />
               </b-btn>
               <b-btn
                 v-if="prop.mark_all"
@@ -135,7 +160,7 @@ export default class ProblemView extends Vue {
                 title="Mark this problem correct for all assigned users."
                 disabled
               >
-                <b-icon icon="check" />
+                <b-icon-check/>
               </b-btn>
               <b-btn
                 v-if="prop.tags"
@@ -143,7 +168,7 @@ export default class ProblemView extends Vue {
                 @click="show_tags = ! show_tags"
                 title="show/hide tags"
               >
-                <b-icon icon="tag" />
+                <b-icon-tag/>
               </b-btn>
               <b-btn
                 v-if="prop.path"
@@ -151,14 +176,14 @@ export default class ProblemView extends Vue {
                 title="show/hide path"
                 @click="show_path = !show_path"
               >
-                <b-icon icon="folder" />
+                <b-icon-folder/>
               </b-btn>
               <b-btn
                 v-if="prop.target_set"
                 variant="outline-dark"
                 title="This problem is in the target set."
               >
-                <b-icon icon="bullseye" />
+                <b-icon-bullseye/>
               </b-btn>
             </b-btn-group>
           </b-btn-toolbar>
@@ -169,7 +194,7 @@ export default class ProblemView extends Vue {
               class="drag-handle border border-dark rounded p-2"
               variant="outline-dark"
             >
-              <b-icon icon="arrow-up-down" />
+              <b-icon-arrow-up-down/>
             </b-btn>
           </b-btn-group>
         </b-col>

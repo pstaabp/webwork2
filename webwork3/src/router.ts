@@ -38,7 +38,7 @@ export default new VueRouter({
               children: [
                 {
                   path: "problem-sets",
-                  name: "sets",
+                  name: "problem-sets",
                   component: ProblemSetsManager,
                 },
                 {
@@ -48,11 +48,15 @@ export default new VueRouter({
                 },
                 { path: "settings", name: "settings", component: Settings },
                 { path: "calendar", name: "calendar", component: Calendar },
-                { path: "set-view", component: ProblemSetView },
+                {
+                  path: "set-view",
+                  name: "set-view",
+                  component: ProblemSetView,
+                },
                 {
                   path: "set-view/:set_id",
                   component: ProblemSetView,
-                  name: "setview",
+                  name: "set-view-set-id",
                 },
                 {
                   path: "library",

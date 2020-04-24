@@ -1,5 +1,6 @@
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-//     .BundleAnalyzerPlugin;
+// eslint-disable-next-line no-undef, @typescript-eslint/naming-convention
+// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+//   .BundleAnalyzerPlugin;
 // eslint-disable-next-line no-undef
 module.exports = {
   devServer: {
@@ -13,9 +14,9 @@ module.exports = {
       poll: true,
     },
   },
-  // configureWebpack: {
-  //     plugins: [new BundleAnalyzerPlugin()]
-  // },
+  configureWebpack: {
+    // plugins: [new BundleAnalyzerPlugin()],
+  },
   publicPath: "/webwork3/",
   transpileDependencies: ["vuex-module-decorators"],
 };

@@ -12,6 +12,7 @@ module.exports = {
     "@vue/prettier/@typescript-eslint",
   ],
   rules: {
+    "max-len": [2, { code: 120, tabWidth: 2, ignoreUrls: true }],
     camelcase: "off",
     "@typescript-eslint/camelcase": ["off", { properties: "never" }],
     "@typescript-eslint/naming-convention": [

@@ -3,10 +3,14 @@
 This is the View that allows the viewing/editing of all problem sets. -->
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 
-import moment from "moment";
+import { BIconCheckCircle, BIconXCircleFill } from "bootstrap-vue";
+Vue.component("BIconXCircleFill", BIconXCircleFill);
+Vue.component("BIconCheckCircle", BIconCheckCircle);
+
+import dayjs from "dayjs";
 
 // set up the store
 import problem_sets_store from "@/store/modules/problem_sets";
@@ -96,8 +100,8 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
 
   private formatDate(_date: number) {
     return this.show_time
-      ? moment.unix(_date).format("MM/DD/YY [at] hh:mm a")
-      : moment.unix(_date).format("MM/DD/YYYY");
+      ? dayjs.unix(_date).format("MM/DD/YY [at] hh:mm a")
+      : dayjs.unix(_date).format("MM/DD/YYYY");
   }
 
   private numUsers(data: StringMap[]) {
@@ -190,30 +194,14 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
           </template>
           <template #cell(visible)="data">
             <div class="mx-auto" width="100%">
-              <b-icon
-                v-if="data.value"
-                icon="check-circle"
-                class="text-success"
-              />
-              <b-icon
-                v-if="!data.value"
-                icon="x-circle-fill"
-                class="text-danger"
-              />
+              <b-icon-check-circle v-if="data.value" class="text-success" />
+              <b-icon-x-circle-fill v-if="!data.value" class="text-danger" />
             </div>
           </template>
           <template #cell(enable_reduced_scoring)="data">
             <div class="mx-auto" width="100%">
-              <b-icon
-                v-if="data.value"
-                icon="check-circle"
-                class="text-success"
-              />
-              <b-icon
-                v-if="!data.value"
-                icon="x-circle-fill"
-                class="text-danger"
-              />
+              <b-icon-check-circle v-if="data.value" class="text-success" />
+              <b-icon-x-circle-fill v-if="!data.value" class="text-danger" />
             </div>
           </template>
           <template #cell(reduced_scoring_date)="data">

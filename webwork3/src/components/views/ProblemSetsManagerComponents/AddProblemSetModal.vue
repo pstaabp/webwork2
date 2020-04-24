@@ -5,7 +5,10 @@ This is modal from the ProblemSetManager to add a new problem set. -->
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
-import * as moment from "moment";
+import dayjs from "dayjs";
+
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 import { newProblemSet } from "@/common";
 
@@ -51,21 +54,16 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     }
 
     // update all of the dates.
-    const time_assign_due_setting = settings_store.settings.get(
-      "pg{timeAssignDue}"
-    );
-    const time_assign_due_string = time_assign_due_setting
-      ? time_assign_due_setting.value
-      : "";
-    const time_assign_due = moment.default(time_assign_due_string, "hh:mma");
-    const open_date = moment
-      .default()
-      .add(7, "days")
+    const setting = settings_store.settings.get("pg{timeAssignDue}");
+    const time_assign_due_string = (setting && (setting.value as string)) || "";
+    const time_assign_due = dayjs(time_assign_due_string, "hh:mma");
+    const open_date = dayjs()
+      .add(7, "day")
       .hour(time_assign_due.hour())
       .minute(time_assign_due.minute());
-    const due_date = moment.default(open_date).add(10, "days");
-    const reduced_scoring_date = moment.default(open_date).add(7, "days");
-    const answer_date = moment.default(due_date).add(7, "days");
+    const due_date = dayjs(open_date).add(10, "day");
+    const reduced_scoring_date = dayjs(open_date).add(7, "day");
+    const answer_date = dayjs(due_date).add(7, "day");
 
     Object.assign(this.problem_set, {
       open_date: open_date.unix(),

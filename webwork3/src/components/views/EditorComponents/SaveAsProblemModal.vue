@@ -43,7 +43,7 @@ export default class SaveAsProblemModal extends Vue {
 </script>
 
 <template>
-  <b-modal id="save-as-problem-modal" size="xl">
+  <b-modal id="save-as-problem-modal" size="xl" lazy>
     <b-row>
       <b-col cols="6">
         <b-form-group label-cols="auto" label="Directory:">

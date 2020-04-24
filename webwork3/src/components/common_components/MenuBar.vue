@@ -1,7 +1,15 @@
 <script lang="ts">
-import { BNavbar } from "bootstrap-vue";
+// import { BNavbar } from "bootstrap-vue";
 
 import { Vue, Component } from "vue-property-decorator";
+
+// load icons:
+import { BIconPerson, BIconGear, BIconXOctagon } from "bootstrap-vue";
+Vue.component("BIconPerson", BIconPerson);
+Vue.component("BIconGear", BIconGear);
+Vue.component("BIconXOctagon", BIconXOctagon);
+
+import ViewIcon from "./ViewIcon.vue";
 
 import Dropdown from "vue-simple-search-dropdown";
 
@@ -23,8 +31,9 @@ interface RouteObj {
 @Component({
   name: "MenuBar",
   components: {
+    ViewIcon,
     NotificationBar,
-    BNavbar,
+    //BNavbar,
     Dropdown,
   },
 })
@@ -104,18 +113,15 @@ export default class MenuBar extends Vue {
     return "Select View";
   }
 
-  private path(route: string): string {
+  private path(route: string) {
     if (route === "set-view" && app_state.selected_set) {
-      return (
-        "/courses/" +
-        login_store.login_info.course_id +
-        "/manager/" +
-        route +
-        "/" +
-        app_state.selected_set
-      );
+      return {
+        name: "set-view",
+        params: { set_id: app_state.selected_set },
+      };
+    } else {
+      return { name: route };
     }
-    return "/courses/" + login_store.login_info.course_id + "/manager/" + route;
   }
 
   private setSelectedSet(_set: { name: string; id: string }) {
@@ -165,15 +171,21 @@ export default class MenuBar extends Vue {
       <b-collapse id="nav_collapse" is-nav>
         <b-navbar-nav id="view-name-container">
           <b-nav-text class="mr-2">
-            <b-icon :icon="current_icon" variant="light" font-scale="2" />
+            <view-icon
+              v-if="current_icon !== ''"
+              :icon="current_icon"
+              variant="light"
+              scale="1.5"
+            />
+            <!-- <b-icon :icon="current_icon" variant="light" font-scale="2" /> -->
           </b-nav-text>
-          <b-navbar-brand id="view-name">
+          <b-navbar-brand id="view-name" class="ml-2">
             {{ getName(current_view, views) }}
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
             <b-dd-item v-for="view in views" :key="view.route">
               <router-link class="view-link" :to="path(view.route)">
-                <b-icon :icon="view.icon" />
+                <view-icon :icon="view.icon" />
                 <span class="pl-2">{{ view.name }}</span>
               </router-link>
             </b-dd-item>
@@ -209,14 +221,14 @@ export default class MenuBar extends Vue {
           <b-nav-item-dropdown right>
             <!--Using button-content slot -->
             <template #button-content>
-              <b-icon icon="person" />
+              <b-icon-person />
             </template>
             <b-dd-text>{{ fullname }}</b-dd-text>
             <b-dd-item v-b-modal.settings href="#">
-              <b-icon icon="gear" /> Settings
+              <b-icon-gear /> Settings
             </b-dd-item>
             <b-dd-item @click="$emit('logout')">
-              <b-icon icon="x-octagon" /> Logout
+              <b-icon-x-octagon /> Logout
             </b-dd-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

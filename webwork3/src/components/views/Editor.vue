@@ -3,18 +3,17 @@
 This is the main component for editing problems. -->
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 import axios from "axios";
-import * as CodeMirror from "codemirror";
-import "codemirror/mode/perl/perl.js";
-import "codemirror/lib/codemirror.css";
+// import * as CodeMirror from "codemirror";
+// import "codemirror/mode/perl/perl.js";
+// import "codemirror/lib/codemirror.css";
 
 import SaveAsProblemModal from "./EditorComponents/SaveAsProblemModal.vue";
 
 import { Problem } from "@/store/models";
 
-import { renderProblem } from "@/store/api";
-import Common from "@/common";
+import { renderFromSource, fetchProblemSource } from "@/store/api";
 
 import problem_sets_store from "@/store/modules/problem_sets";
 import login_store from "@/store/modules/login";
@@ -32,7 +31,7 @@ export default class ProblemEditor extends Vue {
   private problem_source = "var x = 5;";
   private problem_path = "";
   private problem_html = "";
-  private cm!: CodeMirror.Editor;
+  private cm!: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   private get set_names() {
     return [
@@ -57,8 +56,9 @@ export default class ProblemEditor extends Vue {
       : [];
   }
 
-  private get not_editable() {
-    return /^Library/.test(this.problem_path);
+  private get editable() {
+    console.log(/^Library/.test(this.problem_path)); // eslint-disable-line no-console
+    return !/^Library/.test(this.problem_path);
   }
 
   private updateSource() {
@@ -81,22 +81,85 @@ export default class ProblemEditor extends Vue {
     }
   }
 
+  // private async fetchProblem(props: StringMap) {
+  //   const prob = await fetchProblemSource(props);
+  //   this.cm.setValue(prob.text);
+  // }
+
   private async renderProblem() {
-    const prob = Common.newProblem();
-    prob.problem_source = this.problem_source;
-    const problem = await renderProblem(prob);
-    this.problem_html = problem.text;
+    const results = await renderFromSource(this.cm.getValue());
+    console.log(results); // eslint-disable-line no-console
+    this.problem_html = results.text;
+
+    setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore eslint-disable-line
+      MathJax.typeset(); // eslint-disable-line no-undef
+    }, 500);
   }
 
-  private mounted() {
-    const config: CodeMirror.EditorConfiguration = {
+  private async fetchProblemSource(problem: Problem) {
+    const prob = await fetchProblemSource(problem.source_file);
+    this.cm.setValue(prob.problem_source as string);
+  }
+
+  private startUpCodeMirror() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    const config: window.CodeMirror.EditorConfiguration = {
       tabSize: 2,
       lineNumbers: true,
       mode: "perl",
     };
     const text_area = document.getElementById("source") as HTMLTextAreaElement;
-    this.cm = CodeMirror.fromTextArea(text_area, config);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    this.cm = window.CodeMirror.fromTextArea(text_area, config);
     this.cm.setValue(this.problem_source);
+
+    console.log(this.cm); // eslint-disable-line no-console
+  }
+
+  private mounted() {
+
+    // this dynamically loads in CodeMirror, which is a large library.
+    // TODO:  look into CM 6, which seems to be smaller
+    // TODO: also look into lazy-loading of modules via webpack. 
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    if (!window.CodeMirror) {
+      const script_tag = document.createElement("script");
+      script_tag.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.53.2/codemirror.min.js";
+      document.getElementsByTagName("head")[0].appendChild(script_tag);
+
+      const link_tag = document.createElement("link");
+      link_tag.rel = "stylesheet";
+      link_tag.href =
+        "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.53.2/codemirror.min.css";
+      document.getElementsByTagName("head")[0].appendChild(link_tag);
+
+      const perl_script_tag = document.createElement("script");
+      perl_script_tag.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.53.2/mode/perl/perl.min.js";
+      document.getElementsByTagName("head")[0].appendChild(perl_script_tag);
+      setTimeout(() => this.startUpCodeMirror(), 500);
+    } else {
+      this.startUpCodeMirror();
+    }
+
+  }
+
+  @Watch("$route.path", { immediate: true })
+  private routeChanged() {
+    if (this.$route.name === "editor") {
+      if (this.$route.params.problem) {
+        const problem = (this.$route.params.problem as unknown) as Problem;
+        this.fetchProblemSource(problem);
+        this.problem_path = problem.source_file;
+      }
+    }
   }
 
   private updated() {
@@ -151,7 +214,7 @@ export default class ProblemEditor extends Vue {
       <b-row>
         <b-tabs content-class="mt-3">
           <b-tab title="Problem Source" active>
-            <div v-if="not_editable">
+            <div v-if="!editable" class="text-danger">
               This problem is from the library and is read-only. Please select
               "Save As..." to create a local, editable copy.
             </div>

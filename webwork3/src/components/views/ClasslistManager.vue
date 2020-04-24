@@ -5,6 +5,9 @@ View for the classlist manager, which handles all users in a course -->
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 
+import { BIconX } from "bootstrap-vue";
+Vue.component("BIconX", BIconX);
+
 // components
 import ImportStudentsFile from "./ClasslistComponents/ImportStudentsFile.vue";
 import ImportStudentsManually from "./ClasslistComponents/ImportStudentsManually.vue";
@@ -80,7 +83,7 @@ export default class Manager extends Vue {
             <b-input-group size="sm">
               <b-input v-model="filter_string" placeholder="Filter" />
               <template #append>
-                <b-btn @click="filter_string = ''"><b-icon icon="x" /></b-btn>
+                <b-btn @click="filter_string = ''"><b-icon-x /></b-btn>
               </template>
             </b-input-group>
           </b-btn-toolbar>
