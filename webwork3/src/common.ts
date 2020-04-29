@@ -12,6 +12,7 @@ import {
   Problem,
   UserProblem,
   UserSet,
+  RenderedProblem,
 } from "@/store/models";
 
 import { isString, isNumber, isInteger } from "lodash-es";
@@ -201,6 +202,7 @@ export function newUserSet(): UserSet {
     restrict_prob_progression: false,
     email_instructor: false,
     lis_source_did: "",
+    scores: [],
   };
 }
 
@@ -226,6 +228,24 @@ export function newUserProblem(): UserProblem {
     counts_parent_grade: 0,
     sub_status: 0,
     flags: "",
+  };
+}
+
+export function newRenderedProblem(): RenderedProblem {
+  return {
+    WARNINGS: "",
+    answers: {},
+    debug_messages: [],
+    errors: "",
+    flags: {
+      ANSWER_ENTRY_ORDER: [],
+    },
+    header_text: "",
+    internal_debug_messages: [],
+    problem_result: {},
+    problem_state: {},
+    text: "",
+    warning_messages: [],
   };
 }
 
@@ -396,10 +416,6 @@ export function round2(value: number | string) {
   return Math.round(100 * value) / 100;
 }
 
-export interface StringMap {
-  [key: string]: string | number;
-}
-
 export function permissionLevels(): { [key: string]: string } {
   return {
     "20": "admin",
@@ -433,21 +449,6 @@ export default class Common {
   public static dateTypes(): string[] {
     return ["due_date", "reduced_scoring_date", "due_date", "answer_date"];
   }
-  //
-  // public static formatDateTime(date_in_unix: number) {
-  //   return moment.unix(date_in_unix).format("MM/DD/YYYY [at] hh:mma");
-  // }
-  // public static formatDateForBrowser(date_in_unix: number) {
-  //   return moment.unix(date_in_unix).format("YYYY-MM-DD");
-  // }
-  //
-  // public static formatDatetimeForBrowser(date_in_unix: number) {
-  //   return moment.unix(date_in_unix).format("YYYY-MM-DD[T]hh:mma");
-  // }
-  //
-  // public static formatTimeForBrowser(date_in_unix: number) {
-  //   return moment.unix(date_in_unix).format("HH:mm");
-  // }
 
   public static newProblem(): Problem {
     return {

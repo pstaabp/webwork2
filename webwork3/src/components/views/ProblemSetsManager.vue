@@ -16,13 +16,12 @@ import dayjs from "dayjs";
 import problem_sets_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
 
-import { ProblemSet } from "@/store/models";
+import { ProblemSet, StringMap } from "@/store/models";
 
 import AddProblemSetModal from "./ProblemSetsManagerComponents/AddProblemSetModal.vue";
 import EditProblemSetsModal from "./ProblemSetsManagerComponents/EditProblemSetsModal.vue";
 
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
-import { StringMap } from "@/common";
 
 @Component({
   name: "ProblemSetsManager",

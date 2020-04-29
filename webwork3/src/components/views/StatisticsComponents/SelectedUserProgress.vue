@@ -1,14 +1,14 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { UserSetScore, ProblemSet, Problem } from "@/store/models";
+import { UserSetScore, ProblemSet, Problem, StringMap } from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
 import problem_set_store from "@/store/modules/problem_sets";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { round2, StringMap } from "@/common";
+import { round2 } from "@/common";
 
 interface UserProblemStatus {
   problem_id: number;
@@ -82,7 +82,9 @@ export default class SelectedUserProgress extends Vue {
 
       const attrs = {
         set_id: _set.set_id,
-        score: scores.map((_sc) => _sc.status).reduce((sum, x) => sum + x, 0),
+        score: scores
+          .map((_sc: UserProblemStatus) => _sc.status)
+          .reduce((sum: number, x: number) => sum + x, 0),
         max: _set.problems.reduce(
           (sum: number, _prob: Problem) => sum + _prob.value,
           0

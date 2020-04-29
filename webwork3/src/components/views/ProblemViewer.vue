@@ -13,7 +13,7 @@ import login_store from "@/store/modules/login";
 import ProblemView from "@/components/common_components/ProblemView.vue";
 
 import { fetchUserSets, fetchUserProblem } from "@/store/api";
-import { UserProblem, UserSet } from "@/store/models";
+import { UserProblem, UserSet, ScoreType } from "@/store/models";
 
 import {
   newUserProblem,
@@ -60,7 +60,8 @@ export default class ProblemViewer extends Vue {
   get total_score() {
     return this.user_set && this.user_set.scores
       ? this.user_set.scores.reduce(
-          (total, score) => total + parseFloat("" + score.status),
+          (total: number, score: ScoreType) =>
+            total + parseFloat("" + score.status),
           0
         )
       : 0;

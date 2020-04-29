@@ -1,5 +1,9 @@
 // This contains all of the interfaces for models throughout the app.
 
+export interface StringMap {
+  [key: string]: string | number;
+}
+
 export interface LoginInfo {
   user_id: string;
   course_id: string;
@@ -11,13 +15,6 @@ export interface UserPassword {
   user_id: string;
   password: string;
   course_id: string;
-}
-
-export interface RenderedProblem {
-  source: string;
-  source_file: string;
-  html: string;
-  text: string;
 }
 
 export interface Problem {
@@ -96,6 +93,10 @@ export interface ProblemSet {
   [key: string]: string | number | boolean | Problem[] | string[];
 }
 
+export interface ScoreType {
+  status: number;
+}
+
 export interface UserSet {
   set_id: string;
   set_header: string;
@@ -129,7 +130,8 @@ export interface UserSet {
   restrict_prob_progression: boolean;
   email_instructor: boolean;
   lis_source_did: string;
-  [key: string]: string | number | boolean | Problem[] | string[];
+  scores: ScoreType[];
+  [key: string]: string | number | boolean | Problem[] | string[] | ScoreType[];
 }
 
 export type ProblemSetList = Map<string, ProblemSet>;
@@ -180,6 +182,25 @@ export interface FileInfo {
   type: string;
 }
 
+export interface FlagType {
+  ANSWER_ENTRY_ORDER: string[];
+  [key: string]: string | string[];
+}
+
+export interface RenderedProblem {
+  WARNINGS: string;
+  answers: StringMap;
+  debug_messages: string[];
+  errors: string;
+  flags: FlagType;
+  header_text: string;
+  internal_debug_messages: string[];
+  problem_result: StringMap;
+  problem_state: StringMap;
+  text: string;
+  warning_messages: string[];
+}
+
 export interface UserSetScore {
   user_id: string;
   set_id: string;
@@ -187,4 +208,30 @@ export interface UserSetScore {
     problem_id: number;
     status: number;
   }[];
+}
+
+export interface AnswerType {
+  ans_label: string;
+  ans_message: string;
+  ans_name: string;
+  correct_ans: string;
+  correct_ans_latex_string: string;
+  correct_value: string;
+  done: boolean;
+  error_flag: string;
+  error_message: string;
+  ignoreInfinity: boolean;
+  ignoreStrings: boolean;
+  original_student_ans: string;
+  preview_latex_string: string;
+  preview_text_string: string;
+  score: number;
+  showDomainErrors: boolean;
+  showEqualErrors: boolean;
+  showTypeWarnings: boolean;
+  showUnionReduceWarnings: boolean;
+  student_ans: string;
+  studentsMustReduceUnions: boolean;
+  type: string;
+  upToConstant: boolean;
 }

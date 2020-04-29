@@ -2,8 +2,6 @@ import axios from "axios";
 
 import login_store from "@/store/modules/login";
 
-import { StringMap } from "@/common";
-
 import {
   RenderedProblem,
   Problem,
@@ -11,6 +9,7 @@ import {
   FileInfo,
   UserSetScore,
   UserSet,
+  StringMap,
 } from "@/store/models";
 
 // This renders a problem given by either a Problem or from a source.

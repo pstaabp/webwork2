@@ -5,14 +5,14 @@ This is a tab of the Statistics view for scoring of all users of a selected set.
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { UserSetScore, User, Problem } from "@/store/models";
+import { UserSetScore, User, Problem, StringMap } from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
 import problem_set_store from "@/store/modules/problem_sets";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { round2, StringMap } from "@/common";
+import { round2 } from "@/common";
 
 interface UserProblemStatus {
   problem_id: number;

@@ -31,21 +31,40 @@ import {
   submitUserProblem,
 } from "@/store/api";
 
-import { ProblemViewOptions, LIB_PROB, SET_PROB, STUDENT_PROB } from "@/common";
+import {
+  ProblemViewOptions,
+  LIB_PROB,
+  SET_PROB,
+  STUDENT_PROB,
+  newRenderedProblem,
+} from "@/common";
 
-import { Problem } from "@/store/models";
+import {
+  Problem,
+  RenderedProblem,
+  StringMap,
+  AnswerType,
+} from "@/store/models";
+
+interface ADHash {
+  [key: string]: AnswerDecoration;
+}
+
+interface AnswerHash {
+  [key: string]: AnswerType;
+}
 
 @Component({
   name: "ProblemView", // name of the view
   components: { AnswerDecoration },
 })
 export default class ProblemView extends Vue {
-  private rendered_problem = {};
+  private rendered_problem: RenderedProblem = newRenderedProblem();
   private show_tags = false;
   private show_path = false;
-  private tags = {};
-  private submitted = {};
-  private answer_decorations = {};
+  private tags: StringMap = {};
+  private submitted: StringMap = {};
+  private answer_decorations: ADHash = {};
 
   @Prop() private problem!: Problem;
   @Prop() private type!: string;
@@ -83,7 +102,7 @@ export default class ProblemView extends Vue {
       case "student":
         return STUDENT_PROB;
     }
-    return {};
+    return STUDENT_PROB;
   }
 
   private addProblem(evt: Event): void {
@@ -91,12 +110,12 @@ export default class ProblemView extends Vue {
   }
 
   private randomize(): void {
-    this.renderProblem({ problem_seed: Math.floor(10000 * Math.random()) });
+    this.renderProblem({ problem_seed: Math.ceil(10000 * Math.random()) });
   }
 
   @Watch("problem")
   private problemChange(): void {
-    this.renderProblem();
+    this.renderProblem({});
   }
 
   @Watch("show_tags")
@@ -108,14 +127,20 @@ export default class ProblemView extends Vue {
   }
 
   private edit() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
     this.$router.push({ name: "editor", params: { problem: this.problem } });
   }
 
   private parseAnswers() {
-    return this.rendered_problem.flags.ANSWER_ENTRY_ORDER.reduce((obj, ans) => {
-      obj[ans] = document.getElementById(ans).value;
-      return obj;
-    }, {}); // eslint-disable-line no-console
+    return this.rendered_problem.flags.ANSWER_ENTRY_ORDER.reduce(
+      (obj: StringMap, ans: string) => {
+        const input = document.getElementById(ans) as HTMLInputElement;
+        obj[ans] = input ? input.value : "";
+        return obj;
+      },
+      {}
+    ); // eslint-disable-line no-console
   }
 
   private buildAnswerDecorations() {
@@ -123,23 +148,27 @@ export default class ProblemView extends Vue {
       this.rendered_problem &&
       this.rendered_problem.flags.ANSWER_ENTRY_ORDER
     ) {
-      this.rendered_problem.flags.ANSWER_ENTRY_ORDER.forEach((_ans) => {
-        const input = document.getElementById(_ans);
-        const wrapper = document.createElement("span");
-        this.answer_decorations[_ans] = new AnswerDecoration({
-          propsData: { type: "" },
-        });
-        this.answer_decorations[_ans].$mount();
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
-        wrapper.appendChild(this.answer_decorations[_ans].$el);
+      this.rendered_problem.flags.ANSWER_ENTRY_ORDER.forEach((_ans: string) => {
+        const input = document.getElementById(_ans) as HTMLInputElement;
+        if (input) {
+          const wrapper = document.createElement("span");
+          this.answer_decorations[_ans] = new AnswerDecoration({
+            propsData: { type: "" },
+          });
+          this.answer_decorations[_ans].$mount();
+          if (input.parentNode) {
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            wrapper.appendChild(this.answer_decorations[_ans].$el);
+          }
+        }
       });
     }
   }
 
   private updateAnswerDecorations() {
-    const answers = this.submitted.answers;
-    Object.keys(answers).forEach((_ans) => {
+    const answers = (this.submitted.answers as unknown) as AnswerHash;
+    Object.keys(answers).forEach((_ans: string) => {
       this.answer_decorations[_ans].$props.type =
         answers[_ans].score === 1 ? "correct" : "incorrect";
     });
@@ -148,12 +177,12 @@ export default class ProblemView extends Vue {
   private async check() {
     this.submitted = await submitUserProblem(
       Object.assign(
-        {
+        ({
           answers: this.parseAnswers(),
           checkAnswers: true,
           submitAnswers: false,
-        },
-        this.problem
+        } as unknown) as StringMap,
+        (this.problem as unknown) as StringMap
       )
     );
     this.updateAnswerDecorations();

@@ -11,9 +11,7 @@ import login_store from "@/store/modules/login";
 import users_store from "@/store/modules/users";
 import problem_sets_store from "@/store/modules/problem_sets";
 
-import { User, UserSetScore } from "@/store/models";
-
-import { StringMap } from "@/common";
+import { User, UserSetScore, StringMap } from "@/store/models";
 
 // Defintion for problem sets and the total value of the set
 interface SetValue {

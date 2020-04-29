@@ -10,9 +10,9 @@ import { isEqual } from "lodash-es";
 
 import { diff } from "deep-object-diff";
 
-import { parseProblemSet, formatDateTime, StringMap } from "@/common";
+import { parseProblemSet, formatDateTime } from "@/common";
 
-import { ProblemSet, ProblemSetList } from "@/store/models";
+import { ProblemSet, ProblemSetList, StringMap } from "@/store/models";
 import store from "@/store";
 
 import login_module from "./login";
