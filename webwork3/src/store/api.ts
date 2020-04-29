@@ -7,8 +7,10 @@ import { StringMap } from "@/common";
 import {
   RenderedProblem,
   Problem,
+  UserProblem,
   FileInfo,
   UserSetScore,
+  UserSet,
 } from "@/store/models";
 
 // This renders a problem given by either a Problem or from a source.
@@ -58,6 +60,59 @@ export async function fetchProblemTags(path: string) {
   return response.data as StringMap;
 }
 
+export async function fetchUserProblem(props: StringMap) {
+  const response = await axios.get(
+    login_store.api_header +
+      "/users/" +
+      props.user_id +
+      "/sets/" +
+      props.set_id +
+      "/problems/" +
+      props.problem_id
+  );
+  return response.data as UserProblem;
+}
+
+export async function fetchUserSet(props: StringMap) {
+  const response = await axios.get(
+    login_store.api_header + "/users/" + props.user_id + "/sets/" + props.set_id
+  );
+  return response.data as UserSet;
+}
+
+export async function fetchUserSets(props: StringMap) {
+  const response = await axios.get(
+    login_store.api_header + "/users/" + props.user_id + "/sets"
+  );
+  return response.data as UserSet[];
+}
+//
+// export async function fetchUserSetScores(props: StringMap) {
+//   const response = await axios.get(
+//     login_store.api_header +
+//       "/users/" +
+//       props.user_id +
+//       "/sets/" +
+//       props.set_id +
+//       "/scores"
+//   );
+//   return response.data as StringMap[];
+// }
+
+export async function submitUserProblem(props: StringMap) {
+  const response = await axios.post(
+    login_store.api_header +
+      "/renderer/users/" +
+      props.user_id +
+      "/sets/" +
+      props.set_id +
+      "/problems/" +
+      props.problem_id,
+    props
+  );
+  return response.data as StringMap;
+}
+
 export async function getLocalDirectory(path: string) {
   const response = await axios.get(
     login_store.api_header + "/local" + (path ? "/" + path : "")
@@ -65,7 +120,7 @@ export async function getLocalDirectory(path: string) {
   return response.data as FileInfo[];
 }
 
-export async function fetchUserSetScores() {
+export async function fetchAllUserSetScores() {
   const response = await axios.get(login_store.api_header + "/usersetscores");
   return response.data as UserSetScore[];
 }

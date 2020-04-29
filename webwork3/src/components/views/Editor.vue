@@ -121,10 +121,9 @@ export default class ProblemEditor extends Vue {
   }
 
   private mounted() {
-
     // this dynamically loads in CodeMirror, which is a large library.
     // TODO:  look into CM 6, which seems to be smaller
-    // TODO: also look into lazy-loading of modules via webpack. 
+    // TODO: also look into lazy-loading of modules via webpack.
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
@@ -148,7 +147,6 @@ export default class ProblemEditor extends Vue {
     } else {
       this.startUpCodeMirror();
     }
-
   }
 
   @Watch("$route.path", { immediate: true })

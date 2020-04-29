@@ -138,9 +138,9 @@ get '/courses/:course_id/info' => sub {
 sub setCourseEnvironment {
 	my ($course_id) = @_;
 
-	#debug "in setCourseEnvironment";
+	# debug "in setCourseEnvironment";
 	# debug session;
-	# debug $course_id;
+	# # debug $course_id;
 	session course_id => $course_id if defined($course_id);
 
 	send_error("The course has not been defined.  You may need to authenticate again",401)
@@ -173,6 +173,10 @@ sub setCourseEnvironment {
 		 }
 	 }
 
+	 unless(session 'permission') {
+	 	session permission => vars->{db}->getPermissionLevel(session 'logged_in_user')->{permission}
+			if session 'logged_in_user';
+	 }
 	 setCookie(session) if (session 'logged_in');
 }
 

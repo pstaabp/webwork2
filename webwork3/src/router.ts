@@ -15,6 +15,7 @@ import Editor from "./components/views/Editor.vue";
 import Statistics from "./components/views/Statistics.vue";
 import PageNotFound from "./components/PageNotFound.vue";
 import Empty from "./components/Empty.vue";
+import ProblemViewer from "./components/views/ProblemViewer.vue";
 
 Vue.use(VueRouter);
 
@@ -40,6 +41,11 @@ export default new VueRouter({
                   path: "problem-sets",
                   name: "problem-sets",
                   component: ProblemSetsManager,
+                },
+                {
+                  path: "viewer",
+                  name: "viewer",
+                  component: ProblemViewer,
                 },
                 {
                   path: "classlist",

@@ -375,6 +375,31 @@ put '/courses/:course_id/sets/:set_id/users' => require_role professor => sub {
 
 };
 
+
+#####
+#
+#  GET /courses/:course_id/users/:user_id/sets
+#
+#  This route returns the UserSets (MergedSets) for a given user
+#  and includes the current score for each problem.
+#
+#######
+
+get '/courses/:course_id/users/:user_id/sets' => sub {
+  my $user_id = route_parameters->get('user_id');
+  my @set_ids = vars->{db}->listUserSets($user_id);
+
+  my @user_sets = map {
+    my $set = convertObjectToHash(vars->{db}->getMergedSet($user_id,$_));
+    my @problems = vars->{db}->getAllMergedUserProblems($user_id,$_);
+    my @user_scores = map { {problem_id => $_->{problem_id}, status=> $_->{status}}} @problems;
+    $set->{scores} = \@user_scores;
+    $set;
+  } @set_ids;
+  return \@user_sets;
+};
+
+
 #######
 #
 # GET  /courses/:course_id/userproblems
@@ -434,11 +459,12 @@ get '/courses/:course_id/usersetscores' => sub {
 
 get '/courses/:course_id/users/:user_id/sets/:set_id' => require_role professor => sub {
 
-    my $userSet = convertObjectToHash(vars->{db}->getUserSet(param('user_id'),param('set_id')),\@boolean_set_props);
-    $userSet->{_id} = params->{set_id}; # tells Backbone on the client that the data has been sent from the server.
+    my $user_id = route_parameters->get('user_id');
+    my $set_id = route_parameters->get('set_id');
 
-    return $userSet;
+    debug "$user_id:$set_id";
 
+    return convertObjectToHash(vars->{db}->getMergedSet($user_id,$set_id),\@boolean_set_props);
 };
 
 ##

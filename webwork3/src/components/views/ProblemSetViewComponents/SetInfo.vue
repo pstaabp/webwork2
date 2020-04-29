@@ -15,12 +15,12 @@ import {
   validReducedScoring,
   validDueDate,
   validAnswerDate,
+  hasReducedScoring,
 } from "@/common";
 
 // set up the store
 import problem_sets_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
-import settings_store from "@/store/modules/settings";
 
 @Component({
   name: "SetInfo",
@@ -61,14 +61,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
   }
 
   get reduced_scoring(): boolean {
-    const setting = settings_store.settings.get(
-      "pg{ansEvalDefaults}{enableReducedScoring}"
-    );
-    if (setting) {
-      return ((setting.value as unknown) as boolean) || false;
-    } else {
-      return false;
-    }
+    return hasReducedScoring();
   }
 
   private formatDateAndTime(value: number) {

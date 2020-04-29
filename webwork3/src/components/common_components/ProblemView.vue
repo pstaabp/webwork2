@@ -1,6 +1,4 @@
 <script lang="ts">
-/* eslint-disable */
-// @ts-nocheck
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
 // icons
@@ -13,38 +11,45 @@ import {
   BIconTag,
   BIconFolder,
   BIconBullseye,
-  BIconArrowUpDown
+  BIconArrowUpDown,
 } from "bootstrap-vue";
-Vue.component("BIconPlus",BIconPlus);
-Vue.component("BIconPencil",BIconPencil);
-Vue.component("BIconArrowClockwise",BIconArrowClockwise);
-Vue.component("BIconTrash",BIconTrash);
-Vue.component("BIconCheck",BIconCheck);
-Vue.component("BIconTag",BIconTag);
-Vue.component("BIconFolder",BIconFolder);
-Vue.component("BIconBullseye",BIconBullseye);
-Vue.component("BIconArrowUpDown",BIconArrowUpDown);
+Vue.component("BIconPlus", BIconPlus);
+Vue.component("BIconPencil", BIconPencil);
+Vue.component("BIconArrowClockwise", BIconArrowClockwise);
+Vue.component("BIconTrash", BIconTrash);
+Vue.component("BIconCheck", BIconCheck);
+Vue.component("BIconTag", BIconTag);
+Vue.component("BIconFolder", BIconFolder);
+Vue.component("BIconBullseye", BIconBullseye);
+Vue.component("BIconArrowUpDown", BIconArrowUpDown);
 
+import AnswerDecoration from "./AnswerDecoration.vue";
 
+import {
+  renderProblem,
+  fetchProblemTags,
+  submitUserProblem,
+} from "@/store/api";
 
-import { renderProblem, fetchProblemTags } from "@/store/api";
-import login_module from "@/store/modules/login";
-
-import { ProblemViewOptions, LIB_PROB, SET_PROB } from "@/common";
+import { ProblemViewOptions, LIB_PROB, SET_PROB, STUDENT_PROB } from "@/common";
 
 import { Problem } from "@/store/models";
 
 @Component({
   name: "ProblemView", // name of the view
+  components: { AnswerDecoration },
 })
 export default class ProblemView extends Vue {
-  private html = "";
+  private rendered_problem = {};
   private show_tags = false;
   private show_path = false;
   private tags = {};
+  private submitted = {};
+  private answer_decorations = {};
 
   @Prop() private problem!: Problem;
   @Prop() private type!: string;
+  @Prop() private user_id!: string;
 
   public mounted() {
     this.renderProblem({});
@@ -54,15 +59,31 @@ export default class ProblemView extends Vue {
     return Object.keys(this.tags).length > 0;
   }
 
-  private async renderProblem(other_params: StringMap){
-    const problem = await renderProblem(Object.assign({}, this.problem, other_params));
-    this.html = problem.text;
-    // @ts-ignore
-    window.MathJax.typeset();
+  private async renderProblem(other_params: StringMap) {
+    console.log(this.problem); // eslint-disable-line no-console
+    const problem = await renderProblem(
+      Object.assign({}, this.problem, other_params)
+    );
+    this.rendered_problem = problem;
+    setTimeout(() => {
+      // pause a bit before typesetting.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      window.MathJax.typeset();
+      this.buildAnswerDecorations();
+    }, 100);
   }
 
   get prop(): ProblemViewOptions {
-    return this.type === "library" ? LIB_PROB : SET_PROB;
+    switch (this.type) {
+      case "library":
+        return LIB_PROB;
+      case "set":
+        return SET_PROB;
+      case "student":
+        return STUDENT_PROB;
+    }
+    return {};
   }
 
   private addProblem(evt: Event): void {
@@ -75,22 +96,74 @@ export default class ProblemView extends Vue {
 
   @Watch("problem")
   private problemChange(): void {
-    console.log("in problem changed"); // eslint-disable-line no-console
     this.renderProblem();
   }
 
   @Watch("show_tags")
   private async showTagsChanged() {
-    if (!this.tags_loaded) { // the tags object is empty
+    if (!this.tags_loaded) {
+      // the tags object is empty
       this.tags = await fetchProblemTags(this.problem.source_file);
     }
   }
 
-  private edit(){
-    console.log("in edit"); // eslint-disable-line no-console
-    this.$router.push({name: "editor", params: {problem: this.problem}});
+  private edit() {
+    this.$router.push({ name: "editor", params: { problem: this.problem } });
   }
 
+  private parseAnswers() {
+    return this.rendered_problem.flags.ANSWER_ENTRY_ORDER.reduce((obj, ans) => {
+      obj[ans] = document.getElementById(ans).value;
+      return obj;
+    }, {}); // eslint-disable-line no-console
+  }
+
+  private buildAnswerDecorations() {
+    if (
+      this.rendered_problem &&
+      this.rendered_problem.flags.ANSWER_ENTRY_ORDER
+    ) {
+      this.rendered_problem.flags.ANSWER_ENTRY_ORDER.forEach((_ans) => {
+        const input = document.getElementById(_ans);
+        const wrapper = document.createElement("span");
+        this.answer_decorations[_ans] = new AnswerDecoration({
+          propsData: { type: "" },
+        });
+        this.answer_decorations[_ans].$mount();
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        wrapper.appendChild(this.answer_decorations[_ans].$el);
+      });
+    }
+  }
+
+  private updateAnswerDecorations() {
+    const answers = this.submitted.answers;
+    Object.keys(answers).forEach((_ans) => {
+      this.answer_decorations[_ans].$props.type =
+        answers[_ans].score === 1 ? "correct" : "incorrect";
+    });
+  }
+
+  private async check() {
+    this.submitted = await submitUserProblem(
+      Object.assign(
+        {
+          answers: this.parseAnswers(),
+          checkAnswers: true,
+          submitAnswers: false,
+        },
+        this.problem
+      )
+    );
+    this.updateAnswerDecorations();
+    console.log(this.submitted); // eslint-disable-line no-console
+  }
+
+  private preview() {
+    const ans = this.parseAnswers();
+    console.log(ans); // eslint-disable-line no-console
+  }
 }
 </script>
 
@@ -129,7 +202,7 @@ export default class ProblemView extends Vue {
                 title="add problem"
                 @click="$emit('add-problem', problem)"
               >
-                <b-icon-plus/>
+                <b-icon-plus />
               </b-btn>
               <b-btn
                 v-if="prop.edit"
@@ -145,7 +218,7 @@ export default class ProblemView extends Vue {
                 title="randomize"
                 @click="randomize"
               >
-                <b-icon-arrow-clockwise/>
+                <b-icon-arrow-clockwise />
               </b-btn>
               <b-btn
                 v-if="prop.delete"
@@ -160,15 +233,15 @@ export default class ProblemView extends Vue {
                 title="Mark this problem correct for all assigned users."
                 disabled
               >
-                <b-icon-check/>
+                <b-icon-check />
               </b-btn>
               <b-btn
                 v-if="prop.tags"
-                :variant="show_tags? 'success' : 'outline-dark'"
-                @click="show_tags = ! show_tags"
+                :variant="show_tags ? 'success' : 'outline-dark'"
                 title="show/hide tags"
+                @click="show_tags = !show_tags"
               >
-                <b-icon-tag/>
+                <b-icon-tag />
               </b-btn>
               <b-btn
                 v-if="prop.path"
@@ -176,14 +249,14 @@ export default class ProblemView extends Vue {
                 title="show/hide path"
                 @click="show_path = !show_path"
               >
-                <b-icon-folder/>
+                <b-icon-folder />
               </b-btn>
               <b-btn
                 v-if="prop.target_set"
                 variant="outline-dark"
                 title="This problem is in the target set."
               >
-                <b-icon-bullseye/>
+                <b-icon-bullseye />
               </b-btn>
             </b-btn-group>
           </b-btn-toolbar>
@@ -194,7 +267,7 @@ export default class ProblemView extends Vue {
               class="drag-handle border border-dark rounded p-2"
               variant="outline-dark"
             >
-              <b-icon-arrow-up-down/>
+              <b-icon-arrow-up-down />
             </b-btn>
           </b-btn-group>
         </b-col>
@@ -203,65 +276,106 @@ export default class ProblemView extends Vue {
       <b-row v-if="show_tags && tags_loaded">
         <table class="table table-sm table-bordered">
           <tr>
-            <td class="header">DBsubject:</td><td>{{tags.DBsubject}}</td>
-            <td class="header">DBchapter:</td><td>{{tags.DBchapter}}</td>
-            <td class="header">DBsection:</td><td>{{tags.DBsection}}</td>
+            <td class="header">DBsubject:</td>
+            <td>{{ tags.DBsubject }}</td>
+            <td class="header">DBchapter:</td>
+            <td>{{ tags.DBchapter }}</td>
+            <td class="header">DBsection:</td>
+            <td>{{ tags.DBsection }}</td>
           </tr>
           <tr>
-            <td class="header">Author:</td><td>{{tags.Author}}</td>
-            <td class="header">Institution:</td><td>{{tags.Institution}}</td>
-            <td class="header">Date:</td><td>{{tags.Date}}</td>
+            <td class="header">Author:</td>
+            <td>{{ tags.Author }}</td>
+            <td class="header">Institution:</td>
+            <td>{{ tags.Institution }}</td>
+            <td class="header">Date:</td>
+            <td>{{ tags.Date }}</td>
           </tr>
           <tr>
-            <td class="header">Level:</td><td>{{tags.Level}}</td>
-            <td class="header">MLT:</td><td>{{tags.MLT}}</td>
-            <td class="header">MLTleader:</td><td>{{tags.MLTleader}}</td>
+            <td class="header">Level:</td>
+            <td>{{ tags.Level }}</td>
+            <td class="header">MLT:</td>
+            <td>{{ tags.MLT }}</td>
+            <td class="header">MLTleader:</td>
+            <td>{{ tags.MLTleader }}</td>
           </tr>
           <tr>
-            <td class="header">keywords:</td><td colspan="5">{{tags.keywords.join(", ")}}</td>
+            <td class="header">keywords:</td>
+            <td colspan="5">{{ tags.keywords.join(", ") }}</td>
           </tr>
           <tr>
-            <td class="header">Language:</td><td>{{tags.Language}}</td>
-            <td class="header">Status:</td><td>{{tags.Status}}</td>
-            <td class="header">isPlaceholder:</td><td>{{tags.isPlaceholder}}</td>
+            <td class="header">Language:</td>
+            <td>{{ tags.Language }}</td>
+            <td class="header">Status:</td>
+            <td>{{ tags.Status }}</td>
+            <td class="header">isPlaceholder:</td>
+            <td>{{ tags.isPlaceholder }}</td>
           </tr>
           <tr>
-            <td class="header">MO:</td><td>{{tags.MO}}</td>
-            <td class="header">lasttagline:</td><td>{{tags.lasttagline}}</td>
-            <td class="header">static:</td><td>{{tags.static}}</td>
+            <td class="header">MO:</td>
+            <td>{{ tags.MO }}</td>
+            <td class="header">lasttagline:</td>
+            <td>{{ tags.lasttagline }}</td>
+            <td class="header">static:</td>
+            <td>{{ tags.static }}</td>
           </tr>
           <tr>
-            <td class="header">modified:</td><td>{{tags.modified}}</td>
-            <td class="header">resources:</td><td colspan="3">{{tags.resources.join(", ")}}</td>
+            <td class="header">modified:</td>
+            <td>{{ tags.modified }}</td>
+            <td class="header">resources:</td>
+            <td colspan="3">{{ tags.resources.join(", ") }}</td>
           </tr>
-          <tr><td class="header" colspan="6">Textbook Info</td></tr>
+          <tr>
+            <td class="header" colspan="6">Textbook Info</td>
+          </tr>
           <template v-for="textbook in tags.textinfo">
-            <tr>
-              <td class="header">TitleText:</td><td>{{textbook.TitleText}}</td>
-              <td class="header">AuthorText:</td><td>{{textbook.AuthorText}}</td>
-              <td class="header">EditionText:</td><td>{{textbook.EditionText}}</td>
+            <tr :key="'row1:' + textbook.TitleText">
+              <td class="header">TitleText:</td>
+              <td>{{ textbook.TitleText }}</td>
+              <td class="header">AuthorText:</td>
+              <td>{{ textbook.AuthorText }}</td>
+              <td class="header">EditionText:</td>
+              <td>{{ textbook.EditionText }}</td>
             </tr>
-            <tr>
-              <td class="header">chapter:</td><td>{{textbook.chapter}}</td>
-              <td class="header">section:</td><td>{{textbook.section}}</td>
-              <td class="header">problems:</td><td>{{textbook.problems}}</td>
+            <tr :key="'row2:' + textbook.TitleText">
+              <td class="header">chapter:</td>
+              <td>{{ textbook.chapter }}</td>
+              <td class="header">section:</td>
+              <td>{{ textbook.section }}</td>
+              <td class="header">problems:</td>
+              <td>{{ textbook.problems }}</td>
             </tr>
           </template>
         </table>
       </b-row>
       <b-row>
-        <div v-if="html == ''" class="text-center">
+        <div v-if="rendered_problem.text == ''" class="text-center">
           <b-spinner variant="info" />
         </div>
         <div v-else class="problem-tag-container">
-          <div id="problem-output" v-html="html"/>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div id="problem-output" v-html="rendered_problem.text" />
         </div>
+      </b-row>
+      <b-row v-if="type === 'student'">
+        <b-col cols="4">
+          <b-btn variant="primary" @click="preview">Preview My Answer</b-btn>
+        </b-col>
+        <b-col cols="4">
+          <b-btn variant="primary" @click="check">Check My Answer</b-btn>
+        </b-col>
       </b-row>
     </b-container>
   </li>
 </template>
 
 <style>
+.correct {
+  border: solid 2px green;
+}
+.incorrect {
+  border: solid 2px red;
+}
 .header {
   font-weight: bold;
 }

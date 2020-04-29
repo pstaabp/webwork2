@@ -28,6 +28,7 @@ import {
   BFormTextarea,
   BFormInput,
   BFormSelect,
+  BFormSelectOption,
   BFormCheckbox,
   BFormCheckboxGroup,
   BInputGroup,
@@ -48,6 +49,7 @@ import {
   BTabs,
   BFormFile,
   BSpinner,
+  BProgress,
 } from "bootstrap-vue";
 
 Vue.component("BNavbar", BNavbar);
@@ -67,6 +69,7 @@ Vue.component("BListGroupItem", BListGroupItem);
 Vue.component("BText", BFormText);
 Vue.component("BTextarea", BFormTextarea);
 Vue.component("BSelect", BFormSelect);
+Vue.component("BSelectOption", BFormSelectOption);
 Vue.component("BCheckbox", BFormCheckbox);
 Vue.component("BCheckboxGroup", BFormCheckboxGroup);
 Vue.component("BInput", BFormInput);
@@ -87,6 +90,7 @@ Vue.component("BTabs", BTabs);
 Vue.component("BTab", BTab);
 Vue.component("BFormFile", BFormFile);
 Vue.component("BSpinner", BSpinner);
+Vue.component("BProgress", BProgress);
 
 Vue.use(ModalPlugin);
 

@@ -12,6 +12,7 @@ import {
   BIconBarChart,
   BIconArrowLeftRight,
   BIconGear,
+  BIconEye,
 } from "bootstrap-vue";
 Vue.component("BIconCalendar", BIconCalendar);
 Vue.component("BIconPeople", BIconPeople);
@@ -22,6 +23,7 @@ Vue.component("BIconPencil", BIconPencil);
 Vue.component("BIconBarChart", BIconBarChart);
 Vue.component("BIconArrowLeftRight", BIconArrowLeftRight);
 Vue.component("BIconGear", BIconGear);
+Vue.component("BIconEye", BIconEye);
 
 @Component({ name: "ViewIcon" })
 export default class ViewIcon extends Vue {

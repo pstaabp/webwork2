@@ -7,7 +7,7 @@ import { Vue, Component } from "vue-property-decorator";
 
 import { UserSetScore } from "@/store/models";
 
-import { fetchUserSetScores } from "@/store/api";
+import { fetchAllUserSetScores } from "@/store/api";
 
 import ScoringTab from "./StatisticsComponents/Scoring.vue";
 import SelectedSetProgress from "./StatisticsComponents/SelectedSetProgress.vue";
@@ -27,7 +27,7 @@ export default class Statistics extends Vue {
   private user_set_scores: UserSetScore[] = [];
 
   private async mounted() {
-    this.user_set_scores = await fetchUserSetScores();
+    this.user_set_scores = await fetchAllUserSetScores();
     this.updateInputs(0);
   }
 

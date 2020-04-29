@@ -435,16 +435,26 @@ sub addUserSet {
 
 sub record_results {
 
-  my ($renderParams,$results) = @_;
+  my ($ce,$db,$renderParams,$results,$debug) = @_;
 
   my $scoreRecordedMessage = "";
-  my $pureProblem  = $db->getUserProblem($renderParams->{problem}->user_id, $renderParams->{problem}->set_id,
-  $renderParams->{problem}->problem_id); # checked
+
+
+	# if(defined &$debug){
+	# 	&$debug(dump $renderParams->{problem});
+	# 	&$debug($renderParams->{problem}->{user_id});
+	# 	&$debug($renderParams->{problem}->{set_id});
+	# 	&$debug($renderParams->{problem}->{problem_id});
+	# }
+
+
+  my $pureProblem  = $db->getUserProblem($renderParams->{problem}->{user_id}, $renderParams->{problem}->{set_id},
+  $renderParams->{problem}->{problem_id}); # checked
   my $isEssay = 0;
 
   # logging student answers
 
-  my $answer_log = vars->{ce}->{courseFiles}->{logs}->{'answer_log'};
+  my $answer_log = $ce->{courseFiles}->{logs}->{'answer_log'};
   if ( defined($answer_log ) and defined($pureProblem)) {
     # if ($submitAnswers && !$authz->hasPermissions($effectiveUser, "dont_log_past_answers")) {
     my $answerString = "";
@@ -478,9 +488,10 @@ sub record_results {
     ),
     );
 
+		# &$debug(dump $ce);
     #add to PastAnswer db
     my $pastAnswer = $db->newPastAnswer();
-    $pastAnswer->course_id(session->{course});
+    $pastAnswer->course_id($ce->{courseName});
     $pastAnswer->user_id($renderParams->{problem}->{user_id});
     $pastAnswer->set_id($renderParams->{problem}->{set_id});
     $pastAnswer->problem_id($renderParams->{problem}->{problem_id});
@@ -551,7 +562,7 @@ sub record_results {
         $scoreRecordedMessage = "Your score was not recorded because there was a failure in storing the problem record to the database.";
       }
       # write to the transaction log, just to make sure
-      writeLog(vars->{ce}, "transaction",
+      writeLog($ce, "transaction",
       $renderParams->{problem}->problem_id."\t".
       $renderParams->{problem}->set_id."\t".
       $renderParams->{problem}->user_id."\t".
@@ -576,10 +587,7 @@ sub record_results {
   } else {
     $scoreRecordedMessage ="Your score was not recorded because this problem has not been assigned to you.";
   }
-
-
-
-  vars->{scoreRecordedMessage} = $scoreRecordedMessage;
+  # vars->{scoreRecordedMessage} = $scoreRecordedMessage;
   return $scoreRecordedMessage;
 }
 

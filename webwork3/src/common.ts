@@ -4,7 +4,15 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 dayjs.extend(isSameOrAfter);
 
-import { ProblemSet, User, Problem } from "@/store/models";
+import settings_store from "@/store/modules/settings";
+
+import {
+  ProblemSet,
+  User,
+  Problem,
+  UserProblem,
+  UserSet,
+} from "@/store/models";
 
 import { isString, isNumber, isInteger } from "lodash-es";
 
@@ -35,6 +43,22 @@ export interface ProblemViewOptions {
   path: boolean;
   target_set: boolean;
 }
+
+export const STUDENT_PROB: ProblemViewOptions = {
+  // define characteristics of a student-view problem
+  numbered: true,
+  reorder: false,
+  add: false,
+  value: false,
+  attempts: false,
+  edit: false,
+  randomize: false,
+  delete: false,
+  mark_all: false,
+  tags: false,
+  path: false,
+  target_set: false,
+};
 
 export const LIB_PROB: ProblemViewOptions = {
   // define characteristics of a library problem.
@@ -142,6 +166,69 @@ export function newProblemSet(): ProblemSet {
   };
 }
 
+export function newUserSet(): UserSet {
+  return {
+    set_id: "XXX",
+    user_id: "",
+    set_header: "",
+    hardcopy_header: "",
+    open_date: 0,
+    due_date: 0,
+    answer_date: 0,
+    reduced_scoring_date: 0,
+    visible: false,
+    enable_reduced_scoring: false,
+    assignment_type: "set",
+    description: "",
+    restricted_release: "",
+    restricted_status: 0,
+    attempts_per_version: -1,
+    time_interval: 0,
+    versions_per_interval: 1,
+    version_time_limit: 0,
+    version_creation_time: 0,
+    problem_randorder: false,
+    version_last_attempt_time: 0,
+    problems_per_page: 1,
+    hide_score: "",
+    hide_score_by_problem: "",
+    hide_work: "",
+    time_limit_cap: 180,
+    restrict_ip: "",
+    relax_restrict_ip: "",
+    restricted_login_proctor: "",
+    hide_hint: true,
+    restrict_prob_progression: false,
+    email_instructor: false,
+    lis_source_did: "",
+  };
+}
+
+export function newUserProblem(): UserProblem {
+  return {
+    user_id: "",
+    set_id: "",
+    problem_id: 0,
+    source_file: "",
+    value: 0,
+    max_attempts: -1,
+    showMeAnother: -1,
+    showMeAnotherCount: -1,
+    prPeriod: 0,
+    prCount: 0,
+    problem_seed: 1,
+    status: 0,
+    attempted: 0,
+    last_answer: "",
+    num_correct: 0,
+    num_incorrect: 0,
+    att_to_open_children: 0,
+    counts_parent_grade: 0,
+    sub_status: 0,
+    flags: "",
+  };
+}
+
 // this function takes in a problem set and parses out the numbers:
 
 function parseInteger(prop: number | string, default_value = 0) {
@@ -192,12 +279,30 @@ export function validAnswerDate(_set: ProblemSet) {
   return dayjs(_set.answer_date).isSameOrAfter(dayjs(_set.due_date));
 }
 
+export function hasReducedScoring(): boolean {
+  const setting = settings_store.settings.get(
+    "pg{ansEvalDefaults}{enableReducedScoring}"
+  );
+  if (setting) {
+    return ((setting.value as unknown) as boolean) || false;
+  } else {
+    return false;
+  }
+}
+
 export function ww3Views(): ViewInfo[] {
   return [
     {
       name: "Calendar",
       icon: "calendar",
       route: "calendar",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Problem Viewer",
+      icon: "eye",
+      route: "viewer",
       show_set: false,
       show_user: false,
     },
