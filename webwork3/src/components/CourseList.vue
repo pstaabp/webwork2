@@ -9,7 +9,9 @@ export default {
   },
   mounted() {
     axios.get("/webwork3/api/courses").then((response) => {
-      this.courses = response.data.filter(_course => !["modelCourse","admin"].includes(_course));
+      this.courses = response.data.filter(
+        (_course) => !["modelCourse", "admin"].includes(_course)
+      );
     });
   },
 };
