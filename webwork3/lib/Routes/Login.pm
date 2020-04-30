@@ -4,10 +4,13 @@ use Dancer2;
 set serializer => 'JSON';
 
 use Dancer2::Plugin::Auth::Extensible;
+use Dancer2::FileUtils qw/path read_file_content/;
 use Data::Dump qw/dump/;
 
 use WeBWorK::CourseEnvironment;
 use WeBWorK::DB;
+
+use WeBWorK::Utils::CourseManagement qw/listCourses/;
 
 ## the remaining routes are in the following packages
 
@@ -103,7 +106,16 @@ post '/courses/:course_id/logout' => sub {
 	return {logged_in=>false};
 };
 
-
+get '/site-info' => sub {
+	my $ce = WeBWorK::CourseEnvironment->new({webwork_dir => config->{webwork_dir},
+																								courseName=> ""});
+	my @courses = grep !/modelCourse|admin/, listCourses($ce);
+	my $info = read_file_content(path($ce->{webwork_dir},"htdocs","site_info.txt"));
+	return {
+		courses => \@courses,
+		site_info => $info
+	}
+};
 
 get '/app-info' => sub {
 	return {

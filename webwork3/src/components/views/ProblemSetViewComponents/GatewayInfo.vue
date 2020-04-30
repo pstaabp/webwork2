@@ -8,7 +8,7 @@ import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 import { newProblemSet, parseProblemSet } from "@/common";
 import { ProblemSet } from "@/store/models";
 
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 
 @Component({
   name: "GatewayInfo",
@@ -21,7 +21,7 @@ export default class GatewayInfo extends Vue {
   private problem_set: ProblemSet = newProblemSet();
 
   private save() {
-    problem_sets_store.updateProblemSet(parseProblemSet(this.problem_set));
+    problem_set_store.updateProblemSet(parseProblemSet(this.problem_set));
   }
 
   private get proctored(): boolean {

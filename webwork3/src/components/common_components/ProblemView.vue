@@ -25,6 +25,16 @@ Vue.component("BIconArrowUpDown", BIconArrowUpDown);
 
 import AnswerDecoration from "./AnswerDecoration.vue";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+
+import "./mathjax-config";
+import "mathjax-full/es5/tex-chtml.js";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
+declare let MathJax: any;
+
+console.log(MathJax); // eslint-disable-line no-console
+
 import {
   renderProblem,
   fetchProblemTags,
@@ -79,18 +89,13 @@ export default class ProblemView extends Vue {
   }
 
   private async renderProblem(other_params: StringMap) {
-    console.log(this.problem); // eslint-disable-line no-console
     const problem = await renderProblem(
       Object.assign({}, this.problem, other_params)
     );
     this.rendered_problem = problem;
-    setTimeout(() => {
-      // pause a bit before typesetting.
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      window.MathJax.typeset();
-      this.buildAnswerDecorations();
-    }, 100);
+    Promise.resolve()
+      .then(() => MathJax.typesetPromise())
+      .catch((e) => console.log(e));
   }
 
   get prop(): ProblemViewOptions {
@@ -204,7 +209,9 @@ export default class ProblemView extends Vue {
           <b-row>
             <b-col v-if="prop.numbered" cols="2">
               <b-input-group size="sm">
-                <span class="problem-id">{{ problem.problem_id }}</span>
+                <span class="problem-id">{{
+                  problem && problem.problem_id
+                }}</span>
               </b-input-group>
             </b-col>
             <b-col v-if="prop.value" cols="4">
@@ -386,7 +393,7 @@ export default class ProblemView extends Vue {
           <div id="problem-output" v-html="rendered_problem.text" />
         </div>
       </b-row>
-      <b-row v-if="type === 'student'">
+      <b-row v-if="type === 'student'" class="pt-3">
         <b-col cols="4">
           <b-btn variant="primary" @click="preview">Preview My Answer</b-btn>
         </b-col>

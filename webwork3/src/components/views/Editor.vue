@@ -15,7 +15,7 @@ import { Problem } from "@/store/models";
 
 import { renderFromSource, fetchProblemSource } from "@/store/api";
 
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import login_store from "@/store/modules/login";
 
 @Component({
@@ -36,7 +36,7 @@ export default class ProblemEditor extends Vue {
   private get set_names() {
     return [
       ...[{ value: "", text: "Select Set" }],
-      ...problem_sets_store.set_names.map((_set_id: string) => ({
+      ...problem_set_store.set_names.map((_set_id: string) => ({
         value: _set_id,
         text: _set_id,
       })),
@@ -44,7 +44,7 @@ export default class ProblemEditor extends Vue {
   }
 
   private get problems() {
-    const set = problem_sets_store.problem_sets.get(this.selected_set_id);
+    const set = problem_set_store.problem_sets.get(this.selected_set_id);
     return set
       ? [
           ...[{ value: "", text: "Select Problem" }],
@@ -62,7 +62,7 @@ export default class ProblemEditor extends Vue {
   }
 
   private updateSource() {
-    const set = problem_sets_store.problem_sets.get(this.selected_set_id);
+    const set = problem_set_store.problem_sets.get(this.selected_set_id);
     if (set) {
       const prob = set.problems.find(
         (prob: Problem) => prob.problem_id === this.selected_problem

@@ -9,7 +9,7 @@ import { unparse } from "papaparse";
 
 import login_store from "@/store/modules/login";
 import users_store from "@/store/modules/users";
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 
 import { User, UserSetScore, StringMap } from "@/store/models";
 
@@ -69,7 +69,7 @@ export default class Scoring extends Vue {
 
   private get user_table() {
     let users = users_store.users_array;
-    // const sets = problem_sets_store.problem_sets;
+    // const sets = problem_set_store.problem_sets;
 
     // If the all_users checkbox is not selected remove admins/professors and dropped students:
     if (!this.all_users) {
@@ -119,7 +119,7 @@ export default class Scoring extends Vue {
 
   private get fields() {
     // set up the fields property to set the table to be sortable:
-    const name_fields = problem_sets_store.set_names
+    const name_fields = problem_set_store.set_names
       .sort()
       .map((_set_id: string) => ({
         key: _set_id,

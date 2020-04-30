@@ -17,7 +17,7 @@ import {
 } from "@/common";
 import { ProblemSet } from "@/store/models";
 
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 
 @Component({
   name: "EditProblemSetsModal",
@@ -67,7 +67,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
         due_date,
         answer_date,
       });
-      problem_sets_store.updateProblemSet(_set);
+      problem_set_store.updateProblemSet(_set);
     });
 
     this.$bvModal.hide("edit-problem-sets-modal");

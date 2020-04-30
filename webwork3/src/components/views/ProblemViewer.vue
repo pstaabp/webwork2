@@ -2,46 +2,70 @@
      submittig problems as well as the professor view for Act As -->
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
+import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
 import dayjs from "dayjs";
 
-import problem_sets_store from "@/store/modules/problem_sets";
+// eslint-disable-next-line @typescript-eslint/naming-convention
+// declare let MathJax: any;
+
+import problem_set_store from "@/store/modules/problem_sets";
 import user_store from "@/store/modules/users";
 import login_store from "@/store/modules/login";
 
 import ProblemView from "@/components/common_components/ProblemView.vue";
 
-import { fetchUserSets, fetchUserProblem } from "@/store/api";
 import { UserProblem, UserSet, ScoreType } from "@/store/models";
 
-import {
-  newUserProblem,
-  // newUserSet,
-  // StringMap,
-  hasReducedScoring,
-} from "@/common";
+import { newUserProblem, hasReducedScoring } from "@/common";
 
 @Component({ name: "ProblemViewer", components: { ProblemView } })
 export default class ProblemViewer extends Vue {
+  @Prop() private viewer_type!: string;
   private set_id = "";
-  private act_as_user_id = "";
+  private user_id = "";
   private current_problem_id = 1;
-  private user_problem: UserProblem = newUserProblem();
-  private user_sets: UserSet[] = [];
+  private user_sets_changed = 1; // hack to get the user_sets to update.
 
   // return an array of problem_sets that the act_as_user is assigned to.
   get valid_problem_sets() {
-    const all_set_names = Array.from(problem_sets_store.problem_sets.keys());
-    return all_set_names.map((_set_id) => ({
-      text: _set_id,
-      value: _set_id,
-      disabled: this.user_sets.findIndex((_set) => _set.set_id === _set_id) < 0,
-    }));
+    if (this.viewer_type === "instructor") {
+      return Array.from(problem_set_store.problem_sets.keys()).map(
+        (_set_id: string) => ({
+          text: _set_id,
+          value: _set_id,
+          disabled:
+            this.user_sets.findIndex(
+              (_set: UserSet) => _set.set_id === _set_id
+            ) < 0,
+        })
+      );
+    } else if (this.viewer_type === "student") {
+      return this.user_sets.map((_set: UserSet) => _set.set_id);
+    } else {
+      return [];
+    }
+  }
+
+  get user_problem() {
+    const problems = this.user_set ? this.user_set.problems : [];
+    return (
+      problems.find(
+        (_problem: UserProblem) =>
+          _problem.problem_id == this.current_problem_id
+      ) || newUserProblem()
+    );
+  }
+
+  get user_sets() {
+    const sets = Array.from(problem_set_store.user_sets.values()).filter(
+      (_set: UserSet) => _set.user_id === this.user_id
+    );
+    return this.user_sets_changed ? sets : sets;
   }
 
   get problem_set() {
-    return problem_sets_store.problem_sets.get(this.set_id);
+    return problem_set_store.problem_sets.get(this.set_id);
   }
 
   get user_set() {
@@ -53,7 +77,9 @@ export default class ProblemViewer extends Vue {
   }
 
   get num_problems() {
-    const set = problem_sets_store.problem_sets.get(this.set_id);
+    const set = problem_set_store.user_sets.get(
+      this.user_id + ":" + this.set_id
+    );
     return (set && set.problems.length) || 0;
   }
 
@@ -79,19 +105,11 @@ export default class ProblemViewer extends Vue {
       this.set_id === "" ||
       typeof this.current_problem_id === "undefined" ||
       this.current_problem_id < 1 ||
-      typeof this.act_as_user_id === "undefined" ||
-      this.act_as_user_id === ""
+      typeof this.user_id === "undefined" ||
+      this.user_id === ""
     ) {
       return;
     }
-    this.user_problem = await fetchUserProblem({
-      set_id: this.set_id,
-      problem_id: this.current_problem_id,
-      user_id: this.act_as_user_id,
-    });
-
-    // const res = await renderProblem(this.user_problem);
-    // console.log(res); // eslint-disable-line no-console
   }
 
   @Watch("current_problem_id")
@@ -99,39 +117,31 @@ export default class ProblemViewer extends Vue {
     this.updateProblem();
   }
 
-  @Watch("act_as_user_id")
+  @Watch("user_id")
   private async userIDchanged() {
-    if (this.act_as_user_id !== "") {
-      this.user_sets = await fetchUserSets({ user_id: this.act_as_user_id });
+    if (this.user_id !== "") {
+      await problem_set_store.fetchUserSets(this.user_id);
+      this.user_sets_changed++;
     }
-    // if (this.act_as_user_id === "" || this.set_id === "") {
-    //   return;
-    // }
-    // this.user_set_scores = await fetchUserSetScores({
-    //   user_id: this.act_as_user_id,
-    //   set_id: this.set_id,
-    // });
     this.updateProblem();
   }
 
   @Watch("set_id")
   private async setNameChanged() {
-    if (this.act_as_user_id === "" || this.set_id === "") {
+    if (this.user_id === "" || this.set_id === "") {
       return;
     }
 
     this.current_problem_id =
-      this.problem_set && this.problem_set.problems.length > 0
-        ? this.problem_set.problems[0].problem_id
+      this.user_set && this.user_set.problems.length > 0
+        ? this.user_set.problems[0].problem_id
         : 0;
     this.updateProblem();
   }
 
   private async mounted() {
-    this.act_as_user_id = login_store.login_info.user_id;
-    if (this.user_sets.length == 0) {
-      this.user_sets = await fetchUserSets({ user_id: this.act_as_user_id });
-    }
+    this.user_id = login_store.login_info.user_id;
+    await problem_set_store.fetchUserSets(this.user_id);
   }
 
   private formatDateTime(date: number) {
@@ -164,11 +174,11 @@ export default class ProblemViewer extends Vue {
             </b-col>
             <b-col cols="6">
               <b-form-group label-cols="4" label="Act as User:">
-                <b-select v-model="act_as_user_id" :options="user_names" />
+                <b-select v-model="user_id" :options="user_names" />
               </b-form-group>
             </b-col>
           </b-row>
-          <b-row v-if="num_problems > 0">
+          <b-row v-if="num_problems > 0 && current_problem_id > 0">
             <b-pagination
               v-model="current_problem_id"
               :per-page="1"
@@ -176,10 +186,13 @@ export default class ProblemViewer extends Vue {
               :total-rows="num_problems"
             />
           </b-row>
+          <b-row v-if="set_id && num_problems === 0">
+            There are no problems in this set.
+          </b-row>
           <b-row v-if="num_problems > 0 && set_id">
             <problem-view
               :problem="user_problem"
-              :user_id="act_as_user_id"
+              :user_id="user_id"
               type="student"
               class="problem"
             />

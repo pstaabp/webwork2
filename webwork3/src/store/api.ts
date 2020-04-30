@@ -123,3 +123,8 @@ export async function fetchAllUserSetScores() {
   const response = await axios.get(login_store.api_header + "/usersetscores");
   return response.data as UserSetScore[];
 }
+
+export async function fetchSiteInfo() {
+  const response = await axios.get("/webwork3/api/site-info");
+  return response.data as { courses: string[]; site_info: string };
+}

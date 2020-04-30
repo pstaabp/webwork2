@@ -16,7 +16,7 @@ import { ProblemSet } from "@/store/models";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 // set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import settings_store from "@/store/modules/settings";
 
 @Component({
@@ -34,7 +34,7 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
 
   private get set_not_defined(): boolean {
     return (
-      problem_sets_store.problem_sets.get(this.problem_set.set_id) === undefined
+      problem_set_store.problem_sets.get(this.problem_set.set_id) === undefined
     );
   }
 
@@ -73,7 +73,7 @@ export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
     });
 
     // add to the store state:
-    await problem_sets_store.addProblemSet(this.problem_set);
+    await problem_set_store.addProblemSet(this.problem_set);
 
     this.$bvModal.hide("add-problem-set-modal");
     this.problem_set = newProblemSet();

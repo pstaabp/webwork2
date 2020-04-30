@@ -131,10 +131,18 @@ export interface UserSet {
   email_instructor: boolean;
   lis_source_did: string;
   scores: ScoreType[];
-  [key: string]: string | number | boolean | Problem[] | string[] | ScoreType[];
+  problems: UserProblem[];
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | UserProblem[]
+    | string[]
+    | ScoreType[];
 }
 
 export type ProblemSetList = Map<string, ProblemSet>;
+export type UserSetList = Map<string, UserSet>;
 
 export interface User {
   user_id: string;

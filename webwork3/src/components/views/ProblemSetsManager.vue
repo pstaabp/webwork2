@@ -13,7 +13,7 @@ Vue.component("BIconCheckCircle", BIconCheckCircle);
 import dayjs from "dayjs";
 
 // set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
 
 import { ProblemSet, StringMap } from "@/store/models";
@@ -73,13 +73,13 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
   private problem_set_tracker = 1; // a hacky way to get reaction to adding/remove problem sets.
 
   private get problem_sets() {
-    return problem_sets_store.problem_sets;
+    return problem_set_store.problem_sets;
   }
 
   private get problem_sets_as_array() {
     return (
       this.problem_set_tracker &&
-      Array.from(problem_sets_store.problem_sets.values())
+      Array.from(problem_set_store.problem_sets.values())
     );
   }
 
@@ -121,7 +121,7 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
 
     if (conf) {
       this.selected_sets.map(async (_set) => {
-        return await problem_sets_store.removeProblemSet(_set);
+        return await problem_set_store.removeProblemSet(_set);
       });
     }
     this.problem_set_tracker += 1;

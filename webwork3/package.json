@@ -19,6 +19,7 @@
     "dayjs": "^1.8.25",
     "deep-object-diff": "^1.1.0",
     "lodash-es": "^4.17.15",
+    "mathjax-full": "3",
     "papaparse": "^5.0.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.1.0",

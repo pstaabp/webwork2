@@ -202,6 +202,7 @@ export function newUserSet(): UserSet {
     restrict_prob_progression: false,
     email_instructor: false,
     lis_source_did: "",
+    problems: [],
     scores: [],
   };
 }
@@ -310,7 +311,26 @@ export function hasReducedScoring(): boolean {
   }
 }
 
-export function ww3Views(): ViewInfo[] {
+export function getStudentViews(): ViewInfo[] {
+  return [
+    {
+      name: "Calendar",
+      icon: "calendar",
+      route: "student-calendar",
+      show_set: false,
+      show_user: false,
+    },
+    {
+      name: "Problem Viewer",
+      icon: "eye",
+      route: "student-problems",
+      show_set: false,
+      show_user: false,
+    },
+  ];
+}
+
+export function getManagerViews(): ViewInfo[] {
   return [
     {
       name: "Calendar",

@@ -392,6 +392,7 @@ get '/courses/:course_id/users/:user_id/sets' => sub {
   my @user_sets = map {
     my $set = convertObjectToHash(vars->{db}->getMergedSet($user_id,$_));
     my @problems = vars->{db}->getAllMergedUserProblems($user_id,$_);
+    $set->{problems} = convertArrayOfObjectsToHash(\@problems);
     my @user_scores = map { {problem_id => $_->{problem_id}, status=> $_->{status}}} @problems;
     $set->{scores} = \@user_scores;
     $set;

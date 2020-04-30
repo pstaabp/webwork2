@@ -18,7 +18,7 @@ import { newProblemSet } from "@/common";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 // set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import app_state from "@/store/modules/app_state";
 
 @Component({
@@ -35,11 +35,11 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
   private problem_set: ProblemSet = newProblemSet();
 
   private get problem_sets_array() {
-    return Array.from(problem_sets_store.problem_sets.values());
+    return Array.from(problem_set_store.problem_sets.values());
   }
 
   private get problem_sets_names() {
-    return Array.from(problem_sets_store.problem_sets.keys());
+    return Array.from(problem_set_store.problem_sets.keys());
   }
 
   private get is_gateway() {
@@ -84,7 +84,7 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
         app_state.setSelectedSet(set_id);
-        const set = problem_sets_store.problem_sets.get(set_id);
+        const set = problem_set_store.problem_sets.get(set_id);
         if (set) {
           Object.assign(this.problem_set, set);
         }

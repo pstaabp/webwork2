@@ -16,6 +16,7 @@ import Statistics from "./components/views/Statistics.vue";
 import PageNotFound from "./components/PageNotFound.vue";
 import Empty from "./components/Empty.vue";
 import ProblemViewer from "./components/views/ProblemViewer.vue";
+import StudentView from "./components/views/StudentView.vue";
 
 Vue.use(VueRouter);
 
@@ -35,6 +36,7 @@ export default new VueRouter({
             { path: "login", component: Login },
             {
               path: "manager",
+              name: "manager",
               component: Manager,
               children: [
                 {
@@ -46,14 +48,23 @@ export default new VueRouter({
                   path: "viewer",
                   name: "viewer",
                   component: ProblemViewer,
+                  props: { viewer_type: "instructor" },
                 },
                 {
                   path: "classlist",
                   name: "classlist",
                   component: ClasslistManager,
                 },
-                { path: "settings", name: "settings", component: Settings },
-                { path: "calendar", name: "calendar", component: Calendar },
+                {
+                  path: "settings",
+                  name: "settings",
+                  component: Settings,
+                },
+                {
+                  path: "calendar",
+                  name: "calendar",
+                  component: Calendar,
+                },
                 {
                   path: "set-view",
                   name: "set-view",
@@ -116,6 +127,24 @@ export default new VueRouter({
                   path: "statistics",
                   name: "statistics",
                   component: Statistics,
+                },
+              ],
+            },
+            {
+              path: "student",
+              name: "student",
+              component: StudentView,
+              children: [
+                {
+                  path: "calendar",
+                  name: "student-calendar",
+                  component: Calendar,
+                },
+                {
+                  path: "viewer",
+                  name: "student-problems",
+                  component: ProblemViewer,
+                  props: { viewer_type: "student" },
                 },
               ],
             },

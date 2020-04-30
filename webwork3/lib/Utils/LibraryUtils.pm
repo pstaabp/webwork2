@@ -522,7 +522,7 @@ sub render {
 		templateName => "system"
   };
 
-  &$debug(dump $renderParams);
+  # &$debug(dump $renderParams);
   for my $key (keys %{$renderParams->{answers}}){
     &$debug($key);
 		$form_data->{$key} = $renderParams->{answers}->{$key};
@@ -533,7 +533,7 @@ sub render {
   $form_data->{effectiveUser} = $renderParams->{effectiveUser} || $form_data->{user};
 
 
-	&$debug($renderParams->{checkAnswers});
+	# &$debug($renderParams->{checkAnswers});
 	if($renderParams->{checkAnswers}) {
 		$form_data->{checkAnswers} = "Check Answers";
 	}
@@ -547,6 +547,9 @@ sub render {
   my $displayMode   = $renderParams->{displayMode}//
                        $ce->{pg}->{options}->{displayMode};
 
+  &$debug($user);
+
+
 	my $translationOptions = {
 		displayMode     => $displayMode,
 		showHints       => $showHints,
@@ -555,7 +558,8 @@ sub render {
 		processAnswers  => 1,
 		QUIZ_PREFIX     => '',
 		use_site_prefix => $ce->{server_root_url},
-		permissionLevel => $user && $user->{user_id} ? $db->getPermissionLevel($user->{user_id})->permission : -5
+		permissionLevel => $user && $user->{user_id} && $db->getPermissionLevel($user->{user_id})
+													? $db->getPermissionLevel($user->{user_id})->permission : -5
 	};
 
 	my $extras = {};   # Check what this is used for.

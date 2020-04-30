@@ -44,6 +44,13 @@ export class UsersModule extends VuexModule {
     this.SET_USERS(user_list);
   }
 
+  @Action async fetchUser(_user_id: string) {
+    const response = await axios.get(
+      login_module.api_header + "/users/" + _user_id
+    );
+    this.SET_USER(response.data as User);
+  }
+
   @Action async addUser(_user: User) {
     const response = await axios.post(
       login_module.api_header + "/users/" + _user.user_id,
