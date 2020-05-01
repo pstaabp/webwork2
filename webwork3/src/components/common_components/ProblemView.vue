@@ -33,8 +33,6 @@ import "mathjax-full/es5/tex-chtml.js";
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
 declare let MathJax: any;
 
-console.log(MathJax); // eslint-disable-line no-console
-
 import {
   renderProblem,
   fetchProblemTags,

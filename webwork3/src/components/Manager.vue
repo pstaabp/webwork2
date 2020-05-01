@@ -23,13 +23,14 @@ export default class Manager extends Vue {
       users_store.fetchUsers();
       problem_set_store.fetchProblemSets();
     } else {
+      // console.log(login_store.login_info); // eslint-disable-line no-console
       this.$router.replace("/courses");
     }
 
     // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
-    if (document.getElementById("mathjax-scr")) {
-      return; // was already loaded
-    }
+    // if (document.getElementById("mathjax-scr")) {
+    //   return; // was already loaded
+    // }
     // const scriptTag = document.createElement("script");
     // scriptTag.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js";
     // scriptTag.async = true;

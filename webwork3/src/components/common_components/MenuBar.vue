@@ -9,8 +9,6 @@ Vue.component("BIconXOctagon", BIconXOctagon);
 
 import ViewIcon from "./ViewIcon.vue";
 
-import Dropdown from "vue-simple-search-dropdown";
-
 import { getManagerViews, getStudentViews, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
@@ -31,8 +29,6 @@ interface RouteObj {
   components: {
     ViewIcon,
     NotificationBar,
-    //BNavbar,
-    Dropdown,
   },
 })
 export default class MenuBar extends Vue {
@@ -55,47 +51,11 @@ export default class MenuBar extends Vue {
 
   private get professor_view() {
     // determine if the user has appropriate permissions
-    return login_store.login_info.permission > 0;
-  }
-
-  private get selected_user_id() {
-    return app_state.selected_user;
-  }
-
-  private get selected_user() {
-    return user_store.users.get(this.selected_user_id);
-  }
-
-  private get selected_user_full_name() {
-    if (!this.selected_user) {
-      return "";
-    }
-    return this.selected_user.first_name + " " + this.selected_user.last_name;
-  }
-
-  private get show_set() {
-    return app_state.show_set_options;
-  }
-
-  private get show_user() {
-    return app_state.show_user_options;
+    return this.login_info.permission > 0;
   }
 
   private get users() {
     return Array.from(user_store.users.keys());
-  }
-
-  private get set_names_for_dd() {
-    return Array.from(problem_set_store.problem_sets.keys())
-      .sort()
-      .map((_set_id) => ({ name: _set_id, id: _set_id }));
-  }
-
-  private get user_names_for_dd() {
-    return Array.from(user_store.users.values()).map((_user) => ({
-      name: _user.first_name + " " + _user.last_name,
-      id: _user.user_id,
-    }));
   }
 
   private get login_info(): LoginInfo {
@@ -113,57 +73,19 @@ export default class MenuBar extends Vue {
 
   @Watch("$route.path")
   private onRouteChanged() {
-    app_state.setCurrentView(this.$route.name as string);
-    const view = this.views.find((_v) => _v.name === app_state.current_view);
-    console.log(view); // eslint-disable-line no-console
-    if (view) {
-      app_state.setShowSetOptions(view.show_set);
-      app_state.setShowUserOptions(view.show_user);
+    // console.log(this.$route); // eslint-disable-line no-console
+    // const view = this.views.find((_v) => _v.name === app_state.current_view);
+    // console.log(view); // eslint-disable-line no-console
+    if (this.$route.name === "set-view-set-id"){
+      app_state.setCurrentView("set-view");
+    } else {
+      app_state.setCurrentView(this.$route.name as string);
     }
+
   }
 
   private path(route: string) {
-    if (route === "set-view" && app_state.selected_set) {
-      return {
-        name: "set-view",
-        params: { set_id: app_state.selected_set },
-      };
-    } else {
-      return { name: route };
-    }
-  }
-
-  private setSelectedSet(_set: { name: string; id: string }) {
-    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
-    if (_set && _set.name) {
-      app_state.setSelectedSet(_set.name);
-    }
-
-    // this is a hack to get the set option to populate
-    setTimeout(() => {
-      const div = document.getElementById("set_options");
-      const input = (div && div.firstElementChild) as HTMLInputElement;
-      if (input) {
-        input.setAttribute("autocomplete", "off");
-      }
-    }, 200);
-  }
-
-  private setSelectedUser(_user: { name: string; id: string }) {
-    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
-    if (_user && _user.name) {
-      app_state.setSelectedUser(_user.id);
-    }
-
-    // this is a hack to get the set option to populate and turn off autocomplete
-    setTimeout(() => {
-      const div = document.getElementById("user_options");
-      const input = (div && div.firstElementChild) as HTMLInputElement;
-      if (input) {
-        input.value = this.fullname;
-        input.setAttribute("autocomplete", "off");
-      }
-    }, 200);
+    return { name: route };
   }
 } // class MenuBar
 </script>
@@ -199,30 +121,6 @@ export default class MenuBar extends Vue {
               </router-link>
             </b-dd-item>
           </b-nav-item-dropdown>
-        </b-navbar-nav>
-        <b-navbar-nav v-if="show_set" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3">
-            Selected Set:
-          </b-nav-text>
-          <dropdown
-            id="set_options"
-            :options="set_names_for_dd"
-            :max-item="100"
-            placeholder="Select a set"
-            @selected="setSelectedSet"
-          />
-        </b-navbar-nav>
-        <b-navbar-nav v-if="show_user" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3">
-            Selected User:
-          </b-nav-text>
-          <dropdown
-            id="user_options"
-            :options="user_names_for_dd"
-            :max-item="100"
-            placeholder="Select a User"
-            @selected="setSelectedUser"
-          />
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">

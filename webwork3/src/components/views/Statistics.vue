@@ -12,6 +12,8 @@ import { fetchAllUserSetScores } from "@/store/api";
 import ScoringTab from "./StatisticsComponents/Scoring.vue";
 import SelectedSetProgress from "./StatisticsComponents/SelectedSetProgress.vue";
 import SelectedUserProgress from "./StatisticsComponents/SelectedUserProgress.vue";
+import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
+import SelectUserSidebar from "@/components/sidebars/SelectUserSidebar.vue";
 
 import app_state from "@/store/modules/app_state";
 
@@ -21,6 +23,8 @@ import app_state from "@/store/modules/app_state";
     ScoringTab,
     SelectedSetProgress,
     SelectedUserProgress,
+    ProblemSetSidebar,
+    SelectUserSidebar,
   },
 })
 export default class Statistics extends Vue {
@@ -33,43 +37,59 @@ export default class Statistics extends Vue {
 
   // update the menubar inputs
   private updateInputs(_new_index: number) {
-    switch (_new_index) {
-      case 0: // Progress for a given set
-        app_state.setShowSetOptions(true);
-        app_state.setShowUserOptions(false);
-        break;
-      case 1: // Progress for a given user
-        app_state.setShowSetOptions(false);
-        app_state.setShowUserOptions(true);
-        break;
-      case 2: // export
-        app_state.setShowSetOptions(false);
-        app_state.setShowUserOptions(false);
-        break;
-    }
+    // switch (_new_index) {
+    //   case 0: // Progress for a given set
+    //     app_state.setShowSetOptions(true);
+    //     app_state.setShowUserOptions(false);
+    //     break;
+    //   case 1: // Progress for a given user
+    //     app_state.setShowSetOptions(false);
+    //     app_state.setShowUserOptions(true);
+    //     break;
+    //   case 2: // export
+    //     app_state.setShowSetOptions(false);
+    //     app_state.setShowUserOptions(false);
+    //     break;
+    // }
   }
 }
 </script>
 
 <template>
   <b-container>
-    <b-row v-if="user_set_scores.length == 0">
-      <span
-        >Loading data...<b-spinner variant="primary" label="Loading"
-      /></span>
-    </b-row>
-    <b-row v-if="user_set_scores.length > 0">
-      <b-tabs content-class="mt-3" @activate-tab="updateInputs">
-        <b-tab title="Progress For Selected Set">
-          <selected-set-progress :user_set_scores="user_set_scores" />
-        </b-tab>
-        <b-tab title="Progress For Selected User" lazy>
-          <selected-user-progress :user_set_scores="user_set_scores" />
-        </b-tab>
-        <b-tab title="Scoring Export" lazy>
-          <scoring-tab :user_set_scores="user_set_scores" />
-        </b-tab>
-      </b-tabs>
+    <b-row>
+      <b-col cols="9">
+        <b-container>
+          <b-row v-if="user_set_scores.length == 0">
+            <span
+              >Loading data...<b-spinner variant="primary" label="Loading"
+            /></span>
+          </b-row>
+          <b-row v-if="user_set_scores.length > 0">
+            <b-tabs content-class="mt-3" @activate-tab="updateInputs">
+              <b-tab title="Progress For Selected Set">
+                <selected-set-progress :user_set_scores="user_set_scores" />
+              </b-tab>
+              <b-tab title="Progress For Selected User" lazy>
+                <selected-user-progress :user_set_scores="user_set_scores" />
+              </b-tab>
+              <b-tab title="Scoring Export" lazy>
+                <scoring-tab :user_set_scores="user_set_scores" />
+              </b-tab>
+            </b-tabs>
+          </b-row>
+        </b-container>
+      </b-col>
+      <b-col cols="3">
+        <b-container>
+          <b-row>
+            <problem-set-sidebar />
+          </b-row>
+          <b-row>
+            <select-user-sidebar />
+          </b-row>
+        </b-container>
+      </b-col>
     </b-row>
   </b-container>
 </template>
