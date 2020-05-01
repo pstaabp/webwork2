@@ -5,14 +5,20 @@ This is a tab of the Statistics view for scoring of all users of a selected set.
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { UserSetScore, User, Problem, StringMap } from "@/store/models";
+import {
+  UserSetScore,
+  User,
+  Problem,
+  StringMap,
+  UserSet,
+} from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
 import problem_set_store from "@/store/modules/problem_sets";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { round2 } from "@/common";
+import { round } from "@/common";
 
 interface UserProblemStatus {
   problem_id: number;
@@ -39,7 +45,7 @@ export default class SelectedSetProgress extends Vue {
 
     // the following is the all of the user scores for a given set
     const user_sets = this.user_set_scores.filter(
-      (_set) => _set.set_id === this.selected_set
+      (_set: UserSetScore) => _set.set_id === this.selected_set
     );
 
     return users_store.users_array.map((_user: User) => {
@@ -53,7 +59,7 @@ export default class SelectedSetProgress extends Vue {
         last_name: _user.last_name,
         total_score: user_set.scores
           .map((_sc: UserProblemStatus) => _sc.status)
-          .reduce((sum, x) => sum + x, 0),
+          .reduce((sum: number, x: number) => sum + x, 0),
       };
       return set.problems.reduce((_obj: StringMap, _prob: Problem) => {
         const prob_info = user_set.scores.find(
@@ -74,14 +80,18 @@ export default class SelectedSetProgress extends Vue {
     const problems = set.problems.map((_prob) => ({
       key: "" + _prob.problem_id,
       sortable: true,
-      formatter: "round2",
+      formatter: (value) => (typeof value === "string") ? value : round(value,2)
     }));
 
     const fields = [
       { key: "user_id", sortable: true },
       { key: "first_name", sortable: true },
       { key: "last_name", sortable: true },
-      { key: "total_score", sortable: true, formatter: "round2" },
+      {
+        key: "total_score",
+        sortable: true,
+        formatter: (value) => (typeof value === "string") ? value : round(value,2)
+      },
     ];
 
     return [...fields, ...problems];

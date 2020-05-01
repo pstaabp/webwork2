@@ -50,6 +50,7 @@ import {
   BFormFile,
   BSpinner,
   BProgress,
+  BPopover,
 } from "bootstrap-vue";
 
 Vue.component("BNavbar", BNavbar);
@@ -91,6 +92,7 @@ Vue.component("BTab", BTab);
 Vue.component("BFormFile", BFormFile);
 Vue.component("BSpinner", BSpinner);
 Vue.component("BProgress", BProgress);
+Vue.component("BPopover", BPopover);
 
 Vue.use(ModalPlugin);
 

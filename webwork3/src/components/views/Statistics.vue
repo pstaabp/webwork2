@@ -3,7 +3,7 @@
 This is the main view for Statistics of user scores and scoring. -->
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 
 import { UserSetScore } from "@/store/models";
 
@@ -14,8 +14,6 @@ import SelectedSetProgress from "./StatisticsComponents/SelectedSetProgress.vue"
 import SelectedUserProgress from "./StatisticsComponents/SelectedUserProgress.vue";
 import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
 import SelectUserSidebar from "@/components/sidebars/SelectUserSidebar.vue";
-
-import app_state from "@/store/modules/app_state";
 
 @Component({
   name: "Statistics",
@@ -29,28 +27,43 @@ import app_state from "@/store/modules/app_state";
 })
 export default class Statistics extends Vue {
   private user_set_scores: UserSetScore[] = [];
+  private show_problem_sets_in_sidebar = true;
+  private show_users_in_sidebar = false;
+  private tab_index = 0;
+  private tabs: {[key: string]: number} = { set: 0, user: 1, export: 2 };
+  private user_sidebar = [false, true, false];
+  private set_sidebar = [true, false, false];
 
-  private async mounted() {
-    this.user_set_scores = await fetchAllUserSetScores();
-    this.updateInputs(0);
+  private get show_sidebar() {
+    return this.show_problem_sets_in_sidebar || this.show_users_in_sidebar;
   }
 
-  // update the menubar inputs
-  private updateInputs(_new_index: number) {
-    // switch (_new_index) {
-    //   case 0: // Progress for a given set
-    //     app_state.setShowSetOptions(true);
-    //     app_state.setShowUserOptions(false);
-    //     break;
-    //   case 1: // Progress for a given user
-    //     app_state.setShowSetOptions(false);
-    //     app_state.setShowUserOptions(true);
-    //     break;
-    //   case 2: // export
-    //     app_state.setShowSetOptions(false);
-    //     app_state.setShowUserOptions(false);
-    //     break;
-    // }
+  private async beforeMount() {
+    this.user_set_scores = await fetchAllUserSetScores();
+    this.changeTab();
+  }
+
+  @Watch("$route", { immediate: true, deep: true })
+  private routeChanged() {
+    if (this.$route.name === "statistics-tab") {
+      this.tab_index = this.tabs[this.$route.params.tabname];
+    }
+  }
+
+  // update the sidebars
+  @Watch("tab_index")
+  private changeTab() {
+    this.show_users_in_sidebar = this.user_sidebar[this.tab_index];
+    this.show_problem_sets_in_sidebar = this.set_sidebar[this.tab_index];
+    if (
+      this.$route.params.tabname !==
+      Array.from(Object.keys(this.tabs))[this.tab_index]
+    ) {
+      this.$router.push({
+        name: "statistics-tab",
+        params: { tabname: Array.from(Object.keys(this.tabs))[this.tab_index] },
+      });
+    }
   }
 }
 </script>
@@ -58,7 +71,7 @@ export default class Statistics extends Vue {
 <template>
   <b-container>
     <b-row>
-      <b-col cols="9">
+      <b-col :cols="show_sidebar ? 9 : 12">
         <b-container>
           <b-row v-if="user_set_scores.length == 0">
             <span
@@ -66,7 +79,7 @@ export default class Statistics extends Vue {
             /></span>
           </b-row>
           <b-row v-if="user_set_scores.length > 0">
-            <b-tabs content-class="mt-3" @activate-tab="updateInputs">
+            <b-tabs v-model="tab_index" content-class="mt-3">
               <b-tab title="Progress For Selected Set">
                 <selected-set-progress :user_set_scores="user_set_scores" />
               </b-tab>
@@ -80,12 +93,12 @@ export default class Statistics extends Vue {
           </b-row>
         </b-container>
       </b-col>
-      <b-col cols="3">
+      <b-col v-if="show_sidebar" cols="3">
         <b-container>
-          <b-row>
+          <b-row v-if="show_problem_sets_in_sidebar">
             <problem-set-sidebar />
           </b-row>
-          <b-row>
+          <b-row v-if="show_users_in_sidebar">
             <select-user-sidebar />
           </b-row>
         </b-container>

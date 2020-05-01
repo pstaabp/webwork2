@@ -8,6 +8,7 @@ import { ProblemSetList } from "@/store/models";
 
 import problem_set_store from "@/store/modules/problem_sets";
 import settings_store from "@/store/modules/settings";
+import user_store from "@/store/modules/users";
 
 interface AssignmentInfo {
   date: dayjs.Dayjs;
@@ -30,7 +31,7 @@ export default class CalendarRow extends Vue {
   private today: dayjs.Dayjs = dayjs();
   private drag = false;
 
-  get week() {
+  private get week() {
     return [0, 1, 2, 3, 4, 5, 6].map((i: number) =>
       dayjs(this.first_day_of_week).add(i, "day")
     );
@@ -42,6 +43,14 @@ export default class CalendarRow extends Vue {
         _info.date.isSame(_day, "day")
       )
     );
+  }
+
+  private get num_users() {
+    return user_store.users.size;
+  }
+
+  private getProblemSet(_set_id: string) {
+    return problem_set_store.problem_sets.get(_set_id);
   }
 
   // determine if the reduced_scoring is enabled and show/hide accordingly.
@@ -59,12 +68,13 @@ export default class CalendarRow extends Vue {
 
   // returns the class for proper coloring of the calendar
   private dayClass(day: dayjs.Dayjs): string {
-    // console.log(day.format("MM-DD")); // eslint-disable-line no-console
     return this.today.isSame(day, "day")
       ? "today"
       : this.today.isSame(day, "month")
       ? "current-month"
-      : "extra-month";
+      : day.month() % 2 === 0
+      ? "even-month"
+      : "odd-month";
   }
 
   private shortDate(day: dayjs.Dayjs): string {
@@ -91,8 +101,9 @@ export default class CalendarRow extends Vue {
       // make a copy of the set
       const set = Object.assign(
         {},
-        problem_set_store.problem_sets.get(evt.added.element.set_id)
+        this.getProblemSet(evt.added.element.set_id)
       );
+
       // adjust the time to be the same as the previous assignment time.
 
       if (evt.added.element.date) {
@@ -124,6 +135,7 @@ export default class CalendarRow extends Vue {
       :key="day.format('YYYY-MM-DD')"
       class="cal-day"
       :class="dayClass(day)"
+      style="border-color: rgb(150, 150, 150);"
     >
       {{ shortDate(day) }}
       <draggable
@@ -139,8 +151,52 @@ export default class CalendarRow extends Vue {
           :key="assignment.id"
           :class="show(assignment)"
           class="assign border rounded border-dark pl-1 p-0"
+          :style="
+            getProblemSet(assignment.set_id).visible ? '' : 'font-style: italic'
+          "
         >
           {{ assignment.set_id }}
+          <b-icon-question-circle-fill
+            :id="assignment.id"
+            class="float-right"
+            font-scale="1.5"
+          />
+          <b-popover :target="assignment.id" triggers="hover focus">
+            <template #title
+              ><router-link :to="'set-view/' + assignment.set_id">
+                {{ assignment.set_id }}</router-link
+              ></template
+            >
+            <table>
+              <tbody>
+                <tr>
+                  <td colspan="2">
+                    {{ assignment.type }} date ends at
+                    {{ assignment.date.format("hh:mma") }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Visible:</td>
+                  <td>{{ getProblemSet(assignment.set_id).visible }}</td>
+                </tr>
+                <tr>
+                  <td>Num. Probs.:</td>
+                  <td>
+                    {{ getProblemSet(assignment.set_id).problems.length }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Assigned Users:</td>
+                  <td>
+                    {{
+                      getProblemSet(assignment.set_id).assigned_users.length
+                    }}/
+                    {{ num_users }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </b-popover>
         </div>
       </draggable>
     </td>

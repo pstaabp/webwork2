@@ -4,6 +4,7 @@ import {
   VuexModule,
   Module,
   Mutation,
+  Action,
   getModule,
 } from "vuex-module-decorators";
 import store from "@/store";
@@ -20,55 +21,48 @@ if (store.state.app_state) {
   dynamic: true,
 })
 export class AppStateModule extends VuexModule {
-  private selected_set_state = "";
-  private selected_user_state = "";
+  private problem_set = "";
+  private user = "";
   private current_view_state = "";
-  private show_set_options_state = false;
-  private show_user_options_state = false;
-
   get selected_set() {
-    return this.selected_set_state;
+    return this.problem_set;
   }
 
   get selected_user() {
-    return this.selected_user_state;
+    return this.user;
   }
 
   get current_view() {
     return this.current_view_state;
   }
 
-  get show_set_options() {
-    return this.show_set_options_state;
-  }
-
-  get show_user_options() {
-    return this.show_user_options_state;
-  }
-
-  @Mutation
+  @Action
   public setSelectedSet(_set_id: string) {
-    this.selected_set_state = _set_id;
+    this.SET_PROBLEM_SET(_set_id);
   }
 
-  @Mutation
+  @Action
   public setSelectedUser(_user_id: string) {
-    this.selected_user_state = _user_id;
+    this.SET_USER(_user_id);
+  }
+
+  @Action setCurrentView(_view_name: string) {
+    this.SET_CURRENT_VIEW(_view_name);
   }
 
   @Mutation
-  public setCurrentView(_current_view: string) {
+  public SET_PROBLEM_SET(_set_id: string) {
+    this.problem_set = _set_id;
+  }
+
+  @Mutation
+  public SET_USER(_user_id: string) {
+    this.user = _user_id;
+  }
+
+  @Mutation
+  public SET_CURRENT_VIEW(_current_view: string) {
     this.current_view_state = _current_view;
-  }
-
-  @Mutation
-  public setShowSetOptions(_show: boolean) {
-    this.show_set_options_state = _show;
-  }
-
-  @Mutation
-  public setShowUserOptions(_show: boolean) {
-    this.show_user_options_state = _show;
   }
 }
 

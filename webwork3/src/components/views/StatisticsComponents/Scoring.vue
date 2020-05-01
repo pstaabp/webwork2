@@ -13,6 +13,8 @@ import problem_set_store from "@/store/modules/problem_sets";
 
 import { User, UserSetScore, StringMap } from "@/store/models";
 
+import { round } from "@/common";
+
 // Defintion for problem sets and the total value of the set
 interface SetValue {
   set_id: string;
@@ -124,7 +126,7 @@ export default class Scoring extends Vue {
       .map((_set_id: string) => ({
         key: _set_id,
         sortable: true,
-        formatter: "round2",
+        formatter: (value) => (typeof value === "string") ? value : round(value,2)
       }));
     const info_fields = ["user_id", "first_name", "last_name"].map(
       (_str: string) => ({
@@ -136,18 +138,15 @@ export default class Scoring extends Vue {
     return [
       ...info_fields,
       ...name_fields,
-      ...[{ key: "total", formatter: "round2", sortable: true }],
+      ...[{ key: "total", sortable: true, formatter: (value) => (typeof value === "string") ? value : round(value,2) }],
     ];
   }
 
-  private mounted() {
+  private beforeMount() {
     // set the filename
     this.filename = login_store.course_id + "_totals.csv";
   }
 
-  private round2(value: number) {
-    return Math.round(100 * value) / 100;
-  }
 }
 </script>
 

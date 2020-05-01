@@ -429,11 +429,8 @@ export function setAnswerDate(_set: ProblemSet, date_string: string) {
   _set.answer_date = parseDatetimeForBrowser(date_string);
 }
 
-export function round2(value: number | string) {
-  if (typeof value === "string") {
-    return value;
-  }
-  return Math.round(100 * value) / 100;
+export function round(value: number, digits: number) {
+  return Math.round(Math.pow(10,digits) * value) / Math.pow(10,digits);
 }
 
 export function permissionLevels(): { [key: string]: string } {

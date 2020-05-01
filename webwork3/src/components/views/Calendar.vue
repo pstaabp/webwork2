@@ -60,9 +60,12 @@ export default class Calendar extends Vue {
     return problem_set_store.set_names;
   }
 
-  private created(): void {
+  private beforeMount() {
     this.all_assignment_dates = this.updateAssignmentDates(this.problem_sets);
+    this.today();
+  }
 
+  private created(): void {
     this.$store.subscribe((mutation) => {
       // any change to the problem sets and update the assignment dates.
       if (mutation.type === "problem_set_store/SET_PROBLEM_SET") {
@@ -114,7 +117,7 @@ export default class Calendar extends Vue {
 
   private today() {
     const now = dayjs();
-    this.first_day_of_calendar = dayjs().subtract(now.date(), "day"); // first of the week from today
+    this.first_day_of_calendar = dayjs().subtract(now.day(), "day"); // first of the week from today
     while (this.first_day_of_calendar.isSame(now, "month")) {
       this.first_day_of_calendar = this.first_day_of_calendar.subtract(
         7,
@@ -222,8 +225,11 @@ export default class Calendar extends Vue {
 .current-month {
   background: lightyellow;
 }
-.extra-month {
+.even-month {
   background: aliceblue;
+}
+.odd-month {
+  background: lavender;
 }
 .today {
   background: lightpink;

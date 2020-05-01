@@ -128,6 +128,11 @@ export default new VueRouter({
                   name: "statistics",
                   component: Statistics,
                 },
+                {
+                  path: "statistics/:tabname",
+                  name: "statistics-tab",
+                  component: Statistics,
+                },
               ],
             },
             {

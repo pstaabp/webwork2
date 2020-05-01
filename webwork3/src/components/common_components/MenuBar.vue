@@ -13,7 +13,6 @@ import { getManagerViews, getStudentViews, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
-import problem_set_store from "@/store/modules/problem_sets";
 import app_state from "@/store/modules/app_state";
 import user_store from "@/store/modules/users";
 
@@ -76,12 +75,13 @@ export default class MenuBar extends Vue {
     // console.log(this.$route); // eslint-disable-line no-console
     // const view = this.views.find((_v) => _v.name === app_state.current_view);
     // console.log(view); // eslint-disable-line no-console
-    if (this.$route.name === "set-view-set-id"){
+    if (this.$route.name === "set-view-set-id") {
       app_state.setCurrentView("set-view");
+    } else if (this.$route.name === "statistics-tab") {
+      app_state.setCurrentView("statistics");
     } else {
       app_state.setCurrentView(this.$route.name as string);
     }
-
   }
 
   private path(route: string) {

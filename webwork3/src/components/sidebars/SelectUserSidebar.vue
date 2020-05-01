@@ -8,18 +8,21 @@ import { Component, Watch, Vue } from "vue-property-decorator";
 import user_store from "@/store/modules/users";
 import app_state from "@/store/modules/app_state";
 
-@Component({name: "SelectUserSidebar"})
+@Component({ name: "SelectUserSidebar" })
 export default class SelectUserSidebar extends Vue {
   private user_id = "";
 
   private get user_names() {
-    console.log(user_store.users); // eslint-disable-line no-console
     return Array.from(user_store.users.keys());
   }
 
-  @Watch("set_id")
+  @Watch("user_id")
   private userIDChanged() {
     app_state.setSelectedUser(this.user_id);
+  }
+
+  private beforeMount() {
+    this.user_id = app_state.selected_user;
   }
 }
 </script>
@@ -27,8 +30,10 @@ export default class SelectUserSidebar extends Vue {
   <b-container>
     <b-form-group label="Selected User">
       <b-select v-model="user_id" :options="user_names">
-        <template v-slot:first>
-          <b-select-option value="" disabled>Please select a user</b-select-option>
+        <template #first>
+          <b-select-option value="" disabled
+            >Please select a user</b-select-option
+          >
         </template>
       </b-select>
     </b-form-group>
