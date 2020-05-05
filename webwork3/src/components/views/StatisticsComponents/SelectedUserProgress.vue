@@ -82,16 +82,19 @@ export default class SelectedUserProgress extends Vue {
           ),
         };
 
-        return prob_nums.reduce((_obj: Dictionary<string | number >, _num: number) => {
-          const prob_info = scores.find(
-            (_sc: { problem_id: number; status: number }) =>
-              _sc.problem_id === _num
-          );
-          _obj[_num] =
-            (prob_info && prob_info.status) ||
-            (_set.problems.find((_s) => _s.problem_id == _num) ? "." : "");
-          return _obj;
-        }, attrs);
+        return prob_nums.reduce(
+          (_obj: Dictionary<string | number>, _num: number) => {
+            const prob_info = scores.find(
+              (_sc: { problem_id: number; status: number }) =>
+                _sc.problem_id === _num
+            );
+            _obj[_num] =
+              (prob_info && prob_info.status) ||
+              (_set.problems.find((_s) => _s.problem_id == _num) ? "." : "");
+            return _obj;
+          },
+          attrs
+        );
       });
     } else {
       return [];

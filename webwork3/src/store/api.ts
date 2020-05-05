@@ -9,11 +9,13 @@ import {
   FileInfo,
   UserSetScore,
   UserSet,
+  Dictionary,
+  ProblemTags
 } from "@/store/models";
 
 // This renders a problem given by either a Problem or from a source.
 
-export async function renderProblem(problem: Problem | StringMap) {
+export async function renderProblem(problem: Problem | Dictionary<string>) {
   const response = await axios.put(login_store.api_header + "/render", problem);
   return response.data as RenderedProblem;
 }
@@ -31,7 +33,7 @@ export async function fetchProblemSource(source_file: string) {
   const response = await axios.get(
     login_store.api_header + "/library/fullproblem?source_file=" + source_file
   );
-  return response.data as StringMap;
+  return response.data as Problem;
 }
 
 // This renders a problem (probably not necessary)
@@ -52,10 +54,10 @@ export async function fetchProblemTags(path: string) {
       "/problems/tags/" +
       path
   );
-  return response.data as StringMap;
+  return response.data as ProblemTags;
 }
 
-export async function fetchUserProblem(props: StringMap) {
+export async function fetchUserProblem(props: Dictionary<string>) {
   const response = await axios.get(
     login_store.api_header +
       "/users/" +
@@ -68,14 +70,14 @@ export async function fetchUserProblem(props: StringMap) {
   return response.data as UserProblem;
 }
 
-export async function fetchUserSet(props: StringMap) {
+export async function fetchUserSet(props: Dictionary<string>) {
   const response = await axios.get(
     login_store.api_header + "/users/" + props.user_id + "/sets/" + props.set_id
   );
   return response.data as UserSet;
 }
 
-export async function fetchUserSets(props: StringMap) {
+export async function fetchUserSets(props: Dictionary<string>) {
   const response = await axios.get(
     login_store.api_header + "/users/" + props.user_id + "/sets"
   );
@@ -94,7 +96,7 @@ export async function fetchUserSets(props: StringMap) {
 //   return response.data as StringMap[];
 // }
 
-export async function submitUserProblem(props: StringMap) {
+export async function submitUserProblem(props: Dictionary<string>) {
   const response = await axios.post(
     login_store.api_header +
       "/render/users/" +

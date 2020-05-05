@@ -45,17 +45,18 @@ import {
   SET_PROB,
   STUDENT_PROB,
   newRenderedProblem,
+  newProblemTags,
 } from "@/common";
 
 import {
   Problem,
   RenderedProblem,
   AnswerType,
-  Dictionary
+  Dictionary,
+  ProblemTags,
 } from "@/store/models";
 
 import ProblemTagsView from "./ProblemTagsView.vue";
-
 
 @Component({
   name: "ProblemView", // name of the view
@@ -65,7 +66,7 @@ export default class ProblemView extends Vue {
   private rendered_problem: RenderedProblem = newRenderedProblem();
   private show_tags = false;
   private show_path = false;
-  private tags: StringMap = {};
+  private tags: ProblemTags = newProblemTags();
   private submitted: RenderedProblem = newRenderedProblem();
   private answer_decorations: Dictionary<AnswerDecoration> = {};
 
@@ -139,12 +140,15 @@ export default class ProblemView extends Vue {
 
   private edit() {
     console.log(this.problem); // eslint-disable-line no-console
-    this.$router.push({ name: "editor", params: { source_file: this.problem.source_file } });
+    this.$router.push({
+      name: "editor",
+      params: { source_file: this.problem.source_file },
+    });
   }
 
   private parseAnswers() {
     return this.rendered_problem.flags.ANSWER_ENTRY_ORDER.reduce(
-      (obj: StringMap, ans: string) => {
+      (obj: Dictionary<string | number>, ans: string) => {
         const input = document.getElementById(ans) as HTMLInputElement;
         obj[ans] = input ? input.value : "";
         return obj;
@@ -181,7 +185,9 @@ export default class ProblemView extends Vue {
   }
 
   private updateAnswerDecorations() {
-    const answers = (this.submitted.answers as unknown) as Dictionary<AnswerType>;
+    const answers = (this.submitted.answers as unknown) as Dictionary<
+      AnswerType
+    >;
     Object.keys(answers).forEach((_ans: string) => {
       this.answer_decorations[_ans].$props.type =
         answers[_ans].score === 1 ? "correct" : "incorrect";
@@ -196,8 +202,8 @@ export default class ProblemView extends Vue {
           answers: this.parseAnswers(),
           checkAnswers: !submit_answer,
           submitAnswers: submit_answer,
-        } as unknown) as StringMap,
-        (this.problem as unknown) as StringMap
+        } as unknown) as Dictionary<string>,
+        (this.problem as unknown) as Dictionary<string>
       )
     );
     this.updateAnswerDecorations();
@@ -207,19 +213,16 @@ export default class ProblemView extends Vue {
   }
 
   private async preview(label: string) {
-    console.log("in preview()"); // eslint-disable-line no-console
-    console.log(label); // eslint-disable-line no-console
     this.submitted = await submitUserProblem(
       Object.assign(
         ({
           answers: this.parseAnswers(),
           checkAnswers: false,
           submitAnswers: false,
-        } as unknown) as StringMap,
-        (this.problem as unknown) as StringMap
+        } as unknown) as Dictionary<string>,
+        (this.problem as unknown) as Dictionary<string>
       )
     );
-    console.log(this.submitted); // eslint-disable-line no-console
     this.answer_decorations[label].setPreviewString(
       this.submitted.answers[label].preview_latex_string
     );

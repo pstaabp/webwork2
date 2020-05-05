@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { ProblemTags } from "@/store/models";
 

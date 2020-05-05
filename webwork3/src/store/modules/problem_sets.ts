@@ -17,7 +17,7 @@ import {
   ProblemSetList,
   UserSet,
   UserSetList,
-  Dictionary
+  Dictionary,
 } from "@/store/models";
 import store from "@/store";
 
@@ -92,7 +92,7 @@ export class ProblemSetsModule extends VuexModule {
             key +
             ": from " +
             (/date$/.test(key)
-              ? formatDateTime(previous_set[key] as number)
+              ? formatDateTime((previous_set[key] as unknown) as number)
               : "from " + previous_set[key]) +
             " to " +
             (/date$/.test(key)

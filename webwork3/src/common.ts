@@ -14,6 +14,7 @@ import {
   UserSet,
   Setting,
   RenderedProblem,
+  ProblemTags,
 } from "@/store/models";
 
 import { isString, isNumber, isInteger } from "lodash-es";
@@ -228,6 +229,30 @@ export function newRenderedProblem(): RenderedProblem {
     problem_state: {},
     text: "",
     warning_messages: [],
+  };
+}
+
+export function newProblemTags(): ProblemTags {
+  return {
+    DBsubject: "",
+    DBchapter: "",
+    DBsection: "",
+    Author: "",
+    Institution: "",
+    Date: "",
+    Level: "",
+    MLT: 0,
+    MLTleader: 0,
+    keywords: [],
+    Language: "",
+    Status: "",
+    isPlaceholder: false,
+    MO: "",
+    lasttagline: "",
+    static: "",
+    modified: "",
+    resources: [],
+    textinfo: [],
   };
 }
 

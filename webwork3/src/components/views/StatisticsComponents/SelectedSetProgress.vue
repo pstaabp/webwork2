@@ -55,13 +55,16 @@ export default class SelectedSetProgress extends Vue {
           .map((_sc: UserProblemStatus) => _sc.status)
           .reduce((sum: number, x: number) => sum + x, 0),
       };
-      return set.problems.reduce((_obj: Dictionary<string | number>, _prob: Problem) => {
-        const prob_info = user_set.scores.find(
-          (_sc: UserProblemStatus) => _sc.problem_id === _prob.problem_id
-        );
-        _obj[_prob.problem_id + ""] = (prob_info && prob_info.status) || 0;
-        return _obj;
-      }, attrs);
+      return set.problems.reduce(
+        (_obj: Dictionary<string | number>, _prob: Problem) => {
+          const prob_info = user_set.scores.find(
+            (_sc: UserProblemStatus) => _sc.problem_id === _prob.problem_id
+          );
+          _obj[_prob.problem_id + ""] = (prob_info && prob_info.status) || 0;
+          return _obj;
+        },
+        attrs
+      );
     });
   }
 

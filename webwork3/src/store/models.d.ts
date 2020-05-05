@@ -1,8 +1,7 @@
 // This contains all of the interfaces for models throughout the app.
 
-
 export interface Dictionary<T> {
-  [key: string]: T
+  [key: string]: T;
 }
 
 export interface LoginInfo {
