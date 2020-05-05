@@ -50,33 +50,29 @@ import {
 import {
   Problem,
   RenderedProblem,
-  StringMap,
   AnswerType,
+  Dictionary
 } from "@/store/models";
 
-interface ADHash {
-  [key: string]: AnswerDecoration;
-}
+import ProblemTagsView from "./ProblemTagsView.vue";
 
-interface AnswerHash {
-  [key: string]: AnswerType;
-}
 
 @Component({
   name: "ProblemView", // name of the view
-  components: { AnswerDecoration },
+  components: { AnswerDecoration, ProblemTagsView },
 })
 export default class ProblemView extends Vue {
   private rendered_problem: RenderedProblem = newRenderedProblem();
   private show_tags = false;
   private show_path = false;
   private tags: StringMap = {};
-  private submitted: StringMap = {};
-  private answer_decorations: ADHash = {};
+  private submitted: RenderedProblem = newRenderedProblem();
+  private answer_decorations: Dictionary<AnswerDecoration> = {};
 
   @Prop() private problem!: Problem;
   @Prop() private type!: string;
   @Prop() private user_id!: string;
+  @Prop() private problem_id!: number;
 
   public mounted() {
     this.renderProblem({});
@@ -86,13 +82,16 @@ export default class ProblemView extends Vue {
     return Object.keys(this.tags).length > 0;
   }
 
-  private async renderProblem(other_params: StringMap) {
+  private async renderProblem(other_params: Dictionary<string | number>) {
     const problem = await renderProblem(
       Object.assign({}, this.problem, other_params)
     );
     this.rendered_problem = problem;
     Promise.resolve()
-      .then(() => MathJax.typesetPromise())
+      .then(() => {
+        MathJax.typesetPromise();
+        this.buildAnswerDecorations();
+      })
       .catch((e) => console.log(e));
   }
 
@@ -108,6 +107,10 @@ export default class ProblemView extends Vue {
     return STUDENT_PROB;
   }
 
+  get is_open() {
+    return true;
+  }
+
   private addProblem(evt: Event): void {
     console.log(evt); // eslint-disable-line no-console
   }
@@ -116,7 +119,7 @@ export default class ProblemView extends Vue {
     this.renderProblem({ problem_seed: Math.ceil(10000 * Math.random()) });
   }
 
-  @Watch("problem")
+  @Watch("problem.source_file")
   private problemChange(): void {
     this.renderProblem({});
   }
@@ -129,10 +132,14 @@ export default class ProblemView extends Vue {
     }
   }
 
+  @Watch("problem_id")
+  private problemIDchanged() {
+    this.renderProblem({});
+  }
+
   private edit() {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    this.$router.push({ name: "editor", params: { problem: this.problem } });
+    console.log(this.problem); // eslint-disable-line no-console
+    this.$router.push({ name: "editor", params: { source_file: this.problem.source_file } });
   }
 
   private parseAnswers() {
@@ -156,9 +163,13 @@ export default class ProblemView extends Vue {
         if (input) {
           const wrapper = document.createElement("span");
           this.answer_decorations[_ans] = new AnswerDecoration({
-            propsData: { type: "" },
+            propsData: { type: "", label: _ans },
           });
           this.answer_decorations[_ans].$mount();
+          this.answer_decorations[_ans].$on("preview", (label: string) =>
+            this.preview(label)
+          );
+
           if (input.parentNode) {
             input.parentNode.insertBefore(wrapper, input);
             wrapper.appendChild(input);
@@ -170,31 +181,54 @@ export default class ProblemView extends Vue {
   }
 
   private updateAnswerDecorations() {
-    const answers = (this.submitted.answers as unknown) as AnswerHash;
+    const answers = (this.submitted.answers as unknown) as Dictionary<AnswerType>;
     Object.keys(answers).forEach((_ans: string) => {
       this.answer_decorations[_ans].$props.type =
         answers[_ans].score === 1 ? "correct" : "incorrect";
+      this.answer_decorations[_ans].$props.answer = answers[_ans];
     });
   }
 
-  private async check() {
+  private async submit(submit_answer: boolean) {
     this.submitted = await submitUserProblem(
       Object.assign(
         ({
           answers: this.parseAnswers(),
-          checkAnswers: true,
-          submitAnswers: false,
+          checkAnswers: !submit_answer,
+          submitAnswers: submit_answer,
         } as unknown) as StringMap,
         (this.problem as unknown) as StringMap
       )
     );
     this.updateAnswerDecorations();
-    console.log(this.submitted); // eslint-disable-line no-console
+    if (submit_answer) {
+      this.$emit("update-sets");
+    }
   }
 
-  private preview() {
-    const ans = this.parseAnswers();
-    console.log(ans); // eslint-disable-line no-console
+  private async preview(label: string) {
+    console.log("in preview()"); // eslint-disable-line no-console
+    console.log(label); // eslint-disable-line no-console
+    this.submitted = await submitUserProblem(
+      Object.assign(
+        ({
+          answers: this.parseAnswers(),
+          checkAnswers: false,
+          submitAnswers: false,
+        } as unknown) as StringMap,
+        (this.problem as unknown) as StringMap
+      )
+    );
+    console.log(this.submitted); // eslint-disable-line no-console
+    this.answer_decorations[label].setPreviewString(
+      this.submitted.answers[label].preview_latex_string
+    );
+    Promise.resolve()
+      .then(() => {
+        MathJax.typesetPromise();
+        console.log("in typeset"); // eslint-disable-line no-console
+      })
+      .catch((e) => console.log(e));
   }
 }
 </script>
@@ -308,79 +342,7 @@ export default class ProblemView extends Vue {
       </b-row>
       <b-row v-if="show_path"> Path: {{ problem.source_file }} </b-row>
       <b-row v-if="show_tags && tags_loaded">
-        <table class="table table-sm table-bordered">
-          <tr>
-            <td class="header">DBsubject:</td>
-            <td>{{ tags.DBsubject }}</td>
-            <td class="header">DBchapter:</td>
-            <td>{{ tags.DBchapter }}</td>
-            <td class="header">DBsection:</td>
-            <td>{{ tags.DBsection }}</td>
-          </tr>
-          <tr>
-            <td class="header">Author:</td>
-            <td>{{ tags.Author }}</td>
-            <td class="header">Institution:</td>
-            <td>{{ tags.Institution }}</td>
-            <td class="header">Date:</td>
-            <td>{{ tags.Date }}</td>
-          </tr>
-          <tr>
-            <td class="header">Level:</td>
-            <td>{{ tags.Level }}</td>
-            <td class="header">MLT:</td>
-            <td>{{ tags.MLT }}</td>
-            <td class="header">MLTleader:</td>
-            <td>{{ tags.MLTleader }}</td>
-          </tr>
-          <tr>
-            <td class="header">keywords:</td>
-            <td colspan="5">{{ tags.keywords.join(", ") }}</td>
-          </tr>
-          <tr>
-            <td class="header">Language:</td>
-            <td>{{ tags.Language }}</td>
-            <td class="header">Status:</td>
-            <td>{{ tags.Status }}</td>
-            <td class="header">isPlaceholder:</td>
-            <td>{{ tags.isPlaceholder }}</td>
-          </tr>
-          <tr>
-            <td class="header">MO:</td>
-            <td>{{ tags.MO }}</td>
-            <td class="header">lasttagline:</td>
-            <td>{{ tags.lasttagline }}</td>
-            <td class="header">static:</td>
-            <td>{{ tags.static }}</td>
-          </tr>
-          <tr>
-            <td class="header">modified:</td>
-            <td>{{ tags.modified }}</td>
-            <td class="header">resources:</td>
-            <td colspan="3">{{ tags.resources.join(", ") }}</td>
-          </tr>
-          <tr>
-            <td class="header" colspan="6">Textbook Info</td>
-          </tr>
-          <template v-for="textbook in tags.textinfo">
-            <tr :key="'row1:' + textbook.TitleText">
-              <td class="header">TitleText:</td>
-              <td>{{ textbook.TitleText }}</td>
-              <td class="header">AuthorText:</td>
-              <td>{{ textbook.AuthorText }}</td>
-              <td class="header">EditionText:</td>
-              <td>{{ textbook.EditionText }}</td>
-            </tr>
-            <tr :key="'row2:' + textbook.TitleText">
-              <td class="header">chapter:</td>
-              <td>{{ textbook.chapter }}</td>
-              <td class="header">section:</td>
-              <td>{{ textbook.section }}</td>
-              <td class="header">problems:</td>
-              <td>{{ textbook.problems }}</td>
-            </tr>
-          </template>
-        </table>
+        <problem-tags-view :problem_tags="problem_tags" />
       </b-row>
       <b-row>
         <div v-if="rendered_problem.text == ''" class="text-center">
@@ -392,11 +354,11 @@ export default class ProblemView extends Vue {
         </div>
       </b-row>
       <b-row v-if="type === 'student'" class="pt-3">
-        <b-col cols="4">
-          <b-btn variant="primary" @click="preview">Preview My Answer</b-btn>
+        <b-col v-if="!is_open" cols="4">
+          <b-btn variant="primary" @click="submit(false)">Check Answer</b-btn>
         </b-col>
-        <b-col cols="4">
-          <b-btn variant="primary" @click="check">Check My Answer</b-btn>
+        <b-col v-if="is_open" cols="4">
+          <b-btn variant="primary" @click="submit(true)">Submit Answer</b-btn>
         </b-col>
       </b-row>
     </b-container>

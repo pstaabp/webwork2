@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import { UserSetScore, ProblemSet, Problem, StringMap } from "@/store/models";
+import { UserSetScore, ProblemSet, Problem, Dictionary } from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
@@ -82,7 +82,7 @@ export default class SelectedUserProgress extends Vue {
           ),
         };
 
-        return prob_nums.reduce((_obj: StringMap, _num: number) => {
+        return prob_nums.reduce((_obj: Dictionary<string | number >, _num: number) => {
           const prob_info = scores.find(
             (_sc: { problem_id: number; status: number }) =>
               _sc.problem_id === _num
@@ -107,18 +107,28 @@ export default class SelectedUserProgress extends Vue {
     const problems = prob_nums.map((_num) => ({
       key: "" + _num,
       sortable: true,
-      formatter: (value) => (typeof value === "string") ? value : round(value,2)
+      formatter: (value: number | string) =>
+        typeof value === "string" ? value : round(value, 2),
     }));
 
     const fields = [
       { key: "set_id", sortable: true },
-      { key: "score", sortable: true, formatter: (value) => (typeof value === "string") ? value : round(value,2) },
-      { key: "max", sortable: true, formatter: (value) => (typeof value === "string") ? value : round(value,2) },
+      {
+        key: "score",
+        sortable: true,
+        formatter: (value: number | string) =>
+          typeof value === "string" ? value : round(value, 2),
+      },
+      {
+        key: "max",
+        sortable: true,
+        formatter: (value: number | string) =>
+          typeof value === "string" ? value : round(value, 2),
+      },
     ];
 
     return [...fields, ...problems];
   }
-
 }
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 import dayjs from "dayjs";
 
 // TODO: allow other locales.
@@ -9,23 +9,22 @@ import dayjs from "dayjs";
 import Draggable from "vuedraggable";
 
 import CalendarRow from "./CalendarComponents/CalendarRow.vue";
+import StudentCalendarRow from "./CalendarComponents/StudentCalendarRow.vue";
 import problem_set_store from "@/store/modules/problem_sets";
 import { ProblemSet } from "@/store/models";
 
-interface AssignmentInfo {
-  date: dayjs.Dayjs;
-  type: string;
-  set_id: string;
-}
+import { AssignmentInfo } from "./CalendarComponents/calendar-mixin";
 
 @Component({
   name: "Calendar",
   components: {
+    StudentCalendarRow,
     CalendarRow,
     Draggable,
   },
 })
 export default class Calendar extends Vue {
+  @Prop() private calendar_type!: string;
   private first_day_of_calendar: dayjs.Dayjs = dayjs();
   private all_assignment_dates: AssignmentInfo[] = [];
   private sidebar_shown = false;
@@ -49,7 +48,9 @@ export default class Calendar extends Vue {
   }
 
   get problem_sets(): ProblemSet[] {
-    return Array.from(problem_set_store.problem_sets.values());
+    return this.calendar_type === "instructor"
+      ? Array.from(problem_set_store.problem_sets.values())
+      : Array.from(problem_set_store.user_sets.values());
   }
 
   set problem_sets(_sets: ProblemSet[]) {
@@ -83,7 +84,7 @@ export default class Calendar extends Vue {
 
   private updateAssignmentDates(_sets: ProblemSet[]) {
     return _sets
-      .flatMap((_set) => [
+      .flatMap((_set: ProblemSet) => [
         {
           date: dayjs.unix(_set.answer_date),
           type: "answer",
@@ -170,8 +171,21 @@ export default class Calendar extends Vue {
           <thead class="thead-light">
             <th v-for="day in day_names" :key="day">{{ day }}</th>
           </thead>
-          <tbody>
+          <tbody v-if="calendar_type === 'instructor'">
             <CalendarRow
+              v-for="day in first_days"
+              :key="
+                first_day_of_calendar.format('DD') +
+                ':' +
+                day.format('YYYY-MM-DD')
+              "
+              :first_day_of_week="day"
+              :problem_sets="problem_sets"
+              :all_assignment_dates="all_assignment_dates"
+            />
+          </tbody>
+          <tbody v-if="calendar_type === 'student'">
+            <StudentCalendarRow
               v-for="day in first_days"
               :key="
                 first_day_of_calendar.format('DD') +
@@ -249,6 +263,9 @@ export default class Calendar extends Vue {
 .assign {
   font-size: 80%;
   cursor: move;
+}
+.student-assign {
+  font-size: 80%;
 }
 .assignments {
   min-height: 50px;

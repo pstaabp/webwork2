@@ -11,7 +11,7 @@ import login_store from "@/store/modules/login";
 import users_store from "@/store/modules/users";
 import problem_set_store from "@/store/modules/problem_sets";
 
-import { User, UserSetScore, StringMap } from "@/store/models";
+import { User, UserSetScore, Dictionary } from "@/store/models";
 
 import { round } from "@/common";
 
@@ -33,8 +33,8 @@ export default class Scoring extends Vue {
   private set_values: SetValue[] = []; // store the value of each set
   private filename = "";
   private all_users = false;
-  @Prop()
-  private user_set_scores!: UserSetScore[];
+
+  @Prop() private user_set_scores!: UserSetScore[];
 
   private formatHead(data: { label: string; field: { key: string } }) {
     const sv = this.set_values.find(
@@ -44,16 +44,16 @@ export default class Scoring extends Vue {
   }
 
   private download() {
-    const data: StringMap[] = this.user_table;
+    const data = [...this.user_table];
     // add a row for the max values:
-    const row: StringMap = {
+    const row: Dictionary<string | number> = {
       user_id: "MAX value",
       first_name: "",
       last_name: "",
     };
     Object.assign(
       row,
-      this.set_values.reduce((obj: StringMap, item: SetValue) => {
+      this.set_values.reduce((obj: Dictionary<string | number>, item: SetValue) => {
         obj[item.set_id] = "" + item.value;
         return obj;
       }, {})
@@ -75,9 +75,7 @@ export default class Scoring extends Vue {
 
     // If the all_users checkbox is not selected remove admins/professors and dropped students:
     if (!this.all_users) {
-      users = users.filter(
-        (_u: User) => _u.permission < 10 && _u.status == "C"
-      );
+      users = users.filter( (_u: User) => _u.permission < 10 && _u.status == "C");
     }
 
     // take the output from the server (as a list of userset scores) and put the
@@ -86,9 +84,7 @@ export default class Scoring extends Vue {
     return users.map((_user: User) => {
       // only find user_scores from current user
       const user_scores = this.user_set_scores
-        .filter(
-          (_set_score: UserSetScore) => _set_score.user_id === _user.user_id
-        )
+        .filter((_set_score: UserSetScore) => _set_score.user_id === _user.user_id)
         .map((_set_score: UserSetScore) => ({
           set_id: _set_score.set_id,
           total: (_set_score && this.userProblemsSum(_set_score.scores)) || 0,
@@ -101,7 +97,7 @@ export default class Scoring extends Vue {
       );
 
       return user_scores.reduce(
-        (obj: StringMap, item: { set_id: string; total: number }) => {
+        (obj: Dictionary<string | number>, item: { set_id: string; total: number }) => {
           obj[item.set_id] = item.total;
           return obj;
         },
@@ -126,7 +122,8 @@ export default class Scoring extends Vue {
       .map((_set_id: string) => ({
         key: _set_id,
         sortable: true,
-        formatter: (value) => (typeof value === "string") ? value : round(value,2)
+        formatter: (value: string | number) =>
+          typeof value === "string" ? value : round(value, 2),
       }));
     const info_fields = ["user_id", "first_name", "last_name"].map(
       (_str: string) => ({
@@ -138,7 +135,14 @@ export default class Scoring extends Vue {
     return [
       ...info_fields,
       ...name_fields,
-      ...[{ key: "total", sortable: true, formatter: (value) => (typeof value === "string") ? value : round(value,2) }],
+      ...[
+        {
+          key: "total",
+          sortable: true,
+          formatter: (value: string | number) =>
+            typeof value === "string" ? value : round(value, 2),
+        },
+      ],
     ];
   }
 
@@ -146,7 +150,6 @@ export default class Scoring extends Vue {
     // set the filename
     this.filename = login_store.course_id + "_totals.csv";
   }
-
 }
 </script>
 

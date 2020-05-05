@@ -16,7 +16,7 @@ import dayjs from "dayjs";
 import problem_set_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
 
-import { ProblemSet, StringMap } from "@/store/models";
+import { ProblemSet, Dictionary } from "@/store/models";
 
 import AddProblemSetModal from "./ProblemSetsManagerComponents/AddProblemSetModal.vue";
 import EditProblemSetsModal from "./ProblemSetsManagerComponents/EditProblemSetsModal.vue";
@@ -103,11 +103,11 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
       : dayjs.unix(_date).format("MM/DD/YYYY");
   }
 
-  private numUsers(data: StringMap[]) {
+  private numUsers(data: Dictionary<string | number>[]) {
     return data.length + "/" + users_store.users.size;
   }
 
-  private numProbs(data: StringMap[]) {
+  private numProbs(data: Dictionary<string | number>[]) {
     return data.length;
   }
 

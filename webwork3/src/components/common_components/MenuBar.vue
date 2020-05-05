@@ -9,7 +9,7 @@ Vue.component("BIconXOctagon", BIconXOctagon);
 
 import ViewIcon from "./ViewIcon.vue";
 
-import { getManagerViews, getStudentViews, newUser } from "@/common";
+import { instructor_views, student_views, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
@@ -32,7 +32,7 @@ interface RouteObj {
 })
 export default class MenuBar extends Vue {
   private change_password = false;
-  private views = this.professor_view ? getManagerViews() : getStudentViews();
+  private views = this.professor_view ? instructor_views : student_views;
 
   private get current_view() {
     return app_state.current_view;
@@ -72,20 +72,14 @@ export default class MenuBar extends Vue {
 
   @Watch("$route.path")
   private onRouteChanged() {
-    // console.log(this.$route); // eslint-disable-line no-console
-    // const view = this.views.find((_v) => _v.name === app_state.current_view);
-    // console.log(view); // eslint-disable-line no-console
-    if (this.$route.name === "set-view-set-id") {
-      app_state.setCurrentView("set-view");
-    } else if (this.$route.name === "statistics-tab") {
-      app_state.setCurrentView("statistics");
+    const route_re = /^([\w-]*)-tabs$/;
+    const name = this.$route.name as string;
+    const m = name.match(route_re);
+    if (m) {
+      app_state.setCurrentView(m[1]);
     } else {
-      app_state.setCurrentView(this.$route.name as string);
+      app_state.setCurrentView(name);
     }
-  }
-
-  private path(route: string) {
-    return { name: route };
   }
 } // class MenuBar
 </script>
@@ -115,7 +109,7 @@ export default class MenuBar extends Vue {
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
             <b-dd-item v-for="view in views" :key="view.route">
-              <router-link class="view-link" :to="path(view.route)">
+              <router-link class="view-link" :to="{ name: view.route }">
                 <view-icon :icon="view.icon" />
                 <span class="pl-2">{{ view.name }}</span>
               </router-link>

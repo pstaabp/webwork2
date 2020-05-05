@@ -16,8 +16,8 @@ import {
   ProblemSet,
   ProblemSetList,
   UserSet,
-  StringMap,
   UserSetList,
+  Dictionary
 } from "@/store/models";
 import store from "@/store";
 
@@ -71,7 +71,7 @@ export class ProblemSetsModule extends VuexModule {
   public async updateProblemSet(_set: ProblemSet) {
     const previous_set = (this.problem_sets_list.get(
       _set.set_id
-    ) as unknown) as StringMap;
+    ) as unknown) as Dictionary<string>;
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
@@ -150,7 +150,7 @@ export class ProblemSetsModule extends VuexModule {
       login_module.api_header +
         "/users/" +
         props.user_id +
-        "/sets" +
+        "/sets/" +
         props.set_id
     );
     this.SET_USER_SET(response.data as UserSet);

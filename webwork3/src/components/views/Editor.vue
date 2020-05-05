@@ -81,11 +81,6 @@ export default class ProblemEditor extends Vue {
     }
   }
 
-  // private async fetchProblem(props: StringMap) {
-  //   const prob = await fetchProblemSource(props);
-  //   this.cm.setValue(prob.text);
-  // }
-
   private async renderProblem() {
     const results = await renderFromSource(this.cm.getValue());
     console.log(results); // eslint-disable-line no-console

@@ -30,6 +30,7 @@ export default class StudentView extends Vue {
     if (login_store.login_info && login_store.login_info.logged_in) {
       users_store.fetchUser(login_store.login_info.user_id);
       problem_set_store.fetchUserSets(login_store.login_info.user_id);
+      problem_set_store.fetchProblemSets();
     }
   }
 

@@ -22,6 +22,8 @@ package WeBWorK::ContentGenerator::ProblemUtil::ProblemUtil;
 use base qw(WeBWorK);
 use base qw(WeBWorK::ContentGenerator);
 use Encode qw(encode_utf8 encode);
+use base qw(Exporter);
+@EXPORT_OK = qw(create_ans_str_from_responses);
 
 =head1 NAME
 

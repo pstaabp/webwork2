@@ -458,14 +458,17 @@ get '/courses/:course_id/usersetscores' => sub {
 ##
 
 
-get '/courses/:course_id/users/:user_id/sets/:set_id' => require_role professor => sub {
+get '/courses/:course_id/users/:user_id/sets/:set_id' => sub {
 
     my $user_id = route_parameters->get('user_id');
     my $set_id = route_parameters->get('set_id');
+    my $user_set = convertObjectToHash(vars->{db}->getMergedSet($user_id,$set_id),\@boolean_set_props);
 
-    debug "$user_id:$set_id";
-
-    return convertObjectToHash(vars->{db}->getMergedSet($user_id,$set_id),\@boolean_set_props);
+    my @problems = vars->{db}->getAllMergedUserProblems($user_id,$set_id);
+    $user_set->{problems} = convertArrayOfObjectsToHash(\@problems);
+    my @user_scores = map { {problem_id => $_->{problem_id}, status=> $_->{status}}} @problems;
+    $user_set->{scores} = \@user_scores;
+    return $user_set;
 };
 
 ##
@@ -750,7 +753,6 @@ get '/courses/:course_id/sets/:set_id/users/:user_id/problems' => sub {
     for my $problem (@problems){
         my @lastAnswers = decodeAnswers($problem->{last_answer});
         $problem->{last_answer} = \@lastAnswers;
-        $problem->{_id} = params->{set_id} . ":" . params->{user_id} . ":" . $problem->{problem_id};
     }
 
     return convertArrayOfObjectsToHash(\@problems);
@@ -1304,7 +1306,7 @@ get '/courses/:course_id/problemeditor' => sub {  # get a blank problem
 
   # mimic a Problem object:
 
-  return {_id => int(rand(100000)), # make a probably unique id
+  return {
     source_file => "_blank",
     pgsource => $blankProbSource
   };

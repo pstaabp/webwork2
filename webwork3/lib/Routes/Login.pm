@@ -20,6 +20,7 @@ use Routes::Test; # this should be not accessible except when running tests
 use Routes::Library;
 use Routes::Settings;
 use Routes::User;
+use Routes::Render;
 
 
 ## the following routes is called before any other /api route.   It is used to load the

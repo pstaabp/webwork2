@@ -30,7 +30,7 @@ export default class Statistics extends Vue {
   private show_problem_sets_in_sidebar = true;
   private show_users_in_sidebar = false;
   private tab_index = 0;
-  private tabs: {[key: string]: number} = { set: 0, user: 1, export: 2 };
+  private tabs: { [key: string]: number } = { set: 0, user: 1, export: 2 };
   private user_sidebar = [false, true, false];
   private set_sidebar = [true, false, false];
 
@@ -45,7 +45,7 @@ export default class Statistics extends Vue {
 
   @Watch("$route", { immediate: true, deep: true })
   private routeChanged() {
-    if (this.$route.name === "statistics-tab") {
+    if (this.$route.name === "statistics-tabs") {
       this.tab_index = this.tabs[this.$route.params.tabname];
     }
   }
@@ -60,7 +60,7 @@ export default class Statistics extends Vue {
       Array.from(Object.keys(this.tabs))[this.tab_index]
     ) {
       this.$router.push({
-        name: "statistics-tab",
+        name: "statistics-tabs",
         params: { tabname: Array.from(Object.keys(this.tabs))[this.tab_index] },
       });
     }

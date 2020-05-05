@@ -5,13 +5,7 @@ This is a tab of the Statistics view for scoring of all users of a selected set.
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 
-import {
-  UserSetScore,
-  User,
-  Problem,
-  StringMap,
-  UserSet,
-} from "@/store/models";
+import { UserSetScore, User, Problem, Dictionary } from "@/store/models";
 
 import app_state from "@/store/modules/app_state";
 import users_store from "@/store/modules/users";
@@ -61,7 +55,7 @@ export default class SelectedSetProgress extends Vue {
           .map((_sc: UserProblemStatus) => _sc.status)
           .reduce((sum: number, x: number) => sum + x, 0),
       };
-      return set.problems.reduce((_obj: StringMap, _prob: Problem) => {
+      return set.problems.reduce((_obj: Dictionary<string | number>, _prob: Problem) => {
         const prob_info = user_set.scores.find(
           (_sc: UserProblemStatus) => _sc.problem_id === _prob.problem_id
         );
@@ -80,7 +74,8 @@ export default class SelectedSetProgress extends Vue {
     const problems = set.problems.map((_prob) => ({
       key: "" + _prob.problem_id,
       sortable: true,
-      formatter: (value) => (typeof value === "string") ? value : round(value,2)
+      formatter: (value: string | number) =>
+        typeof value === "string" ? value : round(value, 2),
     }));
 
     const fields = [
@@ -90,7 +85,8 @@ export default class SelectedSetProgress extends Vue {
       {
         key: "total_score",
         sortable: true,
-        formatter: (value) => (typeof value === "string") ? value : round(value,2)
+        formatter: (value: string | number) =>
+          typeof value === "string" ? value : round(value, 2),
       },
     ];
 

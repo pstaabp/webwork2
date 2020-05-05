@@ -15,8 +15,6 @@ hook before => sub {
 # };
 
 any ['get','put','post','delete'] => '/**' => sub {
-	warn dump config; 
-	warn "matched /**";
 	send_file 'index.html';
 };
 

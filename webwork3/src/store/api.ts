@@ -9,21 +9,17 @@ import {
   FileInfo,
   UserSetScore,
   UserSet,
-  StringMap,
 } from "@/store/models";
 
 // This renders a problem given by either a Problem or from a source.
 
 export async function renderProblem(problem: Problem | StringMap) {
-  const response = await axios.put(
-    login_store.api_header + "/renderer",
-    problem
-  );
+  const response = await axios.put(login_store.api_header + "/render", problem);
   return response.data as RenderedProblem;
 }
 
 export async function renderFromSource(pg_source: string) {
-  const response = await axios.put(login_store.api_header + "/renderer", {
+  const response = await axios.put(login_store.api_header + "/render", {
     problem_source: pg_source,
   });
   return response.data as RenderedProblem;
@@ -43,7 +39,7 @@ export async function fetchProblemSource(source_file: string) {
 export async function fetchProblem(_problem: Problem) {
   //console.log(props); // eslint-disable-line no-console
   const response = await axios.put(
-    "/webwork3/api/renderer/courses/" + login_store.course_id + "/problems/0",
+    "/webwork3/api/courses/" + login_store.course_id + "/render/problems/0",
     { problem: _problem }
   );
   return response.data as RenderedProblem;
@@ -101,7 +97,7 @@ export async function fetchUserSets(props: StringMap) {
 export async function submitUserProblem(props: StringMap) {
   const response = await axios.post(
     login_store.api_header +
-      "/renderer/users/" +
+      "/render/users/" +
       props.user_id +
       "/sets/" +
       props.set_id +
@@ -109,7 +105,7 @@ export async function submitUserProblem(props: StringMap) {
       props.problem_id,
     props
   );
-  return response.data as StringMap;
+  return response.data as RenderedProblem;
 }
 
 export async function getLocalDirectory(path: string) {
