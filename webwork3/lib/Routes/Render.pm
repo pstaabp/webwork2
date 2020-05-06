@@ -218,7 +218,6 @@ sub parseParams {
 any ['post', 'put'] => '/courses/:course_id/render' => sub {
 
   my $renderParams = parseParams(vars->{db},body_parameters,query_parameters);
-  debug dump $renderParams;
   my ($results,$pg,$form_data) = render(vars->{ce},vars->{db},$renderParams,\&debug);
   return $results;
 };

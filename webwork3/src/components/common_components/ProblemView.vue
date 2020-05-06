@@ -158,7 +158,7 @@ export default class ProblemView extends Vue {
   }
 
   private buildAnswerDecorations() {
-    if (
+    if ( this.type === 'student' &&
       this.rendered_problem &&
       this.rendered_problem.flags.ANSWER_ENTRY_ORDER
     ) {

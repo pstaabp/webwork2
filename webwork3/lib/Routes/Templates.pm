@@ -4,18 +4,19 @@ package Routes::Templates;
 use Dancer2;
 use Data::Dump qw/dump/;
 
-hook before => sub {
-	error "in hook before";
+use Dancer2::FileUtils qw/read_file_content path/;
+
+get '/css/:file' => sub {
+        send_file path('css',   route_parameters->get('file'));
+
 };
 
-# get '/' => sub {
-# 	warn "in get /";
-# 	warn dump config;
-#   return 'Hello World!';
-# };
+get '/js/:file' => sub {
+        send_file path('js',route_parameters->get('file'));
+};
 
-any ['get','put','post','delete'] => '/**' => sub {
-	send_file 'index.html';
+get '/**' => sub {
+        send_file 'index.html';
 };
 
 true;
