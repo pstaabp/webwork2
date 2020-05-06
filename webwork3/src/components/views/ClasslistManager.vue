@@ -13,7 +13,7 @@ import ImportStudentsFile from "./ClasslistComponents/ImportStudentsFile.vue";
 import ImportStudentsManually from "./ClasslistComponents/ImportStudentsManually.vue";
 import ExportStudents from "./ClasslistComponents/ExportStudents.vue";
 import EditUsersModal from "./ClasslistComponents/EditUsersModal.vue";
-import { permissionLevels, userTypes } from "@/common";
+import { permission_levels, user_types } from "@/common";
 import { User } from "@/store/models";
 
 // set up the store
@@ -35,7 +35,11 @@ export default class Manager extends Vue {
     { key: "last_name", sortable: true, label: "Last Name" },
     { key: "email_address", sortable: false, label: "Email" },
     { key: "student_id", sortable: true, label: "Student ID" },
-    { key: "status", sortable: true, formatter: "formatStatus" },
+    {
+      key: "status",
+      sortable: true,
+      formatter: (value: number) => user_types[value],
+    },
     { key: "section", sortable: true, label: "Sect." },
     { key: "recitation", sortable: true, label: "Rec." },
     { key: "comment", sortable: true, label: "Comment" },
@@ -43,21 +47,13 @@ export default class Manager extends Vue {
       key: "permission",
       sortable: true,
       label: "Permission",
-      formatter: "formatPermission",
+      formatter: (value: number) => permission_levels[value],
     },
   ];
   private selected_users: object[] = [];
   private filter_string = "";
   private num_rows = 10;
   private current_page = 1;
-
-  private formatStatus(value: string): string {
-    return userTypes()[value];
-  }
-
-  private formatPermission(value: string): string {
-    return permissionLevels()[value];
-  }
 
   private rowSelected(rows: User[]): void {
     this.selected_users = rows;

@@ -8,7 +8,7 @@ import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 import { newProblemSet, parseProblemSet } from "@/common";
 import { ProblemSet } from "@/store/models";
 
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 
 @Component({
   name: "GatewayInfo",
@@ -21,7 +21,7 @@ export default class GatewayInfo extends Vue {
   private problem_set: ProblemSet = newProblemSet();
 
   private save() {
-    problem_sets_store.updateProblemSet(parseProblemSet(this.problem_set));
+    problem_set_store.updateProblemSet(parseProblemSet(this.problem_set));
   }
 
   private get proctored(): boolean {
@@ -30,8 +30,6 @@ export default class GatewayInfo extends Vue {
 
   @Watch("selected_set", { deep: true })
   private selectedSetChanged(new_set: ProblemSet) {
-    console.log("in GatwayInfo select_set_changed"); // eslint-disable-line no-console
-    // console.log([new_set.set_id,old_set.set_id]); // eslint-disable-line no-console
     if (new_set && new_set.set_id !== this.problem_set.set_id) {
       // the set has changed.
       if (typeof this.problem_set === "undefined") {

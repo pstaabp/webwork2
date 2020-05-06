@@ -66,6 +66,12 @@ export class LoginModule extends VuexModule {
   }
 
   @Action
+  public async logout() {
+    const response = await axios.post(this.api_header + "/logout");
+    return response.data;
+  }
+
+  @Action
   public clearLogin() {
     this.RESET_LOGIN();
   }

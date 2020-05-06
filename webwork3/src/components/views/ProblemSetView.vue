@@ -11,6 +11,7 @@ import GatewayInfo from "./ProblemSetViewComponents/GatewayInfo.vue";
 import ProblemListView from "./ProblemSetViewComponents/ProblemListView.vue";
 import AssignUsers from "./ProblemSetViewComponents/AssignUsers.vue";
 import SetHeaders from "./ProblemSetViewComponents/SetHeaders.vue";
+import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
 
 import { ProblemSet } from "@/store/models";
 import { newProblemSet } from "@/common";
@@ -18,12 +19,13 @@ import { newProblemSet } from "@/common";
 import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 // set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import app_state from "@/store/modules/app_state";
 
 @Component({
   name: "ProblemSetView",
   components: {
+    ProblemSetSidebar,
     SetInfo,
     GatewayInfo,
     ProblemListView,
@@ -34,12 +36,12 @@ import app_state from "@/store/modules/app_state";
 export default class ProblemSetView extends mixins(ProblemSetMixin) {
   private problem_set: ProblemSet = newProblemSet();
 
-  private get problem_sets_array() {
-    return Array.from(problem_sets_store.problem_sets.values());
-  }
+  // private get selected_set_id() {
+  //   return app_state.selected_set;
+  // }
 
-  private get problem_sets_names() {
-    return Array.from(problem_sets_store.problem_sets.keys());
+  private get problem_sets_array() {
+    return Array.from(problem_set_store.problem_sets.values());
   }
 
   private get is_gateway() {
@@ -49,23 +51,22 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
     );
   }
 
-  @Watch("problem_set")
-  private problemSetChanged() {
-    console.log("in ProblemSetView set changed"); // eslint-disable-line no-console
-  }
+  // @Watch("selected_set_id")
+  // private setIDchanged() {
+  //   console.log(this.selected_set_id); // eslint-disable-line no-console
+  // }
 
   private created() {
     // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
-      if (mutation.type === "app_state/setSelectedSet") {
-        const name = this.$route.name as string;
-        if (
-          /^set-view/.test(name) &&
-          this.$route.params &&
-          this.$route.params.set_id !== app_state.selected_set
-        ) {
+      if (
+        mutation.type === "app_state/SET_PROBLEM_SET" &&
+        this.$route.name &&
+        /^set-view/.test(this.$route.name)
+      ) {
+        if (app_state.selected_set !== this.$route.params.set_id) {
           this.$router.push({
-            name: "set-view-set-id",
+            name: "set-view-tabs",
             params: { set_id: app_state.selected_set },
           });
         }
@@ -80,11 +81,11 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private routeChanged(to: any) {
     console.log(to); // eslint-disable-line no-console
-    if (to.name === "set-view-set-id") {
+    if (to.name === "set-view-tabs") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
         app_state.setSelectedSet(set_id);
-        const set = problem_sets_store.problem_sets.get(set_id);
+        const set = problem_set_store.problem_sets.get(set_id);
         if (set) {
           Object.assign(this.problem_set, set);
         }
@@ -96,25 +97,32 @@ export default class ProblemSetView extends mixins(ProblemSetMixin) {
 
 <template>
   <b-container>
-    <b-tabs content-class="mt-3">
-      <b-tab title="Set Details" active>
-        <set-info
-          :problem_sets="problem_sets_array"
-          :selected_set="problem_set"
-        />
-      </b-tab>
-      <b-tab title="Gateway Info" :disabled="!is_gateway">
-        <gateway-info :selected_set="problem_set" />
-      </b-tab>
-      <b-tab title="Problems">
-        <problem-list-view :problem_set="problem_set" />
-      </b-tab>
-      <b-tab title="Assign Users">
-        <assign-users :problem_set="problem_set" />
-      </b-tab>
-      <b-tab title="Set Headers">
-        <set-headers :problem_set="problem_set" />
-      </b-tab>
-    </b-tabs>
+    <b-row>
+      <b-col cols="9">
+        <b-tabs content-class="mt-3">
+          <b-tab title="Set Details" active>
+            <set-info
+              :problem_sets="problem_sets_array"
+              :selected_set="problem_set"
+            />
+          </b-tab>
+          <b-tab title="Gateway Info" :disabled="!is_gateway">
+            <gateway-info :selected_set="problem_set" />
+          </b-tab>
+          <b-tab title="Problems">
+            <problem-list-view :problem_set="problem_set" />
+          </b-tab>
+          <b-tab title="Assign Users">
+            <assign-users :problem_set="problem_set" />
+          </b-tab>
+          <b-tab title="Set Headers">
+            <set-headers :problem_set="problem_set" />
+          </b-tab>
+        </b-tabs>
+      </b-col>
+      <b-col cols="3">
+        <problem-set-sidebar />
+      </b-col>
+    </b-row>
   </b-container>
 </template>

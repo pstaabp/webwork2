@@ -1,21 +1,24 @@
-<script>
-import axios from "axios";
+<!-- This is the CourseList view. It is the main page for the webwork3 interface to begin
+      logging in-->
 
-export default {
-  data() {
-    return {
-      courses: [],
-    };
-  },
-  mounted() {
-    axios.get("/webwork3/api/courses").then((response) => {
-      this.courses = response.data.filter(
-        (_course) => !["modelCourse", "admin"].includes(_course)
-      );
-    });
-  },
-};
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+
+import { fetchSiteInfo } from "@/store/api";
+
+@Component({ name: "CourseList" })
+export default class CourseList extends Vue {
+  private courses: string[] = [];
+  private site_info = "Course Info";
+
+  private async mounted() {
+    const info = await fetchSiteInfo();
+    this.courses = info.courses;
+    this.site_info = info.site_info;
+  }
+}
 </script>
+
 <template>
   <div>
     <b-navbar id="top-navbar" toggleable="lg" type="dark" class="fixed-top">
@@ -35,6 +38,11 @@ export default {
               </router-link>
             </b-list-group-item>
           </b-list-group>
+        </b-col>
+        <b-col offset-md="3" cols="3">
+          <h2>Site Information</h2>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div v-html="site_info"></div>
         </b-col>
       </b-row>
     </b-container>

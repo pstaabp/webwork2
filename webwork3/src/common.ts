@@ -12,7 +12,9 @@ import {
   Problem,
   UserProblem,
   UserSet,
+  Setting,
   RenderedProblem,
+  ProblemTags,
 } from "@/store/models";
 
 import { isString, isNumber, isInteger } from "lodash-es";
@@ -113,7 +115,7 @@ export function newUser(): User {
   };
 }
 
-export function emptySetting() {
+export function emptySetting(): Setting {
   return {
     var: "",
     type: "",
@@ -168,67 +170,48 @@ export function newProblemSet(): ProblemSet {
 }
 
 export function newUserSet(): UserSet {
+  return Object.assign(
+    {
+      user_id: "",
+      assigned_users: [],
+      scores: [],
+    },
+    newProblemSet()
+  );
+}
+
+export function newProblem(): Problem {
   return {
-    set_id: "XXX",
-    user_id: "",
-    set_header: "",
-    hardcopy_header: "",
-    open_date: 0,
-    due_date: 0,
-    answer_date: 0,
-    reduced_scoring_date: 0,
-    visible: false,
-    enable_reduced_scoring: false,
-    assignment_type: "set",
-    description: "",
-    restricted_release: "",
-    restricted_status: 0,
-    attempts_per_version: -1,
-    time_interval: 0,
-    versions_per_interval: 1,
-    version_time_limit: 0,
-    version_creation_time: 0,
-    problem_randorder: false,
-    version_last_attempt_time: 0,
-    problems_per_page: 1,
-    hide_score: "",
-    hide_score_by_problem: "",
-    hide_work: "",
-    time_limit_cap: 180,
-    restrict_ip: "",
-    relax_restrict_ip: "",
-    restricted_login_proctor: "",
-    hide_hint: true,
-    restrict_prob_progression: false,
-    email_instructor: false,
-    lis_source_did: "",
-    scores: [],
+    att_to_open_children: "",
+    counts_parent_grade: [],
+    flags: "",
+    max_attempts: -1,
+    prCount: "",
+    prPeriod: "",
+    problem_id: 0,
+    set_id: "",
+    showMeAnother: "",
+    showMeAnotherCount: 0,
+    source_file: "",
+    value: 1,
+    problem_source: "",
   };
 }
 
 export function newUserProblem(): UserProblem {
-  return {
-    user_id: "",
-    set_id: "",
-    problem_id: 0,
-    source_file: "",
-    value: 0,
-    max_attempts: -1,
-    showMeAnother: -1,
-    showMeAnotherCount: -1,
-    prPeriod: 0,
-    prCount: 0,
-    problem_seed: 1,
-    status: 0,
-    attempted: 0,
-    last_answer: "",
-    num_correct: 0,
-    num_incorrect: 0,
-    att_to_open_children: 0,
-    counts_parent_grade: 0,
-    sub_status: 0,
-    flags: "",
-  };
+  return Object.assign(
+    {
+      user_id: "",
+      problem_seed: 1,
+      status: 0,
+      sub_status: 0,
+      last_answer: "",
+      num_correct: 0,
+      num_incorrect: 0,
+      attempted: 0,
+    },
+    newProblem()
+  );
 }
 
 export function newRenderedProblem(): RenderedProblem {
@@ -246,6 +229,30 @@ export function newRenderedProblem(): RenderedProblem {
     problem_state: {},
     text: "",
     warning_messages: [],
+  };
+}
+
+export function newProblemTags(): ProblemTags {
+  return {
+    DBsubject: "",
+    DBchapter: "",
+    DBsection: "",
+    Author: "",
+    Institution: "",
+    Date: "",
+    Level: "",
+    MLT: 0,
+    MLTleader: 0,
+    keywords: [],
+    Language: "",
+    Status: "",
+    isPlaceholder: false,
+    MO: "",
+    lasttagline: "",
+    static: "",
+    modified: "",
+    resources: [],
+    textinfo: [],
   };
 }
 
@@ -310,80 +317,88 @@ export function hasReducedScoring(): boolean {
   }
 }
 
-export function ww3Views(): ViewInfo[] {
-  return [
-    {
-      name: "Calendar",
-      icon: "calendar",
-      route: "calendar",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Problem Viewer",
-      icon: "eye",
-      route: "viewer",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Classlist Manager",
-      icon: "people",
-      route: "classlist",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Problem Set Details",
-      icon: "info-square",
-      route: "set-view",
-      show_set: true,
-      show_user: false,
-    },
-    {
-      name: "Library Browser",
-      icon: "book",
-      route: "library",
-      show_set: true,
-      show_user: false,
-    },
-    {
-      name: "Problem Sets Manager",
-      icon: "list-ul",
-      route: "problem-sets",
-      show_set: false,
-      show_user: true,
-    },
-    {
-      name: "Problem Editor",
-      icon: "pencil",
-      route: "editor",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Statistics",
-      icon: "bar-chart",
-      route: "statistics",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Import/Export Sets",
-      icon: "arrow-left-right",
-      route: "import-export",
-      show_set: false,
-      show_user: false,
-    },
-    {
-      name: "Settings",
-      icon: "gear",
-      route: "settings",
-      show_set: false,
-      show_user: false,
-    },
-  ];
-}
+export const student_views = [
+  {
+    name: "Calendar",
+    icon: "calendar",
+    route: "student-calendar",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Problem Viewer",
+    icon: "eye",
+    route: "student-problems",
+    show_set: false,
+    show_user: false,
+  },
+];
+
+export const instructor_views = [
+  {
+    name: "Calendar",
+    icon: "calendar",
+    route: "calendar",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Problem Viewer",
+    icon: "eye",
+    route: "viewer",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Classlist Manager",
+    icon: "people",
+    route: "classlist",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Problem Set Details",
+    icon: "info-square",
+    route: "set-view",
+    show_set: true,
+    show_user: false,
+  },
+  {
+    name: "Library Browser",
+    icon: "book",
+    route: "library",
+    show_set: true,
+    show_user: false,
+  },
+  {
+    name: "Problem Sets Manager",
+    icon: "list-ul",
+    route: "problem-sets",
+    show_set: false,
+    show_user: true,
+  },
+  {
+    name: "Problem Editor",
+    icon: "pencil",
+    route: "editor",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Statistics",
+    icon: "bar-chart",
+    route: "statistics",
+    show_set: false,
+    show_user: false,
+  },
+  {
+    name: "Settings",
+    icon: "gear",
+    route: "settings",
+    show_set: false,
+    show_user: false,
+  },
+];
 
 export function formatDateTime(value: number) {
   return dayjs.unix(value).format("YYYY-MM-DD[T]HH:mm");
@@ -409,62 +424,30 @@ export function setAnswerDate(_set: ProblemSet, date_string: string) {
   _set.answer_date = parseDatetimeForBrowser(date_string);
 }
 
-export function round2(value: number | string) {
-  if (typeof value === "string") {
-    return value;
-  }
-  return Math.round(100 * value) / 100;
+export function round(value: number, digits: number) {
+  return Math.round(Math.pow(10, digits) * value) / Math.pow(10, digits);
 }
 
-export function permissionLevels(): { [key: string]: string } {
-  return {
-    "20": "admin",
-    "10": "professor",
-    "8": "ta",
-    "7": "grade_proctor",
-    "6": "login_proctor",
-    "0": "student",
-    "-5": "guest",
-  };
-}
+export const permission_levels: { [key: string]: string } = {
+  "20": "admin",
+  "10": "professor",
+  "8": "ta",
+  "7": "grade_proctor",
+  "6": "login_proctor",
+  "0": "student",
+  "-5": "guest",
+};
 
-export function userTypes(): { [key: string]: string } {
-  return {
-    C: "enrolled",
-    P: "proctor",
-    A: "audit",
-    D: "drop",
-  };
-}
+export const user_types: { [key: string]: string } = {
+  C: "enrolled",
+  P: "proctor",
+  A: "audit",
+  D: "drop",
+};
 
-export default class Common {
-  public static sidebars(): SidebarInfo[] {
-    return [
-      { name: "Problem Sets", comp: "problem_sets" },
-      { name: "Library Options", comp: "lib_opts" },
-      { name: "Messages", comp: "messages" },
-    ];
-  }
-
-  public static dateTypes(): string[] {
-    return ["due_date", "reduced_scoring_date", "due_date", "answer_date"];
-  }
-
-  public static newProblem(): Problem {
-    return {
-      att_to_open_children: "",
-      counts_parent_grade: [],
-      flags: "",
-      max_attempts: -1,
-      prCount: "",
-      prPeriod: "",
-      problem_id: 0,
-      set_id: "",
-      showMeAnother: "",
-      showMeAnotherCount: 0,
-      source_file: "",
-      value: 1,
-      problem_source: "",
-    };
-  }
-} // class Constants
+export const date_types = [
+  "due_date",
+  "reduced_scoring_date",
+  "due_date",
+  "answer_date",
+];

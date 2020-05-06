@@ -16,7 +16,7 @@ import LibraryTextbooks from "./LibraryTextbooks.vue";
 import LocalLibrary from "./LocalLibrary.vue";
 import ProblemView from "@/components/common_components/ProblemView.vue";
 
-import Common from "@/common";
+import { newProblem } from "@/common";
 
 @Component({
   name: "LibraryTab",
@@ -48,7 +48,7 @@ export default class LibraryTab extends Vue {
       return;
     }
 
-    const problem = Common.newProblem();
+    const problem = newProblem();
     problem.source_file = _problem.source_file;
     problem.set_id = set.set_id;
     problem.problem_id = set.problems.length + 1;

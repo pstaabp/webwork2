@@ -1,0 +1,128 @@
+<!-- This is the Problem Viewer sidebar.  it has information about the current UserSet
+ -->
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+
+import dayjs from "dayjs";
+
+import { ScoreType, UserSet, Problem } from "@/store/models";
+import problem_set_store from "@/store/modules/problem_sets";
+import { hasReducedScoring, newUserSet } from "@/common";
+
+@Component({ name: "ProblemViewerSidebar" })
+export default class ProblemViewerSidebar extends Vue {
+  private user_set: UserSet = newUserSet();
+  @Prop() private set_id!: string;
+  @Prop() private user_id!: string;
+  @Prop() private user_sets_changed!: number;
+
+  private get problem_set() {
+    return problem_set_store.problem_sets.get(this.set_id);
+  }
+
+  private mounted() {
+    this.updateUserSet();
+  }
+
+  private updateUserSet() {
+    const set = problem_set_store.user_sets.get(
+      this.user_id + ":" + this.set_id
+    );
+    this.user_set = set || newUserSet();
+  }
+
+  private created() {
+    this.$store.subscribe((mutation) => {
+      // any change to the user set, make sure we have an updated set.
+      if (mutation.type === "problem_set_store/SET_USER_SET") {
+        this.updateUserSet();
+      }
+    });
+  }
+
+  private get has_reduced_scoring() {
+    return hasReducedScoring();
+  }
+
+  private get total_score() {
+    const probs = (this.problem_set && this.problem_set.problems) || [];
+    return this.user_set && this.user_set.scores
+      ? this.user_set.scores.reduce(
+          (total: number, score: ScoreType, i: number) =>
+            total + parseFloat("" + score.status) * probs[i].value,
+          0
+        )
+      : 0;
+  }
+
+  private get max_score() {
+    return this.problem_set && this.problem_set.problems
+      ? this.problem_set.problems.reduce(
+          (total: number, prob: Problem) => total + prob.value,
+          0
+        )
+      : 0;
+  }
+
+  private formatDateTime(date: number) {
+    return dayjs.unix(date).format("MMM D, YYYY [at] hh:mma");
+  }
+
+  private problemValue(problem_id: number) {
+    const user_score = this.user_set.scores.find(
+      (_sc: ScoreType) => _sc.problem_id === problem_id
+    );
+    const problem_value =
+      this.problem_set &&
+      this.problem_set.problems.find(
+        (_prob: Problem) => _prob.problem_id === problem_id
+      );
+    return (
+      (user_score &&
+        problem_value &&
+        user_score.status * problem_value.value) ||
+      0
+    );
+  }
+}
+</script>
+<template>
+  <div>
+    <h3>Problem Set Status</h3>
+    <table v-if="user_set.set_id !== 'XXX'" class="table table-sm">
+      <tr>
+        <td class="header">Set Name:</td>
+        <td>{{ user_set.set_id.replace(/\_/g, " ") }}</td>
+      </tr>
+      <tr>
+        <td class="header">Open Date:</td>
+        <td>{{ formatDateTime(user_set.open_date) }}</td>
+      </tr>
+      <tr v-if="has_reduced_scoring">
+        <td class="header">Red. Scoring Date:</td>
+        <td>{{ formatDateTime(user_set.reduced_scoring_date) }}</td>
+      </tr>
+      <tr>
+        <td class="header">Due Date:</td>
+        <td>{{ formatDateTime(user_set.due_date) }}</td>
+      </tr>
+      <tr>
+        <td class="header">Answer Date:</td>
+        <td>{{ formatDateTime(user_set.answer_date) }}</td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <b-progress :value="total_score" :max="max_score" />
+        </td>
+      </tr>
+      <tr
+        v-for="score in user_set.scores"
+        :key="'score:' + score.problem_id + ':' + new Date()"
+      >
+        <td class="header">Problem {{ score.problem_id }}:</td>
+        <td>{{ problemValue(score.problem_id) }}</td>
+      </tr>
+    </table>
+  </div>
+</template>

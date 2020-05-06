@@ -1,7 +1,5 @@
 <script lang="ts">
-// import { BNavbar } from "bootstrap-vue";
-
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 
 // load icons:
 import { BIconPerson, BIconGear, BIconXOctagon } from "bootstrap-vue";
@@ -11,13 +9,10 @@ Vue.component("BIconXOctagon", BIconXOctagon);
 
 import ViewIcon from "./ViewIcon.vue";
 
-import Dropdown from "vue-simple-search-dropdown";
-
-import { ww3Views, newUser } from "@/common";
+import { instructor_views, student_views, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
 import login_store from "@/store/modules/login";
-import problem_set_store from "@/store/modules/problem_sets";
 import app_state from "@/store/modules/app_state";
 import user_store from "@/store/modules/users";
 
@@ -33,128 +28,58 @@ interface RouteObj {
   components: {
     ViewIcon,
     NotificationBar,
-    //BNavbar,
-    Dropdown,
   },
 })
 export default class MenuBar extends Vue {
   private change_password = false;
-  private views = ww3Views();
+  private views = this.professor_view ? instructor_views : student_views;
 
-  get current_view() {
+  private get current_view() {
     return app_state.current_view;
   }
 
-  get current_icon() {
+  private get current_icon() {
     const view = this.views.find((_v) => _v.route === this.current_view);
     return view ? view.icon : "";
   }
 
-  get selected_user_id() {
-    return app_state.selected_user;
+  private get view_name(): string {
+    const view = this.views.find((_v) => _v.route === this.current_view);
+    return (view && view.name) || "Select View";
   }
 
-  get selected_user() {
-    return user_store.users.get(this.selected_user_id);
+  private get professor_view() {
+    // determine if the user has appropriate permissions
+    return this.login_info.permission > 0;
   }
 
-  get selected_user_full_name() {
-    if (!this.selected_user) {
-      return "";
-    }
-    return this.selected_user.first_name + " " + this.selected_user.last_name;
-  }
-
-  get show_set() {
-    return app_state.show_set_options;
-  }
-
-  get show_user() {
-    return app_state.show_user_options;
-  }
-
-  get users() {
+  private get users() {
     return Array.from(user_store.users.keys());
   }
 
-  get set_names_for_dd() {
-    return Array.from(problem_set_store.problem_sets.keys())
-      .sort()
-      .map((_set_id) => ({ name: _set_id, id: _set_id }));
-  }
-
-  get user_names_for_dd() {
-    return Array.from(user_store.users.values()).map((_user) => ({
-      name: _user.first_name + " " + _user.last_name,
-      id: _user.user_id,
-    }));
-  }
-
-  get login_info(): LoginInfo {
+  private get login_info(): LoginInfo {
     return login_store.login_info;
   }
 
-  get login_user(): User {
+  private get login_user(): User {
     const user = user_store.users.get(this.login_info.user_id);
     return user || newUser();
   }
 
-  get fullname(): string {
+  private get fullname(): string {
     return this.login_user.first_name + " " + this.login_user.last_name;
   }
 
-  private getName(route: string, arr: RouteObj[]): string {
-    if (arr !== undefined) {
-      const obj = arr.find((_obj: RouteObj) => _obj.route === route);
-      if (obj !== undefined) {
-        return obj.name;
-      }
-    }
-    return "Select View";
-  }
-
-  private path(route: string) {
-    if (route === "set-view" && app_state.selected_set) {
-      return {
-        name: "set-view",
-        params: { set_id: app_state.selected_set },
-      };
+  @Watch("$route.path")
+  private onRouteChanged() {
+    const route_re = /^([\w-]*)-tabs$/;
+    const name = this.$route.name as string;
+    const m = name.match(route_re);
+    if (m) {
+      app_state.setCurrentView(m[1]);
     } else {
-      return { name: route };
+      app_state.setCurrentView(name);
     }
-  }
-
-  private setSelectedSet(_set: { name: string; id: string }) {
-    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
-    if (_set && _set.name) {
-      app_state.setSelectedSet(_set.name);
-    }
-
-    // this is a hack to get the set option to populate
-    setTimeout(() => {
-      const div = document.getElementById("set_options");
-      const input = (div && div.firstElementChild) as HTMLInputElement;
-      if (input) {
-        input.setAttribute("autocomplete", "off");
-      }
-    }, 200);
-  }
-
-  private setSelectedUser(_user: { name: string; id: string }) {
-    // for some reasone this is firing when switching view (only to ProblemSetInfo ???)
-    if (_user && _user.name) {
-      app_state.setSelectedUser(_user.id);
-    }
-
-    // this is a hack to get the set option to populate and turn off autocomplete
-    setTimeout(() => {
-      const div = document.getElementById("user_options");
-      const input = (div && div.firstElementChild) as HTMLInputElement;
-      if (input) {
-        input.value = this.fullname;
-        input.setAttribute("autocomplete", "off");
-      }
-    }, 200);
   }
 } // class MenuBar
 </script>
@@ -180,40 +105,16 @@ export default class MenuBar extends Vue {
             <!-- <b-icon :icon="current_icon" variant="light" font-scale="2" /> -->
           </b-nav-text>
           <b-navbar-brand id="view-name" class="ml-2">
-            {{ getName(current_view, views) }}
+            {{ view_name }}
           </b-navbar-brand>
           <b-nav-item-dropdown class="mt-1" variant="outline-primary">
             <b-dd-item v-for="view in views" :key="view.route">
-              <router-link class="view-link" :to="path(view.route)">
+              <router-link class="view-link" :to="{ name: view.route }">
                 <view-icon :icon="view.icon" />
                 <span class="pl-2">{{ view.name }}</span>
               </router-link>
             </b-dd-item>
           </b-nav-item-dropdown>
-        </b-navbar-nav>
-        <b-navbar-nav v-if="show_set" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3">
-            Selected Set:
-          </b-nav-text>
-          <dropdown
-            id="set_options"
-            :options="set_names_for_dd"
-            :max-item="100"
-            placeholder="Select a set"
-            @selected="setSelectedSet"
-          />
-        </b-navbar-nav>
-        <b-navbar-nav v-if="show_user" class="mr-3">
-          <b-nav-text class="font-weight-bold text-light mr-3">
-            Selected User:
-          </b-nav-text>
-          <dropdown
-            id="user_options"
-            :options="user_names_for_dd"
-            :max-item="100"
-            placeholder="Select a User"
-            @selected="setSelectedUser"
-          />
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">

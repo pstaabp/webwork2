@@ -4,10 +4,13 @@ use Dancer2;
 set serializer => 'JSON';
 
 use Dancer2::Plugin::Auth::Extensible;
+use Dancer2::FileUtils qw/path read_file_content/;
 use Data::Dump qw/dump/;
 
 use WeBWorK::CourseEnvironment;
 use WeBWorK::DB;
+
+use WeBWorK::Utils::CourseManagement qw/listCourses/;
 
 ## the remaining routes are in the following packages
 
@@ -17,6 +20,7 @@ use Routes::Test; # this should be not accessible except when running tests
 use Routes::Library;
 use Routes::Settings;
 use Routes::User;
+use Routes::Render;
 
 
 ## the following routes is called before any other /api route.   It is used to load the
@@ -103,7 +107,16 @@ post '/courses/:course_id/logout' => sub {
 	return {logged_in=>false};
 };
 
-
+get '/site-info' => sub {
+	my $ce = WeBWorK::CourseEnvironment->new({webwork_dir => config->{webwork_dir},
+																								courseName=> ""});
+	my @courses = grep !/modelCourse|admin/, listCourses($ce);
+	my $info = read_file_content(path($ce->{webwork_dir},"htdocs","site_info.txt"));
+	return {
+		courses => \@courses,
+		site_info => $info
+	}
+};
 
 get '/app-info' => sub {
 	return {

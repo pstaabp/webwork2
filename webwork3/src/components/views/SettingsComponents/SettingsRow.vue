@@ -14,7 +14,7 @@ import { Setting } from "@/store/models";
 
 import dayjs from "dayjs";
 
-import { permissionLevels, emptySetting } from "@/common";
+import { permission_levels, emptySetting } from "@/common";
 
 import settings_store from "@/store/modules/settings";
 
@@ -31,7 +31,7 @@ export default class SettingsRow extends Vue {
   private show_help = false;
 
   private get permission_levels() {
-    return Object.values(permissionLevels());
+    return Object.values(permission_levels);
   }
 
   // determine based on setting name if this is a duration type:

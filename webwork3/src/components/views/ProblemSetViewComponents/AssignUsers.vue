@@ -15,6 +15,7 @@ import {
   validDueDate,
   validAnswerDate,
   newProblemSet,
+  hasReducedScoring,
 } from "@/common";
 
 // set up the store
@@ -61,6 +62,10 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
 
   private get valid_answer_date() {
     return validAnswerDate(this.override_dates);
+  }
+
+  get reduced_scoring(): boolean {
+    return hasReducedScoring();
   }
 
   // get either assigned, unassigned or all users;
@@ -194,7 +199,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
       </b-col>
     </b-row>
     <b-row v-if="list_type === 'assigned'">
-      <b-col cols="3">
+      <b-col>
         <b-form-group label="Open Date" class="header">
           <b-input
             size="sm"
@@ -204,13 +209,14 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
           />
         </b-form-group>
       </b-col>
-      <b-col cols="3">
+      <b-col v-if="reduced_scoring">
         <b-form-group
           class="header"
           label="Reduced Scoring Date"
           invalid-feedback="This date must be after the open date."
         >
           <b-input
+            v-if="reduced_scoring"
             size="sm"
             :value="formatDateAndTime(override_dates.reduced_scoring_date)"
             :state="valid_reduced_scoring"
@@ -220,7 +226,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
         </b-form-group>
       </b-col>
 
-      <b-col cols="3">
+      <b-col>
         <b-form-group
           label="Due Date"
           class="header"
@@ -235,7 +241,7 @@ export default class AssignUsers extends mixins(ProblemSetMixin) {
           />
         </b-form-group>
       </b-col>
-      <b-col cols="3">
+      <b-col>
         <b-form-group
           class="header"
           label="Answer Date"

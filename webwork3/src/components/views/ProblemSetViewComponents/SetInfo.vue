@@ -19,7 +19,7 @@ import {
 } from "@/common";
 
 // set up the store
-import problem_sets_store from "@/store/modules/problem_sets";
+import problem_set_store from "@/store/modules/problem_sets";
 import users_store from "@/store/modules/users";
 
 @Component({
@@ -74,7 +74,7 @@ export default class SetInfo extends mixins(ProblemSetMixin) {
       validReducedScoring(this.problem_set) &&
       validAnswerDate(this.problem_set)
     ) {
-      problem_sets_store.updateProblemSet(this.problem_set);
+      problem_set_store.updateProblemSet(this.problem_set);
     }
   }
 

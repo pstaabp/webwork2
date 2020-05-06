@@ -17,6 +17,7 @@ BEGIN {
   $WeBWorK::Constants::WEBWORK_DIRECTORY = $webwork_dir;
 
   $pg_dir = $ENV{PG_ROOT} || "$webwork_dir/../pg";
+  $WeBWorK::Constants::PG_DIRECTORY = $pg_dir;
 
   die "The directory $webwork_dir does not exist" if (not -d $webwork_dir);
   die "The directory $pg_dir does not exist" if (not -d $pg_dir);
@@ -27,7 +28,7 @@ use lib "$webwork_dir/webwork3/lib";
 use lib "$pg_dir/lib";
 
 
-use Dancer2; 
+use Dancer2;
 use Routes::Templates;
 use Routes::Login;
 # use Routes::ProblemSets;

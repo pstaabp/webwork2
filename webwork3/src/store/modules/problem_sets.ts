@@ -12,7 +12,13 @@ import { diff } from "deep-object-diff";
 
 import { parseProblemSet, formatDateTime } from "@/common";
 
-import { ProblemSet, ProblemSetList, StringMap } from "@/store/models";
+import {
+  ProblemSet,
+  ProblemSetList,
+  UserSet,
+  UserSetList,
+  Dictionary,
+} from "@/store/models";
 import store from "@/store";
 
 import login_module from "./login";
@@ -38,9 +44,14 @@ function getProperty<T, K extends keyof T>(o: T, _prop_name: K): T[K] {
 })
 export class ProblemSetsModule extends VuexModule {
   private problem_sets_list: ProblemSetList = new Map();
+  private user_set_list: UserSetList = new Map();
 
   public get problem_sets() {
     return this.problem_sets_list;
+  }
+
+  public get user_sets() {
+    return this.user_set_list;
   }
 
   public get set_names() {
@@ -60,7 +71,7 @@ export class ProblemSetsModule extends VuexModule {
   public async updateProblemSet(_set: ProblemSet) {
     const previous_set = (this.problem_sets_list.get(
       _set.set_id
-    ) as unknown) as StringMap;
+    ) as unknown) as Dictionary<string>;
     const response = await axios.put(
       login_module.api_header + "/sets/" + _set.set_id,
       _set
@@ -81,7 +92,7 @@ export class ProblemSetsModule extends VuexModule {
             key +
             ": from " +
             (/date$/.test(key)
-              ? formatDateTime(previous_set[key] as number)
+              ? formatDateTime((previous_set[key] as unknown) as number)
               : "from " + previous_set[key]) +
             " to " +
             (/date$/.test(key)
@@ -126,8 +137,33 @@ export class ProblemSetsModule extends VuexModule {
   }
 
   @Action
+  public async fetchUserSets(_user_id: string) {
+    const response = await axios.get(
+      login_module.api_header + "/users/" + _user_id + "/sets"
+    );
+    const sets = response.data as UserSet[];
+    sets.forEach((_set) => this.SET_USER_SET(_set));
+  }
+
+  @Action async fetchUserSet(props: { user_id: string; set_id: string }) {
+    const response = await axios.get(
+      login_module.api_header +
+        "/users/" +
+        props.user_id +
+        "/sets/" +
+        props.set_id
+    );
+    this.SET_USER_SET(response.data as UserSet);
+  }
+
+  @Action
   public clearProblemSets() {
     this.RESET_SETS();
+  }
+
+  @Mutation
+  private SET_USER_SET(_set: UserSet) {
+    this.user_set_list.set(_set.user_id + ":" + _set.set_id, _set);
   }
 
   @Mutation
