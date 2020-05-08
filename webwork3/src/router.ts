@@ -8,13 +8,13 @@ import ProblemSetsManager from "./components/views/ProblemSetsManager.vue";
 import ClasslistManager from "./components/views/ClasslistManager.vue";
 import Calendar from "./components/views/Calendar.vue";
 import Settings from "./components/views/Settings.vue";
-import ProblemSetView from "./components/views/ProblemSetView.vue";
-import LibraryBrowser from "./components/views/LibraryBrowser.vue";
+// import ProblemSetView from "./components/views/ProblemSetView.vue";
+// import LibraryBrowser from "./components/views/LibraryBrowser.vue";
 import Editor from "./components/views/Editor.vue";
 import Statistics from "./components/views/Statistics.vue";
 import PageNotFound from "./components/PageNotFound.vue";
 import Empty from "./components/Empty.vue";
-import ProblemViewer from "./components/views/ProblemViewer.vue";
+// import ProblemViewer from "./components/views/ProblemViewer.vue";
 import StudentView from "./components/StudentView.vue";
 
 Vue.use(VueRouter);
@@ -46,7 +46,8 @@ export default new VueRouter({
                 {
                   path: "viewer",
                   name: "viewer",
-                  component: ProblemViewer,
+                  component: () =>
+                    import("@/components/views/ProblemViewer.vue"),
                   props: { viewer_type: "instructor" },
                 },
                 {
@@ -68,22 +69,26 @@ export default new VueRouter({
                 {
                   path: "set-view",
                   name: "set-view",
-                  component: ProblemSetView,
+                  component: () =>
+                    import("@/components/views/ProblemSetView.vue"),
                 },
                 {
                   path: "set-view/:set_id",
-                  component: ProblemSetView,
+                  component: () =>
+                    import("@/components/views/ProblemSetView.vue"),
                   name: "set-view-tabs",
                 },
                 {
                   path: "library",
                   name: "library",
-                  component: LibraryBrowser,
+                  component: () =>
+                    import("@/components/views/LibraryBrowser.vue"),
                 },
                 {
                   path: "library/:tabname",
                   name: "library-tabs",
-                  component: LibraryBrowser,
+                  component: () =>
+                    import("@/components/views/LibraryBrowser.vue"),
                 },
                 {
                   path: "editor",
@@ -116,13 +121,15 @@ export default new VueRouter({
                 {
                   path: "viewer",
                   name: "student-problems",
-                  component: ProblemViewer,
+                  component: () =>
+                    import("@/components/views/ProblemViewer.vue"),
                   props: { viewer_type: "student" },
                 },
                 {
                   path: "viewer/users/:user_id/sets/:set_id",
                   name: "student-problem-user-set",
-                  component: ProblemViewer,
+                  component: () =>
+                    import("@/components/views/ProblemViewer.vue"),
                   props: { viewer_type: "student" },
                 },
               ],
