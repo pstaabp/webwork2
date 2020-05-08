@@ -3,8 +3,7 @@
 This is the View for a Problem Set.  It contains other compoents as tabs. -->
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
+import { Component, Watch, Vue } from "vue-property-decorator";
 
 import SetInfo from "./ProblemSetViewComponents/SetInfo.vue";
 import GatewayInfo from "./ProblemSetViewComponents/GatewayInfo.vue";
@@ -15,8 +14,6 @@ import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
 
 import { ProblemSet } from "@/store/models";
 import { newProblemSet } from "@/common";
-
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 // set up the store
 import problem_set_store from "@/store/modules/problem_sets";
@@ -33,7 +30,7 @@ import app_state from "@/store/modules/app_state";
     SetHeaders,
   },
 })
-export default class ProblemSetView extends mixins(ProblemSetMixin) {
+export default class ProblemSetView extends Vue {
   private problem_set: ProblemSet = newProblemSet();
 
   // private get selected_set_id() {

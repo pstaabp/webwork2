@@ -3,10 +3,7 @@
 This is a tab within the ProblemSetView that allows the viewing/editing of the basic parameters of the set. -->
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
-
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { ProblemSet, ProblemSetList } from "@/store/models";
 
@@ -25,7 +22,7 @@ import users_store from "@/store/modules/users";
 @Component({
   name: "SetInfo",
 })
-export default class SetInfo extends mixins(ProblemSetMixin) {
+export default class SetInfo extends Vue {
   @Prop() private problem_sets!: ProblemSetList;
   @Prop() private selected_set!: ProblemSet;
 

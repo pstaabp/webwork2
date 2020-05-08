@@ -10,7 +10,7 @@ import {
   UserSetScore,
   UserSet,
   Dictionary,
-  ProblemTags
+  ProblemTags,
 } from "@/store/models";
 
 // This renders a problem given by either a Problem or from a source.

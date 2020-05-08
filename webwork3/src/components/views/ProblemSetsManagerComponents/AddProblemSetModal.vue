@@ -3,8 +3,7 @@
 This is modal from the ProblemSetManager to add a new problem set. -->
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import dayjs from "dayjs";
 
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -13,7 +12,6 @@ dayjs.extend(customParseFormat);
 import { newProblemSet } from "@/common";
 
 import { ProblemSet } from "@/store/models";
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
 
 // set up the store
 import problem_set_store from "@/store/modules/problem_sets";
@@ -22,7 +20,7 @@ import settings_store from "@/store/modules/settings";
 @Component({
   name: "AddProblemSetModal",
 })
-export default class AddProblemSetModal extends mixins(ProblemSetMixin) {
+export default class AddProblemSetModal extends Vue {
   private problem_set: ProblemSet = newProblemSet();
 
   @Prop()

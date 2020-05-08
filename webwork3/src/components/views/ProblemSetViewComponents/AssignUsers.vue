@@ -3,10 +3,8 @@
 This is a tab within the ProblemSetView that allows fine-grained assignment of users. -->
 
 <script lang="ts">
-import { Component, Watch, Prop } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
+import { Component, Watch, Prop, Vue } from "vue-property-decorator";
 
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
 import { User, ProblemSet } from "@/store/models";
 
 import {
@@ -25,7 +23,7 @@ import users_store from "@/store/modules/users";
   name: "AssignUsers",
   // mixins: [ProblemSetMixin],
 })
-export default class AssignUsers extends mixins(ProblemSetMixin) {
+export default class AssignUsers extends Vue {
   private fields: string[] = ["user_id", "first_name", "last_name"];
   private selected_users: User[] = []; // which rows are selected
   private users: User[] = [];

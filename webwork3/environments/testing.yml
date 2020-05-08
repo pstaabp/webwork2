@@ -36,9 +36,6 @@ show_errors: 1
 #session: "Simple"
 
 
-# templating parameters
-
-template: "template_toolkit"
 
 # use a simple YAML session
 
@@ -51,18 +48,7 @@ engines:
     JSON:
       allow_blessed: 1
       convert_blessed: 1
-  template:
-    template_toolkit:
-      start_tag: '[%'
-      stop_tag: '%]'
 
-# auto_reload is a development and experimental feature
-# you should enable it by yourself if you want it
-# Module::Refresh is needed
-#
-# Be aware it's unstable and may cause a memory leak.
-# DO NOT EVER USE THIS FEATURE IN PRODUCTION
-# OR TINY KITTENS SHALL DIE WITH LOTS OF SUFFERING
 auto_reload: 0
 
 

@@ -3,10 +3,7 @@
 This is modal from the ProblemSetManager to edit a given problem set. -->
 
 <script lang="ts">
-import { Component, Watch, Prop } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
-
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
+import { Component, Watch, Prop, Vue } from "vue-property-decorator";
 
 import {
   validReducedScoring,
@@ -22,7 +19,7 @@ import problem_set_store from "@/store/modules/problem_sets";
 @Component({
   name: "EditProblemSetsModal",
 })
-export default class SetInfo extends mixins(ProblemSetMixin) {
+export default class SetInfo extends Vue {
   private problem_set: ProblemSet = newProblemSet();
   @Prop() private selected_sets!: ProblemSet[];
 

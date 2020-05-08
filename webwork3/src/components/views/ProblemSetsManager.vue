@@ -4,7 +4,6 @@ This is the View that allows the viewing/editing of all problem sets. -->
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
 
 import { BIconCheckCircle, BIconXCircleFill } from "bootstrap-vue";
 Vue.component("BIconXCircleFill", BIconXCircleFill);
@@ -21,7 +20,7 @@ import { ProblemSet, Dictionary } from "@/store/models";
 import AddProblemSetModal from "./ProblemSetsManagerComponents/AddProblemSetModal.vue";
 import EditProblemSetsModal from "./ProblemSetsManagerComponents/EditProblemSetsModal.vue";
 
-import ProblemSetMixin from "@/mixins/problem_set_mixin";
+import { hasReducedScoring } from "@/common";
 
 @Component({
   name: "ProblemSetsManager",
@@ -30,47 +29,71 @@ import ProblemSetMixin from "@/mixins/problem_set_mixin";
     EditProblemSetsModal,
   },
 })
-export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
-  private fields = [
-    { key: "set_id", sortable: true, label: "Name" },
-    {
-      key: "assigned_users",
-      sortable: true,
-      label: "Users",
-      formatter: "numUsers",
-    },
-    {
-      key: "problems",
-      sortable: true,
-      label: "# Probs.",
-      formatter: "numProbs",
-    },
-    { key: "visible", sortable: true },
-    { key: "enable_reduced_scoring", label: "RS" },
-    {
-      key: "open_date",
-      sortable: true,
-      label: "Open Date",
-      formatter: "formatDate",
-    },
-    { key: "reduced_scoring_date", sortable: true, label: "Red. Sc. Date" },
-    {
-      key: "due_date",
-      sortable: true,
-      label: "Due Date",
-      formatter: "formatDate",
-    },
-    {
-      key: "answer_date",
-      sortable: true,
-      label: "Answer Date",
-      formatter: "formatDate",
-    },
-  ];
+export default class ProblemSetsManager extends Vue {
+  private num_rows = 10;
+  private current_page = 1;
   private selected_sets: ProblemSet[] = [];
   private show_time = false;
   private filter_string = "";
   private problem_set_tracker = 1; // a hacky way to get reaction to adding/remove problem sets.
+
+  private get fields() {
+    const fields: {
+      key: string;
+      sortable: boolean;
+      label?: string;
+      formatter?: string;
+    }[] = [
+      { key: "set_id", sortable: true, label: "Name" },
+      {
+        key: "assigned_users",
+        sortable: true,
+        label: "Users",
+        formatter: "numUsers",
+      },
+      {
+        key: "problems",
+        sortable: true,
+        label: "# Probs.",
+        formatter: "numProbs",
+      },
+      { key: "visible", sortable: true },
+      //{ key: "enable_reduced_scoring", label: "RS" },
+      {
+        key: "open_date",
+        sortable: true,
+        label: "Open Date",
+        formatter: "formatDate",
+      },
+      // { key: "reduced_scoring_date", sortable: true, label: "Red. Sc. Date" },
+      {
+        key: "due_date",
+        sortable: true,
+        label: "Due Date",
+        formatter: "formatDate",
+      },
+      {
+        key: "answer_date",
+        sortable: true,
+        label: "Answer Date",
+        formatter: "formatDate",
+      },
+    ];
+    if (hasReducedScoring()) {
+      fields.splice(4, 0, {
+        key: "enable_reduced_scoring",
+        sortable: false,
+        label: "RS",
+      });
+      fields.splice(6, 0, {
+        key: "reduced_scoring_date",
+        sortable: true,
+        label: "Red. Sc. Date",
+        formatter: "formatDate",
+      });
+    }
+    return fields;
+  }
 
   private get problem_sets() {
     return problem_set_store.problem_sets;
@@ -143,7 +166,7 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
             </b-input-group-append>
           </b-input-group>
         </b-col>
-        <b-col cols="9">
+        <b-col cols="6">
           <b-input-group size="sm" prepend="Show Time">
             <b-input-group-append is-text>
               <b-checkbox v-model="show_time" />
@@ -165,13 +188,15 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
                 Delete Problem Sets
               </b-dd-item>
             </b-dd>
-            <b-dd variant="outline-dark" text="Show Rows">
-              <b-dd-item default value="10">Show 10 rows</b-dd-item>
-              <b-dd-item value="25">Show 25 rows</b-dd-item>
-              <b-dd-item value="50">Show 50 rows</b-dd-item>
-              <b-dd-item value="0">Show all rows</b-dd-item>
-            </b-dd>
           </b-input-group>
+        </b-col>
+        <b-col cols="2">
+          <b-select v-model="num_rows">
+            <option default value="10">Show 10 rows</option>
+            <option value="25">Show 25 rows</option>
+            <option value="50">Show 50 rows</option>
+            <option value="0">Show all rows</option>
+          </b-select>
         </b-col>
       </b-row>
       <b-row>
@@ -182,6 +207,8 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
           :bordered="true"
           primary-key="set_id"
           :filter="filter_string"
+          :per-page="num_rows"
+          :current-page="current_page"
           selectable
           @row-selected="rowSelected"
           @row-dblclicked="editRow"
@@ -211,6 +238,16 @@ export default class ProblemSetsManager extends mixins(ProblemSetMixin) {
             }}
           </template>
         </b-table>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-pagination
+            v-model="current_page"
+            limit="20"
+            :total-rows="problem_sets.size"
+            :per-page="num_rows"
+          />
+        </b-col>
       </b-row>
     </b-container>
     <!-- Note the @problem-set-added event is a hacky way to get rerending to work -->
