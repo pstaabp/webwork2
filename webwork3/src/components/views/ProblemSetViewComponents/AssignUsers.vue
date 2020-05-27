@@ -16,8 +16,10 @@ import {
   hasReducedScoring,
 } from "@/common";
 
-// set up the store
-import users_store from "@/store/modules/users";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
 
 @Component({
   name: "AssignUsers",
@@ -72,7 +74,7 @@ export default class AssignUsers extends Vue {
       this.problem_set && this.problem_set.assigned_users
         ? this.problem_set.assigned_users
         : [];
-    const all_user_ids = Array.from(users_store.users.keys());
+    const all_user_ids = users_store.user_names;
     const unassigned_users_ids = all_user_ids.filter(
       (_id) => !assigned_users_ids.includes(_id)
     );

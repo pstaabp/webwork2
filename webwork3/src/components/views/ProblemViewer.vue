@@ -3,9 +3,15 @@
 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
-import problem_set_store from "@/store/modules/problem_sets";
-import user_store from "@/store/modules/users";
-import login_store from "@/store/modules/login";
+
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import users_module from "@/store/modules/users";
+const user_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 import ProblemView from "@/components/common_components/ProblemView.vue";
 import ProblemViewerSidebar from "./ProblemViewerComponents/ProblemViewerSidebar.vue";
@@ -28,16 +34,13 @@ export default class ProblemViewer extends Vue {
   // return an array of problem_sets that the act_as_user is assigned to.
   get valid_problem_sets() {
     if (this.user_sets_changed && this.viewer_type === "instructor") {
-      return Array.from(problem_set_store.problem_sets.keys()).map(
-        (_set_id: string) => ({
-          text: _set_id,
-          value: _set_id,
-          disabled:
-            this.user_sets.findIndex(
-              (_set: UserSet) => _set.set_id === _set_id
-            ) < 0,
-        })
-      );
+      return problem_set_store.set_names.map((_set_id: string) => ({
+        text: _set_id,
+        value: _set_id,
+        disabled:
+          this.user_sets.findIndex((_set: UserSet) => _set.set_id === _set_id) <
+          0,
+      }));
     } else if (this.viewer_type === "student") {
       return this.user_sets.map((_set: UserSet) => _set.set_id);
     } else {
@@ -62,22 +65,27 @@ export default class ProblemViewer extends Vue {
   }
 
   get problem_set() {
-    return problem_set_store.problem_sets.get(this.set_id);
+    return problem_set_store.problem_set(this.set_id);
   }
 
   get user_set() {
-    const set = this.user_sets.find((_set) => _set.set_id == this.set_id);
+    const set = problem_set_store.user_set({
+      user_id: this.user_id,
+      set_id: this.set_id,
+    });
     return this.user_sets_changed && set;
   }
 
   get user_names() {
-    return Array.from(user_store.users.keys());
+    return user_store.user_names;
+    // return Array.from(user_store.users.keys());
   }
 
   get num_problems() {
-    const set = problem_set_store.user_sets.get(
-      this.user_id + ":" + this.set_id
-    );
+    const set = problem_set_store.user_set({
+      user_id: this.user_id,
+      set_id: this.set_id,
+    });
     return (set && set.problems.length) || 0;
   }
 
@@ -93,8 +101,6 @@ export default class ProblemViewer extends Vue {
   private async userIDchanged() {
     await problem_set_store.fetchUserSets(this.user_id);
     this.user_sets_changed++;
-    //this.loadUserSet();
-    // this.updateProblem();
   }
 
   private async loadUserSet() {
@@ -128,7 +134,6 @@ export default class ProblemViewer extends Vue {
   }
 
   private async mounted() {
-    console.log("in mounted"); // eslint-disable-line no-console
     this.user_id = login_store.login_info.user_id;
     await problem_set_store.fetchUserSets(this.user_id);
     this.user_sets_changed++;

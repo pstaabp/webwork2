@@ -1,3 +1,5 @@
+console.log("in router.ts"); // eslint-disable-line no-console
+
 import Vue from "vue";
 import VueRouter from "vue-router";
 
@@ -17,9 +19,22 @@ import Empty from "./components/Empty.vue";
 // import ProblemViewer from "./components/views/ProblemViewer.vue";
 import StudentView from "./components/StudentView.vue";
 
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+
 Vue.use(VueRouter);
 
-export default new VueRouter({
+const router = new VueRouter({
   base: "/webwork3",
   mode: "history",
   routes: [
@@ -37,6 +52,7 @@ export default new VueRouter({
               path: "manager",
               name: "manager",
               component: Manager,
+
               children: [
                 {
                   path: "problem-sets",
@@ -141,3 +157,34 @@ export default new VueRouter({
     { path: "*", component: PageNotFound },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.path === from.path) {
+    return;
+  }
+  const paths = to.path.split("/");
+  app_state.updateAppState({ current_path: to.path });
+  if (paths[3] === "manager") {
+    // check the authenticaion
+    if (
+      login_store.login_info.permission < 10 ||
+      !login_store.login_info.logged_in
+    ) {
+      console.log("authenticaion error"); // eslint-disable-line no-console
+    } else {
+      if (
+        typeof settings_store.settings === "undefined" ||
+        settings_store.settings.length == 0
+      ) {
+        settings_store.fetchSettings();
+        users_store.fetchUsers();
+        problem_set_store.fetchProblemSets();
+      }
+    }
+  } else if (paths[3] === "student") {
+    // load student stuff.
+  }
+  next();
+});
+
+export default router;

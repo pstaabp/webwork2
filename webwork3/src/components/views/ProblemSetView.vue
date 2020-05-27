@@ -15,9 +15,12 @@ import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
 import { ProblemSet } from "@/store/models";
 import { newProblemSet } from "@/common";
 
-// set up the store
-import problem_set_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 @Component({
   name: "ProblemSetView",
@@ -32,10 +35,6 @@ import app_state from "@/store/modules/app_state";
 })
 export default class ProblemSetView extends Vue {
   private problem_set: ProblemSet = newProblemSet();
-
-  // private get selected_set_id() {
-  //   return app_state.selected_set;
-  // }
 
   private get problem_sets_array() {
     return Array.from(problem_set_store.problem_sets.values());
@@ -57,14 +56,19 @@ export default class ProblemSetView extends Vue {
     // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
       if (
-        mutation.type === "app_state/SET_PROBLEM_SET" &&
+        mutation.type === "app_state_module/SET_APP_STATE" &&
+        mutation.payload &&
+        Object.prototype.hasOwnProperty.call(mutation.payload, "set_id") &&
         this.$route.name &&
         /^set-view/.test(this.$route.name)
       ) {
-        if (app_state.selected_set !== this.$route.params.set_id) {
+        if (
+          this.$route.name !== "set-view-tabs" &&
+          mutation.payload.set_id !== this.$route.params.set_id
+        ) {
           this.$router.push({
             name: "set-view-tabs",
-            params: { set_id: app_state.selected_set },
+            params: { set_id: mutation.payload.set_id },
           });
         }
       }
@@ -81,8 +85,8 @@ export default class ProblemSetView extends Vue {
     if (to.name === "set-view-tabs") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
-        app_state.setSelectedSet(set_id);
-        const set = problem_set_store.problem_sets.get(set_id);
+        app_state.updateAppState({ set_id: set_id });
+        const set = problem_set_store.problem_set(set_id);
         if (set) {
           Object.assign(this.problem_set, set);
         }

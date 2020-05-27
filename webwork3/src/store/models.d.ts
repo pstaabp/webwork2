@@ -129,6 +129,8 @@ export interface Setting {
   width: number;
 }
 
+export type SettingList = Map<string, Setting>;
+
 export interface Message {
   id: number;
   long: string;

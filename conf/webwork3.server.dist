@@ -1,0 +1,15 @@
+[Unit]
+Description=webwork3 perl dancer2 service
+After=mysqld.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+Group=wwdata
+ExecStart=/opt/webwork/webwork2/bin/webwork3-service.sh
+
+[Install]
+WantedBy=multi-user.target

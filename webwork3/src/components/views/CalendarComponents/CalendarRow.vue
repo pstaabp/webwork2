@@ -7,8 +7,12 @@ import dayjs from "dayjs";
 
 import CalendarMixin from "./calendar-mixin";
 
-import problem_set_store from "@/store/modules/problem_sets";
-import user_store from "@/store/modules/users";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const user_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 import { AssignmentInfo } from "./calendar-mixin";
 
@@ -23,11 +27,11 @@ export default class CalendarRow extends mixins(CalendarMixin) {
   private drag = false;
 
   private get num_users() {
-    return user_store.users.size;
+    return user_store.users.length;
   }
 
   private getProblemSet(_set_id: string) {
-    return problem_set_store.problem_sets.get(_set_id);
+    return problem_set_store.problem_set(_set_id);
   }
 
   private assignChange(

@@ -7,9 +7,14 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { UserSetScore, User, Problem, Dictionary } from "@/store/models";
 
-import app_state from "@/store/modules/app_state";
-import users_store from "@/store/modules/users";
-import problem_set_store from "@/store/modules/problem_sets";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { round } from "@/common";
@@ -31,7 +36,7 @@ export default class SelectedSetProgress extends Vue {
   }
 
   private get user_scores() {
-    const set = problem_set_store.problem_sets.get(this.selected_set);
+    const set = problem_set_store.problem_set(this.selected_set);
 
     if (!set) {
       return [];
@@ -42,7 +47,7 @@ export default class SelectedSetProgress extends Vue {
       (_set: UserSetScore) => _set.set_id === this.selected_set
     );
 
-    return users_store.users_array.map((_user: User) => {
+    return users_store.users.map((_user: User) => {
       const user_set = user_sets.find((_set) => _set.user_id === _user.user_id);
       if (!user_set) {
         return {};
@@ -69,12 +74,12 @@ export default class SelectedSetProgress extends Vue {
   }
 
   private get fields() {
-    const set = problem_set_store.problem_sets.get(this.selected_set);
+    const set = problem_set_store.problem_set(this.selected_set);
 
     if (!set) {
       return [];
     }
-    const problems = set.problems.map((_prob) => ({
+    const problems = set.problems.map((_prob: Problem) => ({
       key: "" + _prob.problem_id,
       sortable: true,
       formatter: (value: string | number) =>

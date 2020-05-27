@@ -8,7 +8,10 @@ import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 import { newProblemSet, parseProblemSet } from "@/common";
 import { ProblemSet } from "@/store/models";
 
-import problem_set_store from "@/store/modules/problem_sets";
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 @Component({
   name: "GatewayInfo",

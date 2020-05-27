@@ -18,5 +18,5 @@ module.exports = {
   //   // plugins: [new BundleAnalyzerPlugin()],
   // },
   publicPath: "/webwork3/",
-  transpileDependencies: ["vuex-module-decorators"],
+  transpileDependencies: ["vuex-module-decorators", "vuex-persist"],
 };

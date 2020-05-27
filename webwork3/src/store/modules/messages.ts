@@ -1,26 +1,19 @@
-import {
-  VuexModule,
-  Module,
-  Action,
-  Mutation,
-  getModule,
-} from "vuex-module-decorators";
+import { VuexModule, Module, Action, Mutation } from "vuex-module-decorators";
 import { Message } from "@/store/models";
 import store from "@/store";
 
 // this is to prevent an error occur with a hot reloading.
-const name = "messages_store";
-if (store.state[name]) {
-  store.unregisterModule(name);
-}
+// if (store.state.messages) {
+//   store.unregisterModule("messages_store");
+// }
 
 @Module({
   namespaced: true,
-  name: "messages_store",
+  name: "messages_module",
   store,
   dynamic: true,
 })
-export class MessagesModule extends VuexModule {
+export default class MessagesModule extends VuexModule {
   private messages_array: Message[] = [];
 
   public get messages() {
@@ -54,5 +47,3 @@ export class MessagesModule extends VuexModule {
     this.messages_array.splice(_index, 1);
   }
 }
-
-export default getModule(MessagesModule, store);

@@ -3,8 +3,10 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { User } from "@/store/models";
 
-// set up the store
-import users_store from "@/store/modules/users";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
 
 @Component
 export default class EditUsersModel extends Vue {

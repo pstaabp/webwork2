@@ -5,15 +5,19 @@ This is the Sidebar to allow changes to the selected problem set in many differe
 <script lang="ts">
 import { Component, Watch, Vue } from "vue-property-decorator";
 
-import problem_set_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 @Component({ name: "ProblemSetSidebar" })
 export default class ProblemSetSidebar extends Vue {
   private set_id = "";
 
   private get problem_sets_names() {
-    return Array.from(problem_set_store.problem_sets.keys());
+    return problem_set_store.set_names;
   }
 
   private beforeMount() {
@@ -24,7 +28,7 @@ export default class ProblemSetSidebar extends Vue {
 
   @Watch("set_id")
   private setIDChanged() {
-    app_state.setSelectedSet(this.set_id);
+    app_state.updateAppState({ set_id: this.set_id });
   }
 }
 </script>

@@ -16,8 +16,10 @@ import EditUsersModal from "./ClasslistComponents/EditUsersModal.vue";
 import { permission_levels, user_types } from "@/common";
 import { User } from "@/store/models";
 
-// set up the store
-import users_store from "@/store/modules/users";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
 
 @Component({
   name: "ClasslistManager",

@@ -14,21 +14,23 @@ import { parseProblemSet, formatDateTime } from "@/common";
 
 import {
   ProblemSet,
-  ProblemSetList,
+  // ProblemSetList,
   UserSet,
-  UserSetList,
-  Dictionary,
+  // UserSetList,
+  // Dictionary,
 } from "@/store/models";
 import store from "@/store";
 
-import login_module from "./login";
-import messages_store from "./messages";
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import messages_module from "./messages";
+const messages_store = getModule(messages_module);
 
 // this is to prevent an error occur with a hot reloading.
 
-if (store.state.problem_set_store) {
-  store.unregisterModule("problem_set_store");
-}
+// if (store.state.problem_sets) {
+//   store.unregisterModule("problem_sets");
+// }
 
 import axios from "axios";
 
@@ -38,29 +40,48 @@ function getProperty<T, K extends keyof T>(o: T, _prop_name: K): T[K] {
 
 @Module({
   namespaced: true,
-  name: "problem_set_store",
+  name: "problem_sets_module",
   store,
   dynamic: true,
+  preserveState: localStorage.getItem("vuex") !== null,
 })
-export class ProblemSetsModule extends VuexModule {
-  private problem_sets_list: ProblemSetList = new Map();
-  private user_set_list: UserSetList = new Map();
+export default class ProblemSetsModule extends VuexModule {
+  // Note: a ProblemSetList (Map<string,Problem>) is preferrable, but locally saving a Map is not supported well in
+  // vuex-persist currently.  TODO: switch over at some point.
+
+  private problem_sets_array: ProblemSet[] = [];
+  private user_set_array: UserSet[] = [];
 
   public get problem_sets() {
-    return this.problem_sets_list;
+    return this.problem_sets_array;
   }
 
   public get user_sets() {
-    return this.user_set_list;
+    return this.user_set_array;
   }
 
   public get set_names() {
-    return Array.from(this.problem_sets_list.keys());
+    return this.problem_sets_array.map((_set: ProblemSet) => _set.set_id);
+  }
+
+  public get problem_set() {
+    return (_set_id: string) =>
+      this.problem_sets_array.find(
+        (_set: ProblemSet) => _set.set_id === _set_id
+      );
+  }
+
+  public get user_set() {
+    return (info: { user_id: string; set_id: string }) =>
+      this.user_set_array.find(
+        (_set: UserSet) =>
+          _set.set_id === info.set_id && _set.user_id === info.user_id
+      );
   }
 
   @Action({ rawError: true })
   public async fetchProblemSets() {
-    const response = await axios.get(login_module.api_header + "/sets");
+    const response = await axios.get(login_store.api_header + "/sets");
     const sets = response.data as ProblemSet[];
     sets.forEach((_set) => {
       this.SET_PROBLEM_SET(parseProblemSet(_set));
@@ -69,11 +90,9 @@ export class ProblemSetsModule extends VuexModule {
 
   @Action
   public async updateProblemSet(_set: ProblemSet) {
-    const previous_set = (this.problem_sets_list.get(
-      _set.set_id
-    ) as unknown) as Dictionary<string>;
+    const previous_set = this.problem_set(_set.set_id);
     const response = await axios.put(
-      login_module.api_header + "/sets/" + _set.set_id,
+      login_store.api_header + "/sets/" + _set.set_id,
       _set
     );
 
@@ -117,11 +136,11 @@ export class ProblemSetsModule extends VuexModule {
   @Action
   public async addProblemSet(_set: ProblemSet) {
     const response = await axios.post(
-      login_module.api_header + "/sets/" + _set.set_id,
+      login_store.api_header + "/sets/" + _set.set_id,
       _set
     );
 
-    // add the new problem set to the problem_sets_list;
+    // add the new problem set to the problem_sets_array;
     this.SET_PROBLEM_SET(_set);
     // we should check that this worked and add a message
     return response.data as ProblemSet;
@@ -130,7 +149,7 @@ export class ProblemSetsModule extends VuexModule {
   @Action
   public async removeProblemSet(_set: ProblemSet) {
     const response = await axios.delete(
-      login_module.api_header + "/sets/" + _set.set_id
+      login_store.api_header + "/sets/" + _set.set_id
     );
     this.DELETE_SET(_set);
     return response.data as ProblemSet;
@@ -139,7 +158,7 @@ export class ProblemSetsModule extends VuexModule {
   @Action
   public async fetchUserSets(_user_id: string) {
     const response = await axios.get(
-      login_module.api_header + "/users/" + _user_id + "/sets"
+      login_store.api_header + "/users/" + _user_id + "/sets"
     );
     const sets = response.data as UserSet[];
     sets.forEach((_set) => this.SET_USER_SET(_set));
@@ -147,7 +166,7 @@ export class ProblemSetsModule extends VuexModule {
 
   @Action async fetchUserSet(props: { user_id: string; set_id: string }) {
     const response = await axios.get(
-      login_module.api_header +
+      login_store.api_header +
         "/users/" +
         props.user_id +
         "/sets/" +
@@ -162,24 +181,41 @@ export class ProblemSetsModule extends VuexModule {
   }
 
   @Mutation
-  private SET_USER_SET(_set: UserSet) {
-    this.user_set_list.set(_set.user_id + ":" + _set.set_id, _set);
+  private SET_USER_SET(set: UserSet) {
+    const index = this.user_set_array.findIndex(
+      (_set: UserSet) => _set.set_id == set.set_id
+    );
+    if (index > -1) {
+      this.user_set_array[index] = set;
+    } else {
+      this.user_set_array.push(set);
+    }
   }
 
   @Mutation
-  private SET_PROBLEM_SET(_set: ProblemSet) {
-    this.problem_sets_list.set(_set.set_id, _set);
+  private SET_PROBLEM_SET(set: ProblemSet) {
+    const index = this.problem_sets_array.findIndex(
+      (_set: ProblemSet) => _set.set_id == set.set_id
+    );
+    if (index > -1) {
+      this.problem_sets_array[index] = set;
+    } else {
+      this.problem_sets_array.push(set);
+    }
   }
 
   @Mutation
-  private DELETE_SET(_set: ProblemSet) {
-    this.problem_sets_list.delete(_set.set_id);
+  private DELETE_SET(set: ProblemSet) {
+    const index = this.problem_sets_array.findIndex(
+      (_set: ProblemSet) => _set.set_id == set.set_id
+    );
+    if (index > -1) {
+      this.problem_sets_array.splice(index, 1);
+    }
   }
 
   @Mutation
   private RESET_SETS() {
-    this.problem_sets_list = new Map();
+    this.problem_sets_array = [];
   }
 }
-
-export default getModule(ProblemSetsModule, store);

@@ -97,6 +97,7 @@ my @modulesList = qw(
 	PadWalker
 	Path::Class
 	PHP::Serialization
+  Plack::Runner
 	Pod::Usage
 	Pod::WSDL
 	Safe

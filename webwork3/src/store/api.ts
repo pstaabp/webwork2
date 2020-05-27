@@ -1,6 +1,9 @@
 import axios from "axios";
 
-import login_store from "@/store/modules/login";
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
 
 import {
   RenderedProblem,

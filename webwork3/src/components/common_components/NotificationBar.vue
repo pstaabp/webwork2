@@ -1,10 +1,10 @@
 <script lang="ts">
-import messages_store from "@/store/modules/messages";
+import { getModule } from "vuex-module-decorators";
+
+import messages_module from "@/store/modules/messages";
+const messages_store = getModule(messages_module);
 
 import { Vue, Component } from "vue-property-decorator";
-
-// set up the store
-import message_store from "@/store/modules/messages";
 
 import Notification from "./Notification.vue";
 
@@ -17,7 +17,7 @@ import Notification from "./Notification.vue";
 export default class NotificationBar extends Vue {
   private new_message = false;
   get messages() {
-    return message_store.messages;
+    return messages_store.messages;
   }
 
   private clearMessages(): void {

@@ -2,11 +2,18 @@
 import MenuBar from "@/components/common_components/MenuBar.vue";
 import { Vue, Component } from "vue-property-decorator";
 
-import login_store from "@/store/modules/login";
-import settings_store from "@/store/modules/settings";
-import users_store from "@/store/modules/users";
-import problem_set_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 @Component({
   name: "Manager",
@@ -18,27 +25,25 @@ export default class Manager extends Vue {
   private async created() {
     // load all of the relevant data
 
-    if (login_store.login_info && login_store.login_info.logged_in) {
-      settings_store.fetchSettings();
-      users_store.fetchUsers();
-      problem_set_store.fetchProblemSets();
-    } else {
-      // console.log(login_store.login_info); // eslint-disable-line no-console
-      this.$router.replace("/courses");
+    console.log(login_store.login_info); // eslint-disable-line no-console
+    console.log(this.$router); // eslint-disable-line no-console
+    console.log(app_state.current_path); // eslint-disable-line no-console
+    if (app_state.current_path) {
+      this.$router.replace(app_state.current_path);
     }
-
-    // this is all a hack to get MathJax loaded.  Eventually this need to just be imported.
-    // if (document.getElementById("mathjax-scr")) {
-    //   return; // was already loaded
+    //
+    // if (login_store.login_info && login_store.login_info.logged_in) {
+    //   settings_store.fetchSettings();
+    //   users_store.fetchUsers();
+    //   problem_set_store.fetchProblemSets();
+    // } else {
+    //   console.log(login_store.login_info); // eslint-disable-line no-console
+    //   this.$router.replace("/courses");
     // }
-    // const scriptTag = document.createElement("script");
-    // scriptTag.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js";
-    // scriptTag.async = true;
-    // scriptTag.id = "mathjax-scr";
-    // document.getElementsByTagName("head")[0].appendChild(scriptTag);
-    if (this.$route.fullPath === "/") {
-      this.$router.replace("/courses");
-    }
+    //
+    // if (this.$route.fullPath === "/") {
+    //   this.$router.replace("/courses");
+    // }
   }
 
   private logout(): void {
@@ -59,7 +64,10 @@ export default class Manager extends Vue {
   }
 
   private mounted() {
-    app_state.setCurrentView(this.$route.fullPath.split("/").pop() || "");
+    console.log("in manager mounted()"); // eslint-disable-line no-console
+    app_state.updateAppState({
+      current_view: this.$route.fullPath.split("/").pop() || "",
+    });
   }
 }
 </script>

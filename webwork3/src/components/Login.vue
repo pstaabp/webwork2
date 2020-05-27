@@ -1,8 +1,11 @@
 <script lang="ts">
+import { getModule } from "vuex-module-decorators";
+
 import { UserPassword } from "@/store/models";
 
 import { Vue, Component } from "vue-property-decorator";
-import login_store from "@/store/modules/login";
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
 
 @Component({
   name: "Login",

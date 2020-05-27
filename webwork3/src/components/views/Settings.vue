@@ -9,8 +9,10 @@ import SettingsTab from "./SettingsComponents/SettingsTab.vue";
 
 import { Setting } from "@/store/models";
 
-// set up the store
-import settings_store from "@/store/modules/settings";
+import { getModule } from "vuex-module-decorators";
+
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
 
 @Component({
   name: "Settings",
@@ -20,7 +22,7 @@ import settings_store from "@/store/modules/settings";
 })
 export default class Settings extends Vue {
   private get settings() {
-    return settings_store.settings_array;
+    return settings_store.settings;
   }
   private filterSettings(category: string): Setting[] {
     return this.settings.filter(

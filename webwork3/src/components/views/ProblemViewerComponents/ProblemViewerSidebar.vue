@@ -6,8 +6,12 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import dayjs from "dayjs";
 
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+
 import { ScoreType, UserSet, Problem } from "@/store/models";
-import problem_set_store from "@/store/modules/problem_sets";
 import { hasReducedScoring, newUserSet } from "@/common";
 
 @Component({ name: "ProblemViewerSidebar" })
@@ -18,7 +22,7 @@ export default class ProblemViewerSidebar extends Vue {
   @Prop() private user_sets_changed!: number;
 
   private get problem_set() {
-    return problem_set_store.problem_sets.get(this.set_id);
+    return problem_set_store.problem_set(this.set_id);
   }
 
   private mounted() {
@@ -26,16 +30,17 @@ export default class ProblemViewerSidebar extends Vue {
   }
 
   private updateUserSet() {
-    const set = problem_set_store.user_sets.get(
-      this.user_id + ":" + this.set_id
-    );
-    this.user_set = set || newUserSet();
+    this.user_set =
+      problem_set_store.user_set({
+        user_id: this.user_id,
+        set_id: this.set_id,
+      }) || newUserSet();
   }
 
   private created() {
     this.$store.subscribe((mutation) => {
       // any change to the user set, make sure we have an updated set.
-      if (mutation.type === "problem_set_store/SET_USER_SET") {
+      if (mutation.type === "problem_set_module/SET_USER_SET") {
         this.updateUserSet();
       }
     });

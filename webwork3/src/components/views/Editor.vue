@@ -15,8 +15,12 @@ import { Problem } from "@/store/models";
 
 import { renderFromSource, fetchProblemSource } from "@/store/api";
 
-import problem_set_store from "@/store/modules/problem_sets";
-import login_store from "@/store/modules/login";
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 @Component({
   name: "Editor",
@@ -44,7 +48,7 @@ export default class ProblemEditor extends Vue {
   }
 
   private get problems() {
-    const set = problem_set_store.problem_sets.get(this.selected_set_id);
+    const set = problem_set_store.problem_set(this.selected_set_id);
     return set
       ? [
           ...[{ value: "", text: "Select Problem" }],
@@ -62,7 +66,7 @@ export default class ProblemEditor extends Vue {
   }
 
   private updateSource() {
-    const set = problem_set_store.problem_sets.get(this.selected_set_id);
+    const set = problem_set_store.problem_set(this.selected_set_id);
     if (set) {
       const prob = set.problems.find(
         (prob: Problem) => prob.problem_id === this.selected_problem

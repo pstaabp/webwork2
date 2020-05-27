@@ -7,53 +7,55 @@ import {
 } from "vuex-module-decorators";
 import axios from "axios";
 
-import { User, UserList } from "@/store/models";
+import { User } from "@/store/models";
 import store from "@/store";
 
-import login_module from "./login";
-
-const name = "users";
-
-// this is to prevent an error occur with a hot reloading.
-
-if (store.state[name]) {
-  store.unregisterModule(name);
-}
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
 
 @Module({
   namespaced: true,
-  name: "users",
+  name: "users_module",
   store,
   dynamic: true,
+  preserveState: localStorage.getItem("vuex") !== null,
 })
-export class UsersModule extends VuexModule {
-  private user_list: UserList = new Map();
+export default class UsersModule extends VuexModule {
+  // Note: a UserList (Map<string,User>) is preferrable, but locally saving a Map is not supported well in
+  // vuex-persist currently.  TODO: switch over at some point.
+
+  private user_array: User[] = [];
 
   get users() {
-    return this.user_list;
+    return this.user_array;
   }
 
-  get users_array() {
-    return Array.from(this.user_list.values());
+  get user_names() {
+    return this.user_array.map((_user: User) => _user.user_id);
+  }
+
+  @Action
+  public getUser(_user_id: string) {
+    return this.user_array.find((_user: User) => _user.user_id == _user_id);
   }
 
   @Action
   public async fetchUsers() {
-    const response = await axios.get(login_module.api_header + "/users");
-    const user_list = response.data as User[];
-    this.SET_USERS(user_list);
+    const response = await axios.get(login_store.api_header + "/users");
+    const user_array = response.data as User[];
+    this.SET_USERS(user_array);
   }
 
   @Action async fetchUser(_user_id: string) {
     const response = await axios.get(
-      login_module.api_header + "/users/" + _user_id
+      login_store.api_header + "/users/" + _user_id
     );
     this.SET_USER(response.data as User);
   }
 
   @Action async addUser(_user: User) {
     const response = await axios.post(
-      login_module.api_header + "/users/" + _user.user_id,
+      login_store.api_header + "/users/" + _user.user_id,
       _user
     );
     // check if everything is okay.
@@ -62,7 +64,7 @@ export class UsersModule extends VuexModule {
 
   @Action async addUsers(_users: User[]) {
     const response = await axios.post(
-      login_module.api_header + "/users",
+      login_store.api_header + "/users",
       _users
     );
 
@@ -77,7 +79,7 @@ export class UsersModule extends VuexModule {
   @Action
   public async updateUser(_user: User) {
     const response = await axios.put(
-      login_module.api_header + "/users/" + _user.user_id,
+      login_store.api_header + "/users/" + _user.user_id,
       _user
     );
     // check if everything is okay.
@@ -92,21 +94,25 @@ export class UsersModule extends VuexModule {
   // Mutations
   @Mutation
   private RESET_USERS() {
-    this.user_list = new Map();
+    this.user_array = [];
   }
 
   @Mutation
-  private async SET_USER(_user: User) {
-    this.user_list.set(_user.user_id, _user);
+  private async SET_USER(user: User) {
+    const index = this.user_array.findIndex(
+      (_set: User) => _set.user_id == user.user_id
+    );
+    if (index > -1) {
+      this.user_array[index] = user;
+    } else {
+      this.user_array.push(user);
+    }
   }
 
   @Mutation
   private async SET_USERS(_users: User[]) {
-    this.user_list = new Map();
-    _users.forEach((_u) => {
-      this.user_list.set(_u.user_id, _u);
-    });
+    this.user_array = _users;
   }
 }
 
-export default getModule(UsersModule, store);
+// export default getModule(UsersModule, store);

@@ -7,8 +7,12 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { Problem, ProblemSet } from "@/store/models";
 
-import problem_set_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 import LibrarySubjects from "./LibrarySubjects.vue";
 import LibraryDirectory from "./LibraryDirectory.vue";

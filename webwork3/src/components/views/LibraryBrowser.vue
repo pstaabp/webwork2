@@ -7,9 +7,12 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 
 import LibraryTab from "./LibraryComponents/LibraryTab.vue";
 
-// set up the store
-import problem_set_store from "@/store/modules/problem_sets";
-import app_state from "@/store/modules/app_state";
+import { getModule } from "vuex-module-decorators";
+
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
 
 @Component({
   name: "SetDetails",
@@ -39,37 +42,32 @@ export default class LibraryBrowser extends Vue {
   ];
 
   private get problem_set() {
-    return problem_set_store.problem_sets.get(app_state.selected_set);
+    return problem_set_store.problem_set(app_state.selected_set);
   }
 
   @Watch("tab_index")
   private tabIndexChanged() {
-    if ("library-" + this.tabs[this.tab_index] !== this.$route.name) {
-      this.$router.replace({ name: "library-" + this.tabs[this.tab_index] });
-    }
+    this.$router.push({
+      name: "library-tabs",
+      params: { tabname: this.tabs[this.tab_index] },
+    });
   }
 
   // this handles the route names and the tabs
   @Watch("$route", { immediate: true })
   private routeChanged() {
-    const route_name = this.$route.name;
-    const storage_name = localStorage.getItem("library_tab");
-    if (typeof name === "undefined") {
+    if (typeof this.$route.name === "undefined") {
       return;
     }
-    if (name === "library") {
-      if (storage_name) {
-        this.$router.replace({ name: storage_name });
-      } else {
-        this.$router.replace({ name: "library-subjects" });
-        this.tab_index = 0;
-        localStorage.setItem("library_tab", "library-subjects");
-      }
-    } else if (route_name && /^library-/.test(route_name)) {
-      this.tab_index = this.tabs.findIndex(
-        (_name: string) => _name === route_name.split("-")[1]
-      );
-      localStorage.setItem("library_tab", route_name);
+
+    if (this.$route.name === "library") {
+      this.$router.replace({
+        name: "library-tabs",
+        params: { tabname: "subjects" },
+      });
+      this.tab_index = 0;
+    } else if (this.$route.name === "library-tabs") {
+      console.log(this.$route.params); // eslint-disable-line no-console
     }
   }
 }

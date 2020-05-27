@@ -16,7 +16,10 @@ import dayjs from "dayjs";
 
 import { permission_levels, emptySetting } from "@/common";
 
-import settings_store from "@/store/modules/settings";
+import { getModule } from "vuex-module-decorators";
+
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
 
 @Component({
   name: "SettingsTab",
@@ -99,7 +102,7 @@ export default class SettingsRow extends Vue {
     // it appears that things aren't synching well.
     // this grabs the setting from the settings_store to set all values.
 
-    const setting = settings_store.settings.get(this.var);
+    const setting = settings_store.getSetting(this.var);
     this.setting = setting ? setting : emptySetting();
 
     if (this.setting.type === "checkboxlist") {

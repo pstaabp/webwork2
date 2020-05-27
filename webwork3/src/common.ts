@@ -1,10 +1,13 @@
 // This file has common variables and objects needed throughout the ww3 interface
 
+import { getModule } from "vuex-module-decorators";
+
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 dayjs.extend(isSameOrAfter);
 
-import settings_store from "@/store/modules/settings";
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
 
 import {
   ProblemSet,
@@ -307,7 +310,7 @@ export function validAnswerDate(_set: ProblemSet) {
 }
 
 export function hasReducedScoring(): boolean {
-  const setting = settings_store.settings.get(
+  const setting = settings_store.getSetting(
     "pg{ansEvalDefaults}{enableReducedScoring}"
   );
   if (setting) {

@@ -5,8 +5,10 @@ This is a tab in the LibraryBrowser that allows one to find problems in the loca
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 
-// set up the store
-import login_store from "@/store/modules/login";
+import { getModule } from "vuex-module-decorators";
+
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
 
 import axios from "axios";
 
@@ -32,8 +34,6 @@ export default class LocalLibrary extends Vue {
   public mounted() {
     axios.get(login_store.api_header + "/library/local").then((response) => {
       this.dir_info = response.data;
-
-      console.log(this.dir_info); // eslint-disable-line no-console
       this.open({ type: "dir", text: "templates" }, 0);
     });
   }

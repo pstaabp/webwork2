@@ -11,34 +11,41 @@ import { isEqual } from "lodash-es";
 import { Setting } from "@/store/models";
 import store from "@/store";
 
-import login_store from "./login";
-import messages_store from "./messages";
+import login_module from "./login";
+const login_store = getModule(login_module);
+import messages_module from "./messages";
+const messages_store = getModule(messages_module);
 
 // this is to prevent an error occur with a hot reloading.
 
-if (store.state.settings) {
-  store.unregisterModule("settings");
-}
+// if (store.state.settings) {
+//   store.unregisterModule("settings");
+// }
 
 import axios from "axios";
 
-export type SettingList = Map<string, Setting>;
-
 @Module({
   namespaced: true,
-  name: "settings",
+  name: "settings_module",
   store,
   dynamic: true,
+  preserveState: localStorage.getItem("vuex") !== null,
 })
-export class SettingsModule extends VuexModule {
-  private setting_list: SettingList = new Map();
+export default class SettingsModule extends VuexModule {
+  // Note: a SettingList (Map<string,Setting>) is preferrable, but locally saving a Map is not supported well in
+  // vuex-persist currently.  TODO: switch over at some point.
 
-  public get settings(): SettingList {
-    return this.setting_list;
+  private setting_array: Setting[] = [];
+
+  public get settings(): Setting[] {
+    return this.setting_array;
   }
 
-  public get settings_array(): Setting[] {
-    return Array.from(this.setting_list.values());
+  @Action
+  public getSetting(_var_name: string) {
+    return this.setting_array.find(
+      (_setting: Setting) => _setting.var == _var_name
+    );
   }
 
   // Settings actions
@@ -58,7 +65,7 @@ export class SettingsModule extends VuexModule {
     );
 
     const updated_setting = response.data as Setting;
-    const prev_setting = this.setting_list.get(_setting.var);
+    const prev_setting = this.getSetting(_setting.var);
     let value = "";
     if (prev_setting) {
       value = "" + prev_setting.value;
@@ -83,14 +90,19 @@ export class SettingsModule extends VuexModule {
 
   @Mutation
   private RESET_SETTING(): void {
-    this.setting_list = new Map();
+    this.setting_array = [];
   }
 
   @Mutation
-  private SET_SETTING(_setting: Setting) {
+  private SET_SETTING(setting: Setting) {
     // find the setting in the settings array
-    this.setting_list.set(_setting.var, _setting);
+    const index = this.setting_array.findIndex(
+      (_setting: Setting) => _setting.var === setting.var
+    );
+    if (index > -1) {
+      this.setting_array[index] = setting;
+    } else {
+      this.setting_array.push(setting);
+    }
   }
 }
-
-export default getModule(SettingsModule, store);

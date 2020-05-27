@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Vue, Component, Watch } from "vue-property-decorator";
+import { getModule } from "vuex-module-decorators";
 
 // load icons:
 import { BIconPerson, BIconGear, BIconXOctagon } from "bootstrap-vue";
@@ -12,9 +13,12 @@ import ViewIcon from "./ViewIcon.vue";
 import { instructor_views, student_views, newUser } from "@/common";
 import NotificationBar from "./NotificationBar.vue";
 
-import login_store from "@/store/modules/login";
-import app_state from "@/store/modules/app_state";
-import user_store from "@/store/modules/users";
+import login_module from "@/store/modules/login";
+const login_store = getModule(login_module);
+import app_state_module from "@/store/modules/app_state";
+const app_state = getModule(app_state_module);
+import users_module from "@/store/modules/users";
+const user_store = getModule(users_module);
 
 import { LoginInfo, User } from "@/store/models";
 
@@ -54,7 +58,7 @@ export default class MenuBar extends Vue {
   }
 
   private get users() {
-    return Array.from(user_store.users.keys());
+    return user_store.users;
   }
 
   private get login_info(): LoginInfo {
@@ -62,8 +66,7 @@ export default class MenuBar extends Vue {
   }
 
   private get login_user(): User {
-    const user = user_store.users.get(this.login_info.user_id);
-    return user || newUser();
+    return user_store.getUser(this.login_info.user_id) || newUser();
   }
 
   private get fullname(): string {
@@ -75,11 +78,9 @@ export default class MenuBar extends Vue {
     const route_re = /^([\w-]*)-tabs$/;
     const name = this.$route.name as string;
     const m = name.match(route_re);
-    if (m) {
-      app_state.setCurrentView(m[1]);
-    } else {
-      app_state.setCurrentView(name);
-    }
+    app_state.updateAppState(
+      m ? { current_view: m[1] } : { current_view: name }
+    );
   }
 } // class MenuBar
 </script>

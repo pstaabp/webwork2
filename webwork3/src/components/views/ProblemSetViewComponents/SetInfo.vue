@@ -15,9 +15,12 @@ import {
   hasReducedScoring,
 } from "@/common";
 
-// set up the store
-import problem_set_store from "@/store/modules/problem_sets";
-import users_store from "@/store/modules/users";
+import { getModule } from "vuex-module-decorators";
+
+import users_module from "@/store/modules/users";
+const users_store = getModule(users_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 @Component({
   name: "SetInfo",
@@ -42,7 +45,7 @@ export default class SetInfo extends Vue {
   }
 
   get num_users(): number {
-    return users_store.users.size;
+    return users_store.users.length;
   }
 
   get valid_reduced_scoring() {
@@ -77,7 +80,7 @@ export default class SetInfo extends Vue {
 
   private assignAllUsers() {
     console.log("in assignAllUsers"); // eslint-disable-line no-console
-    this.problem_set.assigned_users = Array.from(users_store.users.keys());
+    this.problem_set.assigned_users = users_store.user_names;
     this.save();
   }
 }

@@ -1,30 +1,19 @@
 // This is the module related to login
 
-import {
-  VuexModule,
-  Module,
-  Mutation,
-  Action,
-  getModule,
-} from "vuex-module-decorators";
+import { VuexModule, Module, Mutation, Action } from "vuex-module-decorators";
 
 import { LoginInfo, UserPassword } from "@/store/models";
 import store from "@/store";
-
-// this is to prevent an error occur with a hot reloading.
-if (store.state.login) {
-  store.unregisterModule("login");
-}
-
 import axios from "axios";
 
 @Module({
   namespaced: true,
-  name: "login",
+  name: "login_module",
   store,
   dynamic: true,
+  preserveState: localStorage.getItem("vuex") !== null,
 })
-export class LoginModule extends VuexModule {
+export default class LoginModule extends VuexModule {
   private login_info_state: LoginInfo = {
     user_id: "",
     logged_in: false,
@@ -91,5 +80,3 @@ export class LoginModule extends VuexModule {
     };
   }
 }
-
-export default getModule(LoginModule, store);

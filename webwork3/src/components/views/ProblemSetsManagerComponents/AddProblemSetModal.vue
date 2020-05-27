@@ -13,9 +13,12 @@ import { newProblemSet } from "@/common";
 
 import { ProblemSet } from "@/store/models";
 
-// set up the store
-import problem_set_store from "@/store/modules/problem_sets";
-import settings_store from "@/store/modules/settings";
+import { getModule } from "vuex-module-decorators";
+
+import settings_module from "@/store/modules/settings";
+const settings_store = getModule(settings_module);
+import problem_set_module from "@/store/modules/problem_sets";
+const problem_set_store = getModule(problem_set_module);
 
 @Component({
   name: "AddProblemSetModal",
@@ -31,9 +34,7 @@ export default class AddProblemSetModal extends Vue {
   }
 
   private get set_not_defined(): boolean {
-    return (
-      problem_set_store.problem_sets.get(this.problem_set.set_id) === undefined
-    );
+    return problem_set_store.problem_set(this.problem_set.set_id) === undefined;
   }
 
   private feedback(): string {
@@ -52,7 +53,7 @@ export default class AddProblemSetModal extends Vue {
     }
 
     // update all of the dates.
-    const setting = settings_store.settings.get("pg{timeAssignDue}");
+    const setting = settings_store.getSetting("pg{timeAssignDue}");
     const time_assign_due_string = (setting && (setting.value as string)) || "";
     const time_assign_due = dayjs(time_assign_due_string, "hh:mma");
     const open_date = dayjs()
