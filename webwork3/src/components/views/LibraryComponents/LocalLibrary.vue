@@ -31,7 +31,7 @@ export default class LocalLibrary extends Vue {
   private dirs: { [key: number]: DirectoryType[] } = {};
   private selection: DirectoryType[] = [];
 
-  public mounted() {
+  public mounted(): void {
     axios.get(login_store.api_header + "/library/local").then((response) => {
       this.dir_info = response.data;
       this.open({ type: "dir", text: "templates" }, 0);

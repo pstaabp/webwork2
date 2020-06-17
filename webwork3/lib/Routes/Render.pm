@@ -189,6 +189,7 @@ sub parseParams {
 
   $problem->{source_file} = ( $body_params->get('source_file') || $query_params->get('source_file') )
     unless $problem->{source_file};
+  $problem->{problem_source} = ( $body_params->get('problem_source') || $query_params->get('problem_source'));
 
   my $source = body_parameters->get('source') || query_parameters->get('source');
   $source = decode_entities($source) if defined($source);
@@ -218,6 +219,7 @@ sub parseParams {
 any ['post', 'put'] => '/courses/:course_id/render' => sub {
 
   my $renderParams = parseParams(vars->{db},body_parameters,query_parameters);
+  # debug dump $renderParams;
   my ($results,$pg,$form_data) = render(vars->{ce},vars->{db},$renderParams,\&debug);
   return $results;
 };

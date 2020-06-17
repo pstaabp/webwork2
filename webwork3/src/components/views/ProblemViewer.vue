@@ -16,7 +16,13 @@ const problem_set_store = getModule(problem_set_module);
 import ProblemView from "@/components/common_components/ProblemView.vue";
 import ProblemViewerSidebar from "./ProblemViewerComponents/ProblemViewerSidebar.vue";
 
-import { Problem, UserSet } from "@/store/models";
+import {
+  Problem,
+  UserSet,
+  ProblemSet,
+  UserProblem,
+  Dictionary,
+} from "@/store/models";
 
 import { newUserProblem } from "@/common";
 
@@ -32,7 +38,7 @@ export default class ProblemViewer extends Vue {
   private user_sets_changed = 1; // hack to get the user_sets to update.
 
   // return an array of problem_sets that the act_as_user is assigned to.
-  get valid_problem_sets() {
+  get valid_problem_sets(): Dictionary<string | boolean>[] {
     if (this.user_sets_changed && this.viewer_type === "instructor") {
       return problem_set_store.set_names.map((_set_id: string) => ({
         text: _set_id,
@@ -42,54 +48,58 @@ export default class ProblemViewer extends Vue {
           0,
       }));
     } else if (this.viewer_type === "student") {
-      return this.user_sets.map((_set: UserSet) => _set.set_id);
+      return this.user_sets.map((_set: UserSet) => ({
+        text: _set.set_id,
+        value: _set.set_id,
+      }));
     } else {
       return [];
     }
   }
 
-  get user_problem() {
+  get user_problem(): UserProblem {
     const problems = this.user_set ? this.user_set.problems : [];
-    return (
-      problems.find(
-        (_problem: Problem) => _problem.problem_id == this.current_problem_id
-      ) || newUserProblem()
+    const user_problem = newUserProblem();
+    const prob = problems.find(
+      (_problem: Problem) => _problem.problem_id == this.current_problem_id
     );
+    Object.assign(user_problem, prob);
+    return user_problem;
   }
 
-  get user_sets() {
-    const sets = Array.from(problem_set_store.user_sets.values()).filter(
+  get user_sets(): UserSet[] {
+    const sets = problem_set_store.user_sets.filter(
       (_set: UserSet) => _set.user_id === this.user_id
     );
     return this.user_sets_changed ? sets : sets;
   }
 
-  get problem_set() {
-    return problem_set_store.problem_set(this.set_id);
+  get problem_set(): ProblemSet | undefined {
+    return problem_set_store.problem_sets.find(
+      (_set) => _set.set_id == this.set_id
+    );
   }
 
-  get user_set() {
-    const set = problem_set_store.user_set({
-      user_id: this.user_id,
-      set_id: this.set_id,
-    });
-    return this.user_sets_changed && set;
+  get user_set(): UserSet | undefined {
+    const set = problem_set_store.user_sets.find(
+      (_set) => _set.user_id === this.user_id && _set.set_id === this.set_id
+    );
+    return this.user_sets_changed ? set : set;
   }
 
-  get user_names() {
+  get user_names(): string[] {
     return user_store.user_names;
-    // return Array.from(user_store.users.keys());
   }
 
-  get num_problems() {
-    const set = problem_set_store.user_set({
+  get num_problems(): number {
+    const set = problem_set_store.getUserSet({
       user_id: this.user_id,
       set_id: this.set_id,
     });
-    return (set && set.problems.length) || 0;
+    return (set && set.problems && set.problems.length) || 0;
   }
 
-  private async updateSets() {
+  private async updateSets(): Promise<void> {
     problem_set_store.fetchUserSet({
       user_id: this.user_id,
       set_id: this.set_id,
@@ -98,12 +108,12 @@ export default class ProblemViewer extends Vue {
   }
 
   @Watch("user_id")
-  private async userIDchanged() {
+  private async userIDchanged(): Promise<void> {
     await problem_set_store.fetchUserSets(this.user_id);
     this.user_sets_changed++;
   }
 
-  private async loadUserSet() {
+  private async loadUserSet(): Promise<void> {
     if (this.user_id === "" || this.set_id === "") {
       return;
     }
@@ -119,12 +129,12 @@ export default class ProblemViewer extends Vue {
   }
 
   @Watch("set_id")
-  private async setNameChanged() {
+  private async setNameChanged(): Promise<void> {
     this.loadUserSet();
   }
 
   @Watch("$route", { immediate: true, deep: true })
-  private async routedChanged() {
+  private async routedChanged(): Promise<void> {
     this.set_id = (this.$route.params && this.$route.params.set_id) || "";
     this.user_id = (this.$route.params && this.$route.params.user_id) || "";
     if (this.user_id) {
@@ -133,7 +143,7 @@ export default class ProblemViewer extends Vue {
     }
   }
 
-  private async mounted() {
+  private async mounted(): Promise<void> {
     this.user_id = login_store.login_info.user_id;
     await problem_set_store.fetchUserSets(this.user_id);
     this.user_sets_changed++;

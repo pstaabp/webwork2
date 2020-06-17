@@ -21,7 +21,7 @@ export default class ProblemListView extends Vue {
   @Prop()
   private problem_set!: ProblemSet;
 
-  get problems() {
+  get problems(): Problem[] {
     return this.problem_set === undefined ? [] : this.problem_set.problems;
   }
 
@@ -29,7 +29,7 @@ export default class ProblemListView extends Vue {
     this.problem_set.problems = _problems;
   }
 
-  private reordered() {
+  private reordered(): void {
     console.log("in reordered"); // eslint-disable-line no-console
   }
 }

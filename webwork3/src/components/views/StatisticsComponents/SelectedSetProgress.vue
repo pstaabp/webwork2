@@ -36,7 +36,9 @@ export default class SelectedSetProgress extends Vue {
   }
 
   private get user_scores() {
-    const set = problem_set_store.problem_set(this.selected_set);
+    const set = problem_set_store.problem_sets.find(
+      (_set) => _set.set_id === this.selected_set
+    );
 
     if (!set) {
       return [];
@@ -74,7 +76,9 @@ export default class SelectedSetProgress extends Vue {
   }
 
   private get fields() {
-    const set = problem_set_store.problem_set(this.selected_set);
+    const set = problem_set_store.problem_sets.find(
+      (_set) => _set.set_id === this.selected_set
+    );
 
     if (!set) {
       return [];

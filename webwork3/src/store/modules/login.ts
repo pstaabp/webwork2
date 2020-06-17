@@ -2,7 +2,7 @@
 
 import { VuexModule, Module, Mutation, Action } from "vuex-module-decorators";
 
-import { LoginInfo, UserPassword } from "@/store/models";
+import { LoginInfo, UserPassword, Dictionary } from "@/store/models";
 import store from "@/store";
 import axios from "axios";
 
@@ -21,20 +21,20 @@ export default class LoginModule extends VuexModule {
     permission: -5,
   };
 
-  public get api_header() {
+  public get api_header(): string {
     return "/webwork3/api/courses/" + this.login_info_state.course_id;
   }
 
-  public get login_info() {
+  public get login_info(): LoginInfo {
     return this.login_info_state;
   }
 
-  public get course_id() {
+  public get course_id(): string {
     return this.login_info_state.course_id;
   }
 
   @Action
-  public async checkPassword(login: UserPassword) {
+  public async checkPassword(login: UserPassword): Promise<LoginInfo> {
     const login_info: LoginInfo = {
       logged_in: false,
       user_id: login.user_id,
@@ -55,13 +55,13 @@ export default class LoginModule extends VuexModule {
   }
 
   @Action
-  public async logout() {
+  public async logout(): Promise<Dictionary<string>> {
     const response = await axios.post(this.api_header + "/logout");
     return response.data;
   }
 
   @Action
-  public clearLogin() {
+  public clearLogin(): void {
     this.RESET_LOGIN();
   }
 

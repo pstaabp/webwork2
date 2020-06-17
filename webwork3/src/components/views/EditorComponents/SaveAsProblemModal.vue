@@ -5,6 +5,11 @@ What is this for??  -->
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 
+// icons for this component
+import { BIconFileEarmark, BIconFolder } from "bootstrap-vue";
+Vue.component("BIconFileEarmark", BIconFileEarmark);
+Vue.component("BIconFolder", BIconFolder);
+
 import { getLocalDirectory } from "@/store/api";
 import { FileInfo } from "@/store/models";
 
@@ -67,8 +72,8 @@ export default class SaveAsProblemModal extends Vue {
             :disabled="item.type === 'file'"
             @click="selected1(item.name)"
           >
-            <b-icon v-if="item.type === 'dir'" icon="folder" />
-            <b-icon v-if="item.type === 'file'" icon="document" />
+            <span v-if="item.type === 'dir'"><b-icon-folder /></span>
+            <span v-if="item.type === 'file'"><b-icon-file-earmark /></span>
             <span class="pl-2">{{ item.name }}</span>
           </b-list-group-item>
         </b-list-group>
@@ -82,12 +87,25 @@ export default class SaveAsProblemModal extends Vue {
           :disabled="item.type === 'file'"
           @click="selected2(item.name)"
         >
-          <b-icon v-if="item.type === 'dir'" icon="folder" />
-          <b-icon v-if="item.type === 'file'" icon="document" />
+          <span v-if="item.type === 'dir'"><b-icon-folder /></span>
+          <span v-if="item.type === 'file'"><b-icon-file-earmark /></span>
           <span class="pl-2">{{ item.name }}</span>
         </b-list-group-item>
       </b-col>
-      <b-col />
+      <b-col>
+        <b-list-group-item
+          v-for="item in options3"
+          :key="item.name"
+          class="p-1"
+          :button="item.type === 'dir'"
+          :disabled="item.type === 'file'"
+          @click="selected2(item.name)"
+        >
+          <span v-if="item.type === 'dir'"><b-icon-folder /></span>
+          <span v-if="item.type === 'file'"><b-icon-file-earmark /></span>
+          <span class="pl-2">{{ item.name }}</span>
+        </b-list-group-item>
+      </b-col>
     </b-row>
   </b-modal>
 </template>

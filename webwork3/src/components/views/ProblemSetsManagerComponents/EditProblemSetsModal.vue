@@ -22,7 +22,7 @@ const problem_set_store = getModule(problem_set_module);
 @Component({
   name: "EditProblemSetsModal",
 })
-export default class SetInfo extends Vue {
+export default class EditProblemSetsModal extends Vue {
   private problem_set: ProblemSet = newProblemSet();
   @Prop() private selected_sets!: ProblemSet[];
 
@@ -74,15 +74,15 @@ export default class SetInfo extends Vue {
     this.$emit("update-set");
   }
 
-  get valid_reduced_scoring() {
+  get valid_reduced_scoring(): boolean {
     return validReducedScoring(this.problem_set);
   }
 
-  get valid_due_date() {
+  get valid_due_date(): boolean {
     return validDueDate(this.problem_set);
   }
 
-  get valid_answer_date() {
+  get valid_answer_date(): boolean {
     return validAnswerDate(this.problem_set);
   }
 }

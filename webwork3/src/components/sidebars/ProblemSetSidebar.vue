@@ -26,9 +26,18 @@ export default class ProblemSetSidebar extends Vue {
     }
   }
 
+  private created() {
+    this.$store.subscribe((mutation) => {
+      // if the select set in the app_state changes
+      if (mutation.type === "app_state_module/SET_APP_STATE") {
+        this.set_id = app_state.selected_set;
+      }
+    });
+  }
+
   @Watch("set_id")
   private setIDChanged() {
-    app_state.updateAppState({ set_id: this.set_id });
+    app_state.updateAppState({ selected_set: this.set_id });
   }
 }
 </script>

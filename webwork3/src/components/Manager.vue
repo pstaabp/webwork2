@@ -23,27 +23,13 @@ const app_state = getModule(app_state_module);
 })
 export default class Manager extends Vue {
   private async created() {
-    // load all of the relevant data
-
-    console.log(login_store.login_info); // eslint-disable-line no-console
-    console.log(this.$router); // eslint-disable-line no-console
-    console.log(app_state.current_path); // eslint-disable-line no-console
-    if (app_state.current_path) {
+    if (
+      app_state.current_path &&
+      !/\/courses\/\w*\/manager/.test(app_state.current_path)
+    ) {
+      console.log(app_state.current_path); // eslint-disable-line no-console
       this.$router.replace(app_state.current_path);
     }
-    //
-    // if (login_store.login_info && login_store.login_info.logged_in) {
-    //   settings_store.fetchSettings();
-    //   users_store.fetchUsers();
-    //   problem_set_store.fetchProblemSets();
-    // } else {
-    //   console.log(login_store.login_info); // eslint-disable-line no-console
-    //   this.$router.replace("/courses");
-    // }
-    //
-    // if (this.$route.fullPath === "/") {
-    //   this.$router.replace("/courses");
-    // }
   }
 
   private logout(): void {
@@ -57,14 +43,13 @@ export default class Manager extends Vue {
     this.$router.replace(`/courses/${course_id}/login`);
   }
 
-  get main_manager_path() {
+  get is_manager_path(): boolean {
     return (
       this.$route.path === "/courses/" + login_store.course_id + "/manager"
     );
   }
 
   private mounted() {
-    console.log("in manager mounted()"); // eslint-disable-line no-console
     app_state.updateAppState({
       current_view: this.$route.fullPath.split("/").pop() || "",
     });
@@ -75,7 +60,7 @@ export default class Manager extends Vue {
 <template>
   <div>
     <menu-bar @logout="logout" />
-    <b-container v-if="main_manager_path">
+    <b-container v-if="is_manager_path">
       <b-row>
         <b-col cols="6" offset-md="2">
           <h4>Select a View from the Pulldown menu above.</h4>

@@ -48,15 +48,15 @@ export default class SetInfo extends Vue {
     return users_store.users.length;
   }
 
-  get valid_reduced_scoring() {
+  get valid_reduced_scoring(): boolean {
     return validReducedScoring(this.problem_set);
   }
 
-  get valid_due_date() {
+  get valid_due_date(): boolean {
     return validDueDate(this.problem_set);
   }
 
-  get valid_answer_date() {
+  get valid_answer_date(): boolean {
     return validAnswerDate(this.problem_set);
   }
 
@@ -64,11 +64,11 @@ export default class SetInfo extends Vue {
     return hasReducedScoring();
   }
 
-  private formatDateAndTime(value: number) {
+  private formatDateAndTime(value: number): string {
     return formatDateTime(value);
   }
 
-  private save() {
+  private save(): void {
     if (
       validDueDate(this.problem_set) &&
       validReducedScoring(this.problem_set) &&

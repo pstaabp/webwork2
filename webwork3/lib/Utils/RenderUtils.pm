@@ -82,17 +82,17 @@ sub render {
 	$set->set_id('this set') unless $set->set_id();
 	$problem->problem_id('1') unless $problem->problem_id();
 
-	#&$debug(dump $renderParams->{problem});
-
-  if (ref $renderParams->{source}) { #in this case the actual source is passed
+  if ( defined($renderParams->{problem}->{problem_source})) { #in this case the actual source is passed
 	 	&$debug("here !!!!");
 		$problem->source_file('this/is/a/fake/path');
-		$translationOptions->{r_source} = $renderParams->{source};
+		$translationOptions->{r_source} = $renderParams->{problem}->{problem_source};
 	} else {
     $problem->{source_file} = $renderParams->{problem}->{source_file};
 	}
 
-my $pg = new WeBWorK::PG(
+&$debug("about to call new WeBWork::PG");
+
+my $pg = new WeBWorK3::PG::Local(
 		$ce,
 		$user,
 		$key,
@@ -102,6 +102,7 @@ my $pg = new WeBWorK::PG(
 		$form_data,
 		$translationOptions,
 		$extras,
+    $debug
 	);
 		# new version of output:
 	my $warning_messages = '';  # for now -- set up warning trap later

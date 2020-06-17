@@ -2,78 +2,89 @@
 
 This is a tab in the LibraryBrowser that allows one to find problems by directory. -->
 
-<script>
+<script lang="ts">
 import axios from "axios";
 
-export default {
+import { Vue, Component } from "vue-property-decorator";
+
+interface DirectoryInfo {
+  subfields: DirectoryInfo[];
+  num_files: number;
+  name: string;
+}
+
+@Component({
   name: "LibraryDirectory",
-  data() {
-    return {
-      dirs1: [
-        { value: "Library", text: "OPL Directory" },
-        { value: "Contrib", text: "Contrib" },
-      ],
-      dirs2: [],
-      dirs3: [],
-      dirs4: [],
-      dirs5: [],
-      dir1: null,
-      dir2: null,
-      dir3: null,
-      dir4: null,
-      dir5: null,
-      load_num: 0,
-      OPL: [],
-    };
-  },
-  mounted() {
+})
+export default class LibraryDirectory extends Vue {
+  private dirs1 = [
+    { value: "Library", text: "OPL Directory" },
+    { value: "Contrib", text: "Contrib" },
+  ];
+
+  private dirs2: string[] = [];
+  private dirs3: string[] = [];
+  private dirs4: string[] = [];
+  private dirs5: string[] = [];
+  private dir1 = "";
+  private dir2 = "";
+  private dir3 = "";
+  private dir4 = "";
+  private dir5 = "";
+  private load_num = 0;
+  private OPL: DirectoryInfo[] = [];
+  private library: DirectoryInfo[] = [];
+
+  private mounted(): void {
     axios.get("/webwork3/api/library/directories").then((response) => {
       this.OPL = response.data;
     });
-  },
-  methods: {
-    dir1Change() {
-      if (this.dir1 === "Library") {
-        this.library = this.OPL;
-      }
-      this.dir2 = this.dir3 = this.dir4 = this.dir5 = null;
-      this.dirs3 = this.dirs4 = this.dirs5 = [];
-      this.dirs2 = this.library[0].subfields.map((_s) => _s.name);
-      this.dirs2.sort();
-    },
-    dir2Change() {
-      this.dir3 = this.dir4 = this.dir5 = null;
-      this.dirs4 = this.dirs5 = [];
-      const dir2 = this.library[0].subfields.find(
-        (_s) => _s.name === this.dir2
-      );
+  }
+
+  private dir1Change(): void {
+    if (this.dir1 === "Library") {
+      this.library = this.OPL;
+    }
+    this.dir2 = this.dir3 = this.dir4 = this.dir5 = "";
+    this.dirs3 = this.dirs4 = this.dirs5 = [];
+    this.dirs2 = this.library[0].subfields.map((_s) => _s.name);
+    this.dirs2.sort();
+  }
+
+  private dir2Change(): void {
+    this.dir3 = this.dir4 = this.dir5 = "";
+    this.dirs4 = this.dirs5 = [];
+    const dir2 = this.library[0].subfields.find((_s) => _s.name === this.dir2);
+    if (dir2) {
       this.load_num = dir2.num_files;
       this.dirs3 = dir2.subfields.map((_s) => _s.name);
       this.dirs3.sort();
-    },
-    dir3Change() {
-      this.dir4 = this.dir5 = null;
-      this.dirs5 = [];
-      const dir2 = this.library[0].subfields.find(
-        (_s) => _s.name === this.dir2
-      );
+    }
+  }
+
+  private dir3Change(): void {
+    this.dir4 = this.dir5 = "";
+    this.dirs5 = [];
+    const dir2 = this.library[0].subfields.find((_s) => _s.name === this.dir2);
+    if (dir2) {
       const dir3 = dir2.subfields.find((_s) => _s.name === this.dir3);
-      this.load_num = dir3.num_files;
-      if (dir3.subfields !== undefined) {
+      if (dir3) {
+        this.load_num = dir3.num_files;
         this.dirs4 = dir3.subfields.map((_s) => _s.name);
         this.dirs4.sort();
       }
-    },
-    loadProblems() {
-      const dir = [this.dir1, this.dir2, this.dir3, this.dir4, this.dir5]
-        .filter((_dir) => _dir !== null)
-        .join("/");
-      axios.get("/webwork3/api/library/directories/" + dir).then((response) => {
-        this.$emit("load-problems", response.data);
-      });
-    },
-  },
-};
+    }
+  }
+
+  private loadProblems(): void {
+    const dir = [this.dir1, this.dir2, this.dir3, this.dir4, this.dir5]
+      .filter((_dir) => _dir !== "")
+      .join("/");
+    axios.get("/webwork3/api/library/directories/" + dir).then((response) => {
+      this.$emit("load-problems", response.data);
+    });
+  }
+}
 </script>
 
 <template>

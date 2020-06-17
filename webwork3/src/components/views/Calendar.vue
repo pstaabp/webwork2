@@ -35,7 +35,7 @@ export default class Calendar extends Vue {
   private dragging = false;
 
   get month_name(): string {
-    return dayjs().format("MMMM YYYY");
+    return this.first_day_of_calendar.format("MMMM YYYY");
   }
 
   get day_names(): string[] {
@@ -219,7 +219,7 @@ export default class Calendar extends Vue {
               :key="set_id"
               class="assignment-list"
             >
-              {{ set_id }}
+              {{ set_id.replace(/_/g, " ") }}
             </b-list-group-item>
           </draggable>
         </b-list-group>

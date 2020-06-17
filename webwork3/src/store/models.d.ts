@@ -122,7 +122,7 @@ export interface Setting {
   category: string;
   value: string | number | string[];
   doc2: string;
-  hashVar: object;
+  hashVar: Dictionary<string | boolean | number>;
   values: string[];
   labels: string[];
   min: number;
@@ -145,6 +145,12 @@ export interface FileInfo {
 export interface FlagType {
   ANSWER_ENTRY_ORDER: string[];
   [key: string]: string | string[];
+}
+
+export interface ProblemSource {
+  problem_path: string;
+  problem_html: string;
+  problem_source: string;
 }
 
 export interface RenderedProblem {

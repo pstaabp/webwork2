@@ -10,7 +10,7 @@ const login_store = getModule(login_module);
 @Component({
   name: "Login",
 })
-export default class Manager extends Vue {
+export default class Login extends Vue {
   private password_info: UserPassword = {
     course_id: "",
     user_id: "",
@@ -18,14 +18,13 @@ export default class Manager extends Vue {
   };
   private password_state = true;
 
-  public created() {
+  public created(): void {
     this.password_info.course_id = this.$route.params.course_id;
   }
 
-  private async checkPassword() {
+  private async checkPassword(): Promise<void> {
     const login_info = await login_store.checkPassword(this.password_info);
     if (login_info && login_info.logged_in) {
-      console.log(login_store.login_info); // eslint-disable-line no-console
       if (login_info && login_info.permission >= 10) {
         this.$router.push({ name: "manager" });
       } else if (login_info && login_info.permission == 0) {
@@ -37,12 +36,12 @@ export default class Manager extends Vue {
     }
   }
 
-  private mounted() {
+  private mounted(): void {
     // give the login username focus on page load.
     ((this.$refs["login-input"] as Vue).$el as HTMLInputElement).focus();
   }
 
-  private cancel() {
+  private cancel(): void {
     this.$router.push("/courses");
   }
 }

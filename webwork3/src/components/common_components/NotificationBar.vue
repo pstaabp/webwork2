@@ -7,6 +7,7 @@ const messages_store = getModule(messages_module);
 import { Vue, Component } from "vue-property-decorator";
 
 import Notification from "./Notification.vue";
+import { Message } from "@/store/models";
 
 @Component({
   name: "NotificationBar",
@@ -16,7 +17,7 @@ import Notification from "./Notification.vue";
 })
 export default class NotificationBar extends Vue {
   private new_message = false;
-  get messages() {
+  get messages(): Message[] {
     return messages_store.messages;
   }
 
@@ -24,7 +25,7 @@ export default class NotificationBar extends Vue {
     messages_store.clearMessages();
   }
 
-  private remove(id: number) {
+  private remove(id: number): void {
     messages_store.removeMessageById(id);
   }
 

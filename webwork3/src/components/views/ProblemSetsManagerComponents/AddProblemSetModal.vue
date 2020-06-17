@@ -34,7 +34,9 @@ export default class AddProblemSetModal extends Vue {
   }
 
   private get set_not_defined(): boolean {
-    return problem_set_store.problem_set(this.problem_set.set_id) === undefined;
+    return (
+      problem_set_store.getProblemSet(this.problem_set.set_id) === undefined
+    );
   }
 
   private feedback(): string {

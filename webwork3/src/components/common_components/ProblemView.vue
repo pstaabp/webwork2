@@ -11,7 +11,7 @@ import {
   BIconTag,
   BIconFolder,
   BIconBullseye,
-  BIconArrowUpDown,
+  BIconArrowDownUp,
 } from "bootstrap-vue";
 Vue.component("BIconPlus", BIconPlus);
 Vue.component("BIconPencil", BIconPencil);
@@ -21,7 +21,7 @@ Vue.component("BIconCheck", BIconCheck);
 Vue.component("BIconTag", BIconTag);
 Vue.component("BIconFolder", BIconFolder);
 Vue.component("BIconBullseye", BIconBullseye);
-Vue.component("BIconArrowUpDown", BIconArrowUpDown);
+Vue.component("BIconArrowDownUp", BIconArrowDownUp);
 
 import AnswerDecoration from "./AnswerDecoration.vue";
 
@@ -75,15 +75,17 @@ export default class ProblemView extends Vue {
   @Prop() private user_id!: string;
   @Prop() private problem_id!: number;
 
-  public mounted() {
+  public mounted(): void {
     this.renderProblem({});
   }
 
-  private get tags_loaded() {
+  private get tags_loaded(): boolean {
     return Object.keys(this.tags).length > 0;
   }
 
-  private async renderProblem(other_params: Dictionary<string | number>) {
+  private async renderProblem(
+    other_params: Dictionary<string | number>
+  ): Promise<void> {
     const problem = await renderProblem(
       Object.assign({}, this.problem, other_params)
     );
@@ -108,7 +110,7 @@ export default class ProblemView extends Vue {
     return STUDENT_PROB;
   }
 
-  get is_open() {
+  get is_open(): boolean {
     return true;
   }
 
@@ -126,7 +128,7 @@ export default class ProblemView extends Vue {
   }
 
   @Watch("show_tags")
-  private async showTagsChanged() {
+  private async showTagsChanged(): Promise<void> {
     if (!this.tags_loaded) {
       // the tags object is empty
       this.tags = await fetchProblemTags(this.problem.source_file);
@@ -134,19 +136,19 @@ export default class ProblemView extends Vue {
   }
 
   @Watch("problem_id")
-  private problemIDchanged() {
+  private problemIDchanged(): void {
     this.renderProblem({});
   }
 
-  private edit() {
+  private edit(): void {
     console.log(this.problem); // eslint-disable-line no-console
     this.$router.push({
       name: "editor",
-      params: { source_file: this.problem.source_file },
+      params: { problem_path: this.problem.problem_source },
     });
   }
 
-  private parseAnswers() {
+  private parseAnswers(): Dictionary<string | number> {
     return this.rendered_problem.flags.ANSWER_ENTRY_ORDER.reduce(
       (obj: Dictionary<string | number>, ans: string) => {
         const input = document.getElementById(ans) as HTMLInputElement;
@@ -157,7 +159,7 @@ export default class ProblemView extends Vue {
     ); // eslint-disable-line no-console
   }
 
-  private buildAnswerDecorations() {
+  private buildAnswerDecorations(): void {
     if (
       this.type === "student" &&
       this.rendered_problem &&
@@ -185,7 +187,7 @@ export default class ProblemView extends Vue {
     }
   }
 
-  private updateAnswerDecorations() {
+  private updateAnswerDecorations(): void {
     const answers = (this.submitted.answers as unknown) as Dictionary<
       AnswerType
     >;
@@ -196,7 +198,7 @@ export default class ProblemView extends Vue {
     });
   }
 
-  private async submit(submit_answer: boolean) {
+  private async submit(submit_answer: boolean): Promise<void> {
     this.submitted = await submitUserProblem(
       Object.assign(
         ({
@@ -213,7 +215,7 @@ export default class ProblemView extends Vue {
     }
   }
 
-  private async preview(label: string) {
+  private async preview(label: string): Promise<void> {
     this.submitted = await submitUserProblem(
       Object.assign(
         ({
@@ -339,7 +341,7 @@ export default class ProblemView extends Vue {
               class="drag-handle border border-dark rounded p-2"
               variant="outline-dark"
             >
-              <b-icon-arrow-up-down />
+              <b-icon-arrow-down-up />
             </b-btn>
           </b-btn-group>
         </b-col>

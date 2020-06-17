@@ -21,7 +21,7 @@ export default class AnswerDecoration extends Vue {
   @Prop() private answer!: AnswerType;
   @Prop() private preview_latex_string!: string;
 
-  public setPreviewString(_preview: string) {
+  public setPreviewString(_preview: string): void {
     this.preview_latex_string = _preview;
     console.log(this.preview_latex_string); // eslint-disable-line no-console
   }

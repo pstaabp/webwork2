@@ -5,9 +5,10 @@ This is the View that allows the viewing/editing of all problem sets. -->
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
-import { BIconCheckCircle, BIconXCircleFill } from "bootstrap-vue";
+import { BIconCheckCircle, BIconXCircleFill, BIconCheck } from "bootstrap-vue";
 Vue.component("BIconXCircleFill", BIconXCircleFill);
 Vue.component("BIconCheckCircle", BIconCheckCircle);
+Vue.component("BIconCheck", BIconCheck);
 
 import dayjs from "dayjs";
 
@@ -22,6 +23,7 @@ import { ProblemSet, Dictionary } from "@/store/models";
 
 import AddProblemSetModal from "./ProblemSetsManagerComponents/AddProblemSetModal.vue";
 import EditProblemSetsModal from "./ProblemSetsManagerComponents/EditProblemSetsModal.vue";
+import ImportProblemSetsModal from "./ProblemSetsManagerComponents/ImportProblemSetsModal.vue";
 
 import { hasReducedScoring } from "@/common";
 
@@ -30,6 +32,7 @@ import { hasReducedScoring } from "@/common";
   components: {
     AddProblemSetModal,
     EditProblemSetsModal,
+    ImportProblemSetsModal,
   },
 })
 export default class ProblemSetsManager extends Vue {
@@ -61,14 +64,12 @@ export default class ProblemSetsManager extends Vue {
         formatter: "numProbs",
       },
       { key: "visible", sortable: true },
-      //{ key: "enable_reduced_scoring", label: "RS" },
       {
         key: "open_date",
         sortable: true,
         label: "Open Date",
         formatter: "formatDate",
       },
-      // { key: "reduced_scoring_date", sortable: true, label: "Red. Sc. Date" },
       {
         key: "due_date",
         sortable: true,
@@ -169,37 +170,66 @@ export default class ProblemSetsManager extends Vue {
             </b-input-group-append>
           </b-input-group>
         </b-col>
-        <b-col cols="6">
-          <b-input-group size="sm" prepend="Show Time">
-            <b-input-group-append is-text>
-              <b-checkbox v-model="show_time" />
-            </b-input-group-append>
-            <b-input-group-append>
-              <b-btn v-b-modal.add-problem-set-modal>Add Problem Set</b-btn>
-            </b-input-group-append>
-            <b-dd variant="outline-dark" text="Action on Selected">
-              <b-dd-item
-                v-b-modal.edit-problem-sets-modal
-                :disabled="selected_sets.length === 0"
-              >
-                Edit Problem Sets
-              </b-dd-item>
-              <b-dd-item
-                :disabled="selected_sets.length === 0"
-                @click="deleteSets"
-              >
-                Delete Problem Sets
-              </b-dd-item>
-            </b-dd>
-          </b-input-group>
-        </b-col>
-        <b-col cols="2">
-          <b-select v-model="num_rows">
-            <option default value="10">Show 10 rows</option>
-            <option value="25">Show 25 rows</option>
-            <option value="50">Show 50 rows</option>
-            <option value="0">Show all rows</option>
-          </b-select>
+        <b-col cols="9">
+          <b-btn-toolbar>
+            <b-input-group size="sm" prepend="Show Time">
+              <b-input-group-append size="sm" is-text>
+                <b-checkbox v-model="show_time" />
+              </b-input-group-append>
+              <template #append>
+                <b-btn-group>
+                  <b-dd
+                    size="sm"
+                    variant="outline-dark"
+                    text="Add Problem Sets..."
+                  >
+                    <b-dd-item v-b-modal.add-problem-set-modal>
+                      Add New Problem Set
+                    </b-dd-item>
+                    <b-dd-item v-b-modal.import-problem-sets-modal>
+                      Import Problem Sets...
+                    </b-dd-item>
+                  </b-dd>
+                  <b-dd
+                    size="sm"
+                    variant="outline-dark"
+                    text="Action on Selected"
+                  >
+                    <b-dd-item
+                      v-b-modal.edit-problem-sets-modal
+                      :disabled="selected_sets.length === 0"
+                    >
+                      Edit Problem Sets
+                    </b-dd-item>
+                    <b-dd-item
+                      :disabled="selected_sets.length === 0"
+                      @click="deleteSets"
+                    >
+                      Delete Problem Sets
+                    </b-dd-item>
+                  </b-dd>
+                  <b-dd size="sm" text="Select Rows..." variant="outline-dark">
+                    <b-dd-item default value="10" @click="num_rows = 10">
+                      <span v-if="num_rows == 10"><b-icon-check /></span>
+                      Show 10 rows</b-dd-item
+                    >
+                    <b-dd-item value="25" @click="num_rows = 25">
+                      <span v-if="num_rows == 25"><b-icon-check /></span>
+                      Show 25 rows</b-dd-item
+                    >
+                    <b-dd-item value="50" @click="num_rows = 50">
+                      <span v-if="num_rows == 50"><b-icon-check /></span>
+                      Show 50 rows</b-dd-item
+                    >
+                    <b-dd-item value="0" @click="num_rows = 0">
+                      <span v-if="num_rows == 0"><b-icon-check /></span>
+                      Show all rows</b-dd-item
+                    >
+                  </b-dd>
+                </b-btn-group>
+              </template>
+            </b-input-group>
+          </b-btn-toolbar>
         </b-col>
       </b-row>
       <b-row>
@@ -242,12 +272,12 @@ export default class ProblemSetsManager extends Vue {
           </template>
         </b-table>
       </b-row>
-      <b-row>
+      <b-row v-if="num_rows > 0">
         <b-col>
           <b-pagination
             v-model="current_page"
             limit="20"
-            :total-rows="problem_sets.size"
+            :total-rows="problem_sets.length"
             :per-page="num_rows"
           />
         </b-col>
@@ -262,5 +292,6 @@ export default class ProblemSetsManager extends Vue {
       :selected_sets="selected_sets"
       @sets_updated="problem_set_tracker += 1"
     />
+    <import-problem-sets-modal />
   </div>
 </template>

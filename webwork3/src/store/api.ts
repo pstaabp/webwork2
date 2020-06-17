@@ -18,12 +18,16 @@ import {
 
 // This renders a problem given by either a Problem or from a source.
 
-export async function renderProblem(problem: Problem | Dictionary<string>) {
+export async function renderProblem(
+  problem: Problem | Dictionary<string>
+): Promise<RenderedProblem> {
   const response = await axios.put(login_store.api_header + "/render", problem);
   return response.data as RenderedProblem;
 }
 
-export async function renderFromSource(pg_source: string) {
+export async function renderFromSource(
+  pg_source: string
+): Promise<RenderedProblem> {
   const response = await axios.put(login_store.api_header + "/render", {
     problem_source: pg_source,
   });
@@ -32,7 +36,9 @@ export async function renderFromSource(pg_source: string) {
 
 // This fetches the Problem Source from a path in a course.
 
-export async function fetchProblemSource(source_file: string) {
+export async function fetchProblemSource(
+  source_file: string
+): Promise<Problem> {
   const response = await axios.get(
     login_store.api_header + "/library/fullproblem?source_file=" + source_file
   );
@@ -41,7 +47,9 @@ export async function fetchProblemSource(source_file: string) {
 
 // This renders a problem (probably not necessary)
 
-export async function fetchProblem(_problem: Problem) {
+export async function fetchProblem(
+  _problem: Problem
+): Promise<RenderedProblem> {
   //console.log(props); // eslint-disable-line no-console
   const response = await axios.put(
     "/webwork3/api/courses/" + login_store.course_id + "/render/problems/0",
@@ -50,7 +58,7 @@ export async function fetchProblem(_problem: Problem) {
   return response.data as RenderedProblem;
 }
 
-export async function fetchProblemTags(path: string) {
+export async function fetchProblemTags(path: string): Promise<ProblemTags> {
   const response = await axios.get(
     "/webwork3/api/library/courses/" +
       login_store.login_info.course_id +
@@ -60,7 +68,9 @@ export async function fetchProblemTags(path: string) {
   return response.data as ProblemTags;
 }
 
-export async function fetchUserProblem(props: Dictionary<string>) {
+export async function fetchUserProblem(
+  props: Dictionary<string>
+): Promise<UserProblem> {
   const response = await axios.get(
     login_store.api_header +
       "/users/" +
@@ -73,14 +83,18 @@ export async function fetchUserProblem(props: Dictionary<string>) {
   return response.data as UserProblem;
 }
 
-export async function fetchUserSet(props: Dictionary<string>) {
+export async function fetchUserSet(
+  props: Dictionary<string>
+): Promise<UserSet> {
   const response = await axios.get(
     login_store.api_header + "/users/" + props.user_id + "/sets/" + props.set_id
   );
   return response.data as UserSet;
 }
 
-export async function fetchUserSets(props: Dictionary<string>) {
+export async function fetchUserSets(
+  props: Dictionary<string>
+): Promise<UserSet[]> {
   const response = await axios.get(
     login_store.api_header + "/users/" + props.user_id + "/sets"
   );
@@ -99,7 +113,9 @@ export async function fetchUserSets(props: Dictionary<string>) {
 //   return response.data as StringMap[];
 // }
 
-export async function submitUserProblem(props: Dictionary<string>) {
+export async function submitUserProblem(
+  props: Dictionary<string>
+): Promise<RenderedProblem> {
   const response = await axios.post(
     login_store.api_header +
       "/render/users/" +
@@ -113,19 +129,45 @@ export async function submitUserProblem(props: Dictionary<string>) {
   return response.data as RenderedProblem;
 }
 
-export async function getLocalDirectory(path: string) {
+export async function getLocalDirectory(path: string): Promise<FileInfo[]> {
   const response = await axios.get(
     login_store.api_header + "/local" + (path ? "/" + path : "")
   );
   return response.data as FileInfo[];
 }
 
-export async function fetchAllUserSetScores() {
+export async function fetchAllUserSetScores(): Promise<UserSetScore[]> {
   const response = await axios.get(login_store.api_header + "/usersetscores");
   return response.data as UserSetScore[];
 }
 
-export async function fetchSiteInfo() {
+interface SiteInfo {
+  courses: string[];
+  site_info: string;
+}
+
+export async function fetchSiteInfo(): Promise<SiteInfo> {
   const response = await axios.get("/webwork3/api/site-info");
-  return response.data as { courses: string[]; site_info: string };
+  return response.data as SiteInfo;
+}
+
+interface TemplateType {
+  raw_source: string;
+}
+
+// export async function fetchProblemSource(prob: Problem) {
+//   const response = await axios.get(login_store.api_header + "/library/fullproblem", {
+//       params: prob,
+//     });
+//   return response.data as {problem_source: string};
+//
+// }
+
+export async function fetchProblemTemplate(
+  _type: string
+): Promise<TemplateType> {
+  const response = await axios.get(
+    login_store.api_header + "/problem-templates/" + _type
+  );
+  return response.data as TemplateType;
 }

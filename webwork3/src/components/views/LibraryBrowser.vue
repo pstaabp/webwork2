@@ -42,7 +42,7 @@ export default class LibraryBrowser extends Vue {
   ];
 
   private get problem_set() {
-    return problem_set_store.problem_set(app_state.selected_set);
+    return problem_set_store.getProblemSet(app_state.selected_set);
   }
 
   @Watch("tab_index")

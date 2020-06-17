@@ -47,28 +47,26 @@ export default class ProblemSetView extends Vue {
     );
   }
 
-  // @Watch("selected_set_id")
-  // private setIDchanged() {
-  //   console.log(this.selected_set_id); // eslint-disable-line no-console
-  // }
-
   private created() {
     // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
       if (
         mutation.type === "app_state_module/SET_APP_STATE" &&
         mutation.payload &&
-        Object.prototype.hasOwnProperty.call(mutation.payload, "set_id") &&
+        Object.prototype.hasOwnProperty.call(
+          mutation.payload,
+          "selected_set"
+        ) &&
         this.$route.name &&
         /^set-view/.test(this.$route.name)
       ) {
         if (
-          this.$route.name !== "set-view-tabs" &&
-          mutation.payload.set_id !== this.$route.params.set_id
+          // this.$route.name !== "set-view-tabs" &&
+          mutation.payload.selected_set !== this.$route.params.set_id
         ) {
           this.$router.push({
             name: "set-view-tabs",
-            params: { set_id: mutation.payload.set_id },
+            params: { set_id: mutation.payload.selected_set },
           });
         }
       }
@@ -80,13 +78,12 @@ export default class ProblemSetView extends Vue {
   // handles changes to the route which is the set-view route.
   @Watch("$route", { immediate: true, deep: true })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private routeChanged(to: any) {
-    console.log(to); // eslint-disable-line no-console
+  private async routeChanged(to: any) {
     if (to.name === "set-view-tabs") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
-        app_state.updateAppState({ set_id: set_id });
-        const set = problem_set_store.problem_set(set_id);
+        app_state.updateAppState({ selected_set: set_id });
+        const set = await problem_set_store.getProblemSet(set_id);
         if (set) {
           Object.assign(this.problem_set, set);
         }
@@ -110,13 +107,13 @@ export default class ProblemSetView extends Vue {
           <b-tab title="Gateway Info" :disabled="!is_gateway">
             <gateway-info :selected_set="problem_set" />
           </b-tab>
-          <b-tab title="Problems">
+          <b-tab title="Problems" lazy>
             <problem-list-view :problem_set="problem_set" />
           </b-tab>
-          <b-tab title="Assign Users">
+          <b-tab title="Assign Users" lazy>
             <assign-users :problem_set="problem_set" />
           </b-tab>
-          <b-tab title="Set Headers">
+          <b-tab title="Set Headers" lazy>
             <set-headers :problem_set="problem_set" />
           </b-tab>
         </b-tabs>

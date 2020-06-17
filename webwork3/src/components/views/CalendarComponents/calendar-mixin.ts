@@ -42,7 +42,7 @@ export default class CalendarMixin extends Vue {
       : day.get("date").toString();
   }
 
-  public get week() {
+  public get week(): dayjs.Dayjs[] {
     return [0, 1, 2, 3, 4, 5, 6].map((i: number) =>
       dayjs(this.first_day_of_week).add(i, "day")
     );

@@ -11,7 +11,7 @@ import store from "@/store";
 import { Dictionary } from "@/store/models";
 
 interface AppState {
-  problem_set: string;
+  selected_set: string;
   user_id: string;
   current_view: string;
   current_path: string;
@@ -26,86 +26,51 @@ interface AppState {
 })
 export default class AppStateModule extends VuexModule {
   public app_state: AppState = {
-    problem_set: "",
+    selected_set: "",
     user_id: "",
     current_view: "",
     current_path: "",
   };
 
-  get selected_set() {
-    return this.app_state.problem_set;
+  get selected_set(): string {
+    return this.app_state.selected_set;
   }
 
-  get selected_user() {
+  get selected_user(): string {
     return this.app_state.user_id;
   }
 
-  get current_view() {
+  get current_view(): string {
     return this.app_state.current_view;
   }
 
-  get current_path() {
+  get current_path(): string {
     return this.app_state.current_path;
   }
 
   @Action
-  public updateAppState(_state: Dictionary<string>) {
+  public updateAppState(_state: Dictionary<string>): void {
     this.SET_APP_STATE(_state);
   }
 
-  // @Action
-  // public setSelectedSet(_set_id: string) {
-  //   this.SET_PROBLEM_SET(_set_id);
-  // }
-  //
-  // @Action
-  // public setSelectedUser(_user_id: string) {
-  //   this.SET_USER(_user_id);
-  // }
-  //
-  // @Action
-  // public setCurrentView(_view_name: string) {
-  //   this.SET_CURRENT_VIEW(_view_name);
-  // }
-  //
-  // @Action
-  // public setCurrentPath(_path: string) {
-  //   this.SET_CURRENT_PATH(_path);
-  // }
-
   @Mutation
-  public SET_APP_STATE(_state: Dictionary<string>) {
+  public SET_APP_STATE(_state: Dictionary<string>): void {
+    Object.keys(_state).forEach((_key) => {
+      if (!Object.keys(this.app_state).includes(_key)) {
+        console.log(`The key ${_key} is not valid to set for the app_state`);
+      }
+    });
     if (_state.current_path) {
       this.app_state.current_path = _state["current_path"];
     }
     if (_state.current_view) {
       this.app_state.current_view = _state["current_view"];
     }
-    if (_state.problem_set) {
-      this.app_state.problem_set = _state["problem_set"];
+    if (_state.selected_set) {
+      this.app_state.selected_set = _state["selected_set"];
     }
     if (_state.user_id) {
       this.app_state.user_id = _state["user_id"];
     }
   }
-
-  // @Mutation
-  // public SET_PROBLEM_SET(_set_id: string) {
-  //   this.app_state.problem_set = _set_id;
-  // }
-  //
-  // @Mutation
-  // public SET_USER(_user_id: string) {
-  //   this.app_state.user_id = _user_id;
-  // }
-  //
-  // @Mutation
-  // public SET_CURRENT_VIEW(_current_view: string) {
-  //   this.app_state.current_view = _current_view;
-  // }
-  //
-  // @Mutation
-  // public SET_CURRENT_PATH(_path: string) {
-  //   this.app_state.current_path = _path;
-  // }
 }

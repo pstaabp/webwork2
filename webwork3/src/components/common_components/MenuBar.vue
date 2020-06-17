@@ -66,7 +66,14 @@ export default class MenuBar extends Vue {
   }
 
   private get login_user(): User {
-    return user_store.getUser(this.login_info.user_id) || newUser();
+    // TODO: for some reason the getUser is returing a promise.  Why?
+    //return user_store.getUser(this.login_info.user_id) || newUser();
+
+    return (
+      user_store.users.find(
+        (_user) => _user.user_id === this.login_info.user_id
+      ) || newUser()
+    );
   }
 
   private get fullname(): string {

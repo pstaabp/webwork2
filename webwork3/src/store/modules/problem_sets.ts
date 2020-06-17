@@ -52,35 +52,40 @@ export default class ProblemSetsModule extends VuexModule {
   private problem_sets_array: ProblemSet[] = [];
   private user_set_array: UserSet[] = [];
 
-  public get problem_sets() {
+  public get problem_sets(): ProblemSet[] {
     return this.problem_sets_array;
   }
 
-  public get user_sets() {
+  public get user_sets(): UserSet[] {
     return this.user_set_array;
   }
 
-  public get set_names() {
+  public get set_names(): string[] {
     return this.problem_sets_array.map((_set: ProblemSet) => _set.set_id);
   }
 
-  public get problem_set() {
-    return (_set_id: string) =>
-      this.problem_sets_array.find(
-        (_set: ProblemSet) => _set.set_id === _set_id
-      );
+  @Action
+  public async getProblemSet(_set_id: string): Promise<ProblemSet | undefined> {
+    return this.problem_sets_array.find(
+      (_set: ProblemSet) => _set.set_id === _set_id
+    );
+    // console.log(sets); // eslint-disable-line no-console
+    // return sets;
   }
 
-  public get user_set() {
-    return (info: { user_id: string; set_id: string }) =>
-      this.user_set_array.find(
-        (_set: UserSet) =>
-          _set.set_id === info.set_id && _set.user_id === info.user_id
-      );
+  @Action
+  public getUserSet(info: {
+    user_id: string;
+    set_id: string;
+  }): UserSet | undefined {
+    return this.user_set_array.find(
+      (_set: UserSet) =>
+        _set.set_id === info.set_id && _set.user_id === info.user_id
+    );
   }
 
   @Action({ rawError: true })
-  public async fetchProblemSets() {
+  public async fetchProblemSets(): Promise<void> {
     const response = await axios.get(login_store.api_header + "/sets");
     const sets = response.data as ProblemSet[];
     sets.forEach((_set) => {
@@ -89,8 +94,8 @@ export default class ProblemSetsModule extends VuexModule {
   } // fetchProblemSets
 
   @Action
-  public async updateProblemSet(_set: ProblemSet) {
-    const previous_set = this.problem_set(_set.set_id);
+  public async updateProblemSet(_set: ProblemSet): Promise<void> {
+    const previous_set = await this.getProblemSet(_set.set_id);
     const response = await axios.put(
       login_store.api_header + "/sets/" + _set.set_id,
       _set
@@ -134,7 +139,7 @@ export default class ProblemSetsModule extends VuexModule {
   }
 
   @Action
-  public async addProblemSet(_set: ProblemSet) {
+  public async addProblemSet(_set: ProblemSet): Promise<ProblemSet> {
     const response = await axios.post(
       login_store.api_header + "/sets/" + _set.set_id,
       _set
@@ -147,7 +152,7 @@ export default class ProblemSetsModule extends VuexModule {
   }
 
   @Action
-  public async removeProblemSet(_set: ProblemSet) {
+  public async removeProblemSet(_set: ProblemSet): Promise<ProblemSet> {
     const response = await axios.delete(
       login_store.api_header + "/sets/" + _set.set_id
     );
@@ -156,15 +161,19 @@ export default class ProblemSetsModule extends VuexModule {
   }
 
   @Action
-  public async fetchUserSets(_user_id: string) {
+  public async fetchUserSets(_user_id: string): Promise<UserSet[]> {
     const response = await axios.get(
       login_store.api_header + "/users/" + _user_id + "/sets"
     );
     const sets = response.data as UserSet[];
     sets.forEach((_set) => this.SET_USER_SET(_set));
+    return sets;
   }
 
-  @Action async fetchUserSet(props: { user_id: string; set_id: string }) {
+  @Action async fetchUserSet(props: {
+    user_id: string;
+    set_id: string;
+  }): Promise<void> {
     const response = await axios.get(
       login_store.api_header +
         "/users/" +
@@ -176,12 +185,12 @@ export default class ProblemSetsModule extends VuexModule {
   }
 
   @Action
-  public clearProblemSets() {
+  public clearProblemSets(): void {
     this.RESET_SETS();
   }
 
   @Mutation
-  private SET_USER_SET(set: UserSet) {
+  private SET_USER_SET(set: UserSet): void {
     const index = this.user_set_array.findIndex(
       (_set: UserSet) => _set.set_id == set.set_id
     );

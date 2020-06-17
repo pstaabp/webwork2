@@ -16,7 +16,7 @@ import axios from "axios";
 @Component({
   name: "SetHeaders",
 })
-export default class AssignUsers extends Vue {
+export default class SetHeaders extends Vue {
   @Prop() private problem_set!: ProblemSet;
   private headers: string[] = [];
   private screen_header = "";
@@ -38,7 +38,7 @@ export default class AssignUsers extends Vue {
         "/sets/" +
         this.problem_set.set_id +
         "/header/" +
-        this.screen_header
+        (this.screen_header || "defaultHeader")
     );
     console.log(response.data); // eslint-disable-line no-console
     this.screen_header_content = response.data.header_content;

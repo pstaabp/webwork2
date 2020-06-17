@@ -11,47 +11,43 @@ import { getModule } from "vuex-module-decorators";
 import problem_set_module from "@/store/modules/problem_sets";
 const problem_set_store = getModule(problem_set_module);
 
-import { ScoreType, UserSet, Problem } from "@/store/models";
-import { hasReducedScoring, newUserSet } from "@/common";
+import { ScoreType, UserSet, Problem, ProblemSet } from "@/store/models";
+import { hasReducedScoring } from "@/common";
 
 @Component({ name: "ProblemViewerSidebar" })
 export default class ProblemViewerSidebar extends Vue {
-  private user_set: UserSet = newUserSet();
   @Prop() private set_id!: string;
   @Prop() private user_id!: string;
   @Prop() private user_sets_changed!: number;
 
-  private get problem_set() {
-    return problem_set_store.problem_set(this.set_id);
+  private get problem_set(): ProblemSet | undefined {
+    return problem_set_store.problem_sets.find(
+      (_set) => _set.set_id === this.set_id
+    );
   }
 
-  private mounted() {
-    this.updateUserSet();
+  private get user_set(): UserSet | undefined {
+    return problem_set_store.user_sets.find(
+      (_set) => _set.set_id == this.set_id && _set.user_id == this.user_id
+    );
   }
 
-  private updateUserSet() {
-    this.user_set =
-      problem_set_store.user_set({
-        user_id: this.user_id,
-        set_id: this.set_id,
-      }) || newUserSet();
-  }
+  // private created(): void {
+  //   this.$store.subscribe((mutation) => {
+  //     // any change to the user set, make sure we have an updated set.
+  //     if (mutation.type === "problem_set_module/SET_USER_SET") {
+  //       this.updateUserSet();
+  //     }
+  //   });
+  // }
 
-  private created() {
-    this.$store.subscribe((mutation) => {
-      // any change to the user set, make sure we have an updated set.
-      if (mutation.type === "problem_set_module/SET_USER_SET") {
-        this.updateUserSet();
-      }
-    });
-  }
-
-  private get has_reduced_scoring() {
+  private get has_reduced_scoring(): boolean {
     return hasReducedScoring();
   }
 
-  private get total_score() {
+  private get total_score(): number {
     const probs = (this.problem_set && this.problem_set.problems) || [];
+
     return this.user_set && this.user_set.scores
       ? this.user_set.scores.reduce(
           (total: number, score: ScoreType, i: number) =>
@@ -62,6 +58,7 @@ export default class ProblemViewerSidebar extends Vue {
   }
 
   private get max_score() {
+    // return the total value of all the problems
     return this.problem_set && this.problem_set.problems
       ? this.problem_set.problems.reduce(
           (total: number, prob: Problem) => total + prob.value,
@@ -75,20 +72,25 @@ export default class ProblemViewerSidebar extends Vue {
   }
 
   private problemValue(problem_id: number) {
-    const user_score = this.user_set.scores.find(
-      (_sc: ScoreType) => _sc.problem_id === problem_id
-    );
-    const problem_value =
-      this.problem_set &&
-      this.problem_set.problems.find(
-        (_prob: Problem) => _prob.problem_id === problem_id
+    const user_set = this.user_set;
+    if (user_set) {
+      const user_score = user_set.scores.find(
+        (_sc: ScoreType) => _sc.problem_id === problem_id
       );
-    return (
-      (user_score &&
-        problem_value &&
-        user_score.status * problem_value.value) ||
-      0
-    );
+      const problem_value =
+        this.problem_set &&
+        this.problem_set.problems.find(
+          (_prob: Problem) => _prob.problem_id === problem_id
+        );
+      return (
+        (user_score &&
+          problem_value &&
+          user_score.status * problem_value.value) ||
+        0
+      );
+    } else {
+      return 0;
+    }
   }
 }
 </script>

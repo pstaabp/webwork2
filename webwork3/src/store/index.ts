@@ -4,8 +4,6 @@
 
 */
 
-console.log("in store/index"); // eslint-disable-line no-console
-
 import Vue from "vue";
 import Vuex from "vuex";
 Vue.use(Vuex);
@@ -34,8 +32,6 @@ interface WeBWorKState {
 }
 
 const rootState: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-console.log(rootState); // eslint-disable-line no-console
 
 const vuexPersist = new VuexPersistence<WeBWorKState>({
   storage: window.localStorage,

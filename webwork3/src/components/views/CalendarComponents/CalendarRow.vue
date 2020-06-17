@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import CalendarMixin from "./calendar-mixin";
 
 import { getModule } from "vuex-module-decorators";
+import { ProblemSet } from "@/store/models";
 
 import users_module from "@/store/modules/users";
 const user_store = getModule(users_module);
@@ -23,15 +24,15 @@ import { AssignmentInfo } from "./calendar-mixin";
   },
 })
 export default class CalendarRow extends mixins(CalendarMixin) {
-  // private today: dayjs.Dayjs = dayjs();
+
   private drag = false;
 
   private get num_users() {
     return user_store.users.length;
   }
 
-  private getProblemSet(_set_id: string) {
-    return problem_set_store.problem_set(_set_id);
+  private getProblemSet(set_id: string): ProblemSet | undefined {
+    return problem_set_store.problem_sets.find( (_set: ProblemSet) => _set.set_id === set_id);
   }
 
   private assignChange(
@@ -102,7 +103,7 @@ export default class CalendarRow extends mixins(CalendarMixin) {
             getProblemSet(assignment.set_id).visible ? '' : 'font-style: italic'
           "
         >
-          {{ assignment.set_id }}
+          {{ assignment.set_id.replace(/_/g, " ") }}
           <b-icon-question-circle-fill
             :id="assignment.id"
             class="float-right"
@@ -111,7 +112,7 @@ export default class CalendarRow extends mixins(CalendarMixin) {
           <b-popover :target="assignment.id" triggers="hover focus">
             <template #title
               ><router-link :to="'set-view/' + assignment.set_id">
-                {{ assignment.set_id }}</router-link
+                {{ assignment.set_id.replace(/_/g, " ") }}</router-link
               ></template
             >
             <table>

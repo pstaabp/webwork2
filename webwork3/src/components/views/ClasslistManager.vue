@@ -52,7 +52,7 @@ export default class Manager extends Vue {
       formatter: (value: number) => permission_levels[value],
     },
   ];
-  private selected_users: object[] = [];
+  private selected_users: User[] = [];
   private filter_string = "";
   private num_rows = 10;
   private current_page = 1;

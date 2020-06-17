@@ -22,7 +22,7 @@ import settings_module from "@/store/modules/settings";
 const settings_store = getModule(settings_module);
 
 @Component({
-  name: "SettingsTab",
+  name: "SettingsRow",
 })
 export default class SettingsRow extends Vue {
   @Prop() public var!: string;
@@ -98,11 +98,11 @@ export default class SettingsRow extends Vue {
     }
   }
 
-  private beforeMount() {
+  private async beforeMount() {
     // it appears that things aren't synching well.
     // this grabs the setting from the settings_store to set all values.
 
-    const setting = settings_store.getSetting(this.var);
+    const setting = await settings_store.getSetting(this.var);
     this.setting = setting ? setting : emptySetting();
 
     if (this.setting.type === "checkboxlist") {

@@ -17,6 +17,8 @@
 package WeBWorK3::PG::Local;
 use base qw(WeBWorK::PG::Local);
 
+use Data::Dump qw/dump/;
+
 =head1 NAME
 
 WeBWorK::PG::Local - Use the WeBWorK::PG API to invoke a local
@@ -59,10 +61,11 @@ sub new_helper {
 		$translationOptions, # hashref containing options for the
 		                     # translator, such as whether to show
 		                     # hints and the display mode to use
+		$debug ## passes a debug function for DANCER2
 	) = @_;
 
     warn "in WeBWorK3::PG::Local";
-
+	warn dump $translationOptions;
 	# install a local warn handler to collect warnings  FIXME -- figure out what I meant to do here.
 	my $warnings = "";
 	#local $SIG{__WARN__} = sub { $warnings .= shift()."<br/>\n"};
@@ -140,7 +143,7 @@ sub new_helper {
 	);
 	$translator->environment($envir);
 
-    #debug dump $envir;
+  # &$debug("IN LOCAL");
 
 	############################################################################
 	# initialize the Translator
@@ -223,10 +226,10 @@ sub new_helper {
 	my $sourceFilePath = '';
 	my $readErrors = undef;
 
-	debug $translationOptions;
-	if (ref($translationOptions->{r_source}) ) {
+	# debug $translationOptions;
+	if (defined($translationOptions->{r_source}) ) {
 		# the source for the problem is already given to us as a reference to a string
-		$source = ${$translationOptions->{r_source}};
+		$source = $translationOptions->{r_source};
 	} else {
 	    # the source isn't given to us so we need to read it
 	    # from a file defined by the problem
@@ -244,6 +247,8 @@ sub new_helper {
 
 		$readErrors = $@ if $@;
 	 }
+
+	 warn dump $source;
 
     ############################################################################
     # put the source into the translator object
@@ -297,6 +302,8 @@ EOF
 
 
     $translator->translate();
+
+	warn dump $translator; 
 
 
 	############################################################################

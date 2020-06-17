@@ -277,7 +277,7 @@ function parseInteger(prop: number | string, default_value = 0) {
 // This is used to parse a problem set.  Some of the integers coming from ther
 // server are strings and should be integers.
 
-export function parseProblemSet(_set: ProblemSet) {
+export function parseProblemSet(_set: ProblemSet): ProblemSet {
   const problem_set = newProblemSet();
   Object.assign(problem_set, _set);
   problem_set.open_date = parseInteger(_set.open_date);
@@ -297,15 +297,15 @@ export function parseProblemSet(_set: ProblemSet) {
   return problem_set;
 }
 
-export function validReducedScoring(_set: ProblemSet) {
+export function validReducedScoring(_set: ProblemSet): boolean {
   return dayjs(_set.reduced_scoring_date).isSameOrAfter(dayjs(_set.open_date));
 }
 
-export function validDueDate(_set: ProblemSet) {
+export function validDueDate(_set: ProblemSet): boolean {
   return dayjs(_set.due_date).isSameOrAfter(dayjs(_set.reduced_scoring_date));
 }
 
-export function validAnswerDate(_set: ProblemSet) {
+export function validAnswerDate(_set: ProblemSet): boolean {
   return dayjs(_set.answer_date).isSameOrAfter(dayjs(_set.due_date));
 }
 
@@ -403,31 +403,34 @@ export const instructor_views = [
   },
 ];
 
-export function formatDateTime(value: number) {
+export function formatDateTime(value: number): string {
   return dayjs.unix(value).format("YYYY-MM-DD[T]HH:mm");
 }
 
-export function parseDatetimeForBrowser(date_string: string) {
+export function parseDatetimeForBrowser(date_string: string): number {
   return dayjs(date_string, "YYYY-MM-DD[T]HH:mm").unix();
 }
 
-export function setOpenDate(_set: ProblemSet, date_string: string) {
+export function setOpenDate(_set: ProblemSet, date_string: string): void {
   _set.open_date = parseDatetimeForBrowser(date_string);
 }
 
-export function setReducedScoringDate(_set: ProblemSet, date_string: string) {
+export function setReducedScoringDate(
+  _set: ProblemSet,
+  date_string: string
+): void {
   _set.reduced_scoring_date = parseDatetimeForBrowser(date_string);
 }
 
-export function setDueDate(_set: ProblemSet, date_string: string) {
+export function setDueDate(_set: ProblemSet, date_string: string): void {
   _set.due_date = parseDatetimeForBrowser(date_string);
 }
 
-export function setAnswerDate(_set: ProblemSet, date_string: string) {
+export function setAnswerDate(_set: ProblemSet, date_string: string): void {
   _set.answer_date = parseDatetimeForBrowser(date_string);
 }
 
-export function round(value: number, digits: number) {
+export function round(value: number, digits: number): number {
   return Math.round(Math.pow(10, digits) * value) / Math.pow(10, digits);
 }
 

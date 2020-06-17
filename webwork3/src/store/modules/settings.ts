@@ -42,7 +42,7 @@ export default class SettingsModule extends VuexModule {
   }
 
   @Action
-  public getSetting(_var_name: string) {
+  public getSetting(_var_name: string): Setting | undefined {
     return this.setting_array.find(
       (_setting: Setting) => _setting.var == _var_name
     );
@@ -50,7 +50,7 @@ export default class SettingsModule extends VuexModule {
 
   // Settings actions
   @Action
-  public async fetchSettings() {
+  public async fetchSettings(): Promise<Setting[]> {
     const response = await axios.get(login_store.api_header + "/settings");
     const settings = response.data as Setting[];
     settings.forEach((setting) => this.SET_SETTING(setting));
@@ -58,7 +58,7 @@ export default class SettingsModule extends VuexModule {
   } // fetchSettings
 
   @Action
-  public async updateSetting(_setting: Setting) {
+  public async updateSetting(_setting: Setting): Promise<void> {
     const response = await axios.put(
       login_store.api_header + "/settings/" + _setting.var,
       _setting
@@ -94,7 +94,7 @@ export default class SettingsModule extends VuexModule {
   }
 
   @Mutation
-  private SET_SETTING(setting: Setting) {
+  private SET_SETTING(setting: Setting): void {
     // find the setting in the settings array
     const index = this.setting_array.findIndex(
       (_setting: Setting) => _setting.var === setting.var

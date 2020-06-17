@@ -1,5 +1,3 @@
-console.log("in main.ts"); // eslint-disable-line no-console
-
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
@@ -101,8 +99,6 @@ Vue.use(ModalPlugin);
 import WeBWorKApp from "@/App.vue";
 
 import store from "@/store";
-
-console.log(store); // eslint-disable-line no-console
 
 new Vue({
   router,

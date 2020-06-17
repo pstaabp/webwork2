@@ -1410,16 +1410,30 @@ any ['put','post'] => '/courses/:course_id/problemeditor' => sub {
 
 #####
 #
-#  Retrieve a blank problem from the template:
+#  Retrieve a blank problem template from the template:
 #
 #####
 
-get '/courses/:course_id/blank_problem' => sub {
-  my $blankProbPath = vars->{ce}->{webworkFiles}->{screenSnippets}->{blankProblem};
-  my $blankProbSource = read_file_content($blankProbPath);
-  return {raw_source => $blankProbSource};
+get '/courses/:course_id/problem-templates/:type' => sub {
+  my $blankProbPath = "";
+  my $template_type = route_parameters->get('type');
+
+  debug $template_type eq 'pgml';
+  if ($template_type eq 'pg') {
+    $blankProbPath = vars->{ce}->{webworkFiles}->{screenSnippets}->{blankProblem};
+  } elsif ($template_type eq 'pgml') {
+    debug "heer!!!";
+    $blankProbPath = vars->{ce}->{webworkFiles}->{screenSnippets}->{blankPGMLProblem};
+  } else {
+    debug "Oops!";
+  }
+  if ($blankProbPath) {
+    my $blankProbSource = read_file_content($blankProbPath);
+    ## check if there is a file read error.
+    return {problem_source => $blankProbSource};
+  } else {
+    send_error('the type of template must be pg or pgml');
+  }
 };
-
-
 
 return 1;

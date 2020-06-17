@@ -1,5 +1,3 @@
-console.log("in router.ts"); // eslint-disable-line no-console
-
 import Vue from "vue";
 import VueRouter from "vue-router";
 
@@ -109,7 +107,7 @@ const router = new VueRouter({
                 {
                   path: "editor",
                   name: "editor",
-                  component: Editor,
+                  component: () => import("@/components/views/Editor.vue"),
                 },
                 {
                   path: "statistics",
