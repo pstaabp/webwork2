@@ -4,14 +4,10 @@ This is a tab within the ProblemSetView that allows the viewing/editing of the s
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
-import { ProblemSet } from "@/store/models";
-
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-
 import axios from "axios";
+
+import { ProblemSet } from "@/store/models";
+import { login_store } from "@/store";
 
 @Component({
   name: "SetHeaders",

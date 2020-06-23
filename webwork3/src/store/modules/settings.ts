@@ -3,33 +3,19 @@ import {
   Module,
   Action,
   Mutation,
-  getModule,
 } from "vuex-module-decorators";
 
 import { isEqual } from "lodash-es";
+import axios from "axios";
 
 import { Setting } from "@/store/models";
-import store from "@/store";
 
-import login_module from "./login";
-const login_store = getModule(login_module);
-import messages_module from "./messages";
-const messages_store = getModule(messages_module);
-
-// this is to prevent an error occur with a hot reloading.
-
-// if (store.state.settings) {
-//   store.unregisterModule("settings");
-// }
-
-import axios from "axios";
+import { login_store, messages_store } from "@/store";
 
 @Module({
   namespaced: true,
-  name: "settings_module",
-  store,
-  dynamic: true,
-  preserveState: localStorage.getItem("vuex") !== null,
+  name: "SettingsModule",
+  // preserveState: localStorage.getItem("vuex") !== null,
 })
 export default class SettingsModule extends VuexModule {
   // Note: a SettingList (Map<string,Setting>) is preferrable, but locally saving a Map is not supported well in

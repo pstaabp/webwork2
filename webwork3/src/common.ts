@@ -1,13 +1,10 @@
 // This file has common variables and objects needed throughout the ww3 interface
 
-import { getModule } from "vuex-module-decorators";
-
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 dayjs.extend(isSameOrAfter);
 
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
+import { settings_store } from "@/store";
 
 import {
   ProblemSet,

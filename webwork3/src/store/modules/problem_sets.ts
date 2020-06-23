@@ -3,7 +3,6 @@ import {
   Module,
   Action,
   Mutation,
-  getModule,
 } from "vuex-module-decorators";
 
 import { isEqual } from "lodash-es";
@@ -14,23 +13,12 @@ import { parseProblemSet, formatDateTime } from "@/common";
 
 import {
   ProblemSet,
-  // ProblemSetList,
   UserSet,
-  // UserSetList,
-  // Dictionary,
 } from "@/store/models";
-import store from "@/store";
 
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import messages_module from "./messages";
-const messages_store = getModule(messages_module);
+import { login_store, messages_store } from "@/store";
 
-// this is to prevent an error occur with a hot reloading.
 
-// if (store.state.problem_sets) {
-//   store.unregisterModule("problem_sets");
-// }
 
 import axios from "axios";
 
@@ -40,10 +28,8 @@ function getProperty<T, K extends keyof T>(o: T, _prop_name: K): T[K] {
 
 @Module({
   namespaced: true,
-  name: "problem_sets_module",
-  store,
-  dynamic: true,
-  preserveState: localStorage.getItem("vuex") !== null,
+  name: "ProblemSetsModule",
+  // preserveState: localStorage.getItem("vuex") !== null,
 })
 export default class ProblemSetsModule extends VuexModule {
   // Note: a ProblemSetList (Map<string,Problem>) is preferrable, but locally saving a Map is not supported well in

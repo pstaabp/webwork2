@@ -5,13 +5,6 @@ This is modal from the ProblemSetManager to edit a given problem set. -->
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
-// import { ProblemSet } from "@/store/models";
-
-// import { getModule } from "vuex-module-decorators";
-
-// import problem_set_module from "@/store/modules/problem_sets";
-// const problem_set_store = getModule(problem_set_module);
-
 @Component({
   name: "ImportProblemSetsModal",
 })

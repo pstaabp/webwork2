@@ -17,15 +17,6 @@ import EditorPane from "./EditorComponents/EditorPane.vue";
 
 import { ProblemSource } from "@/store/models";
 
-// import { renderFromSource, fetchProblemSource } from "@/store/api";
-
-// import { getModule } from "vuex-module-decorators";
-
-// // import login_module from "@/store/modules/login";
-// // const login_store = getModule(login_module);
-// import problem_set_module from "@/store/modules/problem_sets";
-// const problem_set_store = getModule(problem_set_module);
-
 @Component({
   name: "Editor",
   components: {
@@ -56,15 +47,18 @@ export default class ProblemEditor extends Vue {
     this.tabs.splice(index, 1);
   }
 
-  @Watch("$route.path", {immediate: true})
-  private routedChanged(){
+  @Watch("$route.path", { immediate: true })
+  private routedChanged() {
     if (this.$route.name === "editor") {
-        console.log(this.$route.params); // eslint-disable-line no-console
-        this.newProblem(Object.assign({problem_source:"", problem_html: ""},
-          {problem_path: this.$route.params.problem_path}));
+      console.log(this.$route.params); // eslint-disable-line no-console
+      this.newProblem(
+        Object.assign(
+          { problem_source: "", problem_html: "" },
+          { problem_path: this.$route.params.problem_path }
+        )
+      );
     }
   }
-
 }
 </script>
 

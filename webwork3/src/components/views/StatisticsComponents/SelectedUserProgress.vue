@@ -3,14 +3,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { UserSetScore, ProblemSet, Problem, Dictionary } from "@/store/models";
 
-import { getModule } from "vuex-module-decorators";
-
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { problem_set_store, users_store, app_state_store } from "@/store";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { round } from "@/common";
@@ -27,7 +20,7 @@ export default class SelectedUserProgress extends Vue {
   @Prop() private user_set_scores!: UserSetScore[];
 
   private get user() {
-    return users_store.getUser(app_state.selected_user);
+    return users_store.getUser(app_state_store.selected_user);
   }
 
   private get user_id() {

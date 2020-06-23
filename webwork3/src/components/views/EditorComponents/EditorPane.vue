@@ -18,9 +18,6 @@ import "mathjax-full/es5/tex-chtml.js";
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
 declare let MathJax: any;
 
-
-
-
 import { renderFromSource, fetchProblemSource } from "@/store/api";
 
 import { ProblemSource } from "@/store/models";
@@ -64,7 +61,7 @@ export default class ProblemEditor extends Vue {
       "source-" + this.editor_name
     ) as HTMLDivElement;
     this.cm = CodeMirror(div, config);
-    if(! this.problem_info.problem_source){
+    if (!this.problem_info.problem_source) {
       // it needs to be loaded:
       const response = await fetchProblemSource(this.problem_info.problem_path);
       this.problem_info.problem_source = response.problem_source;

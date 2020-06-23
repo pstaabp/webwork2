@@ -9,10 +9,7 @@ import SettingsTab from "./SettingsComponents/SettingsTab.vue";
 
 import { Setting } from "@/store/models";
 
-import { getModule } from "vuex-module-decorators";
-
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
+import { settings_store } from "@/store";
 
 @Component({
   name: "Settings",

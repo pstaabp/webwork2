@@ -4,10 +4,7 @@ import dayjs from "dayjs";
 
 import { ProblemSetList } from "@/store/models";
 
-import { getModule } from "vuex-module-decorators";
-
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
+import { settings_store } from "@/store";
 
 export interface AssignmentInfo {
   date: dayjs.Dayjs;

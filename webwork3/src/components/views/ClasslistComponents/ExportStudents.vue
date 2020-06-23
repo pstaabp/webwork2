@@ -3,13 +3,7 @@ import { Vue, Component } from "vue-property-decorator";
 import { unparse } from "papaparse";
 
 import dayjs from "dayjs";
-
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
+import { login_store, users_store } from "@/store";
 
 @Component
 export default class ImportStudentsFile extends Vue {

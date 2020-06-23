@@ -16,10 +16,7 @@ import {
   hasReducedScoring,
 } from "@/common";
 
-import { getModule } from "vuex-module-decorators";
-
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
+import { users_store } from "@/store";
 
 @Component({
   name: "AssignUsers",

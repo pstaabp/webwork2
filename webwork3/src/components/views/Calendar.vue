@@ -6,10 +6,7 @@ import dayjs from "dayjs";
 // import localeData from "dayjs/plugin/localeData";
 // dayjs.extend(localeData);
 
-import { getModule } from "vuex-module-decorators";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store } from "@/store";
 
 import Draggable from "vuedraggable";
 

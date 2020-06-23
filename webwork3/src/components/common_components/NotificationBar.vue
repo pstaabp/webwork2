@@ -1,9 +1,5 @@
 <script lang="ts">
-import { getModule } from "vuex-module-decorators";
-
-import messages_module from "@/store/modules/messages";
-const messages_store = getModule(messages_module);
-
+import { messages_store } from "@/store";
 import { Vue, Component } from "vue-property-decorator";
 
 import Notification from "./Notification.vue";

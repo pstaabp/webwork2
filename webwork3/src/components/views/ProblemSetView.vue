@@ -15,12 +15,7 @@ import ProblemSetSidebar from "@/components/sidebars/ProblemSetSidebar.vue";
 import { ProblemSet } from "@/store/models";
 import { newProblemSet } from "@/common";
 
-import { getModule } from "vuex-module-decorators";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { app_state_store, problem_set_store } from "@/store";
 
 @Component({
   name: "ProblemSetView",
@@ -51,7 +46,7 @@ export default class ProblemSetView extends Vue {
     // if the selectedSet in the menu bar is given, then switch the route.
     this.$store.subscribe((mutation) => {
       if (
-        mutation.type === "app_state_module/SET_APP_STATE" &&
+        mutation.type === "app_state_store_module/SET_APP_STATE" &&
         mutation.payload &&
         Object.prototype.hasOwnProperty.call(
           mutation.payload,
@@ -82,7 +77,7 @@ export default class ProblemSetView extends Vue {
     if (to.name === "set-view-tabs") {
       const set_id = to.params && to.params.set_id;
       if (set_id) {
-        app_state.updateAppState({ selected_set: set_id });
+        app_state_store.updateAppState({ selected_set: set_id });
         const set = await problem_set_store.getProblemSet(set_id);
         if (set) {
           Object.assign(this.problem_set, set);

@@ -7,10 +7,7 @@ import CalendarMixin from "./calendar-mixin";
 import { BIconBoxArrowUpRight } from "bootstrap-vue";
 Vue.component("BIconBoxArrowUpRight", BIconBoxArrowUpRight);
 
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
+import { login_store } from "@/store";
 
 @Component({
   name: "StudentCalendarRow",

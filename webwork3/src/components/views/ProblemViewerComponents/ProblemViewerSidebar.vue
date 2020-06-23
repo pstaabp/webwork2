@@ -5,11 +5,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 
 import dayjs from "dayjs";
-
-import { getModule } from "vuex-module-decorators";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store } from "@/store";
 
 import { ScoreType, UserSet, Problem, ProblemSet } from "@/store/models";
 import { hasReducedScoring } from "@/common";
@@ -22,24 +18,15 @@ export default class ProblemViewerSidebar extends Vue {
 
   private get problem_set(): ProblemSet | undefined {
     return problem_set_store.problem_sets.find(
-      (_set) => _set.set_id === this.set_id
+      (_set: ProblemSet) => _set.set_id === this.set_id
     );
   }
 
   private get user_set(): UserSet | undefined {
     return problem_set_store.user_sets.find(
-      (_set) => _set.set_id == this.set_id && _set.user_id == this.user_id
+      (_set: UserSet) => _set.set_id == this.set_id && _set.user_id == this.user_id
     );
   }
-
-  // private created(): void {
-  //   this.$store.subscribe((mutation) => {
-  //     // any change to the user set, make sure we have an updated set.
-  //     if (mutation.type === "problem_set_module/SET_USER_SET") {
-  //       this.updateUserSet();
-  //     }
-  //   });
-  // }
 
   private get has_reduced_scoring(): boolean {
     return hasReducedScoring();
@@ -97,7 +84,7 @@ export default class ProblemViewerSidebar extends Vue {
 <template>
   <div>
     <h3>Problem Set Status</h3>
-    <table v-if="user_set.set_id !== 'XXX'" class="table table-sm">
+    <table v-if="user_set && user_set.set_id !== 'XXX'" class="table table-sm">
       <tr>
         <td class="header">Set Name:</td>
         <td>{{ user_set.set_id.replace(/\_/g, " ") }}</td>

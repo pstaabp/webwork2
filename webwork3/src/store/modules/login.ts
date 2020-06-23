@@ -3,15 +3,12 @@
 import { VuexModule, Module, Mutation, Action } from "vuex-module-decorators";
 
 import { LoginInfo, UserPassword, Dictionary } from "@/store/models";
-import store from "@/store";
 import axios from "axios";
 
 @Module({
   namespaced: true,
-  name: "login_module",
-  store,
-  dynamic: true,
-  preserveState: localStorage.getItem("vuex") !== null,
+  name: "LoginModule",
+  // preserveState: localStorage.getItem("vuex") !== null,
 })
 export default class LoginModule extends VuexModule {
   private login_info_state: LoginInfo = {

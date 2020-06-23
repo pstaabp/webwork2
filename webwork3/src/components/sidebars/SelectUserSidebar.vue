@@ -5,28 +5,23 @@ This is the Sidebar to allow changes to the selected user in many different view
 <script lang="ts">
 import { Component, Watch, Vue } from "vue-property-decorator";
 
-import { getModule } from "vuex-module-decorators";
-
-import users_module from "@/store/modules/users";
-const user_store = getModule(users_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { users_store, app_state_store } from "@/store";
 
 @Component({ name: "SelectUserSidebar" })
 export default class SelectUserSidebar extends Vue {
   private user_id = "";
 
   private get user_names() {
-    return user_store.user_names;
+    return users_store.user_names;
   }
 
   @Watch("user_id")
   private userIDChanged() {
-    app_state.updateAppState({ user_id: this.user_id });
+    app_state_store.updateAppState({ user_id: this.user_id });
   }
 
   private beforeMount() {
-    this.user_id = app_state.selected_user;
+    this.user_id = app_state_store.selected_user;
   }
 }
 </script>

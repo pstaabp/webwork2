@@ -5,9 +5,7 @@ import {
   Module,
   Mutation,
   Action,
-  // getModule,
 } from "vuex-module-decorators";
-import store from "@/store";
 import { Dictionary } from "@/store/models";
 
 interface AppState {
@@ -19,10 +17,8 @@ interface AppState {
 
 @Module({
   namespaced: true,
-  name: "app_state_module",
-  store,
-  dynamic: true,
-  preserveState: localStorage.getItem("vuex") !== null,
+  name: "AppStateModule",
+  // preserveState: localStorage.getItem("vuex") !== null,
 })
 export default class AppStateModule extends VuexModule {
   public app_state: AppState = {

@@ -6,13 +6,7 @@ This is a generic tab for the Library Browser -->
 import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { Problem, ProblemSet } from "@/store/models";
-
-import { getModule } from "vuex-module-decorators";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { problem_set_store, app_state_store } from "@/store";
 
 import LibrarySubjects from "./LibrarySubjects.vue";
 import LibraryDirectory from "./LibraryDirectory.vue";
@@ -47,7 +41,7 @@ export default class LibraryTab extends Vue {
   }
 
   private addProblem(_problem: Problem) {
-    const set = this.problem_sets.get(app_state.selected_set);
+    const set = this.problem_sets.get(app_state_store.selected_set);
     if (set === undefined) {
       return;
     }
@@ -62,7 +56,7 @@ export default class LibraryTab extends Vue {
   }
 
   private get valid_set_id() {
-    return app_state.selected_set !== undefined;
+    return app_state_store.selected_set !== undefined;
   }
 
   private get set_names() {

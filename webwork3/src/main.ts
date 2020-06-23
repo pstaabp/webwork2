@@ -1,3 +1,5 @@
+
+
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
@@ -96,9 +98,9 @@ Vue.component("BPopover", BPopover);
 
 Vue.use(ModalPlugin);
 
-import WeBWorKApp from "@/App.vue";
-
 import store from "@/store";
+
+import WeBWorKApp from "@/App.vue";
 
 new Vue({
   router,

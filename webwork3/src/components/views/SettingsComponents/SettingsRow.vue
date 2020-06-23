@@ -16,10 +16,7 @@ import dayjs from "dayjs";
 
 import { permission_levels, emptySetting } from "@/common";
 
-import { getModule } from "vuex-module-decorators";
-
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
+import { settings_store } from "@/store";
 
 @Component({
   name: "SettingsRow",

@@ -15,12 +15,7 @@ import {
   hasReducedScoring,
 } from "@/common";
 
-import { getModule } from "vuex-module-decorators";
-
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store, users_store } from "@/store";
 
 @Component({
   name: "SetInfo",

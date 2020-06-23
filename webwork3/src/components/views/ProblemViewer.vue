@@ -4,14 +4,7 @@
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import users_module from "@/store/modules/users";
-const user_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { login_store, users_store, problem_set_store } from "@/store";
 
 import ProblemView from "@/components/common_components/ProblemView.vue";
 import ProblemViewerSidebar from "./ProblemViewerComponents/ProblemViewerSidebar.vue";
@@ -88,7 +81,7 @@ export default class ProblemViewer extends Vue {
   }
 
   get user_names(): string[] {
-    return user_store.user_names;
+    return users_store.user_names;
   }
 
   get num_problems(): number {

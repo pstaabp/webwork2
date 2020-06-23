@@ -7,12 +7,7 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 
 import LibraryTab from "./LibraryComponents/LibraryTab.vue";
 
-import { getModule } from "vuex-module-decorators";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { problem_set_store, app_state_store } from "@/store";
 
 @Component({
   name: "SetDetails",
@@ -42,7 +37,7 @@ export default class LibraryBrowser extends Vue {
   ];
 
   private get problem_set() {
-    return problem_set_store.getProblemSet(app_state.selected_set);
+    return problem_set_store.getProblemSet(app_state_store.selected_set);
   }
 
   @Watch("tab_index")

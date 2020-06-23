@@ -12,12 +12,7 @@ Vue.component("BIconCheck", BIconCheck);
 
 import dayjs from "dayjs";
 
-import { getModule } from "vuex-module-decorators";
-
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store, users_store } from "@/store";
 
 import { ProblemSet, Dictionary } from "@/store/models";
 

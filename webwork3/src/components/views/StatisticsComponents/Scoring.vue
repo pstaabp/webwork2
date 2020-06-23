@@ -7,14 +7,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 import { unparse } from "papaparse";
 
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store, users_store, login_store } from "@/store";
 
 import { User, UserSetScore, Dictionary } from "@/store/models";
 

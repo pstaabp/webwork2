@@ -2,18 +2,7 @@
 import MenuBar from "@/components/common_components/MenuBar.vue";
 import { Vue, Component } from "vue-property-decorator";
 
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
-import app_state_module from "@/store/modules/app_state";
-const app_state = getModule(app_state_module);
+import { app_state_store, problem_set_store, users_store, settings_store, login_store } from "@/store";
 
 @Component({
   name: "Manager",
@@ -24,11 +13,11 @@ const app_state = getModule(app_state_module);
 export default class Manager extends Vue {
   private async created() {
     if (
-      app_state.current_path &&
-      !/\/courses\/\w*\/manager/.test(app_state.current_path)
+      app_state_store.current_path &&
+      !/\/courses\/\w*\/manager/.test(app_state_store.current_path)
     ) {
-      console.log(app_state.current_path); // eslint-disable-line no-console
-      this.$router.replace(app_state.current_path);
+      console.log(app_state_store.current_path); // eslint-disable-line no-console
+      this.$router.replace(app_state_store.current_path);
     }
   }
 
@@ -50,7 +39,7 @@ export default class Manager extends Vue {
   }
 
   private mounted() {
-    app_state.updateAppState({
+    app_state_store.updateAppState({
       current_view: this.$route.fullPath.split("/").pop() || "",
     });
   }

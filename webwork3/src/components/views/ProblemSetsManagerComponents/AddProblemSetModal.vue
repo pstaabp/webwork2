@@ -12,13 +12,7 @@ dayjs.extend(customParseFormat);
 import { newProblemSet } from "@/common";
 
 import { ProblemSet } from "@/store/models";
-
-import { getModule } from "vuex-module-decorators";
-
-import settings_module from "@/store/modules/settings";
-const settings_store = getModule(settings_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { settings_store, problem_set_store } from "@/store";
 
 @Component({
   name: "AddProblemSetModal",

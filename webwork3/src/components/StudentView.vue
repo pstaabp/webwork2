@@ -5,14 +5,7 @@ This is the main student view  -->
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 
-import { getModule } from "vuex-module-decorators";
-
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
-import users_module from "@/store/modules/users";
-const users_store = getModule(users_module);
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store, users_store, login_store } from "@/store";
 
 import MenuBar from "@/components/common_components/MenuBar.vue";
 

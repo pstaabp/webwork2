@@ -1,17 +1,9 @@
 import { VuexModule, Module, Action, Mutation } from "vuex-module-decorators";
 import { Message } from "@/store/models";
-import store from "@/store";
-
-// this is to prevent an error occur with a hot reloading.
-// if (store.state.messages) {
-//   store.unregisterModule("messages_store");
-// }
 
 @Module({
   namespaced: true,
-  name: "messages_module",
-  store,
-  dynamic: true,
+  name: "MessagesModule",
 })
 export default class MessagesModule extends VuexModule {
   private messages_array: Message[] = [];

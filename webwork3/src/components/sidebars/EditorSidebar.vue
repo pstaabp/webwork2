@@ -5,12 +5,8 @@ This is the Sidebar to allow changes the Problem Editor. -->
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
-import { getModule } from "vuex-module-decorators";
-
 import { fetchProblemTemplate, fetchProblemSource } from "@/store/api";
-
-import problem_set_module from "@/store/modules/problem_sets";
-const problem_set_store = getModule(problem_set_module);
+import { problem_set_store } from "@/store";
 
 import { Problem } from "@/store/models";
 

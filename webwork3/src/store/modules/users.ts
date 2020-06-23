@@ -1,24 +1,14 @@
-import {
-  VuexModule,
-  Module,
-  Action,
-  Mutation,
-  getModule,
-} from "vuex-module-decorators";
+import { VuexModule, Module, Action, Mutation } from "vuex-module-decorators";
 import axios from "axios";
 
 import { User } from "@/store/models";
-import store from "@/store";
 
-import login_module from "@/store/modules/login";
-const login_store = getModule(login_module);
+import { login_store } from "@/store";
 
 @Module({
   namespaced: true,
-  name: "users_module",
-  store,
-  dynamic: true,
-  preserveState: localStorage.getItem("vuex") !== null,
+  name: "UsersModule",
+  // preserveState: localStorage.getItem("vuex") !== null,
 })
 export default class UsersModule extends VuexModule {
   // Note: a UserList (Map<string,User>) is preferrable, but locally saving a Map is not supported well in
@@ -115,5 +105,3 @@ export default class UsersModule extends VuexModule {
     this.user_array = _users;
   }
 }
-
-// export default getModule(UsersModule, store);
