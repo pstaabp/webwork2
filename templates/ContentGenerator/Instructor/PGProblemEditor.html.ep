@@ -76,9 +76,9 @@
 	% # PG problem authoring resource links
 	<div class="mb-2">
 		% # http://webwork.maa.org/wiki/Category:Problem_Techniques
-		<%= link_to maketext('Problem Techniques') => $ce->{webworkURLs}{problemTechniquesHelpURL},
+		<%= link_to maketext('POD and Sample Problems') => $ce->{webworkURLs}{problemTechniquesHelpURL},
 			target => 'techniques_window',
-			title  => maketext('Snippets of PG code illustrating specific techniques'),
+			title  => maketext('POD for macros and sample problem code and snippets'),
 			class  => 'reference-link btn btn-sm btn-info',
 			data   => { bs_toggle => 'tooltip', bs_placement => 'top' } =%>
 		% # http://webwork.maa.org/wiki/Category:MathObjects
