@@ -1,7 +1,6 @@
 % use Mojo::File qw(path);
 %
 <div class="card mx-auto" style="max-width:700px">
-
 	<div class="card-body">
 		<div class="mb-3">
 			<b><%= maketext('The following files have been selected for archiving.  Select the type '
@@ -33,7 +32,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="row mb-2">
 			<div class="col-12">
 				<button type="button" class="btn btn-sm btn-secondary" id="select-all-files-button">
@@ -58,7 +56,7 @@
 		<p><%= maketext('Create the archive of the select files?') %></p>
 		<div class="d-flex justify-content-evenly">
 			<%= submit_button maketext('Cancel'), name => 'action', class => 'btn btn-sm btn-secondary' =%>
-			<%= submit_button maketext('Create Archive'), name => 'action', class => 'btn btn-sm btn-primary' =%>
+			<%= submit_button maketext('Make Archive'), name => 'action', class => 'btn btn-sm btn-primary' =%>
 		</div>
 	</div>
 </div>
