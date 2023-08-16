@@ -1,3 +1,4 @@
+% use Mojo::File;
 % # template for the archive subpage.
 <div class="card w-75 mx-auto">
 	<div class="card-body">
@@ -35,17 +36,15 @@
 			</div>
 		</div>
 
-
-		% my @files_to_compress;
-		% chdir($dir);
-		% for my $f (@$files) {
-		% 	push(@files_to_compress, glob("$f/**")) if -d $f;
-		% 	push(@files_to_compress, $f)            if -f $f;
+		% my @files_to_archive;
+		% for my $file (@$files) {
+			% push(@files_to_archive, $file) if -f "$dir/$file";
+			%	my $path = Mojo::File->new("$dir/$file");
+			% my $all_files = $path->list_tree->map(sub { $_ =~ s/$dir\///r});
+			% push(@files_to_archive, @$all_files);
 		% }
-		% # remove any directories
-		% @files_to_compress = grep { -f $_ } @files_to_compress;
 
-		<%= select_field files => \@files_to_compress,
+		<%= select_field files => \@files_to_archive,
 					id    => 'archive-files',
 					class => 'form-select',
 					size => 20,
@@ -55,7 +54,7 @@
 		<p><%= maketext('Create the archive of the select files?') %></p>
 		<div class="d-flex justify-content-evenly">
 			<%= submit_button maketext('Cancel'), name => 'action', class => 'btn btn-sm btn-secondary' =%>
-			<%= submit_button maketext('Make Archive'), name => 'action', class => 'btn btn-sm btn-primary' =%>
+			<%= submit_button maketext('Create Archive'), name => 'action', class => 'btn btn-sm btn-primary' =%>
 		</div>
 	</div>
 </div>

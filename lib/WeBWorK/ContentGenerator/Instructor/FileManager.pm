@@ -25,6 +25,7 @@ WeBWorK::ContentGenerator::Instructor::FileManager.pm -- simple directory manage
 use File::Path;
 use File::Copy;
 use File::Spec;
+use Mojo::File;
 use String::ShellQuote;
 use Archive::Extract;
 use IO::Compress::Zip qw(zip $ZipError);
@@ -347,47 +348,56 @@ sub Delete ($c) {
 	}
 }
 
-# Make a gzipped tar or zip archive
+# Call the make archive template.
 sub MakeArchive ($c) {
 	my @files = $c->param('files');
 	if (scalar(@files) == 0) {
 		$c->addbadmessage($c->maketext('You must select at least one file for the archive'));
 		return $c->Refresh;
-	}
-
-	my $dir = "$c->{courseRoot}/$c->{pwd}";
-	if ($c->param('confirmed')) {
-		chdir($dir);
-		# remove any directories
-		my @files_to_compress = grep { -f $_ } @files;
-
-		unless ($c->param('archive_filename') && scalar(@files_to_compress) > 0) {
-			$c->addbadmessage($c->maketext('The filename cannot be empty.'))      unless $c->param('archive_filename');
-			$c->addbadmessage($c->maketext('At least one file must be selected')) unless scalar(@files_to_compress) > 0;
-			return $c->include('ContentGenerator/Instructor/FileManager/archive', dir => $dir, files => \@files);
-		}
-
-		my $archive = $c->param('archive_filename');
-		my ($error, $ok);
-		if ($c->param('archive_type') eq 'zip') {
-			$archive .= '.zip';
-			$ok    = zip \@files_to_compress => $archive;
-			$error = $ZipError unless $ok;
-		} else {
-			$archive .= '.tgz';
-			$ok    = Archive::Tar->create_archive($archive, COMPRESS_GZIP, @files_to_compress);
-			$error = $Archive::Tar::error unless $ok;
-		}
-		if ($ok) {
-			my $n = scalar(@files);
-			$c->addgoodmessage($c->maketext('Archive "[_1]" created successfully ([quant,_2,file])', $archive, $n));
-		} else {
-			$c->addbadmessage($c->maketext(q{Can't create archive "[_1]": command returned [_2]}, $archive, $error));
-		}
-		return $c->Refresh;
 	} else {
+		return $c->include(
+			'ContentGenerator/Instructor/FileManager/archive',
+			dir   => "$c->{courseRoot}/$c->{pwd}",
+			files => \@files
+		);
+	}
+}
+
+# Create either a gzipped tar or zip archive.
+sub CreateArchive ($c) {
+	my @files = $c->param('files');
+	my $dir   = "$c->{courseRoot}/$c->{pwd}";
+
+	# Save the current working directory and change to the $path directory.
+	my $cwd = Mojo::File->new;
+	chdir($dir);
+	unless ($c->param('archive_filename') && scalar(@files) > 0) {
+		$c->addbadmessage($c->maketext('The filename cannot be empty.'))      unless $c->param('archive_filename');
+		$c->addbadmessage($c->maketext('At least one file must be selected')) unless scalar(@files) > 0;
 		return $c->include('ContentGenerator/Instructor/FileManager/archive', dir => $dir, files => \@files);
 	}
+
+	my $archive = $c->param('archive_filename');
+	my ($error, $ok);
+	if ($c->param('archive_type') eq 'zip') {
+		$archive .= '.zip';
+		$ok    = zip \@files => $archive;
+		$error = $ZipError unless $ok;
+	} else {
+		$archive .= '.tgz';
+		$ok    = Archive::Tar->create_archive($archive, COMPRESS_GZIP, @files);
+		$error = $Archive::Tar::error unless $ok;
+	}
+	if ($ok) {
+		my $n = scalar(@files);
+		$c->addgoodmessage($c->maketext('Archive "[_1]" created successfully ([quant,_2,file])', $archive, $n));
+	} else {
+		$c->addbadmessage($c->maketext(q{Can't create archive "[_1]": command returned [_2]}, $archive, $error));
+	}
+
+	# Change the working directory back to the original working directory.
+	chdir($cwd);
+	return $c->Refresh;
 }
 
 # Unpack a gzipped tar archive
