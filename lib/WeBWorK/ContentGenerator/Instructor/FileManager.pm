@@ -371,10 +371,18 @@ sub MakeArchive ($c) {
 			return $c->include('ContentGenerator/Instructor/FileManager/archive', dir => $dir, files => \@files);
 		}
 
-		my $archive = $c->param('archive_filename');
+		my $archive = $c->param('archive_filename') . '.' . $c->param('archive_type');
+
+		if (-e "$dir/$archive" && !$c->param('overwrite')) {
+			$c->addbadmessage($c->maketext(
+				'The file [_1] exists. Check "Overwrite existing archive" to force this file to be replaced.',
+				$archive
+			));
+			return $c->include('ContentGenerator/Instructor/FileManager/archive', dir => $dir, files => \@files);
+		}
+
 		my ($error, $ok);
 		if ($c->param('archive_type') eq 'zip') {
-			$archive .= '.zip';
 			if (my $zip = Archive::Zip::SimpleZip->new("$dir/$archive")) {
 				for (@files) {
 					$zip->add("$dir/$_", Name => $_, storelinks => 1);
@@ -383,7 +391,6 @@ sub MakeArchive ($c) {
 			}
 			$error = $SimpleZipError unless $ok;
 		} else {
-			$archive .= '.tgz';
 			my $tar = Archive::Tar->new;
 			$tar->add_files(map {"$dir/$_"} @files);
 			# Make file names in the archive relative to the current working directory.
